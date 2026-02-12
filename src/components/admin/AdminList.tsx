@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useState, useCallback, memo } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
-  Check,
   Eye,
   EyeOff,
   Search,
@@ -11,6 +10,9 @@ import {
   Copy,
   Loader,
   RefreshCw,
+  X,
+  Instagram,
+  Clock,
 } from "lucide-react";
 
 type Notice = { type: "error" | "success"; message: string } | null;
@@ -19,332 +21,84 @@ type ConfessionItem = {
   _id: string;
   message: string;
   music?: string;
-  status?: "pending" | "approved";
+  status?: "pending" | "approved" | "rejected";
   posted?: boolean;
+  instagramPosted?: boolean;
   createdAt?: string;
 };
-
-// Memoized confession card
-const ConfessionCard = memo(function ConfessionCard({ 
-  item, 
-  onAccept,
-  onTogglePublish,
-  isUpdating,
-}: { 
-  item: ConfessionItem;
-  onAccept: (item: ConfessionItem) => Promise<void>;
-  onTogglePublish: (item: ConfessionItem) => Promise<void>;
-  isUpdating: boolean;
-}) {
-  const [copiedField, setCopiedField] = useState<"message" | "music" | null>(null);
-  const [acceptLoading, setAcceptLoading] = useState(false);
-  const [publishLoading, setPublishLoading] = useState(false);
-
-  const handleCopy = useCallback((text: string, field: "message" | "music") => {
-    navigator.clipboard.writeText(text);
-    setCopiedField(field);
-    setTimeout(() => setCopiedField(null), 2000);
-  }, []);
-
-  const handleAccept = useCallback(async () => {
-    setAcceptLoading(true);
-    try {
-      await onAccept(item);
-    } finally {
-      setAcceptLoading(false);
-    }
-  }, [item, onAccept]);
-
-  const handleTogglePublish = useCallback(async () => {
-    setPublishLoading(true);
-    try {
-      await onTogglePublish(item);
-    } finally {
-      setPublishLoading(false);
-    }
-  }, [item, onTogglePublish]);
-
-  return (
-    <div className="rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] shadow-sm transition-all hover:shadow-md">
-      {/* Header with Status Badges */}
-      <div className="flex flex-col gap-3 border-b border-[hsl(var(--border))] bg-[hsl(var(--secondary))]/30 p-5 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-        <div className="flex flex-wrap items-center gap-2">
-          <span
-            className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold uppercase ${
-              item.status === "approved"
-                ? "bg-green-500/20 text-green-700 dark:text-green-300"
-                : "bg-amber-500/20 text-amber-700 dark:text-amber-300"
-            }`}
-          >
-            {item.status === "approved" && <Check className="h-3.5 w-3.5" />}
-            {item.status ?? "pending"}
-          </span>
-
-          <span
-            className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold uppercase ${
-              item.posted
-                ? "bg-[hsl(var(--accent))]/20 text-[hsl(var(--accent))]"
-                : "bg-[hsl(var(--muted))]/50 text-[hsl(var(--muted-foreground))]"
-            }`}
-          >
-            {item.posted ? (
-              <Eye className="h-3.5 w-3.5" />
-            ) : (
-              <EyeOff className="h-3.5 w-3.5" />
-            )}
-            {item.posted ? "Published" : "Draft"}
-          </span>
-        </div>
-
-        <time className="text-xs text-[hsl(var(--muted-foreground))]">
-          {item.createdAt
-            ? new Date(item.createdAt).toLocaleDateString() +
-              " " +
-              new Date(item.createdAt).toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit",
-              })
-            : ""}
-        </time>
-      </div>
-
-      {/* Message Section */}
-      <div className="border-b border-[hsl(var(--border))] p-5">
-        <div className="space-y-3">
-          <label className="block text-xs font-semibold uppercase tracking-wider text-[hsl(var(--muted-foreground))]">
-            Message
-          </label>
-          <div className="flex items-start gap-3 rounded-lg border border-[hsl(var(--accent))]/20 bg-[hsl(var(--accent))]/5 p-4">
-            <div className="flex-1 max-h-60 overflow-y-auto">
-              <p className="text-sm leading-relaxed text-[hsl(var(--foreground))] break-words whitespace-pre-wrap">
-                {item.message}
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => handleCopy(item.message, "message")}
-              className="shrink-0 rounded-lg border border-[hsl(var(--accent))]/30 bg-[hsl(var(--accent))]/10 p-2 transition hover:bg-[hsl(var(--accent))]/20"
-              title="Copy message"
-            >
-              <Copy className={`h-4 w-4 ${copiedField === "message" ? "text-green-600 dark:text-green-400" : "text-[hsl(var(--accent))]"}`} />
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Song Section */}
-      {item.music && (
-        <div className="border-b border-[hsl(var(--border))] p-5">
-          <div className="space-y-3">
-            <label className="block text-xs font-semibold uppercase tracking-wider text-orange-600 dark:text-orange-400">
-              🎵 Companion Song
-            </label>
-            <div className="flex items-start gap-3 rounded-lg border border-orange-200/50 bg-orange-50/50 p-4 dark:border-orange-900/30 dark:bg-orange-950/10">
-              <div className="flex-1 max-h-32 overflow-y-auto">
-                <p className="text-sm leading-relaxed text-[hsl(var(--foreground))] break-words whitespace-pre-wrap">
-                  {item.music}
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => handleCopy(item.music || "", "music")}
-                className="shrink-0 rounded-lg border border-orange-300/50 bg-orange-100/50 p-2 transition hover:bg-orange-100/70 dark:border-orange-900/40 dark:bg-orange-900/20 dark:hover:bg-orange-900/30"
-                title="Copy song"
-              >
-                <Copy className={`h-4 w-4 ${copiedField === "music" ? "text-green-600 dark:text-green-400" : "text-orange-600 dark:text-orange-400"}`} />
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Actions */}
-      <div className="flex flex-wrap gap-2 p-5">
-        {item.status === "pending" && !item.posted ? (
-          <button
-            type="button"
-            onClick={handleAccept}
-            disabled={acceptLoading || publishLoading || isUpdating}
-            className="inline-flex items-center gap-2 rounded-lg bg-linear-to-r from-green-500 to-emerald-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:from-green-600 hover:to-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {acceptLoading ? (
-              <>
-                <Loader className="h-4 w-4 animate-spin" />
-                Accepting...
-              </>
-            ) : (
-              <>
-                <Check className="h-4 w-4" />
-                Accept & Publish
-              </>
-            )}
-          </button>
-        ) : item.status === "approved" ? (
-          <span className="inline-flex items-center gap-2 rounded-lg border border-green-500/30 bg-green-500/10 px-4 py-2.5 text-sm font-semibold text-green-700 dark:text-green-300">
-            <Check className="h-4 w-4" />
-            Accepted
-          </span>
-        ) : null}
-
-        {item.status === "approved" && (
-          <button
-            type="button"
-            onClick={handleTogglePublish}
-            disabled={publishLoading || acceptLoading || isUpdating}
-            className={`inline-flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-semibold transition ${
-              item.posted
-                ? "border-[hsl(var(--border))] bg-[hsl(var(--background))] text-[hsl(var(--foreground))] hover:bg-[hsl(var(--secondary))]"
-                : "border-[hsl(var(--accent))]/30 bg-[hsl(var(--accent))]/10 text-[hsl(var(--accent))] hover:bg-[hsl(var(--accent))]/20"
-            } disabled:cursor-not-allowed disabled:opacity-50`}
-          >
-            {publishLoading ? (
-              <>
-                <Loader className="h-4 w-4 animate-spin" />
-                {item.posted ? "Unpublishing..." : "Publishing..."}
-              </>
-            ) : item.posted ? (
-              <>
-                <EyeOff className="h-4 w-4" />
-                Unpublish
-              </>
-            ) : (
-              <>
-                <Eye className="h-4 w-4" />
-                Publish
-              </>
-            )}
-          </button>
-        )}
-      </div>
-    </div>
-  );
-});
 
 export default function AdminList() {
   const [items, setItems] = useState<ConfessionItem[]>([]);
   const [notice, setNotice] = useState<Notice>(null);
   const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
   const [filter, setFilter] = useState<"all" | "published" | "draft">("all");
-  const [statusFilter, setStatusFilter] = useState<"all" | "pending" | "approved">("all");
+  const [statusFilter, setStatusFilter] = useState<"all" | "pending" | "approved" | "rejected">("all");
   const [searchInput, setSearchInput] = useState("");
   const [query, setQuery] = useState("");
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
-  const [updatingIds, setUpdatingIds] = useState<Set<string>>(new Set());
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [processingId, setProcessingId] = useState<string | null>(null);
 
-  // Fetch items with cache-busting
-  const fetchItems = useCallback(async (isManualRefresh = false) => {
-    if (isManualRefresh) {
-      setRefreshing(true);
-    } else {
-      setLoading(true);
-    }
+  const fetchItems = useCallback(async () => {
+    setLoading(true);
     setNotice(null);
 
     try {
       const params = new URLSearchParams();
-      params.set("page", String(page));
-      params.set("limit", "10");
-      params.set("_t", String(Date.now())); // Cache-busting timestamp
-
-      if (filter === "published") {
-        params.set("posted", "true");
-      } else if (filter === "draft") {
-        params.set("posted", "false");
-      }
-
-      if (statusFilter !== "all") {
-        params.set("status", statusFilter);
-      }
-
-      if (query.trim()) {
-        params.set("q", query.trim());
-      }
-
-      const response = await fetch(`/api/confessions?${params.toString()}`, {
-        cache: "no-store",
-        headers: {
-          "Cache-Control": "no-cache, no-store, must-revalidate",
-          "Pragma": "no-cache",
-        },
-      });
       
+      if (filter === "published") params.set("posted", "true");
+      else if (filter === "draft") params.set("posted", "false");
+      
+      if (statusFilter !== "all") params.set("status", statusFilter);
+      if (query.trim()) params.set("q", query.trim());
+
+      const response = await fetch(`/api/confessions?${params.toString()}`);
       const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to load confessions.");
-      }
+      if (!response.ok) throw new Error(data.error || "Failed to load confessions.");
 
       setItems(data.confessions ?? []);
-      setTotalPages(data.totalPages ?? 1);
       setTotalCount(data.total ?? 0);
-      
-      if (isManualRefresh) {
-        setNotice({
-          type: "success",
-          message: "Data refreshed successfully.",
-        });
-        setTimeout(() => setNotice(null), 3000);
-      }
     } catch (error) {
       setNotice({
         type: "error",
-        message: error instanceof Error ? error.message : "Unknown error.",
+        message: error instanceof Error ? error.message : "Failed to load data.",
       });
       setItems([]);
     } finally {
       setLoading(false);
-      setRefreshing(false);
     }
-  }, [filter, statusFilter, page, query]);
+  }, [filter, statusFilter, query]);
 
-  // Auto-fetch when dependencies change
   useEffect(() => {
-    fetchItems(false);
+    fetchItems();
   }, [fetchItems]);
 
-  // Manual refresh handler
-  const handleManualRefresh = useCallback(() => {
-    fetchItems(true);
-  }, [fetchItems]);
+  const handleCopy = useCallback((text: string, id: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
+  }, []);
 
-  const acceptConfession = useCallback(async (item: ConfessionItem) => {
+  const acceptAndPublish = useCallback(async (item: ConfessionItem) => {
     setNotice(null);
-    setUpdatingIds((prev) => new Set(prev).add(item._id));
+    setProcessingId(item._id);
 
     try {
-      const approveResponse = await fetch(`/api/confessions/${item._id}`, {
+      await fetch(`/api/confessions/${item._id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: "approved" }),
-        cache: "no-store",
       });
 
-      if (!approveResponse.ok) {
-        const approveData = await approveResponse.json();
-        throw new Error(approveData.error || "Failed to approve confession.");
-      }
-
-      const publishResponse = await fetch(`/api/confessions/${item._id}`, {
+      await fetch(`/api/confessions/${item._id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ posted: true }),
-        cache: "no-store",
       });
 
-      if (!publishResponse.ok) {
-        const publishData = await publishResponse.json();
-        throw new Error(publishData.error || "Failed to publish confession.");
-      }
-
-      await fetchItems(false);
-
-      setNotice({
-        type: "success",
-        message: "Confession accepted and published.",
-      });
+      await fetchItems();
+      setNotice({ type: "success", message: "Published successfully." });
       setTimeout(() => setNotice(null), 3000);
     } catch (error) {
       setNotice({
@@ -352,36 +106,49 @@ export default function AdminList() {
         message: error instanceof Error ? error.message : "Operation failed.",
       });
     } finally {
-      setUpdatingIds((prev) => {
-        const newSet = new Set(prev);
-        newSet.delete(item._id);
-        return newSet;
-      });
+      setProcessingId(null);
     }
   }, [fetchItems]);
 
-  const togglePublished = useCallback(async (item: ConfessionItem) => {
+  const togglePublish = useCallback(async (item: ConfessionItem) => {
     setNotice(null);
-    setUpdatingIds((prev) => new Set(prev).add(item._id));
+    setProcessingId(item._id);
 
     try {
-      const response = await fetch(`/api/confessions/${item._id}`, {
+      await fetch(`/api/confessions/${item._id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ posted: !item.posted }),
-        cache: "no-store",
       });
 
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || "Failed to update confession.");
-      }
-
-      await fetchItems(false);
-
+      await fetchItems();
+      setNotice({ type: "success", message: item.posted ? "Unpublished." : "Published." });
+      setTimeout(() => setNotice(null), 3000);
+    } catch (error) {
       setNotice({
-        type: "success",
-        message: `Confession ${!item.posted ? "published" : "unpublished"}.`,
+        type: "error",
+        message: error instanceof Error ? error.message : "Operation failed.",
+      });
+    } finally {
+      setProcessingId(null);
+    }
+  }, [fetchItems]);
+
+  const toggleInstagram = useCallback(async (item: ConfessionItem) => {
+    setNotice(null);
+    setProcessingId(item._id);
+
+    try {
+      await fetch(`/api/confessions/${item._id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ instagramPosted: !item.instagramPosted }),
+      });
+
+      await fetchItems();
+      setNotice({ 
+        type: "success", 
+        message: item.instagramPosted ? "Removed from Instagram." : "Marked as posted on Instagram." 
       });
       setTimeout(() => setNotice(null), 3000);
     } catch (error) {
@@ -390,207 +157,354 @@ export default function AdminList() {
         message: error instanceof Error ? error.message : "Operation failed.",
       });
     } finally {
-      setUpdatingIds((prev) => {
-        const newSet = new Set(prev);
-        newSet.delete(item._id);
-        return newSet;
-      });
+      setProcessingId(null);
     }
   }, [fetchItems]);
 
-  const handleSearchSubmit = useCallback((event: React.FormEvent<HTMLFormElement>) => {
+  const rejectConfession = useCallback(async (item: ConfessionItem) => {
+    setNotice(null);
+    setProcessingId(item._id);
+
+    try {
+      await fetch(`/api/confessions/${item._id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "rejected" }),
+      });
+
+      await fetchItems();
+      setNotice({ type: "success", message: "Confession rejected." });
+      setTimeout(() => setNotice(null), 3000);
+    } catch (error) {
+      setNotice({
+        type: "error",
+        message: error instanceof Error ? error.message : "Operation failed.",
+      });
+    } finally {
+      setProcessingId(null);
+    }
+  }, [fetchItems]);
+
+  const handleSearch = useCallback((event: React.FormEvent) => {
     event.preventDefault();
-    setPage(1);
     setQuery(searchInput.trim());
   }, [searchInput]);
 
   return (
-    <div className="space-y-6">
-      {/* Header Bar with Refresh */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-3">
-          <h2 className="text-lg font-semibold text-[hsl(var(--foreground))]">
-            Confessions
-          </h2>
-          <span className="rounded-full bg-[hsl(var(--secondary))] px-2.5 py-0.5 text-xs font-semibold text-[hsl(var(--foreground))]">
-            {totalCount} total
-          </span>
+    <div className="space-y-5">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <h2 className="text-base font-medium text-[hsl(var(--foreground))]">Confessions</h2>
+          <span className="text-xs text-[hsl(var(--muted-foreground))]">({totalCount})</span>
         </div>
         <button
           type="button"
-          onClick={handleManualRefresh}
-          disabled={refreshing || loading}
-          className="inline-flex items-center gap-2 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--background))] px-4 py-2 text-sm font-semibold text-[hsl(var(--foreground))] transition hover:bg-[hsl(var(--secondary))] disabled:cursor-not-allowed disabled:opacity-50"
+          onClick={fetchItems}
+          disabled={loading}
+          className="flex items-center gap-1.5 rounded-md border border-[hsl(var(--border))] px-3 py-1.5 text-xs font-medium text-[hsl(var(--foreground))] transition hover:bg-[hsl(var(--secondary))] disabled:opacity-50"
         >
-          <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
-          {refreshing ? "Refreshing..." : "Refresh"}
+          <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
+          Refresh
         </button>
       </div>
 
-      {/* Search Bar */}
-      <form className="flex flex-col gap-2 sm:flex-row sm:gap-3" onSubmit={handleSearchSubmit}>
+      {/* Search */}
+      <form onSubmit={handleSearch} className="flex gap-2">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[hsl(var(--muted-foreground))]" />
+          <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[hsl(var(--muted-foreground))]" />
           <input
             value={searchInput}
-            onChange={(event) => setSearchInput(event.target.value)}
-            placeholder="Search confessions..."
-            className="w-full rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--background))] pl-10 pr-4 py-2.5 text-sm outline-none transition focus:border-[hsl(var(--accent))] focus:ring-2 focus:ring-[hsl(var(--accent))]/20"
+            onChange={(e) => setSearchInput(e.target.value)}
+            placeholder="Search..."
+            className="w-full rounded-md border border-[hsl(var(--border))] bg-[hsl(var(--background))] pl-9 pr-3 py-2 text-sm outline-none transition focus:border-[hsl(var(--accent))] focus:ring-1 focus:ring-[hsl(var(--accent))]"
           />
         </div>
         <button
           type="submit"
-          className="rounded-lg bg-[hsl(var(--accent))] px-6 py-2.5 text-sm font-semibold text-[hsl(var(--accent-foreground))] transition hover:opacity-90"
+          className="rounded-md bg-[hsl(var(--accent))] px-4 py-2 text-sm font-medium text-[hsl(var(--accent-foreground))] transition hover:opacity-90"
         >
           Search
         </button>
       </form>
 
-      {/* Filter Tabs */}
-      <div className="space-y-4">
-        <div>
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-[hsl(var(--muted-foreground))]">
-            Publication Status
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {[
-              { id: "all", label: "All" },
-              { id: "draft", label: "Draft" },
-              { id: "published", label: "Published" },
-            ].map((option) => (
-              <button
-                key={option.id}
-                type="button"
-                onClick={() => {
-                  setPage(1);
-                  setFilter(option.id as "all" | "published" | "draft");
-                }}
-                className={`rounded-lg border px-3 py-1.5 text-xs font-semibold transition sm:px-4 sm:py-2 ${
-                  filter === option.id
-                    ? "border-[hsl(var(--accent))] bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]"
-                    : "border-[hsl(var(--border))] text-[hsl(var(--foreground))] hover:border-[hsl(var(--accent))]"
-                }`}
-              >
-                {option.label}
-              </button>
-            ))}
-          </div>
+      {/* Filters */}
+      <div className="space-y-3">
+        <div className="flex flex-wrap gap-2">
+          {["all", "draft", "published"].map((f) => (
+            <button
+              key={f}
+              type="button"
+              onClick={() => setFilter(f as typeof filter)}
+              className={`rounded-md px-3 py-1.5 text-xs font-medium transition ${
+                filter === f
+                  ? "bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]"
+                  : "border border-[hsl(var(--border))] text-[hsl(var(--foreground))] hover:bg-[hsl(var(--secondary))]"
+              }`}
+            >
+              {f.charAt(0).toUpperCase() + f.slice(1)}
+            </button>
+          ))}
         </div>
 
-        <div>
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-[hsl(var(--muted-foreground))]">
-            Approval Status
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {[
-              { id: "all", label: "All", color: "" },
-              { id: "pending", label: "Pending", color: "amber" },
-              { id: "approved", label: "Approved", color: "green" },
-            ].map((option) => {
-              const isSelected = statusFilter === option.id;
-              const colorClass =
-                option.color === "green"
-                  ? isSelected
-                    ? "bg-green-500/20 border-green-500/50 text-green-700 dark:text-green-300"
-                    : "border-[hsl(var(--border))] text-[hsl(var(--foreground))]"
-                  : option.color === "amber"
-                    ? isSelected
-                      ? "bg-amber-500/20 border-amber-500/50 text-amber-700 dark:text-amber-300"
-                      : "border-[hsl(var(--border))] text-[hsl(var(--foreground))]"
-                    : isSelected
-                      ? "border-[hsl(var(--accent))] bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]"
-                      : "border-[hsl(var(--border))] text-[hsl(var(--foreground))]";
-
-              return (
-                <button
-                  key={option.id}
-                  type="button"
-                  onClick={() => {
-                    setPage(1);
-                    setStatusFilter(option.id as "all" | "pending" | "approved");
-                  }}
-                  className={`rounded-lg border px-3 py-1.5 text-xs font-semibold transition sm:px-4 sm:py-2 ${colorClass}`}
-                >
-                  {option.label}
-                </button>
-              );
-            })}
-          </div>
+        <div className="flex flex-wrap gap-2">
+          {["all", "pending", "approved", "rejected"].map((s) => (
+            <button
+              key={s}
+              type="button"
+              onClick={() => setStatusFilter(s as typeof statusFilter)}
+              className={`rounded-md px-3 py-1.5 text-xs font-medium transition ${
+                statusFilter === s
+                  ? s === "pending"
+                    ? "bg-amber-500 text-white dark:bg-amber-600"
+                    : s === "approved"
+                    ? "bg-green-600 text-white dark:bg-green-700"
+                    : s === "rejected"
+                    ? "bg-red-600 text-white dark:bg-red-700"
+                    : "bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]"
+                  : "border border-[hsl(var(--border))] text-[hsl(var(--foreground))] hover:bg-[hsl(var(--secondary))]"
+              }`}
+            >
+              {s.charAt(0).toUpperCase() + s.slice(1)}
+            </button>
+          ))}
         </div>
       </div>
 
       {/* Notices */}
       {notice && (
         <div
-          className={`flex items-center gap-3 rounded-lg border p-4 text-sm ${
+          className={`flex items-center gap-2 rounded-md border p-3 text-sm ${
             notice.type === "error"
-              ? "border-red-200/50 bg-red-50 text-red-700 dark:border-red-900/30 dark:bg-red-950/20 dark:text-red-300"
-              : "border-green-200/50 bg-green-50 text-green-700 dark:border-green-900/30 dark:bg-green-950/20 dark:text-green-300"
+              ? "border-red-200 bg-red-50 text-red-700 dark:border-red-900/30 dark:bg-red-950/20 dark:text-red-300"
+              : "border-green-200 bg-green-50 text-green-700 dark:border-green-900/30 dark:bg-green-950/20 dark:text-green-300"
           }`}
         >
           {notice.type === "error" ? (
-            <AlertCircle className="h-5 w-5 shrink-0" />
+            <AlertCircle className="h-4 w-4 shrink-0" />
           ) : (
-            <CheckCircle2 className="h-5 w-5 shrink-0" />
+            <CheckCircle2 className="h-4 w-4 shrink-0" />
           )}
           <p>{notice.message}</p>
         </div>
       )}
 
-      {/* Loading State */}
+      {/* Loading */}
       {loading && (
-        <div className="flex items-center justify-center gap-3 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] py-12">
-          <Loader className="h-5 w-5 animate-spin text-[hsl(var(--accent))]" />
+        <div className="flex items-center justify-center gap-2 rounded-md border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] py-8">
+          <Loader className="h-4 w-4 animate-spin text-[hsl(var(--accent))]" />
           <span className="text-sm text-[hsl(var(--muted-foreground))]">Loading...</span>
         </div>
       )}
 
       {/* Empty State */}
       {!loading && items.length === 0 && (
-        <div className="rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] py-12 text-center">
-          <p className="text-sm text-[hsl(var(--muted-foreground))]">
-            No confessions found.
-          </p>
+        <div className="rounded-md border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] py-8 text-center">
+          <p className="text-sm text-[hsl(var(--muted-foreground))]">No confessions found.</p>
         </div>
       )}
 
-      {/* Confession Cards */}
+      {/* Confession List */}
       {!loading && items.length > 0 && (
-        <div className="space-y-4">
+        <div className="space-y-3">
           {items.map((item) => (
-            <ConfessionCard
+            <div
               key={item._id}
-              item={item}
-              onAccept={acceptConfession}
-              onTogglePublish={togglePublished}
-              isUpdating={updatingIds.has(item._id)}
-            />
-          ))}
-        </div>
-      )}
+              className="rounded-md border border-[hsl(var(--border))] bg-[hsl(var(--card))] overflow-hidden"
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between border-b border-[hsl(var(--border))] bg-[hsl(var(--secondary))]/50 px-4 py-2.5">
+                <div className="flex items-center gap-2 flex-wrap">
+                  {/* Status Badge */}
+                  <span
+                    className={`flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold shadow-sm ${
+                      item.status === "approved"
+                        ? "bg-green-600 text-white dark:bg-green-700"
+                        : item.status === "rejected"
+                        ? "bg-red-600 text-white dark:bg-red-700"
+                        : "bg-amber-500 text-white dark:bg-amber-600"
+                    }`}
+                  >
+                    {item.status === "approved" && <CheckCircle2 className="h-3.5 w-3.5" />}
+                    {item.status === "rejected" && <X className="h-3.5 w-3.5" />}
+                    {item.status === "pending" && <Clock className="h-3.5 w-3.5" />}
+                    {item.status ?? "pending"}
+                  </span>
 
-      {/* Pagination */}
-      {!loading && totalPages > 1 && (
-        <div className="flex items-center justify-between gap-3 border-t border-[hsl(var(--border))] pt-6">
-          <button
-            type="button"
-            disabled={page <= 1}
-            onClick={() => setPage((prev) => Math.max(1, prev - 1))}
-            className="rounded-lg border border-[hsl(var(--border))] px-4 py-2.5 text-sm font-semibold text-[hsl(var(--foreground))] transition hover:bg-[hsl(var(--secondary))] disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            ← Previous
-          </button>
-          <span className="text-xs text-[hsl(var(--muted-foreground))]">
-            Page {page} of {totalPages}
-          </span>
-          <button
-            type="button"
-            disabled={page >= totalPages}
-            onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))}
-            className="rounded-lg border border-[hsl(var(--border))] px-4 py-2.5 text-sm font-semibold text-[hsl(var(--foreground))] transition hover:bg-[hsl(var(--secondary))] disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            Next →
-          </button>
+                  {/* Published Badge */}
+                  <span
+                    className={`flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold shadow-sm ${
+                      item.posted
+                        ? "bg-blue-600 text-white dark:bg-blue-700"
+                        : "bg-gray-400 text-white dark:bg-gray-600"
+                    }`}
+                  >
+                    {item.posted ? <Eye className="h-3.5 w-3.5" /> : <EyeOff className="h-3.5 w-3.5" />}
+                    {item.posted ? "published" : "draft"}
+                  </span>
+
+                  {/* Instagram Badge */}
+                  {item.instagramPosted && (
+                    <span className="flex items-center gap-1 rounded-full bg-gradient-to-br from-purple-600 via-pink-600 to-orange-500 px-2.5 py-1 text-xs font-semibold text-white shadow-sm">
+                      <Instagram className="h-3.5 w-3.5" />
+                      Instagram
+                    </span>
+                  )}
+                </div>
+                <time className="text-xs font-medium text-[hsl(var(--muted-foreground))]">
+                  {item.createdAt
+                    ? new Date(item.createdAt).toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })
+                    : ""}
+                </time>
+              </div>
+
+              {/* Message */}
+              <div className="space-y-2 p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1 overflow-y-auto" style={{ maxHeight: "240px" }}>
+                    <p className="whitespace-pre-wrap text-sm leading-relaxed text-[hsl(var(--foreground))]">
+                      {item.message}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleCopy(item.message, `msg-${item._id}`)}
+                    className="shrink-0 rounded border border-[hsl(var(--border))] p-1.5 transition hover:bg-[hsl(var(--secondary))]"
+                    title="Copy"
+                  >
+                    <Copy
+                      className={`h-3.5 w-3.5 ${
+                        copiedId === `msg-${item._id}`
+                          ? "text-green-600 dark:text-green-400"
+                          : "text-[hsl(var(--muted-foreground))]"
+                      }`}
+                    />
+                  </button>
+                </div>
+
+                {/* Music */}
+                {item.music && (
+                  <div className="rounded-md border border-orange-200/50 bg-orange-50/30 p-3 dark:border-orange-900/30 dark:bg-orange-950/10">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1 overflow-y-auto" style={{ maxHeight: "120px" }}>
+                        <p className="whitespace-pre-wrap text-sm text-orange-700 dark:text-orange-300">
+                          🎵 {item.music}
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleCopy(item.music || "", `music-${item._id}`)}
+                        className="shrink-0 rounded border border-orange-300/50 bg-orange-100/50 p-1.5 transition hover:bg-orange-100 dark:border-orange-900/40 dark:bg-orange-900/20 dark:hover:bg-orange-900/30"
+                        title="Copy"
+                      >
+                        <Copy
+                          className={`h-3.5 w-3.5 ${
+                            copiedId === `music-${item._id}`
+                              ? "text-green-600 dark:text-green-400"
+                              : "text-orange-600 dark:text-orange-400"
+                          }`}
+                        />
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Actions */}
+              <div className="flex flex-wrap gap-2 border-t border-[hsl(var(--border))] bg-[hsl(var(--secondary))]/30 px-4 py-3">
+                {/* Pending Actions */}
+                {item.status === "pending" && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => acceptAndPublish(item)}
+                      disabled={processingId === item._id}
+                      className="flex items-center gap-1.5 rounded-md bg-green-600 px-3 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-green-700 disabled:opacity-50"
+                    >
+                      {processingId === item._id ? (
+                        <Loader className="h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        <CheckCircle2 className="h-3.5 w-3.5" />
+                      )}
+                      Accept & Publish
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => rejectConfession(item)}
+                      disabled={processingId === item._id}
+                      className="flex items-center gap-1.5 rounded-md bg-red-600 px-3 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-red-700 disabled:opacity-50"
+                    >
+                      {processingId === item._id ? (
+                        <Loader className="h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        <X className="h-3.5 w-3.5" />
+                      )}
+                      Reject
+                    </button>
+                  </>
+                )}
+
+                {/* Approved Actions */}
+                {item.status === "approved" && (
+                  <>
+                    <span className="flex items-center gap-1.5 rounded-md bg-green-600 px-3 py-2 text-xs font-semibold text-white shadow-sm">
+                      <CheckCircle2 className="h-3.5 w-3.5" />
+                      Approved
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => togglePublish(item)}
+                      disabled={processingId === item._id}
+                      className={`flex items-center gap-1.5 rounded-md px-3 py-2 text-xs font-semibold shadow-sm transition disabled:opacity-50 ${
+                        item.posted
+                          ? "bg-gray-600 text-white hover:bg-gray-700"
+                          : "bg-blue-600 text-white hover:bg-blue-700"
+                      }`}
+                    >
+                      {processingId === item._id ? (
+                        <Loader className="h-3.5 w-3.5 animate-spin" />
+                      ) : item.posted ? (
+                        <EyeOff className="h-3.5 w-3.5" />
+                      ) : (
+                        <Eye className="h-3.5 w-3.5" />
+                      )}
+                      {item.posted ? "Unpublish" : "Publish"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => toggleInstagram(item)}
+                      disabled={processingId === item._id}
+                      className={`flex items-center gap-1.5 rounded-md px-3 py-2 text-xs font-semibold shadow-sm transition disabled:opacity-50 ${
+                        item.instagramPosted
+                          ? "bg-gradient-to-br from-purple-600 via-pink-600 to-orange-500 text-white hover:opacity-90"
+                          : "border-2 border-purple-500 bg-white text-purple-700 hover:bg-purple-50 dark:bg-gray-800 dark:text-purple-300 dark:hover:bg-gray-700"
+                      }`}
+                    >
+                      {processingId === item._id ? (
+                        <Loader className="h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        <Instagram className="h-3.5 w-3.5" />
+                      )}
+                      {item.instagramPosted ? "Posted on IG" : "Mark as IG Posted"}
+                    </button>
+                  </>
+                )}
+
+                {/* Rejected Status */}
+                {item.status === "rejected" && (
+                  <span className="flex items-center gap-1.5 rounded-md bg-red-600 px-3 py-2 text-xs font-semibold text-white shadow-sm">
+                    <X className="h-3.5 w-3.5" />
+                    Rejected
+                  </span>
+                )}
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>

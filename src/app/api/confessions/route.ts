@@ -109,6 +109,7 @@ export async function GET(request: Request) {
       music: item.music,
       status: item.status,
       posted: item.posted,
+      instagramPosted: item.instagramPosted,
       createdAt: item.createdAt?.toISOString(),
     }));
 

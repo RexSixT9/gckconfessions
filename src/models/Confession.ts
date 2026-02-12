@@ -7,10 +7,11 @@ const ConfessionSchema = new Schema(
     music: { type: String, default: "" },
     status: {
       type: String,
-      enum: ["pending", "approved"],
+      enum: ["pending", "approved", "rejected"],
       default: "pending",
     },
     posted: { type: Boolean, default: false },
+    instagramPosted: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

@@ -87,14 +87,31 @@ export async function POST(request: Request) {
       email?: string;
     }>();
 
-    if (!admin || typeof admin.passwordHash !== "string") {
-      return NextResponse.json({ error: "Invalid credentials." }, { status: 401 });
-    }
+    // Always perform password comparison to prevent timing attacks
+    const passwordHash = admin?.passwordHash;
+    const dummyHash = "$2a$10$invalidhashtopreventtimingattacksdummy";
+    const isValid = await bcrypt.compare(
+      password,
+      typeof passwordHash === "string" ? passwordHash : dummyHash
+    );
 
-    const isValid = await bcrypt.compare(password, admin.passwordHash);
-
-    if (!isValid) {
-      return NextResponse.json({ error: "Invalid credentials." }, { status: 401 });
+    if (!admin || typeof passwordHash !== "string" || !isValid) {
+      // Log failed attempt
+      try {
+        await AuditLog.create({
+          action: "admin_login_failed",
+          adminEmail: email,
+          ip,
+          metadata: { reason: "invalid_credentials" },
+        });
+      } catch (logError) {
+        console.error("Failed to log failed login attempt:", logError);
+      }
+      
+      return NextResponse.json(
+        { error: "Invalid email or password." },
+        { status: 401 }
+      );
     }
 
     const token = await signAdminToken({

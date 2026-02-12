@@ -19,3 +19,16 @@ export const TOKEN_EXPIRATION = "8h";
 // Rate limiting
 export const MAX_LOGIN_ATTEMPTS = 5;
 export const LOGIN_RATE_WINDOW = 15 * 60 * 1000; // 15 minutes
+
+// Security constraints
+export const MAX_EMAIL_LENGTH = 254; // RFC 5321
+export const MAX_PASSWORD_LENGTH = 128;
+export const MAX_MESSAGE_LENGTH = 1000;
+export const MAX_MUSIC_LENGTH = 120;
+export const MIN_PASSWORD_LENGTH = 8;
+
+// Bcrypt configuration
+export const BCRYPT_ROUNDS = 10;
+
+// Session configuration
+export const MAX_SESSIONS_PER_USER = 5;

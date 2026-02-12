@@ -23,6 +23,7 @@ export default function AdminLoginPage() {
       const response = await fetch("/api/admin/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
         body: JSON.stringify({ email, password }),
       });
 
@@ -32,12 +33,20 @@ export default function AdminLoginPage() {
         throw new Error(data.error || "Login failed.");
       }
 
+      // Clear sensitive data from memory
+      setPassword("");
+      
       setNotice({ type: "success", message: "Login successful. Redirecting..." });
-      setTimeout(() => router.push("/admin"), 1000);
+      setTimeout(() => {
+        router.push("/admin");
+      }, 1000);
     } catch (error) {
+      // Clear password on error for security
+      setPassword("");
+      
       setNotice({
         type: "error",
-        message: error instanceof Error ? error.message : "Unknown error.",
+        message: error instanceof Error ? error.message : "Login failed. Please try again.",
       });
     } finally {
       setLoading(false);
@@ -100,6 +109,11 @@ export default function AdminLoginPage() {
                     value={email}
                     onChange={(event) => setEmail(event.target.value)}
                     placeholder="admin@college.com"
+                    autoComplete="email"
+                    autoCapitalize="off"
+                    autoCorrect="off"
+                    spellCheck="false"
+                    maxLength={254}
                     required
                     disabled={loading}
                     className="w-full rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--background))] pl-11 pr-4 py-3 text-sm outline-none transition focus:border-[hsl(var(--accent))] focus:ring-2 focus:ring-[hsl(var(--accent))]/20 disabled:cursor-not-allowed disabled:opacity-50"
@@ -124,6 +138,11 @@ export default function AdminLoginPage() {
                     value={password}
                     onChange={(event) => setPassword(event.target.value)}
                     placeholder="Enter your password"
+                    autoComplete="current-password"
+                    autoCapitalize="off"
+                    autoCorrect="off"
+                    spellCheck="false"
+                    maxLength={128}
                     required
                     disabled={loading}
                     className="w-full rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--background))] pl-11 pr-12 py-3 text-sm outline-none transition focus:border-[hsl(var(--accent))] focus:ring-2 focus:ring-[hsl(var(--accent))]/20 disabled:cursor-not-allowed disabled:opacity-50"
