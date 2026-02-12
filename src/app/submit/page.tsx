@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
-import { Heart, HeartHandshake, AlertCircle, CheckCircle2 } from "lucide-react";
+import { Heart, HeartHandshake, AlertCircle, CheckCircle2, ArrowLeft } from "lucide-react";
 import dynamic from "next/dynamic";
 
 const Footer = dynamic(() => import("@/components/Footer"), {
@@ -337,8 +337,9 @@ export default function SubmitPage() {
               <div className="text-center">
                 <Link
                   href="/"
-                  className="text-sm text-[hsl(var(--muted-foreground))] transition hover:text-[hsl(var(--accent))]"
+                  className="inline-flex items-center justify-center gap-2 rounded-full border border-[hsl(var(--border))]/70 bg-[hsl(var(--card))]/80 px-4 py-2 text-sm font-semibold text-[hsl(var(--foreground))] shadow-sm transition hover:border-[hsl(var(--accent))]/40 hover:text-[hsl(var(--accent))] active:scale-95"
                 >
+                  <ArrowLeft className="h-4 w-4" />
                   Back to home
                 </Link>
               </div>

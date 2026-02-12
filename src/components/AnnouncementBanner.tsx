@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect, useLayoutEffect } from "react";
+import { useState, useCallback, useEffect, useLayoutEffect, useRef } from "react";
 import { X } from "lucide-react";
 
 const BANNER_STORAGE_KEY = "gck_announcement_dismissed";
@@ -34,6 +34,7 @@ function getBannerVisibility(): boolean {
 
 export default function AnnouncementBanner() {
   const [isVisible, setIsVisible] = useState<boolean | null>(null);
+  const bannerRef = useRef<HTMLDivElement | null>(null);
 
   useLayoutEffect(() => {
     const handleInit = () => {
@@ -46,10 +47,18 @@ export default function AnnouncementBanner() {
     if (typeof document === "undefined") return;
     if (isVisible === null) return;
 
-    document.documentElement.style.setProperty(
-      "--announcement-height",
-      isVisible ? "2.5rem" : "0px"
-    );
+    const setHeight = () => {
+      const height = isVisible ? `${bannerRef.current?.offsetHeight ?? 0}px` : "0px";
+      document.documentElement.style.setProperty("--announcement-height", height);
+    };
+
+    setHeight();
+
+    if (typeof ResizeObserver !== "undefined" && bannerRef.current) {
+      const observer = new ResizeObserver(() => setHeight());
+      observer.observe(bannerRef.current);
+      return () => observer.disconnect();
+    }
 
     return () => {
       document.documentElement.style.setProperty("--announcement-height", "0px");
@@ -70,7 +79,10 @@ export default function AnnouncementBanner() {
   if (!isVisible) return null;
 
   return (
-    <div className="w-full border-b border-[hsl(var(--border))]/70 bg-[hsl(var(--card))]/80 text-[hsl(var(--foreground))] animate-slide-down">
+    <div
+      ref={bannerRef}
+      className="w-full border-b border-[hsl(var(--border))]/70 bg-[hsl(var(--card))]/80 text-[hsl(var(--foreground))] animate-slide-down"
+    >
       <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-4 py-2 sm:px-6">
         <p className="flex-1 text-center text-xs font-medium sm:text-sm">
           New: posts are reviewed before publishing.{" "}
