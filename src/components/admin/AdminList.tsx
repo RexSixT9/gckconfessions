@@ -93,38 +93,38 @@ const ConfessionCard = memo(function ConfessionCard({
     </div>
 
     {/* Message Content */}
-    <div className="mb-3 space-y-2 sm:mb-4 sm:space-y-3">
+    <div className="mb-4 rounded-lg border border-[hsl(var(--accent))]/15 bg-linear-to-br from-[hsl(var(--accent))]/3 to-transparent p-4 sm:p-5">
       <div className="flex items-start justify-between gap-3">
-        <p className="flex-1 text-sm leading-relaxed text-[hsl(var(--foreground))] sm:text-base">
+        <p className="flex-1 text-sm leading-relaxed text-[hsl(var(--foreground))] sm:text-base font-medium">
           {item.message}
         </p>
         <button
           type="button"
           onClick={() => handleCopy(item.message, "message")}
-          className="mt-0.5 shrink-0 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-2 transition hover:bg-[hsl(var(--secondary))]"
+          className="mt-0 shrink-0 rounded-lg border border-[hsl(var(--accent))]/30 bg-[hsl(var(--accent))]/10 p-2.5 transition hover:bg-[hsl(var(--accent))]/20"
           title="Copy message"
         >
-          <Copy className={`h-4 w-4 ${copiedField === "message" ? "text-green-600 dark:text-green-400" : "text-[hsl(var(--muted-foreground))]"}`} />
+          <Copy className={`h-4 w-4 ${copiedField === "message" ? "text-green-600 dark:text-green-400" : "text-[hsl(var(--accent))]"}`} />
         </button>
       </div>
       {item.music && (
-        <div className="rounded-lg bg-[hsl(var(--secondary))] p-2 sm:p-3">
-          <div className="flex items-start justify-between gap-2">
-            <div className="flex-1">
-              <p className="text-xs font-semibold text-[hsl(var(--muted-foreground))] uppercase tracking-wide">
-                Companion Song
+        <div className="rounded-lg border border-orange-200/50 bg-linear-to-br from-orange-50 to-transparent p-4 dark:border-orange-900/30 dark:from-orange-950/20">
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-semibold text-orange-600 dark:text-orange-400 uppercase tracking-wider">
+                🎵 Companion Song
               </p>
-              <p className="mt-1 text-xs text-[hsl(var(--foreground))] sm:text-sm">
+              <p className="mt-2 text-sm text-[hsl(var(--foreground))] leading-relaxed">
                 {item.music}
               </p>
             </div>
             <button
               type="button"
               onClick={() => handleCopy(item.music || "", "music")}
-              className="mt-0.5 shrink-0 rounded-lg border border-[hsl(var(--border))]/50 bg-[hsl(var(--background))]/50 p-1.5 transition hover:bg-[hsl(var(--background))]"
+              className="mt-1 shrink-0 rounded-lg border border-orange-300/50 bg-orange-100/50 p-2 transition hover:bg-orange-100/70 dark:border-orange-900/40 dark:bg-orange-900/20 dark:hover:bg-orange-900/30"
               title="Copy song"
             >
-              <Copy className={`h-3 w-3 ${copiedField === "music" ? "text-green-600 dark:text-green-400" : "text-[hsl(var(--muted-foreground))]"}`} />
+              <Copy className={`h-3 w-3 ${copiedField === "music" ? "text-green-600 dark:text-green-400" : "text-orange-600 dark:text-orange-400"}`} />
             </button>
           </div>
         </div>
@@ -185,7 +185,7 @@ export default function AdminList() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"all" | "published" | "draft">("all");
   const [statusFilter, setStatusFilter] = useState<
-    "all" | "pending" | "approved" | "rejected"
+    "all" | "pending" | "approved"
   >("all");
   const [searchInput, setSearchInput] = useState("");
   const [query, setQuery] = useState("");
@@ -373,7 +373,6 @@ export default function AdminList() {
             { id: "all", label: "All Statuses", color: "" },
             { id: "pending", label: "Pending", color: "amber" },
             { id: "approved", label: "Approved", color: "green" },
-            { id: "rejected", label: "Rejected", color: "red" },
           ].map((option) => {
             const isSelected = statusFilter === option.id;
             const colorClass =
@@ -400,7 +399,7 @@ export default function AdminList() {
                 onClick={() => {
                   setPage(1);
                   setStatusFilter(
-                    option.id as "all" | "pending" | "approved" | "rejected"
+                    option.id as "all" | "pending" | "approved"
                   );
                 }}
                 className={`rounded-lg border px-3 py-1.5 text-xs font-semibold transition sm:px-4 sm:py-2 sm:text-sm ${colorClass}`}
