@@ -37,7 +37,9 @@ export default function SubmitPage() {
   const [captchaReady, setCaptchaReady] = useState(false);
   const [captchaWidgetId, setCaptchaWidgetId] = useState<string | number | null>(null);
   const [captchaLoadError, setCaptchaLoadError] = useState(false);
+  const [shouldLoadCaptcha, setShouldLoadCaptcha] = useState(false);
   const captchaRef = useRef<HTMLDivElement | null>(null);
+  const captchaObserverRef = useRef<IntersectionObserver | null>(null);
   const hCaptchaSiteKey = process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY ?? "";
   const [captchaEnabled, setCaptchaEnabled] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -49,6 +51,30 @@ export default function SubmitPage() {
   useEffect(() => {
     setCaptchaEnabled(Boolean(hCaptchaSiteKey));
   }, [hCaptchaSiteKey]);
+
+  // Lazy-load hCaptcha when user reaches the form
+  useEffect(() => {
+    if (!captchaEnabled || !mounted || shouldLoadCaptcha) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          setShouldLoadCaptcha(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (captchaRef.current) {
+      observer.observe(captchaRef.current);
+      captchaObserverRef.current = observer;
+    }
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [captchaEnabled, mounted, shouldLoadCaptcha]);
 
   useEffect(() => {
     if (!captchaReady || !hCaptchaSiteKey || !captchaRef.current || captchaWidgetId) return;
@@ -65,10 +91,10 @@ export default function SubmitPage() {
   }, [captchaReady, hCaptchaSiteKey, captchaWidgetId]);
 
   useEffect(() => {
-    if (!captchaEnabled || captchaReady) return;
-    const timer = setTimeout(() => setCaptchaLoadError(true), 5000);
+    if (!captchaEnabled || captchaReady || !shouldLoadCaptcha) return;
+    const timer = setTimeout(() => setCaptchaLoadError(true), 8000);
     return () => clearTimeout(timer);
-  }, [captchaEnabled, captchaReady]);
+  }, [captchaEnabled, captchaReady, shouldLoadCaptcha]);
 
   useEffect(() => {
     if (captchaReady) {
@@ -145,10 +171,10 @@ export default function SubmitPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-[hsl(var(--background))]">
-      {mounted && captchaEnabled && (
+      {mounted && captchaEnabled && shouldLoadCaptcha && (
         <Script
           src="https://js.hcaptcha.com/1/api.js?render=explicit"
-          strategy="afterInteractive"
+          strategy="lazyOnload"
           onLoad={() => {
             setCaptchaReady(true);
             setCaptchaLoadError(false);
