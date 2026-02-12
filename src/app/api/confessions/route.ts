@@ -28,33 +28,6 @@ function isSameOrigin(request: Request) {
   }
 }
 
-async function verifyTurnstile(token: string, ip: string) {
-  const secret = process.env.TURNSTILE_SECRET_KEY;
-  if (!secret) {
-    return { success: false };
-  }
-
-  const response = await fetch(
-    "https://challenges.cloudflare.com/turnstile/v0/siteverify",
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({
-        secret,
-        response: token,
-        remoteip: ip,
-      }).toString(),
-    }
-  );
-
-  if (!response.ok) {
-    return { success: false };
-  }
-
-  const data = (await response.json()) as { success?: boolean };
-  return { success: Boolean(data.success) };
-}
-
 async function verifyHCaptcha(token: string) {
   const secret = process.env.HCAPTCHA_SECRET_KEY;
   if (!secret) {
