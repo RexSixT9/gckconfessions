@@ -133,7 +133,10 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     if (!isSameOrigin(request)) {
-      return NextResponse.json({ error: "Invalid origin." }, { status: 403 });
+      return NextResponse.json(
+        { error: "Invalid origin.", code: "ORIGIN_DENY" },
+        { status: 403 }
+      );
     }
 
     const contentType = request.headers.get("content-type") ?? "";
@@ -162,7 +165,7 @@ export async function POST(request: Request) {
 
     if (arcjetDecision?.isDenied()) {
       return NextResponse.json(
-        { error: "Submission blocked." },
+        { error: "Submission blocked.", code: "ARCJET_DENY" },
         { status: 403 }
       );
     }
@@ -178,7 +181,7 @@ export async function POST(request: Request) {
 
     if (isbot(userAgent)) {
       return NextResponse.json(
-        { error: "Automated submissions are not allowed." },
+        { error: "Automated submissions are not allowed.", code: "BOT_DENY" },
         { status: 403 }
       );
     }
@@ -209,7 +212,7 @@ export async function POST(request: Request) {
 
     if (!turnstileToken) {
       return NextResponse.json(
-        { error: "Verification required." },
+        { error: "Verification required.", code: "TURNSTILE_REQUIRED" },
         { status: 400 }
       );
     }
@@ -217,7 +220,7 @@ export async function POST(request: Request) {
     const turnstile = await verifyTurnstile(turnstileToken, ip);
     if (!turnstile.success) {
       return NextResponse.json(
-        { error: "Verification failed." },
+        { error: "Verification failed.", code: "TURNSTILE_FAIL" },
         { status: 403 }
       );
     }
