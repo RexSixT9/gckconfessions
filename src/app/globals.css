@@ -2,6 +2,8 @@
 
 :root {
   /* Light Mode - Dark Pink + White */
+  --header-height: 3.5rem;
+  --announcement-height: 0px;
   --background: 0 0% 100%;
   --foreground: 350 30% 12%;
   --card: 0 0% 100%;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useLayoutEffect } from "react";
+import { useState, useCallback, useEffect, useLayoutEffect } from "react";
 import { X } from "lucide-react";
 
 const BANNER_STORAGE_KEY = "gck_announcement_dismissed";
@@ -41,6 +41,20 @@ export default function AnnouncementBanner() {
     };
     handleInit();
   }, []);
+
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    if (isVisible === null) return;
+
+    document.documentElement.style.setProperty(
+      "--announcement-height",
+      isVisible ? "2.5rem" : "0px"
+    );
+
+    return () => {
+      document.documentElement.style.setProperty("--announcement-height", "0px");
+    };
+  }, [isVisible]);
 
   const handleDismiss = useCallback(() => {
     try {

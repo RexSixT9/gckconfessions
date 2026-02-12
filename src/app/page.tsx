@@ -15,7 +15,7 @@ export default function Home() {
     <div className="flex min-h-screen flex-col bg-[hsl(var(--background))]">
       <main className="flex-1">
         {/* Mobile CTA Bar */}
-        <div className="sticky top-14 z-40 border-b border-[hsl(var(--border))]/70 bg-[hsl(var(--background))]/90 backdrop-blur sm:hidden">
+        <div className="sticky top-[calc(var(--header-height)+var(--announcement-height))] z-40 border-b border-[hsl(var(--border))]/70 bg-[hsl(var(--background))]/90 backdrop-blur sm:hidden">
           <div className="mx-auto flex w-full max-w-6xl px-4 py-3">
             <a
               className="flex w-full items-center justify-center gap-2 rounded-full border border-[hsl(var(--border))]/70 bg-[hsl(var(--card))] px-4 py-2.5 text-center text-sm font-semibold text-[hsl(var(--foreground))] shadow-sm transition hover:border-[hsl(var(--accent))]/40 hover:text-[hsl(var(--accent))]"
