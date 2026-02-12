@@ -1,0 +1,67 @@
+@import "tailwindcss";
+
+:root {
+  /* Light Mode - Clean and Professional */
+  --background: 0 0% 100%;
+  --foreground: 0 0% 12%;
+  --card: 0 0% 97%;
+  --card-foreground: 0 0% 12%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 0 0% 12%;
+  --primary: 0 0% 8%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 0 0% 95%;
+  --secondary-foreground: 0 0% 20%;
+  --muted: 0 0% 92%;
+  --muted-foreground: 0 0% 50%;
+  --accent: 346 70% 58%;
+  --accent-foreground: 0 0% 100%;
+  --success: 142 71% 45%;
+  --success-foreground: 0 0% 100%;
+  --warning: 38 92% 50%;
+  --warning-foreground: 0 0% 100%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 0 0% 85%;
+  --input: 0 0% 90%;
+  --ring: 346 70% 58%;
+  --radius: 0.9rem;
+}
+
+.dark {
+  /* Dark Mode - Enhanced Contrast */
+  --background: 0 0% 4%;
+  --foreground: 0 0% 96%;
+  --card: 0 0% 11%;
+  --card-foreground: 0 0% 96%;
+  --popover: 0 0% 11%;
+  --popover-foreground: 0 0% 96%;
+  --primary: 0 0% 8%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 0 0% 16%;
+  --secondary-foreground: 0 0% 96%;
+  --muted: 0 0% 16%;
+  --muted-foreground: 0 0% 60%;
+  --accent: 346 70% 65%;
+  --accent-foreground: 0 0% 100%;
+  --success: 142 65% 55%;
+  --success-foreground: 0 0% 100%;
+  --warning: 38 100% 60%;
+  --warning-foreground: 0 0% 5%;
+  --destructive: 0 80% 55%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 0 0% 20%;
+  --input: 0 0% 20%;
+  --ring: 346 70% 65%;
+}
+
+body {
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+  color-scheme: light dark;
+}
+
+* {
+  border-color: hsl(var(--border));
+}
