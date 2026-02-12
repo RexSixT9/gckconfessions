@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { verifyAdminToken } from "@/lib/auth";
+import { COOKIE_NAME } from "@/lib/constants";
 
 export default async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -20,7 +21,7 @@ export default async function proxy(request: NextRequest) {
   }
 
   if (isAdminPage || isAdminApi || isConfessionApi) {
-    const token = request.cookies.get("gck_admin_token")?.value;
+    const token = request.cookies.get(COOKIE_NAME)?.value;
 
     if (!token) {
       if (isAdminPage) {

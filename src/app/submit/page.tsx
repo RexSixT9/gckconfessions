@@ -89,10 +89,10 @@ export default function SubmitPage() {
                   100% Private • Zero Tracing
                 </span>
               </div>
-              <h1 className="text-2xl font-bold tracking-tight text-[hsl(var(--foreground))] sm:text-3xl lg:text-4xl">
+              <h1 className="break-words text-2xl font-bold tracking-tight text-[hsl(var(--foreground))] sm:text-3xl lg:text-4xl">
                 Share Your Confession
               </h1>
-              <p className="mx-auto max-w-2xl text-base text-[hsl(var(--muted-foreground))] sm:text-lg">
+              <p className="mx-auto max-w-2xl break-words text-base text-[hsl(var(--muted-foreground))] sm:text-lg">
                 Anonymous, simple, and safe. Share what is on your mind.
               </p>
             </div>
@@ -100,7 +100,7 @@ export default function SubmitPage() {
         </section>
 
         {/* Form Section */}
-        <section className="mx-auto w-full max-w-4xl px-4 py-16 sm:px-6 sm:py-24">
+        <section className="mx-auto w-full max-w-4xl overflow-x-hidden px-4 py-16 sm:px-6 sm:py-24">
           {/* Form Card */}
           <div className="rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-5 shadow-sm sm:p-8 lg:p-10">
             <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8">
@@ -157,8 +157,9 @@ export default function SubmitPage() {
                   type="text"
                   value={music}
                   onChange={handleMusicChange}
+                  maxLength={120}
                   placeholder="e.g., 'Tear in the Club - The Weeknd'"
-                  className="w-full rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] px-4 py-3 text-sm placeholder:text-[hsl(var(--muted-foreground))] outline-none transition focus:border-[hsl(var(--accent))] focus:ring-2 focus:ring-[hsl(var(--accent))]/20"
+                  className="w-full break-words rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] px-4 py-3 text-sm placeholder:text-[hsl(var(--muted-foreground))] outline-none transition focus:border-[hsl(var(--accent))] focus:ring-2 focus:ring-[hsl(var(--accent))]/20"
                 />
                 <p className="text-xs text-[hsl(var(--muted-foreground))]">Add a song if you want.</p>
               </div>
@@ -166,11 +167,11 @@ export default function SubmitPage() {
               {/* Info Banner */}
               <div className="flex gap-3 rounded-xl border border-[hsl(var(--accent))]/20 bg-[hsl(var(--accent))]/5 p-4">
                 <Lock className="mt-0.5 h-5 w-5 shrink-0 text-[hsl(var(--accent))]" />
-                <div className="space-y-1">
-                  <p className="text-sm font-semibold text-[hsl(var(--foreground))]">
+                <div className="min-w-0 flex-1 space-y-1">
+                  <p className="break-words text-sm font-semibold text-[hsl(var(--foreground))]">
                     Your privacy is protected
                   </p>
-                  <p className="text-xs text-[hsl(var(--muted-foreground))]">
+                  <p className="break-words text-xs text-[hsl(var(--muted-foreground))]">
                     Anonymous. No accounts. Reviewed before posting.
                   </p>
                 </div>

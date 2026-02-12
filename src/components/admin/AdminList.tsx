@@ -115,9 +115,11 @@ const ConfessionCard = memo(function ConfessionCard({
             Message
           </label>
           <div className="flex items-start gap-3 rounded-lg border border-[hsl(var(--accent))]/20 bg-[hsl(var(--accent))]/5 p-4">
-            <p className="flex-1 text-sm leading-relaxed text-[hsl(var(--foreground))]">
-              {item.message}
-            </p>
+            <div className="flex-1 max-h-60 overflow-y-auto">
+              <p className="text-sm leading-relaxed text-[hsl(var(--foreground))] break-words whitespace-pre-wrap">
+                {item.message}
+              </p>
+            </div>
             <button
               type="button"
               onClick={() => handleCopy(item.message, "message")}
@@ -138,9 +140,11 @@ const ConfessionCard = memo(function ConfessionCard({
               🎵 Companion Song
             </label>
             <div className="flex items-start gap-3 rounded-lg border border-orange-200/50 bg-orange-50/50 p-4 dark:border-orange-900/30 dark:bg-orange-950/10">
-              <p className="flex-1 text-sm leading-relaxed text-[hsl(var(--foreground))]">
-                {item.music}
-              </p>
+              <div className="flex-1 max-h-32 overflow-y-auto">
+                <p className="text-sm leading-relaxed text-[hsl(var(--foreground))] break-words whitespace-pre-wrap">
+                  {item.music}
+                </p>
+              </div>
               <button
                 type="button"
                 onClick={() => handleCopy(item.music || "", "music")}

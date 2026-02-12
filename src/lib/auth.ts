@@ -1,4 +1,5 @@
 import { SignJWT, jwtVerify } from "jose";
+import { TOKEN_EXPIRATION } from "./constants";
 
 const JWT_SECRET = process.env.JWT_SECRET ?? "";
 
@@ -17,7 +18,7 @@ export async function signAdminToken(payload: AdminTokenPayload) {
   return new SignJWT({ email: payload.email })
     .setProtectedHeader({ alg: "HS256" })
     .setSubject(payload.sub)
-    .setExpirationTime("8h")
+    .setExpirationTime(TOKEN_EXPIRATION)
     .sign(secretKey);
 }
 

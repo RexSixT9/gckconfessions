@@ -4,6 +4,7 @@ import { connectToDatabase } from "@/lib/mongodb";
 import { aj } from "@/lib/arcjet";
 import { signAdminToken } from "@/lib/auth";
 import { checkLoginLimit, getBlockedIps, getClientIp } from "@/lib/rateLimit";
+import { COOKIE_NAME, COOKIE_OPTIONS, COOKIE_MAX_AGE } from "@/lib/constants";
 import Admin from "@/models/Admin";
 import AuditLog from "@/models/AuditLog";
 
@@ -107,13 +108,16 @@ export async function POST(request: Request) {
       ip,
     });
 
-    const response = NextResponse.json({ ok: true });
-    response.cookies.set("gck_admin_token", token, {
-      httpOnly: true,
-      sameSite: "strict",
-      path: "/",
-      maxAge: 60 * 60 * 8,
-      secure: process.env.NODE_ENV === "production",
+    const response = NextResponse.json({ 
+      ok: true,
+      message: "Login successful.",
+      redirectTo: "/admin"
+    });
+    
+    // Set secure httpOnly cookie
+    response.cookies.set(COOKIE_NAME, token, {
+      ...COOKIE_OPTIONS,
+      maxAge: COOKIE_MAX_AGE,
     });
 
     return response;

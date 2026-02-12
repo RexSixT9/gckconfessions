@@ -1,13 +1,14 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { verifyAdminToken } from "@/lib/auth";
+import { COOKIE_NAME } from "@/lib/constants";
 import AdminList from "@/components/admin/AdminList";
 import Footer from "@/components/Footer";
 import { LogOut } from "lucide-react";
 
 export default async function AdminPage() {
   const cookieStore = await cookies();
-  const token = cookieStore.get("gck_admin_token")?.value;
+  const token = cookieStore.get(COOKIE_NAME)?.value;
 
   if (!token) {
     redirect("/adminlogin");
@@ -29,18 +30,18 @@ export default async function AdminPage() {
         <section className="border-b border-[hsl(var(--border))] bg-[hsl(var(--secondary))]">
           <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-24 lg:py-28">
             <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-              <div className="space-y-1 sm:space-y-2">
-                <h1 className="text-2xl font-bold tracking-tight text-[hsl(var(--foreground))] sm:text-3xl lg:text-4xl">
+              <div className="min-w-0 flex-1 space-y-1 sm:space-y-2">
+                <h1 className="break-words text-2xl font-bold tracking-tight text-[hsl(var(--foreground))] sm:text-3xl lg:text-4xl">
                   Manage Community Confessions
                 </h1>
-                <p className="text-sm text-[hsl(var(--muted-foreground))] sm:text-base">
+                <p className="break-words text-sm text-[hsl(var(--muted-foreground))] sm:text-base">
                   Review, approve, and curate authentic submissions from your community.
                 </p>
               </div>
-              <form action="/api/admin/logout" method="post">
+              <form action="/api/admin/logout" method="POST" className="shrink-0">
                 <button
                   type="submit"
-                  className="inline-flex items-center gap-2 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-4 py-2.5 text-sm font-semibold text-[hsl(var(--foreground))] transition hover:bg-[hsl(var(--secondary))]"
+                  className="inline-flex items-center gap-2 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-4 py-2.5 text-sm font-semibold text-[hsl(var(--foreground))] transition hover:bg-[hsl(var(--secondary))] whitespace-nowrap"
                 >
                   <LogOut className="h-4 w-4" />
                   Logout
@@ -51,7 +52,7 @@ export default async function AdminPage() {
         </section>
 
         {/* Content Section */}
-        <section className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
+        <section className="mx-auto w-full max-w-6xl overflow-x-hidden px-4 py-16 sm:px-6 sm:py-24">
           <AdminList />
         </section>
       </main>

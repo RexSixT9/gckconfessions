@@ -39,13 +39,13 @@ export default function Home() {
 
               {/* Main Heading */}
               <div className="space-y-4">
-                <h1 className="text-3xl font-bold leading-tight tracking-tight text-[hsl(var(--foreground))] sm:text-4xl lg:text-5xl">
+                <h1 className="break-words text-3xl font-bold leading-tight tracking-tight text-[hsl(var(--foreground))] sm:text-4xl lg:text-5xl">
                   Share Your{' '}
                   <span className="bg-linear-to-r from-[hsl(var(--accent))] to-[hsl(var(--accent))]/75 bg-clip-text text-transparent">
                     Inner Thoughts
                   </span>
                 </h1>
-                <p className="text-base leading-relaxed text-[hsl(var(--muted-foreground))] sm:text-lg">
+                <p className="break-words text-base leading-relaxed text-[hsl(var(--muted-foreground))] sm:text-lg">
                   A safe, judgment-free space where your campus community can share authentic thoughts, feelings, and stories—completely anonymous and carefully moderated.
                 </p>
               </div>
@@ -121,10 +121,10 @@ export default function Home() {
         <section id="how-it-works" className="border-t border-[hsl(var(--border))] bg-[hsl(var(--secondary))]">
           <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-24 lg:py-28">
             <div className="mb-8 space-y-4 text-center sm:mb-12">
-              <h2 className="text-2xl font-bold tracking-tight text-[hsl(var(--foreground))] sm:text-3xl lg:text-4xl">
+              <h2 className="break-words text-2xl font-bold tracking-tight text-[hsl(var(--foreground))] sm:text-3xl lg:text-4xl">
                 How It Works
               </h2>
-              <p className="mx-auto max-w-2xl text-sm text-[hsl(var(--muted-foreground))] sm:text-base">
+              <p className="break-words mx-auto max-w-2xl text-sm text-[hsl(var(--muted-foreground))] sm:text-base">
                 Three simple steps to share your thoughts while maintaining your privacy and integrity.
               </p>
             </div>
@@ -168,10 +168,10 @@ export default function Home() {
                     </div>
 
                     {/* Content */}
-                    <h3 className="mb-2 text-lg font-semibold text-[hsl(var(--foreground))]">
+                    <h3 className="break-words mb-2 text-lg font-semibold text-[hsl(var(--foreground))]">
                       {item.title}
                     </h3>
-                    <p className="text-sm leading-relaxed text-[hsl(var(--muted-foreground))]">
+                    <p className="break-words text-sm leading-relaxed text-[hsl(var(--muted-foreground))]">
                       {item.description}
                     </p>
                   </div>
@@ -185,17 +185,17 @@ export default function Home() {
         <section className="border-t border-[hsl(var(--border))] bg-[hsl(var(--secondary))]">
           <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-24 lg:py-28">
             <div className="flex flex-col items-center justify-between gap-6 rounded-2xl border border-[hsl(var(--accent))]/30 bg-linear-to-br from-[hsl(var(--accent))]/8 to-transparent p-6 sm:flex-row sm:gap-8 sm:p-10 lg:p-12">
-              <div className="space-y-2 text-center sm:text-left">
-                <h3 className="text-2xl font-bold text-[hsl(var(--foreground))] sm:text-3xl">
+              <div className="space-y-2 text-center sm:text-left min-w-0 flex-1">
+                <h3 className="break-words text-2xl font-bold text-[hsl(var(--foreground))] sm:text-3xl">
                   Ready to Share Your Story?
                 </h3>
-                <p className="text-sm text-[hsl(var(--muted-foreground))] sm:text-base">
+                <p className="break-words text-sm text-[hsl(var(--muted-foreground))] sm:text-base">
                   Your voice matters. Share what is on your mind - completely anonymous.
                 </p>
               </div>
               <a
                 href="/submit"
-                className="inline-flex shrink-0 items-center justify-center rounded-lg bg-[hsl(var(--accent))] px-6 py-2.5 text-sm font-semibold text-[hsl(var(--accent-foreground))] shadow-md transition hover:shadow-lg hover:opacity-90 sm:px-8 sm:py-3"
+                className="inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-lg bg-[hsl(var(--accent))] px-6 py-2.5 text-sm font-semibold text-[hsl(var(--accent-foreground))] shadow-md transition hover:shadow-lg hover:opacity-90 sm:px-8 sm:py-3"
               >
                 Write a Confession
               </a>

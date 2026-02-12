@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 import { connectToDatabase } from "@/lib/mongodb";
 import { aj } from "@/lib/arcjet";
 import { verifyAdminToken } from "@/lib/auth";
+import { COOKIE_NAME } from "@/lib/constants";
 import { getClientIp } from "@/lib/rateLimit";
 import Confession from "@/models/Confession";
 import AuditLog from "@/models/AuditLog";
@@ -29,7 +30,7 @@ export async function PATCH(
     }
 
     const cookieStore = await cookies();
-    const token = cookieStore.get("gck_admin_token")?.value;
+    const token = cookieStore.get(COOKIE_NAME)?.value;
 
     if (!token) {
       return NextResponse.json({ error: "Unauthorized." }, { status: 401 });

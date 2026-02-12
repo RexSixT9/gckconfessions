@@ -5,6 +5,7 @@ import { connectToDatabase } from "@/lib/mongodb";
 import { aj } from "@/lib/arcjet";
 import { isbot } from "isbot";
 import { verifyAdminToken } from "@/lib/auth";
+import { COOKIE_NAME } from "@/lib/constants";
 import { filterProfanity, sanitizeText } from "@/lib/moderation";
 import {
   checkSubmissionLimit,
@@ -58,7 +59,7 @@ async function verifyHCaptcha(token: string) {
 export async function GET(request: Request) {
   try {
     const cookieStore = await cookies();
-    const token = cookieStore.get("gck_admin_token")?.value;
+    const token = cookieStore.get(COOKIE_NAME)?.value;
 
     if (!token) {
       return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
