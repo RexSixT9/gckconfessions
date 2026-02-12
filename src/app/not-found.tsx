@@ -121,33 +121,6 @@ export default function NotFound() {
                 Go Back
               </button>
             </div>
-
-            {/* Helpful Links */}
-            <div className="mt-12 sm:mt-16">
-              <p className="mb-4 text-sm font-semibold text-[hsl(var(--muted-foreground))]">
-                Popular Pages
-              </p>
-              <div className="flex flex-wrap justify-center gap-3">
-                <a
-                  href="/"
-                  className="rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-4 py-2 text-sm text-[hsl(var(--foreground))] transition hover:border-[hsl(var(--accent))] hover:shadow-sm"
-                >
-                  Home
-                </a>
-                <a
-                  href="/submit"
-                  className="rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-4 py-2 text-sm text-[hsl(var(--foreground))] transition hover:border-[hsl(var(--accent))] hover:shadow-sm"
-                >
-                  Submit Confession
-                </a>
-                <a
-                  href="/adminlogin"
-                  className="rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-4 py-2 text-sm text-[hsl(var(--foreground))] transition hover:border-[hsl(var(--accent))] hover:shadow-sm"
-                >
-                  Admin Login
-                </a>
-              </div>
-            </div>
           </div>
         </section>
       </main>

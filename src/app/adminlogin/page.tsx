@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { AlertCircle, CheckCircle2, Loader, Lock, Mail } from "lucide-react";
+import { AlertCircle, CheckCircle2, Loader, Lock, Mail, Eye, EyeOff } from "lucide-react";
 
 type Notice = { type: "error" | "success"; message: string } | null;
 
@@ -10,6 +10,7 @@ export default function AdminLoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [notice, setNotice] = useState<Notice>(null);
   const [loading, setLoading] = useState(false);
 
@@ -119,14 +120,27 @@ export default function AdminLoginPage() {
                   <input
                     id="password"
                     name="password"
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(event) => setPassword(event.target.value)}
                     placeholder="Enter your password"
                     required
                     disabled={loading}
-                    className="w-full rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--background))] pl-11 pr-4 py-3 text-sm outline-none transition focus:border-[hsl(var(--accent))] focus:ring-2 focus:ring-[hsl(var(--accent))]/20 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="w-full rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--background))] pl-11 pr-12 py-3 text-sm outline-none transition focus:border-[hsl(var(--accent))] focus:ring-2 focus:ring-[hsl(var(--accent))]/20 disabled:cursor-not-allowed disabled:opacity-50"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    disabled={loading}
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[hsl(var(--muted-foreground))] transition hover:text-[hsl(var(--foreground))] disabled:cursor-not-allowed disabled:opacity-50"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-5 w-5" />
+                    ) : (
+                      <Eye className="h-5 w-5" />
+                    )}
+                  </button>
                 </div>
               </div>
 
@@ -146,13 +160,6 @@ export default function AdminLoginPage() {
                 )}
               </button>
             </form>
-
-            {/* Footer Info */}
-            <div className="mt-6 rounded-lg bg-[hsl(var(--secondary))] p-4">
-              <p className="text-xs text-[hsl(var(--muted-foreground))] text-center">
-                <strong>Demo Mode:</strong> This is a secure admin panel. Use your configured credentials.
-              </p>
-            </div>
           </div>
         </div>
 

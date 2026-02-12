@@ -118,19 +118,19 @@ export default function Home() {
         </section>
 
         {/* How It Works Section */}
-        <section id="how-it-works" className="border-t border-[hsl(var(--border))] bg-[hsl(var(--secondary))]">
-          <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-24 lg:py-28">
-            <div className="mb-8 space-y-4 text-center sm:mb-12">
-              <h2 className="break-words text-2xl font-bold tracking-tight text-[hsl(var(--foreground))] sm:text-3xl lg:text-4xl">
+        <section id="how-it-works" className="border-t border-[hsl(var(--border))]">
+          <div className="mx-auto w-full max-w-4xl px-4 py-16 sm:px-6 sm:py-20 lg:py-24">
+            <div className="mb-12 text-center sm:mb-16">
+              <h2 className="text-2xl font-semibold tracking-tight text-[hsl(var(--foreground))] sm:text-3xl">
                 How It Works
               </h2>
-              <p className="break-words mx-auto max-w-2xl text-sm text-[hsl(var(--muted-foreground))] sm:text-base">
-                Three simple steps to share your thoughts while maintaining your privacy and integrity.
+              <p className="mt-3 text-sm text-[hsl(var(--muted-foreground))] sm:text-base">
+                Simple, secure, and anonymous
               </p>
             </div>
 
-            {/* Steps Grid */}
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {/* Steps List */}
+            <div className="space-y-8 sm:space-y-12">
               {[
                 {
                   step: '01',
@@ -146,7 +146,7 @@ export default function Home() {
                 },
                 {
                   step: '03',
-                  title: 'Share',
+                  title: 'Publish',
                   description: 'Your confession is published and seen by your community.',
                   icon: Zap,
                 },
@@ -155,25 +155,29 @@ export default function Home() {
                 return (
                   <div
                     key={i}
-                    className="group rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-6 transition hover:border-[hsl(var(--accent))] hover:shadow-md sm:p-8"
+                    className="flex gap-4 sm:gap-6"
                   >
-                    {/* Step Number */}
-                    <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-[hsl(var(--accent))]/10 text-base font-bold text-[hsl(var(--accent))] group-hover:bg-[hsl(var(--accent))]/20">
-                      {item.step}
-                    </div>
-
                     {/* Icon */}
-                    <div className="mb-4">
-                      <Icon className="h-8 w-8 text-[hsl(var(--accent))]" />
+                    <div className="flex-shrink-0">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[hsl(var(--accent))]/10">
+                        <Icon className="h-5 w-5 text-[hsl(var(--accent))]" />
+                      </div>
                     </div>
 
                     {/* Content */}
-                    <h3 className="break-words mb-2 text-lg font-semibold text-[hsl(var(--foreground))]">
-                      {item.title}
-                    </h3>
-                    <p className="break-words text-sm leading-relaxed text-[hsl(var(--muted-foreground))]">
-                      {item.description}
-                    </p>
+                    <div className="flex-1 pt-1">
+                      <div className="flex items-baseline gap-3">
+                        <span className="text-xs font-medium text-[hsl(var(--muted-foreground))]">
+                          {item.step}
+                        </span>
+                        <h3 className="text-lg font-medium text-[hsl(var(--foreground))]">
+                          {item.title}
+                        </h3>
+                      </div>
+                      <p className="mt-1.5 text-sm leading-relaxed text-[hsl(var(--muted-foreground))]">
+                        {item.description}
+                      </p>
+                    </div>
                   </div>
                 );
               })}

@@ -34,15 +34,13 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           {/* Header Navbar */}
           <header className="sticky top-0 z-50 border-b border-[hsl(var(--border))] bg-[hsl(var(--background))]/95 backdrop-blur">
-            <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6 sm:py-4">
+            <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-4 py-3.5 sm:px-6 sm:py-4">
               <Link
                 href="/"
-                className="flex min-w-0 flex-1 items-center gap-1.5 text-sm font-bold tracking-tight text-[hsl(var(--foreground))] sm:gap-2 sm:text-base"
+                className="flex items-center text-[hsl(var(--foreground))] transition-opacity hover:opacity-80"
               >
-                {/* <div className="h-5 w-5 rounded-full bg-[hsl(var(--accent))] sm:h-6 sm:w-6"></div> */}
-                <span className="flex flex-col text-[11px] leading-tight break-words sm:flex-row sm:gap-1 sm:text-base">
-                  <span>GCK</span>
-                  <span>Confessions</span>
+                <span className="text-base font-semibold tracking-tight sm:text-lg">
+                  GCK Confessions
                 </span>
               </Link>
               <ThemeToggle />
