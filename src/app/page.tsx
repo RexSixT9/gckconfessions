@@ -1,6 +1,5 @@
 'use client';
 
-import { useMemo, useState } from 'react';
 import { ArrowUpRight, Heart, MessageSquare, Sparkles, Send } from 'lucide-react';
 import dynamic from 'next/dynamic';
 
@@ -10,26 +9,7 @@ const Footer = dynamic(() => import('@/components/Footer'), {
 });
 
 export default function Home() {
-  const [highlightFilter, setHighlightFilter] = useState<'all' | 'love' | 'stress' | 'life'>(
-    'all'
-  );
 
-  const highlights = useMemo(
-    () => [
-      { tag: 'love', text: 'I finally told someone how I feel.' },
-      { tag: 'stress', text: 'Exams are heavy, but I am not alone.' },
-      { tag: 'life', text: 'Small wins still matter to me.' },
-      { tag: 'love', text: 'I am learning to be kind to myself.' },
-      { tag: 'stress', text: 'Asking for help was the best step.' },
-      { tag: 'life', text: 'I am proud of how far I have come.' },
-    ],
-    []
-  );
-
-  const filteredHighlights = useMemo(() => {
-    if (highlightFilter === 'all') return highlights;
-    return highlights.filter((item) => item.tag === highlightFilter);
-  }, [highlightFilter, highlights]);
 
   return (
     <div className="flex min-h-screen flex-col bg-[hsl(var(--background))]">
@@ -92,7 +72,7 @@ export default function Home() {
               </div>
 
               {/* Trust Indicators */}
-              <div className="flex flex-col gap-2 pt-4 sm:flex-row sm:items-center sm:gap-3 animate-slide-up animation-delay-300">
+              <div className="flex flex-wrap gap-2 pt-4 sm:flex-row sm:items-center sm:gap-3 animate-slide-up animation-delay-300">
                 {[
                   { icon: MessageSquare, label: 'No accounts' },
                   { icon: Heart, label: 'Reviewed for safety' },
@@ -233,58 +213,6 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Highlights Section */}
-        <section className="border-t border-[hsl(var(--border))]/70">
-          <div className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6 sm:py-20">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-              <div>
-                <h2 className="text-xl font-semibold text-[hsl(var(--foreground))] sm:text-3xl">
-                  Community highlights
-                </h2>
-                <p className="mt-2 text-sm text-[hsl(var(--muted-foreground))] sm:text-base">
-                  A few recent, anonymized moments from the feed.
-                </p>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {[
-                  { id: 'all', label: 'All' },
-                  { id: 'love', label: 'Love' },
-                  { id: 'stress', label: 'Stress' },
-                  { id: 'life', label: 'Life' },
-                ].map((item) => (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => setHighlightFilter(item.id as typeof highlightFilter)}
-                    className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
-                      highlightFilter === item.id
-                        ? 'bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]'
-                        : 'border border-[hsl(var(--border))]/70 text-[hsl(var(--foreground))] hover:border-[hsl(var(--accent))]/30 hover:text-[hsl(var(--accent))]'
-                    }`}
-                  >
-                    {item.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {filteredHighlights.map((item, index) => (
-                <div
-                  key={`${item.tag}-${index}`}
-                  className="rounded-2xl border border-[hsl(var(--border))]/70 bg-[hsl(var(--card))] p-4 shadow-sm transition hover:shadow-md hover:-translate-y-1 hover:border-[hsl(var(--accent))]/40 animate-scale-in"
-                  style={{ animationDelay: `${index * 50}ms` }}
-                >
-                  <p className="text-sm text-[hsl(var(--foreground))]">“{item.text}”</p>
-                  <span className="mt-3 inline-flex items-center rounded-full border border-[hsl(var(--border))]/70 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[hsl(var(--muted-foreground))]">
-                    {item.tag}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
         {/* Guidelines Section */}
         <section className="border-t border-[hsl(var(--border))]/70 bg-[hsl(var(--secondary))]/60">
           <div className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6 sm:py-20">
@@ -313,51 +241,6 @@ export default function Home() {
                   </li>
                 </ul>
               </div>
-            </div>
-          </div>
-        </section>
-
-        {/* FAQ Section */}
-        <section className="border-t border-[hsl(var(--border))]/70">
-          <div className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6 sm:py-20">
-            <div className="mb-6 animate-slide-up">
-              <h2 className="text-xl font-semibold text-[hsl(var(--foreground))] sm:text-3xl">
-                Quick answers
-              </h2>
-              <p className="mt-2 text-sm text-[hsl(var(--muted-foreground))] sm:text-base">
-                The basics, in plain language.
-              </p>
-            </div>
-            <div className="grid gap-4 md:grid-cols-2">
-              {[
-                {
-                  q: 'Do I need an account?',
-                  a: 'No. Posts are anonymous by default.',
-                },
-                {
-                  q: 'How long does review take?',
-                  a: 'Most posts are reviewed within a day.',
-                },
-                {
-                  q: 'Can I include a song?',
-                  a: 'Yes. You can add a song or artist (optional).',
-                },
-                {
-                  q: 'Will my post be edited?',
-                  a: 'We only remove personal details or unsafe content.',
-                },
-              ].map((item, idx) => (
-                <details
-                  key={item.q}
-                  className="rounded-2xl border border-[hsl(var(--border))]/70 bg-[hsl(var(--card))] p-4 shadow-sm transition hover:shadow-md hover:border-[hsl(var(--accent))]/40 animate-slide-up"
-                  style={{ animationDelay: `${idx * 75}ms` }}
-                >
-                  <summary className="cursor-pointer text-sm font-semibold text-[hsl(var(--foreground))] transition hover:text-[hsl(var(--accent))]">
-                    {item.q}
-                  </summary>
-                  <p className="mt-2 text-sm text-[hsl(var(--muted-foreground))]">{item.a}</p>
-                </details>
-              ))}
             </div>
           </div>
         </section>

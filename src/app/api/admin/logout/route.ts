@@ -50,7 +50,7 @@ export async function POST(request: Request) {
     }
 
     // Clear the authentication cookie
-    const redirectUrl = new URL("/adminlogin", request.url);
+    const redirectUrl = new URL("/", request.url);
     const response = NextResponse.redirect(redirectUrl);
     
     // Set cookie to expired with all security flags
@@ -64,7 +64,7 @@ export async function POST(request: Request) {
     console.error("Logout error:", error);
     
     // Even if there's an error, still try to clear the cookie
-    const redirectUrl = new URL("/adminlogin", request.url);
+    const redirectUrl = new URL("/", request.url);
     const response = NextResponse.redirect(redirectUrl);
     response.cookies.set(COOKIE_NAME, "", {
       ...COOKIE_OPTIONS,

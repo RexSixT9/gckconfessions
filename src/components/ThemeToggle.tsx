@@ -7,13 +7,19 @@ import { useEffect, useState, useCallback, memo } from "react";
 const ThemeToggle = memo(function ThemeToggle() {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const [showNotification, setShowNotification] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
   const handleThemeToggle = useCallback(() => {
-    setTheme(theme === "dark" ? "light" : "dark");
+    const newTheme = theme === "dark" ? "light" : "dark";
+    setTheme(newTheme);
+    
+    // Show notification
+    setShowNotification(true);
+    setTimeout(() => setShowNotification(false), 3000);
   }, [theme, setTheme]);
 
   if (!mounted) {
@@ -23,14 +29,26 @@ const ThemeToggle = memo(function ThemeToggle() {
   const isDark = theme === "dark";
 
   return (
-    <button
-      type="button"
-      onClick={handleThemeToggle}
-      className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[hsl(var(--border))]/70 bg-[hsl(var(--card))]/80 text-[hsl(var(--foreground))] shadow-sm transition hover:border-[hsl(var(--accent))]/40 hover:bg-[hsl(var(--secondary))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--accent))]/40"
-      aria-label="Toggle theme"
-    >
-      {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-    </button>
+    <div className="relative">
+      <button
+        type="button"
+        onClick={handleThemeToggle}
+        className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[hsl(var(--border))]/70 bg-[hsl(var(--card))]/80 text-[hsl(var(--foreground))] shadow-sm transition hover:border-[hsl(var(--accent))]/40 hover:bg-[hsl(var(--secondary))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--accent))]/40"
+        aria-label="Toggle theme"
+        title={`Switch to ${isDark ? 'light' : 'dark'} mode`}
+      >
+        {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+      </button>
+
+      {/* Theme Preference Notification */}
+      {showNotification && (
+        <div className="absolute right-0 top-12 z-50 animate-slide-down rounded-2xl border border-[hsl(var(--border))]/70 bg-[hsl(var(--card))] px-4 py-2.5 shadow-lg backdrop-blur">
+          <p className="whitespace-nowrap text-xs font-medium text-[hsl(var(--foreground))]">
+            {isDark ? '🌙 Dark mode' : '☀️ Light mode'} saved
+          </p>
+        </div>
+      )}
+    </div>
   );
 });
 
