@@ -218,7 +218,7 @@ export default function SubmitPage() {
               {/* Submit Button */}
               <button
                 type="submit"
-                disabled={loading || !message.trim() || !turnstileEnabled}
+                disabled={loading || !message.trim() || !turnstileEnabled || !turnstileToken}
                 className="w-full rounded-lg bg-[hsl(var(--accent))] py-2.5 text-sm font-semibold text-[hsl(var(--accent-foreground))] shadow-md transition disabled:opacity-50 hover:shadow-lg hover:opacity-90 sm:py-3"
               >
                 {loading ? (
@@ -241,6 +241,12 @@ export default function SubmitPage() {
               ) : (
                 <p className="text-center text-xs text-[hsl(var(--muted-foreground))]">
                   Verification is not configured. Add TURNSTILE keys to enable submissions.
+                </p>
+              )}
+
+              {turnstileEnabled && !turnstileToken && (
+                <p className="text-center text-xs text-[hsl(var(--muted-foreground))]">
+                  Complete the verification to submit.
                 </p>
               )}
 
