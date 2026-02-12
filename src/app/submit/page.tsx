@@ -147,7 +147,7 @@ export default function SubmitPage() {
     <div className="flex min-h-screen flex-col bg-[hsl(var(--background))]">
       {mounted && captchaEnabled && (
         <Script
-          src="https://js.hcaptcha.com/1/api.js"
+          src="https://js.hcaptcha.com/1/api.js?render=explicit"
           strategy="afterInteractive"
           onLoad={() => {
             setCaptchaReady(true);
@@ -257,7 +257,7 @@ export default function SubmitPage() {
               {/* Submit Button */}
               <button
                 type="submit"
-                disabled={loading || !message.trim() || (captchaEnabled && !captchaToken)}
+                disabled={loading || !message.trim() || (captchaEnabled && (!captchaReady || !captchaToken))}
                 className="w-full rounded-lg bg-[hsl(var(--accent))] py-2.5 text-sm font-semibold text-[hsl(var(--accent-foreground))] shadow-md transition disabled:opacity-50 hover:shadow-lg hover:opacity-90 sm:py-3"
               >
                 {loading ? (
@@ -275,11 +275,16 @@ export default function SubmitPage() {
 
               {captchaEnabled && (
                 <div className="flex items-center justify-center">
+                  {!captchaReady && !captchaLoadError && (
+                    <p className="text-center text-xs text-[hsl(var(--muted-foreground))]">
+                      Loading verification...
+                    </p>
+                  )}
                   <div ref={captchaRef} />
                 </div>
               )}
 
-              {mounted && captchaEnabled && !captchaToken && (
+              {mounted && captchaEnabled && !captchaToken && captchaReady && (
                 <p className="text-center text-xs text-[hsl(var(--muted-foreground))]">
                   Complete the verification to submit.
                 </p>
