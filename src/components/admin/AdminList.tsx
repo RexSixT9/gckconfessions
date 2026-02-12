@@ -9,6 +9,7 @@ import {
   AlertCircle,
   CheckCircle2,
   Copy,
+  Loader,
 } from "lucide-react";
 
 type Notice = { type: "error" | "success"; message: string } | null;
@@ -25,20 +26,42 @@ type ConfessionItem = {
 // Memoized confession card to prevent unnecessary re-renders
 const ConfessionCard = memo(function ConfessionCard({ 
   item, 
-  onStatusChange, 
-  onPostedChange 
+  onAccept,
+  onTogglePublish,
+  isUpdating,
 }: { 
   item: ConfessionItem;
-  onStatusChange: (item: ConfessionItem, status: "approved") => void;
-  onPostedChange: (item: ConfessionItem) => void;
+  onAccept: (item: ConfessionItem) => Promise<void>;
+  onTogglePublish: (item: ConfessionItem) => Promise<void>;
+  isUpdating: boolean;
 }) {
   const [copiedField, setCopiedField] = useState<"message" | "music" | null>(null);
+  const [acceptLoading, setAcceptLoading] = useState(false);
+  const [publishLoading, setPublishLoading] = useState(false);
 
   const handleCopy = useCallback((text: string, field: "message" | "music") => {
     navigator.clipboard.writeText(text);
     setCopiedField(field);
     setTimeout(() => setCopiedField(null), 2000);
   }, []);
+
+  const handleAccept = useCallback(async () => {
+    setAcceptLoading(true);
+    try {
+      await onAccept(item);
+    } finally {
+      setAcceptLoading(false);
+    }
+  }, [item, onAccept]);
+
+  const handleTogglePublish = useCallback(async () => {
+    setPublishLoading(true);
+    try {
+      await onTogglePublish(item);
+    } finally {
+      setPublishLoading(false);
+    }
+  }, [item, onTogglePublish]);
 
   return (
     <div className="rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] shadow-sm transition hover:shadow-md">
@@ -135,36 +158,61 @@ const ConfessionCard = memo(function ConfessionCard({
 
       {/* Action Buttons */}
       <div className="flex flex-wrap gap-2 p-5">
-        <button
-          type="button"
-          onClick={() => onStatusChange(item, "approved")}
-          disabled={item.status === "approved"}
-          className="inline-flex items-center gap-2 rounded-lg border border-green-500/30 bg-green-500/10 px-3 py-2 text-xs font-semibold text-green-700 transition hover:bg-green-500/20 disabled:cursor-not-allowed disabled:opacity-50 sm:px-4 sm:py-2.5 dark:text-green-300"
-        >
-          <Check className="h-4 w-4" />
-          Approve
-        </button>
-        <button
-          type="button"
-          onClick={() => onPostedChange(item)}
-          className={`inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold transition sm:px-4 sm:py-2.5 ${
-            item.posted
-              ? "border-[hsl(var(--border))] bg-[hsl(var(--background))] text-[hsl(var(--foreground))] hover:bg-[hsl(var(--secondary))]"
-              : "border-[hsl(var(--accent))]/30 bg-[hsl(var(--accent))]/10 text-[hsl(var(--accent))] hover:bg-[hsl(var(--accent))]/20"
-          }`}
-        >
-          {item.posted ? (
-            <>
-              <EyeOff className="h-4 w-4" />
-              <span>Unpublish</span>
-            </>
-          ) : (
-            <>
-              <Eye className="h-4 w-4" />
-              <span>Publish</span>
-            </>
-          )}
-        </button>
+        {item.status === "pending" && !item.posted ? (
+          <button
+            type="button"
+            onClick={handleAccept}
+            disabled={acceptLoading || publishLoading || isUpdating}
+            className="inline-flex items-center gap-2 rounded-lg bg-linear-to-r from-green-500 to-emerald-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:from-green-600 hover:to-emerald-600 disabled:cursor-not-allowed disabled:opacity-50 dark:from-green-600 dark:to-emerald-600 dark:hover:from-green-700 dark:hover:to-emerald-700"
+          >
+            {acceptLoading ? (
+              <>
+                <Loader className="h-4 w-4 animate-spin" />
+                Accepting...
+              </>
+            ) : (
+              <>
+                <Check className="h-4 w-4" />
+                Accept & Publish
+              </>
+            )}
+          </button>
+        ) : item.status === "approved" ? (
+          <span className="inline-flex items-center gap-2 rounded-lg border border-green-500/30 bg-green-500/10 px-4 py-2.5 text-sm font-semibold text-green-700 dark:text-green-300">
+            <Check className="h-4 w-4" />
+            Accepted
+          </span>
+        ) : null}
+
+        {item.status === "approved" && (
+          <button
+            type="button"
+            onClick={handleTogglePublish}
+            disabled={publishLoading || acceptLoading || isUpdating}
+            className={`inline-flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-semibold transition ${
+              item.posted
+                ? "border-[hsl(var(--border))] bg-[hsl(var(--background))] text-[hsl(var(--foreground))] hover:bg-[hsl(var(--secondary))]"
+                : "border-[hsl(var(--accent))]/30 bg-[hsl(var(--accent))]/10 text-[hsl(var(--accent))] hover:bg-[hsl(var(--accent))]/20"
+            } disabled:cursor-not-allowed disabled:opacity-50`}
+          >
+            {publishLoading ? (
+              <>
+                <Loader className="h-4 w-4 animate-spin" />
+                {item.posted ? "Unpublishing..." : "Publishing..."}
+              </>
+            ) : item.posted ? (
+              <>
+                <EyeOff className="h-4 w-4" />
+                <span>Unpublish</span>
+              </>
+            ) : (
+              <>
+                <Eye className="h-4 w-4" />
+                <span>Publish</span>
+              </>
+            )}
+          </button>
+        )}
       </div>
     </div>
   );
@@ -180,6 +228,7 @@ export default function AdminList() {
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [updatingIds, setUpdatingIds] = useState<Set<string>>(new Set());
 
   // Fetch items from database based on filters
   const fetchItems = useCallback(async () => {
@@ -230,8 +279,59 @@ export default function AdminList() {
     fetchItems();
   }, [fetchItems]);
 
-  const togglePosted = useCallback(async (item: ConfessionItem) => {
+  const acceptConfession = useCallback(async (item: ConfessionItem) => {
     setNotice(null);
+    setUpdatingIds((prev) => new Set(prev).add(item._id));
+
+    try {
+      // First, approve the confession
+      const approveResponse = await fetch(`/api/confessions/${item._id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "approved" }),
+      });
+
+      if (!approveResponse.ok) {
+        const approveData = await approveResponse.json();
+        throw new Error(approveData.error || "Failed to approve confession.");
+      }
+
+      // Then, publish it
+      const publishResponse = await fetch(`/api/confessions/${item._id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ posted: true }),
+      });
+
+      if (!publishResponse.ok) {
+        const publishData = await publishResponse.json();
+        throw new Error(publishData.error || "Failed to publish confession.");
+      }
+
+      // Refresh data from database
+      await fetchItems();
+
+      setNotice({
+        type: "success",
+        message: `Confession accepted and published successfully.`,
+      });
+    } catch (error) {
+      setNotice({
+        type: "error",
+        message: error instanceof Error ? error.message : "Failed to accept confession.",
+      });
+    } finally {
+      setUpdatingIds((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(item._id);
+        return newSet;
+      });
+    }
+  }, [fetchItems]);
+
+  const togglePublished = useCallback(async (item: ConfessionItem) => {
+    setNotice(null);
+    setUpdatingIds((prev) => new Set(prev).add(item._id));
 
     try {
       const response = await fetch(`/api/confessions/${item._id}`, {
@@ -248,15 +348,21 @@ export default function AdminList() {
 
       // Refresh data from database
       await fetchItems();
-      
+
       setNotice({
         type: "success",
-        message: `Confession ${!item.posted ? "published" : "unpublished"}.`,
+        message: `Confession ${!item.posted ? "published" : "unpublished"} successfully.`,
       });
     } catch (error) {
       setNotice({
         type: "error",
         message: error instanceof Error ? error.message : "Unknown error.",
+      });
+    } finally {
+      setUpdatingIds((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(item._id);
+        return newSet;
       });
     }
   }, [fetchItems]);
@@ -266,37 +372,6 @@ export default function AdminList() {
     setPage(1);
     setQuery(searchInput.trim());
   }, [searchInput]);
-
-  const updateStatus = useCallback(async (item: ConfessionItem, status: "approved") => {
-    setNotice(null);
-
-    try {
-      const response = await fetch(`/api/confessions/${item._id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to update confession.");
-      }
-
-      // Refresh data from database
-      await fetchItems();
-      
-      setNotice({
-        type: "success",
-        message: `Confession approved.`,
-      });
-    } catch (error) {
-      setNotice({
-        type: "error",
-        message: error instanceof Error ? error.message : "Unknown error.",
-      });
-    }
-  }, [fetchItems]);
 
   return (
     <div className="space-y-6">
@@ -313,7 +388,7 @@ export default function AdminList() {
         </div>
         <button
           type="submit"
-          className="rounded-lg bg-[hsl(var(--accent))] px-6 py-2.5 text-sm font-semibold text-[hsl(var(--accent-foreground))] transition hover:opacity-90"
+          className="rounded-lg bg-[hsl(var(--accent))] px-6 py-2.5 text-sm font-semibold text-[hsl(var(--accent-foreground))] transition hover:opacity-90 disabled:opacity-50"
         >
           Search
         </button>
@@ -329,7 +404,7 @@ export default function AdminList() {
           <div className="flex flex-wrap gap-2">
             {[
               { id: "all", label: "All Submissions" },
-              { id: "draft", label: "Draft" },
+              { id: "draft", label: "Draft (Pending & Unpublished)" },
               { id: "published", label: "Published" },
             ].map((option) => (
               <button
@@ -359,7 +434,7 @@ export default function AdminList() {
           <div className="flex flex-wrap gap-2">
             {[
               { id: "all", label: "All Statuses", color: "" },
-              { id: "pending", label: "Pending", color: "amber" },
+              { id: "pending", label: "Pending (Awaiting Review)", color: "amber" },
               { id: "approved", label: "Approved", color: "green" },
             ].map((option) => {
               const isSelected = statusFilter === option.id;
@@ -435,8 +510,9 @@ export default function AdminList() {
           <ConfessionCard
             key={item._id}
             item={item}
-            onStatusChange={updateStatus}
-            onPostedChange={togglePosted}
+            onAccept={acceptConfession}
+            onTogglePublish={togglePublished}
+            isUpdating={updatingIds.has(item._id)}
           />
         ))}
       </div>

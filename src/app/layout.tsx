@@ -39,7 +39,7 @@ export default function RootLayout({
                 href="/"
                 className="flex items-center gap-1.5 text-sm font-bold tracking-tight text-[hsl(var(--foreground))] sm:gap-2 sm:text-base"
               >
-                <div className="h-5 w-5 rounded-full bg-[hsl(var(--accent))] sm:h-6 sm:w-6"></div>
+                {/* <div className="h-5 w-5 rounded-full bg-[hsl(var(--accent))] sm:h-6 sm:w-6"></div> */}
                 <span className="flex flex-col text-[11px] leading-tight sm:flex-row sm:gap-1 sm:text-base">
                   <span>GCK</span>
                   <span>Confessions</span>

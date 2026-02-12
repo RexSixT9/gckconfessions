@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { AlertCircle, CheckCircle2, Loader, Lock, Mail } from "lucide-react";
 
 type Notice = { type: "error" | "success"; message: string } | null;
 
@@ -30,10 +31,9 @@ export default function AdminLoginPage() {
         throw new Error(data.error || "Login failed.");
       }
 
-      setNotice({ type: "success", message: "Login successful." });
-      router.push("/admin");
+      setNotice({ type: "success", message: "Login successful. Redirecting..." });
+      setTimeout(() => router.push("/admin"), 1000);
     } catch (error) {
-      // Debug-only: show exact error in UI during testing.
       setNotice({
         type: "error",
         message: error instanceof Error ? error.message : "Unknown error.",
@@ -44,67 +44,123 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="min-h-screen">
-      <main className="mx-auto w-full max-w-4xl px-4 pb-16 sm:px-6">
-        <div className="rounded-(--radius) border bg-[hsl(var(--card))] p-6 text-[hsl(var(--card-foreground))] shadow-sm sm:p-8">
-          <h1 className="text-2xl font-semibold">Sign in</h1>
-          <p className="mt-2 text-sm text-[hsl(var(--muted-foreground))]">
-            Enter your admin email and password.
-          </p>
-
-          {notice && (
-            <div
-              className={`mt-6 rounded-[calc(var(--radius)-0.2rem)] border px-4 py-3 text-xs ${
-                notice.type === "error"
-                  ? "border-red-200 bg-red-50 text-red-700"
-                  : "border-green-200 bg-green-50 text-green-700"
-              }`}
-            >
-              {notice.message}
+    <div className="flex min-h-screen items-center justify-center bg-[hsl(var(--background))] px-4 py-8 sm:px-6 lg:px-8">
+      <div className="w-full max-w-md">
+        {/* Card Container */}
+        <div className="rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] shadow-sm transition-all duration-300 hover:shadow-md lg:max-w-lg">
+          {/* Header Section */}
+          <div className="border-b border-[hsl(var(--border))] bg-linear-to-r from-[hsl(var(--accent))]/10 to-transparent px-6 py-8 sm:px-8 sm:py-10">
+            <div className="flex items-center justify-center gap-2 mb-3">
+              <Lock className="h-6 w-6 text-[hsl(var(--accent))]" />
             </div>
-          )}
+            <h1 className="text-center text-2xl font-bold tracking-tight text-[hsl(var(--foreground))] sm:text-3xl">
+              Admin Access
+            </h1>
+            <p className="mt-2 text-center text-sm text-[hsl(var(--muted-foreground))]">
+              Sign in to manage confessions
+            </p>
+          </div>
 
-          <form className="mt-6 space-y-6" onSubmit={handleSubmit}>
-            <div>
-              <label className="text-sm font-medium" htmlFor="email">
-                Email
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                placeholder="admin@college.com"
-                className="mt-2 w-full rounded-[calc(var(--radius)-0.2rem)] border border-[hsl(var(--input))] bg-[hsl(var(--background))] px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-[hsl(var(--ring))]"
-              />
+          {/* Form Section */}
+          <div className="px-6 py-8 sm:px-8 sm:py-10">
+            {/* Notice */}
+            {notice && (
+              <div
+                className={`mb-6 flex items-center gap-3 rounded-lg border p-4 text-sm ${
+                  notice.type === "error"
+                    ? "border-red-200/50 bg-red-50 text-red-700 dark:border-red-900/30 dark:bg-red-950/20 dark:text-red-300"
+                    : "border-green-200/50 bg-green-50 text-green-700 dark:border-green-900/30 dark:bg-green-950/20 dark:text-green-300"
+                }`}
+              >
+                {notice.type === "error" ? (
+                  <AlertCircle className="h-5 w-5 shrink-0" />
+                ) : (
+                  <CheckCircle2 className="h-5 w-5 shrink-0" />
+                )}
+                <p>{notice.message}</p>
+              </div>
+            )}
+
+            <form className="space-y-5" onSubmit={handleSubmit}>
+              {/* Email Field */}
+              <div>
+                <label
+                  className="block text-sm font-semibold text-[hsl(var(--foreground))]"
+                  htmlFor="email"
+                >
+                  Email Address
+                </label>
+                <div className="relative mt-2">
+                  <Mail className="absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-[hsl(var(--muted-foreground))]" />
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    value={email}
+                    onChange={(event) => setEmail(event.target.value)}
+                    placeholder="admin@college.com"
+                    required
+                    disabled={loading}
+                    className="w-full rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--background))] pl-11 pr-4 py-3 text-sm outline-none transition focus:border-[hsl(var(--accent))] focus:ring-2 focus:ring-[hsl(var(--accent))]/20 disabled:cursor-not-allowed disabled:opacity-50"
+                  />
+                </div>
+              </div>
+
+              {/* Password Field */}
+              <div>
+                <label
+                  className="block text-sm font-semibold text-[hsl(var(--foreground))]"
+                  htmlFor="password"
+                >
+                  Password
+                </label>
+                <div className="relative mt-2">
+                  <Lock className="absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-[hsl(var(--muted-foreground))]" />
+                  <input
+                    id="password"
+                    name="password"
+                    type="password"
+                    value={password}
+                    onChange={(event) => setPassword(event.target.value)}
+                    placeholder="Enter your password"
+                    required
+                    disabled={loading}
+                    className="w-full rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--background))] pl-11 pr-4 py-3 text-sm outline-none transition focus:border-[hsl(var(--accent))] focus:ring-2 focus:ring-[hsl(var(--accent))]/20 disabled:cursor-not-allowed disabled:opacity-50"
+                  />
+                </div>
+              </div>
+
+              {/* Submit Button */}
+              <button
+                type="submit"
+                disabled={loading || !email || !password}
+                className="w-full rounded-lg bg-[hsl(var(--accent))] py-3 text-sm font-semibold text-[hsl(var(--accent-foreground))] transition-all hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 mt-8 flex items-center justify-center gap-2"
+              >
+                {loading ? (
+                  <>
+                    <Loader className="h-4 w-4 animate-spin" />
+                    <span>Signing in...</span>
+                  </>
+                ) : (
+                  <span>Sign in</span>
+                )}
+              </button>
+            </form>
+
+            {/* Footer Info */}
+            <div className="mt-6 rounded-lg bg-[hsl(var(--secondary))] p-4">
+              <p className="text-xs text-[hsl(var(--muted-foreground))] text-center">
+                <strong>Demo Mode:</strong> This is a secure admin panel. Use your configured credentials.
+              </p>
             </div>
-
-            <div>
-              <label className="text-sm font-medium" htmlFor="password">
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                placeholder="••••••••"
-                className="mt-2 w-full rounded-[calc(var(--radius)-0.2rem)] border border-[hsl(var(--input))] bg-[hsl(var(--background))] px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-[hsl(var(--ring))]"
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full rounded-full bg-[hsl(var(--primary))] px-6 py-3 text-sm font-semibold text-[hsl(var(--primary-foreground))] shadow-sm transition hover:opacity-90"
-            >
-              {loading ? "Signing in..." : "Sign in"}
-            </button>
-          </form>
+          </div>
         </div>
-      </main>
+
+        {/* Bottom Note */}
+        <p className="mt-6 text-center text-xs text-[hsl(var(--muted-foreground))]">
+          GCK Confessions Admin Portal
+        </p>
+      </div>
     </div>
   );
 }
