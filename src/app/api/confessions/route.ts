@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { createHash } from "crypto";
 import { cookies } from "next/headers";
 import { connectToDatabase } from "@/lib/mongodb";
 import { aj } from "@/lib/arcjet";
@@ -11,6 +12,21 @@ import {
   getClientIp,
 } from "@/lib/rateLimit";
 import Confession from "@/models/Confession";
+
+function isSameOrigin(request: Request) {
+  const origin = request.headers.get("origin");
+  if (!origin) return true;
+
+  const host = request.headers.get("host");
+  if (!host) return false;
+
+  try {
+    const originHost = new URL(origin).host;
+    return originHost === host;
+  } catch {
+    return false;
+  }
+}
 
 export async function GET(request: Request) {
   try {
@@ -89,6 +105,18 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
+    if (!isSameOrigin(request)) {
+      return NextResponse.json({ error: "Invalid origin." }, { status: 403 });
+    }
+
+    const contentType = request.headers.get("content-type") ?? "";
+    if (!contentType.includes("application/json")) {
+      return NextResponse.json(
+        { error: "Unsupported content type." },
+        { status: 415 }
+      );
+    }
+
     if (process.env.MAINTENANCE_MODE === "on") {
       return NextResponse.json(
         { error: "Submissions are temporarily paused." },
@@ -128,7 +156,8 @@ export async function POST(request: Request) {
       );
     }
 
-    const rate = await checkSubmissionLimit(`submit:${ip}`);
+    const rateKey = `submit:${ip}:${userAgent.slice(0, 32)}`;
+    const rate = await checkSubmissionLimit(rateKey);
 
     if (!rate.allowed) {
       return NextResponse.json(
@@ -141,6 +170,15 @@ export async function POST(request: Request) {
     const body = await request.json();
     const rawMessage = String(body.message ?? "");
     const rawMusic = String(body.music ?? "");
+    const website = String(body.website ?? "").trim();
+
+    if (website) {
+      return NextResponse.json(
+        { error: "Submission rejected." },
+        { status: 400 }
+      );
+    }
+
     const message = sanitizeText(rawMessage, 500);
     const music = sanitizeText(rawMusic, 120);
     const moderated = filterProfanity(message);
@@ -160,8 +198,25 @@ export async function POST(request: Request) {
     }
 
     await connectToDatabase();
+    const messageHash = createHash("sha256")
+      .update(message.toLowerCase())
+      .digest("hex");
+    const duplicateWindowMs = 30 * 60 * 1000;
+    const recentDuplicate = await Confession.findOne({
+      messageHash,
+      createdAt: { $gte: new Date(Date.now() - duplicateWindowMs) },
+    }).lean();
+
+    if (recentDuplicate) {
+      return NextResponse.json(
+        { error: "Duplicate submission detected. Please wait." },
+        { status: 429 }
+      );
+    }
+
     const confession = await Confession.create({
       message: moderated.clean,
+      messageHash,
       music,
     });
 

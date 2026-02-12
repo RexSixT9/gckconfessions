@@ -15,6 +15,7 @@ type Notice = { type: "error" | "success"; message: string } | null;
 export default function SubmitPage() {
   const [message, setMessage] = useState("");
   const [music, setMusic] = useState("");
+  const [website, setWebsite] = useState("");
   const [notice, setNotice] = useState<Notice>(null);
   const [loading, setLoading] = useState(false);
 
@@ -27,7 +28,7 @@ export default function SubmitPage() {
       const response = await fetch("/api/confessions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message, music }),
+        body: JSON.stringify({ message, music, website }),
       });
 
       const data = await response.json();
@@ -38,6 +39,7 @@ export default function SubmitPage() {
 
       setMessage("");
       setMusic("");
+      setWebsite("");
       setNotice({ type: "success", message: "Confession submitted successfully!" });
     } catch (error) {
       setNotice({
@@ -69,7 +71,7 @@ export default function SubmitPage() {
                 Share Your Confession
               </h1>
               <p className="mx-auto max-w-2xl text-base text-[hsl(var(--muted-foreground))] sm:text-lg">
-                Express yourself without fear. No accounts, no tracking, no judgment. Your confession stays completely anonymous.
+                Anonymous, simple, and safe. Share what is on your mind.
               </p>
             </div>
           </div>
@@ -77,33 +79,19 @@ export default function SubmitPage() {
 
         {/* Form Section */}
         <section className="mx-auto w-full max-w-4xl px-4 py-16 sm:px-6 sm:py-24">
-          {/* Success Notice */}
-          {notice?.type === "success" && (
-            <div className="mb-8 flex gap-3 rounded-xl border border-[hsl(var(--success))]/40 bg-[hsl(var(--success))]/8 p-4 text-sm text-[hsl(var(--success))] dark:border-[hsl(var(--success))]/50 dark:bg-[hsl(var(--success))]/10 dark:text-[hsl(var(--success))]">
-              <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0" />
-              <div>
-                <p className="font-semibold">{notice.message}</p>
-                <p className="mt-1 text-xs opacity-90">
-                  Our community team will review your confession shortly. Feel free to share another one below.
-                </p>
-              </div>
-            </div>
-          )}
-
-          {/* Error Notice */}
-          {notice?.type === "error" && (
-            <div className="mb-8 flex gap-3 rounded-xl border border-[hsl(var(--destructive))]/40 bg-[hsl(var(--destructive))]/8 p-4 text-sm text-[hsl(var(--destructive))] dark:border-[hsl(var(--destructive))]/50 dark:bg-[hsl(var(--destructive))]/10 dark:text-[hsl(var(--destructive))]">
-              <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" />
-              <div>
-                <p className="font-semibold">Unable to Submit</p>
-                <p className="mt-1 text-xs opacity-90">{notice.message}</p>
-              </div>
-            </div>
-          )}
-
           {/* Form Card */}
           <div className="rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-5 shadow-sm sm:p-8 lg:p-10">
             <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8">
+              <input
+                type="text"
+                name="website"
+                value={website}
+                onChange={(event) => setWebsite(event.target.value)}
+                autoComplete="off"
+                tabIndex={-1}
+                aria-hidden="true"
+                className="hidden"
+              />
               {/* Confession Textarea */}
               <div className="space-y-3">
                 <div className="flex items-baseline justify-between">
@@ -131,7 +119,7 @@ export default function SubmitPage() {
                   className="w-full rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] px-4 py-3 text-sm placeholder:text-[hsl(var(--muted-foreground))]/70 outline-none transition focus:border-[hsl(var(--accent))] focus:ring-2 focus:ring-[hsl(var(--accent))]/25"
                 />
                 <p className="text-xs text-[hsl(var(--muted-foreground))]">
-                  Be authentic and respectful. Hateful or spam content will be removed.
+                  Be respectful. Spam or hateful content is removed.
                 </p>
               </div>
 
@@ -139,9 +127,7 @@ export default function SubmitPage() {
               <div className="space-y-3">
                 <label className="text-base font-semibold text-[hsl(var(--foreground))]">
                   Companion Song{' '}
-                  <span className="text-xs font-normal text-[hsl(var(--muted-foreground))]">
-                    (optional — add a song that represents your confession)
-                  </span>
+                  <span className="text-xs font-normal text-[hsl(var(--muted-foreground))]">(optional)</span>
                 </label>
                 <input
                   id="music"
@@ -152,9 +138,7 @@ export default function SubmitPage() {
                   placeholder="e.g., 'Tear in the Club - The Weeknd'"
                   className="w-full rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] px-4 py-3 text-sm placeholder:text-[hsl(var(--muted-foreground))] outline-none transition focus:border-[hsl(var(--accent))] focus:ring-2 focus:ring-[hsl(var(--accent))]/20"
                 />
-                <p className="text-xs text-[hsl(var(--muted-foreground))]">
-                  Add a song that pairs with your confession for more impact.
-                </p>
+                <p className="text-xs text-[hsl(var(--muted-foreground))]">Add a song if you want.</p>
               </div>
 
               {/* Info Banner */}
@@ -165,7 +149,7 @@ export default function SubmitPage() {
                     Your privacy is protected
                   </p>
                   <p className="text-xs text-[hsl(var(--muted-foreground))]">
-                    Completely anonymous. No accounts. Rate-limited to prevent spam. Admin-reviewed before posting.
+                    Anonymous. No accounts. Reviewed before posting.
                   </p>
                 </div>
               </div>
@@ -188,6 +172,28 @@ export default function SubmitPage() {
                   </span>
                 )}
               </button>
+
+              {/* Success Notice */}
+              {notice?.type === "success" && (
+                <div className="flex gap-3 rounded-xl border border-[hsl(var(--success))]/40 bg-[hsl(var(--success))]/8 p-4 text-sm text-[hsl(var(--success))] dark:border-[hsl(var(--success))]/50 dark:bg-[hsl(var(--success))]/10 dark:text-[hsl(var(--success))]">
+                  <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0" />
+                  <div>
+                    <p className="font-semibold">{notice.message}</p>
+                    <p className="mt-1 text-xs opacity-90">We will review it shortly.</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Error Notice */}
+              {notice?.type === "error" && (
+                <div className="flex gap-3 rounded-xl border border-[hsl(var(--destructive))]/40 bg-[hsl(var(--destructive))]/8 p-4 text-sm text-[hsl(var(--destructive))] dark:border-[hsl(var(--destructive))]/50 dark:bg-[hsl(var(--destructive))]/10 dark:text-[hsl(var(--destructive))]">
+                  <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" />
+                  <div>
+                    <p className="font-semibold">Unable to submit</p>
+                    <p className="mt-1 text-xs opacity-90">{notice.message}</p>
+                  </div>
+                </div>
+              )}
 
               {/* Back Link */}
               <div className="text-center">

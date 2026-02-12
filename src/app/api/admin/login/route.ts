@@ -7,8 +7,35 @@ import { checkLoginLimit, getBlockedIps, getClientIp } from "@/lib/rateLimit";
 import Admin from "@/models/Admin";
 import AuditLog from "@/models/AuditLog";
 
+function isSameOrigin(request: Request) {
+  const origin = request.headers.get("origin");
+  if (!origin) return true;
+
+  const host = request.headers.get("host");
+  if (!host) return false;
+
+  try {
+    const originHost = new URL(origin).host;
+    return originHost === host;
+  } catch {
+    return false;
+  }
+}
+
 export async function POST(request: Request) {
   try {
+    if (!isSameOrigin(request)) {
+      return NextResponse.json({ error: "Invalid origin." }, { status: 403 });
+    }
+
+    const contentType = request.headers.get("content-type") ?? "";
+    if (!contentType.includes("application/json")) {
+      return NextResponse.json(
+        { error: "Unsupported content type." },
+        { status: 415 }
+      );
+    }
+
     let arcjetDecision;
     try {
       arcjetDecision = await aj.protect(request);
@@ -83,9 +110,10 @@ export async function POST(request: Request) {
     const response = NextResponse.json({ ok: true });
     response.cookies.set("gck_admin_token", token, {
       httpOnly: true,
-      sameSite: "lax",
+      sameSite: "strict",
       path: "/",
       maxAge: 60 * 60 * 8,
+      secure: process.env.NODE_ENV === "production",
     });
 
     return response;

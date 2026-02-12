@@ -3,6 +3,7 @@ import mongoose, { Schema } from "mongoose";
 const ConfessionSchema = new Schema(
   {
     message: { type: String, required: true, trim: true },
+    messageHash: { type: String, index: true },
     music: { type: String, default: "" },
     status: {
       type: String,
