@@ -5,7 +5,7 @@ import { useTheme } from "next-themes";
 import { useEffect, useState, useCallback, memo } from "react";
 
 const ThemeToggle = memo(function ThemeToggle() {
-  const { theme, setTheme } = useTheme();
+  const { theme, resolvedTheme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [showNotification, setShowNotification] = useState(false);
 
@@ -14,7 +14,8 @@ const ThemeToggle = memo(function ThemeToggle() {
   }, []);
 
   const handleThemeToggle = useCallback(() => {
-    const newTheme = theme === "dark" ? "light" : "dark";
+    const activeTheme = resolvedTheme ?? theme;
+    const newTheme = activeTheme === "dark" ? "light" : "dark";
     setTheme(newTheme);
     
     // Show notification
@@ -26,7 +27,7 @@ const ThemeToggle = memo(function ThemeToggle() {
     return null;
   }
 
-  const isDark = theme === "dark";
+  const isDark = (resolvedTheme ?? theme) === "dark";
 
   return (
     <div className="relative">
