@@ -76,20 +76,6 @@ export default function SubmitPage() {
     }
   }, [captchaReady]);
 
-  useEffect(() => {
-    if (!turnstileReady || !siteKey || !turnstileRef.current || turnstileWidgetId) return;
-    if (!window.turnstile) return;
-
-    const widgetId = window.turnstile.render(turnstileRef.current, {
-      sitekey: siteKey,
-      callback: (token) => setTurnstileToken(token),
-      "expired-callback": () => setTurnstileToken(""),
-      "error-callback": () => setTurnstileToken(""),
-    });
-
-    setTurnstileWidgetId(widgetId);
-  }, [turnstileReady, siteKey, turnstileWidgetId]);
-
   const handleSubmit = useCallback(async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setNotice(null);
