@@ -40,6 +40,11 @@ export default function SubmitPage() {
   const turnstileRef = useRef<HTMLDivElement | null>(null);
   const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? "";
   const [turnstileEnabled, setTurnstileEnabled] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     setTurnstileEnabled(Boolean(siteKey));
@@ -123,7 +128,7 @@ export default function SubmitPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-[hsl(var(--background))]">
-      {turnstileEnabled && (
+      {mounted && turnstileEnabled && (
         <Script
           src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
           strategy="afterInteractive"
@@ -251,23 +256,23 @@ export default function SubmitPage() {
                 )}
               </button>
 
-              {turnstileEnabled ? (
-                <div className="flex items-center justify-center">
-                  <div ref={turnstileRef} />
-                </div>
-              ) : (
+              <div className="flex items-center justify-center">
+                <div ref={turnstileRef} />
+              </div>
+
+              {mounted && !turnstileEnabled && (
                 <p className="text-center text-xs text-[hsl(var(--muted-foreground))]">
                   Verification is not configured. Add TURNSTILE keys to enable submissions.
                 </p>
               )}
 
-              {turnstileEnabled && !turnstileToken && (
+              {mounted && turnstileEnabled && !turnstileToken && (
                 <p className="text-center text-xs text-[hsl(var(--muted-foreground))]">
                   Complete the verification to submit.
                 </p>
               )}
 
-              {turnstileEnabled && turnstileLoadError && (
+              {mounted && turnstileEnabled && turnstileLoadError && (
                 <p className="text-center text-xs text-[hsl(var(--destructive))]">
                   Verification failed to load. Disable ad blockers or refresh the page.
                 </p>
