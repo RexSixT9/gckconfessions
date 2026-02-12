@@ -41,8 +41,13 @@ async function consume(limiter: RateLimiterMemory, key: string): Promise<RateLim
       remaining: res.remainingPoints,
       reset: Date.now() + res.msBeforeNext,
     };
-  } catch (rej) {
-    const reset = Date.now() + (rej instanceof Error ? 0 : rej.msBeforeNext);
+  } catch (rej: unknown) {
+    const hasMsBeforeNext =
+      typeof rej === "object" &&
+      rej !== null &&
+      "msBeforeNext" in rej &&
+      typeof (rej as { msBeforeNext?: number }).msBeforeNext === "number";
+    const reset = Date.now() + (hasMsBeforeNext ? (rej as { msBeforeNext: number }).msBeforeNext : 0);
     return { allowed: false, remaining: 0, reset };
   }
 }
