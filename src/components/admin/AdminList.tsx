@@ -11,7 +11,7 @@ import {
   Loader,
   RefreshCw,
   X,
-  Instagram,
+  Share2,
   Clock,
 } from "lucide-react";
 
@@ -55,14 +55,14 @@ export default function AdminList() {
       const response = await fetch(`/api/confessions?${params.toString()}`);
       const data = await response.json();
 
-      if (!response.ok) throw new Error(data.error || "Failed to load confessions.");
+      if (!response.ok) throw new Error(data.error || "Failed to load.");
 
       setItems(data.confessions ?? []);
       setTotalCount(data.total ?? 0);
     } catch (error) {
       setNotice({
         type: "error",
-        message: error instanceof Error ? error.message : "Failed to load data.",
+        message: error instanceof Error ? error.message : "Load failed.",
       });
       setItems([]);
     } finally {
@@ -98,12 +98,12 @@ export default function AdminList() {
       });
 
       await fetchItems();
-      setNotice({ type: "success", message: "Published successfully." });
+      setNotice({ type: "success", message: "Published." });
       setTimeout(() => setNotice(null), 3000);
     } catch (error) {
       setNotice({
         type: "error",
-        message: error instanceof Error ? error.message : "Operation failed.",
+        message: error instanceof Error ? error.message : "Action failed.",
       });
     } finally {
       setProcessingId(null);
@@ -127,7 +127,7 @@ export default function AdminList() {
     } catch (error) {
       setNotice({
         type: "error",
-        message: error instanceof Error ? error.message : "Operation failed.",
+        message: error instanceof Error ? error.message : "Action failed.",
       });
     } finally {
       setProcessingId(null);
@@ -146,15 +146,15 @@ export default function AdminList() {
       });
 
       await fetchItems();
-      setNotice({ 
-        type: "success", 
-        message: item.instagramPosted ? "Removed from Instagram." : "Marked as posted on Instagram." 
+      setNotice({
+        type: "success",
+        message: item.instagramPosted ? "Instagram cleared." : "Marked Instagram.",
       });
       setTimeout(() => setNotice(null), 3000);
     } catch (error) {
       setNotice({
         type: "error",
-        message: error instanceof Error ? error.message : "Operation failed.",
+        message: error instanceof Error ? error.message : "Action failed.",
       });
     } finally {
       setProcessingId(null);
@@ -173,12 +173,12 @@ export default function AdminList() {
       });
 
       await fetchItems();
-      setNotice({ type: "success", message: "Confession rejected." });
+      setNotice({ type: "success", message: "Rejected." });
       setTimeout(() => setNotice(null), 3000);
     } catch (error) {
       setNotice({
         type: "error",
-        message: error instanceof Error ? error.message : "Operation failed.",
+        message: error instanceof Error ? error.message : "Action failed.",
       });
     } finally {
       setProcessingId(null);
@@ -195,17 +195,17 @@ export default function AdminList() {
       {/* Header */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-2">
-          <h2 className="text-sm font-semibold text-[hsl(var(--foreground))] sm:text-base">Confessions</h2>
+          <h2 className="text-sm font-semibold text-[hsl(var(--foreground))] sm:text-base">Queue</h2>
           <span className="text-xs text-[hsl(var(--muted-foreground))]">({totalCount})</span>
         </div>
         <button
           type="button"
           onClick={fetchItems}
           disabled={loading}
-          className="flex items-center justify-center gap-1.5 rounded-md border border-[hsl(var(--border))] px-3 py-2 text-xs font-medium text-[hsl(var(--foreground))] transition hover:bg-[hsl(var(--secondary))] disabled:opacity-50 sm:w-auto"
+          className="flex w-full items-center justify-center gap-1.5 rounded-full border border-[hsl(var(--accent))]/30 bg-[hsl(var(--accent))]/10 px-3 py-2 text-xs font-medium text-[hsl(var(--accent))] transition hover:bg-[hsl(var(--accent))]/20 active:scale-95 disabled:opacity-50 sm:w-auto"
         >
           <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
-          <span>Refresh</span>
+          <span>Reload</span>
         </button>
       </div>
 
@@ -216,13 +216,13 @@ export default function AdminList() {
           <input
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
-            placeholder="Search confessions..."
-            className="w-full rounded-md border border-[hsl(var(--border))] bg-[hsl(var(--background))] py-2 pl-9 pr-3 text-sm outline-none transition placeholder:text-[hsl(var(--muted-foreground))] focus:border-[hsl(var(--accent))] focus:ring-1 focus:ring-[hsl(var(--accent))]"
+            placeholder="Search text or song"
+            className="w-full rounded-full border border-[hsl(var(--border))]/70 bg-[hsl(var(--background))] py-2 pl-9 pr-3 text-sm outline-none transition placeholder:text-[hsl(var(--muted-foreground))] focus:border-[hsl(var(--accent))] focus:ring-2 focus:ring-[hsl(var(--accent))]/25"
           />
         </div>
         <button
           type="submit"
-          className="rounded-md bg-[hsl(var(--accent))] px-4 py-2 text-sm font-medium text-[hsl(var(--accent-foreground))] transition hover:opacity-90 sm:w-auto"
+          className="w-full rounded-full border border-[hsl(var(--accent))]/30 bg-[hsl(var(--accent))]/10 px-4 py-2 text-sm font-medium text-[hsl(var(--accent))] transition hover:bg-[hsl(var(--accent))]/20 active:scale-95 sm:w-auto"
         >
           Search
         </button>
@@ -236,10 +236,10 @@ export default function AdminList() {
               key={f}
               type="button"
               onClick={() => setFilter(f as typeof filter)}
-              className={`rounded-md px-2.5 py-1.5 text-xs font-medium transition ${
+              className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
                 filter === f
-                  ? "bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]"
-                  : "border border-[hsl(var(--border))] text-[hsl(var(--foreground))] hover:bg-[hsl(var(--secondary))]"
+                  ? "border border-[hsl(var(--accent))] bg-[hsl(var(--accent))]/15 text-[hsl(var(--accent))] shadow-sm"
+                  : "border border-[hsl(var(--border))]/70 text-[hsl(var(--foreground))] hover:border-[hsl(var(--accent))]/30 hover:bg-[hsl(var(--accent))]/5"
               }`}
             >
               {f.charAt(0).toUpperCase() + f.slice(1)}
@@ -253,10 +253,10 @@ export default function AdminList() {
               key={s}
               type="button"
               onClick={() => setStatusFilter(s as typeof statusFilter)}
-              className={`rounded-md px-2.5 py-1.5 text-xs font-medium transition ${
+              className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
                 statusFilter === s
-                  ? "bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]"
-                  : "border border-[hsl(var(--border))] text-[hsl(var(--foreground))] hover:bg-[hsl(var(--secondary))]"
+                  ? "border border-[hsl(var(--accent))] bg-[hsl(var(--accent))]/15 text-[hsl(var(--accent))] shadow-sm"
+                  : "border border-[hsl(var(--border))]/70 text-[hsl(var(--foreground))] hover:border-[hsl(var(--accent))]/30 hover:bg-[hsl(var(--accent))]/5"
               }`}
             >
               {s.charAt(0).toUpperCase() + s.slice(1)}
@@ -268,7 +268,7 @@ export default function AdminList() {
       {/* Notices */}
       {notice && (
         <div
-          className={`flex items-start gap-2.5 rounded-md border p-3 text-sm ${
+          className={`flex items-start gap-2.5 rounded-2xl border p-3 text-sm ${
             notice.type === "error"
               ? "border-red-200 bg-red-50 text-red-700 dark:border-red-900/30 dark:bg-red-950/20 dark:text-red-300"
               : "border-green-200 bg-green-50 text-green-700 dark:border-green-900/30 dark:bg-green-950/20 dark:text-green-300"
@@ -285,7 +285,7 @@ export default function AdminList() {
 
       {/* Loading */}
       {loading && (
-        <div className="flex items-center justify-center gap-2 rounded-md border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] py-8">
+        <div className="flex items-center justify-center gap-2 rounded-2xl border border-[hsl(var(--border))]/70 bg-[hsl(var(--secondary))]/70 py-8">
           <Loader className="h-4 w-4 animate-spin text-[hsl(var(--accent))]" />
           <span className="text-sm text-[hsl(var(--muted-foreground))]">Loading...</span>
         </div>
@@ -293,8 +293,8 @@ export default function AdminList() {
 
       {/* Empty State */}
       {!loading && items.length === 0 && (
-        <div className="rounded-md border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] py-8 text-center">
-          <p className="text-sm text-[hsl(var(--muted-foreground))]">No confessions found.</p>
+        <div className="rounded-2xl border border-[hsl(var(--border))]/70 bg-[hsl(var(--secondary))]/70 py-8 text-center">
+          <p className="text-sm text-[hsl(var(--muted-foreground))]">No results.</p>
         </div>
       )}
 
@@ -304,13 +304,13 @@ export default function AdminList() {
           {items.map((item) => (
             <div
               key={item._id}
-              className="overflow-hidden rounded-md border border-[hsl(var(--border))] bg-[hsl(var(--card))]"
+              className="overflow-hidden rounded-2xl border border-[hsl(var(--border))]/70 bg-[hsl(var(--card))] shadow-sm"
             >
               {/* Header */}
-              <div className="flex flex-col gap-2.5 border-b border-[hsl(var(--border))] bg-[hsl(var(--secondary))]/50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+              <div className="flex flex-col gap-2.5 border-b border-[hsl(var(--border))]/70 bg-[hsl(var(--secondary))]/60 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5">
                 <div className="flex flex-wrap items-center gap-1.5">
                   {/* Status Badge */}
-                  <span className="flex items-center gap-1 rounded border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-2 py-1 text-xs font-medium capitalize text-[hsl(var(--foreground))]">
+                  <span className="flex items-center gap-1 rounded-full border border-[hsl(var(--border))]/70 bg-[hsl(var(--card))]/80 px-2.5 py-1 text-xs font-medium capitalize text-[hsl(var(--foreground))]">
                     {item.status === "approved" && <CheckCircle2 className="h-3 w-3" />}
                     {item.status === "rejected" && <X className="h-3 w-3" />}
                     {item.status === "pending" && <Clock className="h-3 w-3" />}
@@ -319,7 +319,7 @@ export default function AdminList() {
 
                   {/* Published Badge */}
                   {item.posted && (
-                    <span className="flex items-center gap-1 rounded border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-2 py-1 text-xs font-medium capitalize text-[hsl(var(--foreground))]">
+                    <span className="flex items-center gap-1 rounded-full border border-[hsl(var(--border))]/70 bg-[hsl(var(--card))]/80 px-2.5 py-1 text-xs font-medium capitalize text-[hsl(var(--foreground))]">
                       <Eye className="h-3 w-3" />
                       Published
                     </span>
@@ -327,9 +327,9 @@ export default function AdminList() {
 
                   {/* Instagram Badge */}
                   {item.instagramPosted && (
-                    <span className="flex items-center gap-1 rounded border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-2 py-1 text-xs font-medium text-[hsl(var(--foreground))]">
-                      <Instagram className="h-3 w-3" />
-                      Instagram
+                    <span className="flex items-center gap-1 rounded-full border border-[hsl(var(--border))]/70 bg-[hsl(var(--card))]/80 px-2.5 py-1 text-xs font-medium text-[hsl(var(--foreground))]">
+                      <Share2 className="h-3 w-3" />
+                      Shared
                     </span>
                   )}
                 </div>
@@ -349,8 +349,8 @@ export default function AdminList() {
               <div className="space-y-3 p-4 sm:p-5">
                 <div className="flex items-start gap-3">
                   <div className="min-w-0 flex-1">
-                    <div className="max-h-[180px] overflow-y-auto rounded-md border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-3.5 sm:max-h-[200px] sm:p-4">
-                      <p className="break-words whitespace-pre-wrap text-sm leading-relaxed text-[hsl(var(--foreground))]">
+                    <div className="max-h-45 overflow-y-auto rounded-2xl border border-[hsl(var(--border))]/70 bg-[hsl(var(--card))] p-3.5 sm:max-h-50 sm:p-4">
+                      <p className="wrap-break-word whitespace-pre-wrap text-sm leading-relaxed text-[hsl(var(--foreground))]">
                         {item.message}
                       </p>
                     </div>
@@ -358,7 +358,7 @@ export default function AdminList() {
                   <button
                     type="button"
                     onClick={() => handleCopy(item.message, `msg-${item._id}`)}
-                    className="shrink-0 rounded-md border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-2 transition hover:bg-[hsl(var(--accent))] hover:border-[hsl(var(--accent))] active:scale-95"
+                    className="shrink-0 rounded-full border border-[hsl(var(--border))]/70 bg-[hsl(var(--card))]/80 p-2 transition hover:border-[hsl(var(--accent))]/40 hover:text-[hsl(var(--accent))] active:scale-95"
                     title="Copy Message"
                   >
                     <Copy
@@ -375,8 +375,8 @@ export default function AdminList() {
                 {item.music && (
                   <div className="flex items-start gap-3">
                     <div className="min-w-0 flex-1">
-                      <div className="max-h-[80px] overflow-y-auto rounded-md border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] p-3 sm:max-h-[100px] sm:p-3.5">
-                        <p className="break-words whitespace-pre-wrap text-xs leading-relaxed text-[hsl(var(--foreground))]">
+                      <div className="max-h-20 overflow-y-auto rounded-2xl border border-[hsl(var(--border))]/70 bg-[hsl(var(--secondary))]/70 p-3 sm:max-h-25 sm:p-3.5">
+                        <p className="wrap-break-word whitespace-pre-wrap text-xs leading-relaxed text-[hsl(var(--foreground))]">
                           🎵 {item.music}
                         </p>
                       </div>
@@ -384,7 +384,7 @@ export default function AdminList() {
                     <button
                       type="button"
                       onClick={() => handleCopy(item.music || "", `music-${item._id}`)}
-                      className="shrink-0 rounded-md border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-2 transition hover:bg-[hsl(var(--accent))] hover:border-[hsl(var(--accent))] active:scale-95"
+                      className="shrink-0 rounded-full border border-[hsl(var(--border))]/70 bg-[hsl(var(--card))]/80 p-2 transition hover:border-[hsl(var(--accent))]/40 hover:text-[hsl(var(--accent))] active:scale-95"
                       title="Copy Music"
                     >
                       <Copy
@@ -400,7 +400,7 @@ export default function AdminList() {
               </div>
 
               {/* Actions */}
-              <div className="flex flex-wrap gap-2 border-t border-[hsl(var(--border))] bg-[hsl(var(--secondary))]/50 px-4 py-3 sm:gap-2.5 sm:px-5">
+              <div className="flex flex-wrap gap-2 border-t border-[hsl(var(--border))]/70 bg-[hsl(var(--secondary))]/60 px-4 py-3 sm:gap-2.5 sm:px-5">
                 {/* Pending Actions */}
                 {item.status === "pending" && (
                   <>
@@ -408,21 +408,21 @@ export default function AdminList() {
                       type="button"
                       onClick={() => acceptAndPublish(item)}
                       disabled={processingId === item._id}
-                      className="flex flex-1 items-center justify-center gap-1.5 rounded-md border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-3 py-2 text-xs font-medium text-[hsl(var(--foreground))] transition hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))] hover:border-[hsl(var(--accent))] active:scale-95 disabled:opacity-50 sm:flex-initial"
+                      className="flex w-full items-center justify-center gap-1.5 rounded-full border border-[hsl(var(--action-accept))]/30 bg-[hsl(var(--action-accept))]/10 px-3 py-2 text-xs font-medium text-[hsl(var(--action-accept))] transition hover:bg-[hsl(var(--action-accept))]/20 active:scale-95 disabled:opacity-50 sm:w-auto"
                     >
                       {processingId === item._id ? (
                         <Loader className="h-3.5 w-3.5 animate-spin" />
                       ) : (
                         <CheckCircle2 className="h-3.5 w-3.5" />
                       )}
-                      <span className="hidden sm:inline">Accept & Publish</span>
-                      <span className="sm:hidden">Accept</span>
+                      <span className="hidden sm:inline">Approve + publish</span>
+                      <span className="sm:hidden">Approve</span>
                     </button>
                     <button
                       type="button"
                       onClick={() => rejectConfession(item)}
                       disabled={processingId === item._id}
-                      className="flex flex-1 items-center justify-center gap-1.5 rounded-md border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-3 py-2 text-xs font-medium text-[hsl(var(--foreground))] transition hover:bg-[hsl(var(--secondary))] hover:border-[hsl(var(--border))] active:scale-95 disabled:opacity-50 sm:flex-initial"
+                      className="flex w-full items-center justify-center gap-1.5 rounded-full border border-[hsl(var(--action-reject))]/30 bg-[hsl(var(--action-reject))]/10 px-3 py-2 text-xs font-medium text-[hsl(var(--action-reject))] transition hover:bg-[hsl(var(--action-reject))]/20 active:scale-95 disabled:opacity-50 sm:w-auto"
                     >
                       {processingId === item._id ? (
                         <Loader className="h-3.5 w-3.5 animate-spin" />
@@ -441,7 +441,7 @@ export default function AdminList() {
                       type="button"
                       onClick={() => togglePublish(item)}
                       disabled={processingId === item._id}
-                      className="flex flex-1 items-center justify-center gap-1.5 rounded-md border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-3 py-2 text-xs font-medium text-[hsl(var(--foreground))] transition hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))] hover:border-[hsl(var(--accent))] active:scale-95 disabled:opacity-50 sm:flex-initial"
+                      className="flex w-full items-center justify-center gap-1.5 rounded-full border border-[hsl(var(--action-publish))]/30 bg-[hsl(var(--action-publish))]/10 px-3 py-2 text-xs font-medium text-[hsl(var(--action-publish))] transition hover:bg-[hsl(var(--action-publish))]/20 active:scale-95 disabled:opacity-50 sm:w-auto"
                     >
                       {processingId === item._id ? (
                         <Loader className="h-3.5 w-3.5 animate-spin" />
@@ -456,21 +456,21 @@ export default function AdminList() {
                       type="button"
                       onClick={() => toggleInstagram(item)}
                       disabled={processingId === item._id}
-                      className="flex flex-1 items-center justify-center gap-1.5 rounded-md border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-3 py-2 text-xs font-medium text-[hsl(var(--foreground))] transition hover:bg-[hsl(var(--secondary))] hover:border-[hsl(var(--border))] active:scale-95 disabled:opacity-50 sm:flex-initial"
+                      className="flex w-full items-center justify-center gap-1.5 rounded-full border border-[hsl(var(--accent))]/30 bg-[hsl(var(--accent))]/10 px-3 py-2 text-xs font-medium text-[hsl(var(--accent))] transition hover:bg-[hsl(var(--accent))]/20 active:scale-95 disabled:opacity-50 sm:w-auto"
                     >
                       {processingId === item._id ? (
                         <Loader className="h-3.5 w-3.5 animate-spin" />
                       ) : (
-                        <Instagram className="h-3.5 w-3.5" />
+                        <Share2 className="h-3.5 w-3.5" />
                       )}
-                      {item.instagramPosted ? "Instagram Posted" : "Mark Instagram"}
+                      {item.instagramPosted ? "Shared" : "Mark Share"}
                     </button>
                   </>
                 )}
 
                 {/* Rejected Status */}
                 {item.status === "rejected" && (
-                  <span className="flex items-center gap-1.5 rounded-md border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-3 py-2 text-xs font-medium capitalize text-[hsl(var(--foreground))]">
+                  <span className="flex w-full items-center gap-1.5 rounded-full border border-[hsl(var(--border))]/70 bg-[hsl(var(--card))]/80 px-3 py-2 text-xs font-medium capitalize text-[hsl(var(--foreground))] sm:w-auto">
                     <X className="h-3.5 w-3.5" />
                     Rejected
                   </span>

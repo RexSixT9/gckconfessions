@@ -1,6 +1,7 @@
 'use client';
 
-import { Heart, Shield, Zap } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { ArrowUpRight, Heart, MessageSquare, Sparkles, Send } from 'lucide-react';
 import dynamic from 'next/dynamic';
 
 const Footer = dynamic(() => import('@/components/Footer'), {
@@ -9,103 +10,135 @@ const Footer = dynamic(() => import('@/components/Footer'), {
 });
 
 export default function Home() {
+  const [highlightFilter, setHighlightFilter] = useState<'all' | 'love' | 'stress' | 'life'>(
+    'all'
+  );
+
+  const highlights = useMemo(
+    () => [
+      { tag: 'love', text: 'I finally told someone how I feel.' },
+      { tag: 'stress', text: 'Exams are heavy, but I am not alone.' },
+      { tag: 'life', text: 'Small wins still matter to me.' },
+      { tag: 'love', text: 'I am learning to be kind to myself.' },
+      { tag: 'stress', text: 'Asking for help was the best step.' },
+      { tag: 'life', text: 'I am proud of how far I have come.' },
+    ],
+    []
+  );
+
+  const filteredHighlights = useMemo(() => {
+    if (highlightFilter === 'all') return highlights;
+    return highlights.filter((item) => item.tag === highlightFilter);
+  }, [highlightFilter, highlights]);
+
   return (
     <div className="flex min-h-screen flex-col bg-[hsl(var(--background))]">
       <main className="flex-1">
         {/* Mobile CTA Bar */}
-        <div className="sticky top-14 z-40 border-b border-[hsl(var(--border))] bg-[hsl(var(--background))]/95 backdrop-blur sm:hidden">
+        <div className="sticky top-14 z-40 border-b border-[hsl(var(--border))]/70 bg-[hsl(var(--background))]/90 backdrop-blur sm:hidden">
           <div className="mx-auto flex w-full max-w-6xl px-4 py-3">
             <a
-              className="w-full rounded-lg bg-[hsl(var(--accent))] px-4 py-2.5 text-center text-sm font-semibold text-[hsl(var(--accent-foreground))] shadow-sm transition hover:opacity-90"
+              className="flex w-full items-center justify-center gap-2 rounded-full border border-[hsl(var(--border))]/70 bg-[hsl(var(--card))] px-4 py-2.5 text-center text-sm font-semibold text-[hsl(var(--foreground))] shadow-sm transition hover:border-[hsl(var(--accent))]/40 hover:text-[hsl(var(--accent))]"
               href="/submit"
             >
-              Share Your Confession
+              <Sparkles className="h-4 w-4 text-[hsl(var(--accent))]" />
+              Write a confession
+              <ArrowUpRight className="h-4 w-4" />
             </a>
           </div>
         </div>
 
         {/* Hero Section */}
-        <section className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-24 lg:py-28">
-          <div className="grid gap-12 lg:grid-cols-2 lg:gap-16">
+        <section className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6 sm:py-20 lg:py-28">
+          <div className="grid gap-10 lg:grid-cols-2 lg:gap-16">
             {/* Left Content */}
-            <div className="flex flex-col justify-center space-y-8">
+            <div className="flex flex-col justify-center space-y-6 sm:space-y-8">
               {/* Badge */}
-              <div className="inline-flex w-fit items-center gap-2 rounded-full border border-[hsl(var(--accent))]/40 bg-[hsl(var(--accent))]/8 px-4 py-2.5">
-                <span className="inline-block h-2.5 w-2.5 rounded-full bg-[hsl(var(--accent))]" style={{boxShadow: '0 0 8px hsl(var(--accent))'}}></span>
+              <div className="inline-flex w-fit items-center gap-2 rounded-full border border-[hsl(var(--border))]/70 bg-[hsl(var(--card))] px-4 py-2 animate-slide-down">
+                <span className="inline-block h-2.5 w-2.5 rounded-full bg-[hsl(var(--accent))]"></span>
                 <span className="text-xs font-semibold text-[hsl(var(--accent))]">
-                  Private • Safe • Moderated
+                  Anonymous • Moderated
                 </span>
               </div>
 
               {/* Main Heading */}
-              <div className="space-y-4">
-                <h1 className="break-words text-3xl font-bold leading-tight tracking-tight text-[hsl(var(--foreground))] sm:text-4xl lg:text-5xl">
-                  Share Your{' '}
-                  <span className="bg-linear-to-r from-[hsl(var(--accent))] to-[hsl(var(--accent))]/75 bg-clip-text text-transparent">
-                    Inner Thoughts
-                  </span>
+              <div className="space-y-4 animate-slide-up animation-delay-100">
+                <h1 className="text-balance wrap-break-word text-2xl font-semibold leading-tight tracking-tight text-[hsl(var(--foreground))] sm:text-4xl lg:text-5xl">
+                  Share a confession.
                 </h1>
-                <p className="break-words text-base leading-relaxed text-[hsl(var(--muted-foreground))] sm:text-lg">
-                  A safe, judgment-free space where your campus community can share authentic thoughts, feelings, and stories—completely anonymous and carefully moderated.
+                <p className="text-balance wrap-break-word text-base leading-relaxed text-[hsl(var(--muted-foreground))] sm:text-lg">
+                  Post anonymously. Every message is reviewed before it appears.
+                </p>
+                <p className="text-sm text-[hsl(var(--muted-foreground))]">
+                  Why anonymous? It helps people share honestly without pressure.
                 </p>
               </div>
 
               {/* CTA Buttons */}
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4 animate-slide-up animation-delay-200">
                 <a
                   href="/submit"
-                  className="inline-flex items-center justify-center rounded-lg bg-[hsl(var(--accent))] px-6 py-3 text-sm font-semibold text-[hsl(var(--accent-foreground))] shadow-md transition hover:shadow-lg hover:opacity-90 sm:px-8 sm:py-3.5"
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[hsl(var(--accent))] px-6 py-3 text-sm font-semibold text-[hsl(var(--accent-foreground))] shadow-sm transition hover:opacity-90 active:scale-95 sm:w-auto sm:px-8 sm:py-3.5"
                 >
-                  Write a Confession
+                  Write a confession
+                  <ArrowUpRight className="h-4 w-4" />
                 </a>
                 <a
                   href="#how-it-works"
-                  className="inline-flex items-center justify-center rounded-lg border border-[hsl(var(--border))] px-6 py-3 text-sm font-semibold text-[hsl(var(--foreground))] transition hover:bg-[hsl(var(--secondary))] sm:px-8 sm:py-3.5"
+                  className="inline-flex w-full items-center justify-center rounded-full border border-[hsl(var(--border))] px-6 py-3 text-sm font-semibold text-[hsl(var(--foreground))] transition hover:border-[hsl(var(--accent))]/40 hover:text-[hsl(var(--accent))] active:scale-95 sm:w-auto sm:px-8 sm:py-3.5"
                 >
-                  Learn More
+                  How it works
                 </a>
               </div>
 
               {/* Trust Indicators */}
-              <div className="flex flex-col gap-3 pt-4 sm:flex-row sm:items-center sm:gap-6">
-                <div className="flex items-center gap-2 text-sm text-[hsl(var(--muted-foreground))]">
-                  <Shield className="h-4 w-4 text-[hsl(var(--accent))]" />
-                  <span>No spam • Protected</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-[hsl(var(--muted-foreground))]">
-                  <Heart className="h-4 w-4 text-[hsl(var(--accent))]" />
-                  <span>Trusted by community</span>
-                </div>
+              <div className="flex flex-col gap-2 pt-4 sm:flex-row sm:items-center sm:gap-3 animate-slide-up animation-delay-300">
+                {[
+                  { icon: MessageSquare, label: 'No accounts' },
+                  { icon: Heart, label: 'Reviewed for safety' },
+                ].map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <div
+                      key={item.label}
+                      className="inline-flex items-center gap-2 rounded-full border border-[hsl(var(--border))]/70 bg-[hsl(var(--card))] px-3 py-1.5 text-xs text-[hsl(var(--muted-foreground))] transition hover:border-[hsl(var(--accent))]/40 hover:bg-[hsl(var(--accent))]/5"
+                    >
+                      <Icon className="h-4 w-4 text-[hsl(var(--accent))]" />
+                      <span>{item.label}</span>
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
             {/* Right Visual */}
-            <div className="hidden lg:flex lg:items-center lg:justify-center">
+            <div className="hidden lg:flex lg:items-center lg:justify-center animate-slide-in-right animation-delay-200">
               <div className="relative">
                 {/* Gradient Background */}
-                <div className="absolute inset-0 rounded-2xl bg-linear-to-br from-[hsl(var(--accent))]/10 to-[hsl(var(--accent))]/5 blur-3xl"></div>
+                <div className="absolute inset-0 rounded-3xl bg-linear-to-br from-[hsl(var(--accent))]/10 to-transparent blur-3xl"></div>
 
                 {/* Card Display */}
-                <div className="relative space-y-3">
+                <div className="relative space-y-3 rounded-3xl border border-[hsl(var(--border))]/70 bg-[hsl(var(--card))] p-6 shadow-sm">
                   {[
                     {
-                      text: 'I have a secret...',
-                      color: 'from-[hsl(var(--accent))] to-[hsl(var(--accent))]/80',
+                      text: 'I have a confession.',
+                      color: 'from-[hsl(var(--accent))] to-[hsl(var(--accent))]/85',
                     },
                     {
-                      text: 'Sometimes I wonder...',
-                      color: 'from-[hsl(var(--accent))]/70 to-[hsl(var(--accent))]/50',
+                      text: 'I never said this out loud.',
+                      color: 'from-[hsl(var(--accent))]/70 to-[hsl(var(--accent))]/45',
                     },
                     {
-                      text: 'Nobody knows that I...',
-                      color: 'from-[hsl(var(--accent))]/50 to-[hsl(var(--accent))]/30',
+                      text: 'This has been on my mind.',
+                      color: 'from-[hsl(var(--accent))]/55 to-[hsl(var(--accent))]/30',
                     },
                   ].map((item, i) => (
                     <div
                       key={i}
-                      className={`transform rounded-xl bg-linear-to-r ${item.color} p-4 text-white shadow-lg transition hover:shadow-xl hover:-translate-y-1 sm:p-6`}
+                      className={`transform rounded-2xl bg-linear-to-r ${item.color} p-4 text-white shadow-sm transition hover:shadow-md hover:-translate-y-1 sm:p-6 animate-slide-up`}
                       style={{
                         transform: `rotate(${i === 0 ? -2 : i === 1 ? 0 : 2}deg) translateY(${i * 8}px)`,
+                        animationDelay: `${(i + 3) * 100}ms`,
                       }}
                     >
                       <p className="text-sm font-medium sm:text-base">{item.text}</p>
@@ -114,69 +147,84 @@ export default function Home() {
                 </div>
               </div>
             </div>
+            <div className="lg:hidden animate-slide-up animation-delay-200">
+              <div className="rounded-3xl border border-[hsl(var(--border))]/70 bg-[hsl(var(--card))] p-4 shadow-sm sm:p-5">
+                <div className="space-y-3">
+                  <div className="rounded-2xl border border-[hsl(var(--border))]/60 bg-[hsl(var(--secondary))] p-4 transition hover:border-[hsl(var(--accent))]/40 hover:bg-[hsl(var(--accent))]/5">
+                    <p className="text-sm text-[hsl(var(--foreground))]">&ldquo;I have a confession.&rdquo;</p>
+                  </div>
+                  <div className="rounded-2xl border border-[hsl(var(--border))]/60 bg-[hsl(var(--secondary))] p-4 transition hover:border-[hsl(var(--accent))]/40 hover:bg-[hsl(var(--accent))]/5">
+                    <p className="text-sm text-[hsl(var(--foreground))]">&ldquo;I never said this out loud.&rdquo;</p>
+                  </div>
+                  <div className="rounded-2xl border border-[hsl(var(--border))]/60 bg-[hsl(var(--secondary))] p-4 transition hover:border-[hsl(var(--accent))]/40 hover:bg-[hsl(var(--accent))]/5">
+                    <p className="text-sm text-[hsl(var(--foreground))]">&ldquo;This has been on my mind.&rdquo;</p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
         {/* How It Works Section */}
-        <section id="how-it-works" className="border-t border-[hsl(var(--border))]">
-          <div className="mx-auto w-full max-w-4xl px-4 py-16 sm:px-6 sm:py-20 lg:py-24">
-            <div className="mb-12 text-center sm:mb-16">
-              <h2 className="text-2xl font-semibold tracking-tight text-[hsl(var(--foreground))] sm:text-3xl">
-                How It Works
+        <section id="how-it-works" className="border-t border-[hsl(var(--border))]/70">
+          <div className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6 sm:py-20 lg:py-24">
+            <div className="mb-8 text-center sm:mb-14 animate-slide-up">
+              <div className="mx-auto mb-4 inline-flex items-center gap-2 rounded-full border border-[hsl(var(--border))]/70 bg-[hsl(var(--card))] px-3 py-1 text-xs font-semibold text-[hsl(var(--muted-foreground))]">
+                <span className="h-2 w-2 rounded-full bg-[hsl(var(--accent))]"></span>
+                How it works
+              </div>
+              <h2 className="text-xl font-semibold tracking-tight text-[hsl(var(--foreground))] sm:text-3xl">
+                Three simple steps
               </h2>
               <p className="mt-3 text-sm text-[hsl(var(--muted-foreground))] sm:text-base">
-                Simple, secure, and anonymous
+                Anonymous by design.
               </p>
             </div>
 
-            {/* Steps List */}
-            <div className="space-y-8 sm:space-y-12">
+            <div className="grid gap-5 sm:grid-cols-2 md:grid-cols-3">
               {[
                 {
                   step: '01',
                   title: 'Write',
-                  description: 'Share your authentic thoughts anonymously. No signup required.',
+                  description: 'Share your message. No account needed.',
                   icon: Heart,
                 },
                 {
                   step: '02',
                   title: 'Review',
-                  description: 'Our team reviews for quality and community guidelines.',
-                  icon: Shield,
+                  description: 'Moderators check for safety and clarity.',
+                  icon: MessageSquare,
                 },
                 {
                   step: '03',
                   title: 'Publish',
-                  description: 'Your confession is published and seen by your community.',
-                  icon: Zap,
+                  description: 'Approved posts go live for the community.',
+                  icon: Send,
                 },
-              ].map((item, i) => {
+              ].map((item, idx) => {
                 const Icon = item.icon;
                 return (
                   <div
-                    key={i}
-                    className="flex gap-4 sm:gap-6"
+                    key={item.step}
+                    className="group rounded-3xl border border-[hsl(var(--border))]/70 bg-[hsl(var(--card))] p-6 shadow-sm transition hover:shadow-md hover:-translate-y-1 animate-slide-up"
+                    style={{ animationDelay: `${idx * 100}ms` }}
                   >
-                    {/* Icon */}
-                    <div className="flex-shrink-0">
-                      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[hsl(var(--accent))]/10">
+                    <div className="flex items-center justify-between">
+                      <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[hsl(var(--accent))]/12 transition group-hover:bg-[hsl(var(--accent))]/20">
                         <Icon className="h-5 w-5 text-[hsl(var(--accent))]" />
                       </div>
+                      <span className="text-xs font-semibold text-[hsl(var(--muted-foreground))]">
+                        {item.step}
+                      </span>
                     </div>
-
-                    {/* Content */}
-                    <div className="flex-1 pt-1">
-                      <div className="flex items-baseline gap-3">
-                        <span className="text-xs font-medium text-[hsl(var(--muted-foreground))]">
-                          {item.step}
-                        </span>
-                        <h3 className="text-lg font-medium text-[hsl(var(--foreground))]">
-                          {item.title}
-                        </h3>
-                      </div>
-                      <p className="mt-1.5 text-sm leading-relaxed text-[hsl(var(--muted-foreground))]">
-                        {item.description}
-                      </p>
+                    <h3 className="mt-4 text-lg font-semibold text-[hsl(var(--foreground))]">
+                      {item.title}
+                    </h3>
+                    <p className="mt-2 text-sm leading-relaxed text-[hsl(var(--muted-foreground))]">
+                      {item.description}
+                    </p>
+                    <div className="mt-4 h-1 w-full rounded-full bg-[hsl(var(--accent))]/10">
+                      <div className="h-1 w-10 rounded-full bg-[hsl(var(--accent))] transition group-hover:w-12"></div>
                     </div>
                   </div>
                 );
@@ -185,24 +233,162 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Final CTA Section */}
-        <section className="border-t border-[hsl(var(--border))] bg-[hsl(var(--secondary))]">
-          <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-24 lg:py-28">
-            <div className="flex flex-col items-center justify-between gap-6 rounded-2xl border border-[hsl(var(--accent))]/30 bg-linear-to-br from-[hsl(var(--accent))]/8 to-transparent p-6 sm:flex-row sm:gap-8 sm:p-10 lg:p-12">
-              <div className="space-y-2 text-center sm:text-left min-w-0 flex-1">
-                <h3 className="break-words text-2xl font-bold text-[hsl(var(--foreground))] sm:text-3xl">
-                  Ready to Share Your Story?
-                </h3>
-                <p className="break-words text-sm text-[hsl(var(--muted-foreground))] sm:text-base">
-                  Your voice matters. Share what is on your mind - completely anonymous.
+        {/* Highlights Section */}
+        <section className="border-t border-[hsl(var(--border))]/70">
+          <div className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6 sm:py-20">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <h2 className="text-xl font-semibold text-[hsl(var(--foreground))] sm:text-3xl">
+                  Community highlights
+                </h2>
+                <p className="mt-2 text-sm text-[hsl(var(--muted-foreground))] sm:text-base">
+                  A few recent, anonymized moments from the feed.
                 </p>
               </div>
-              <a
-                href="/submit"
-                className="inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-lg bg-[hsl(var(--accent))] px-6 py-2.5 text-sm font-semibold text-[hsl(var(--accent-foreground))] shadow-md transition hover:shadow-lg hover:opacity-90 sm:px-8 sm:py-3"
-              >
-                Write a Confession
-              </a>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  { id: 'all', label: 'All' },
+                  { id: 'love', label: 'Love' },
+                  { id: 'stress', label: 'Stress' },
+                  { id: 'life', label: 'Life' },
+                ].map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => setHighlightFilter(item.id as typeof highlightFilter)}
+                    className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
+                      highlightFilter === item.id
+                        ? 'bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]'
+                        : 'border border-[hsl(var(--border))]/70 text-[hsl(var(--foreground))] hover:border-[hsl(var(--accent))]/30 hover:text-[hsl(var(--accent))]'
+                    }`}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {filteredHighlights.map((item, index) => (
+                <div
+                  key={`${item.tag}-${index}`}
+                  className="rounded-2xl border border-[hsl(var(--border))]/70 bg-[hsl(var(--card))] p-4 shadow-sm transition hover:shadow-md hover:-translate-y-1 hover:border-[hsl(var(--accent))]/40 animate-scale-in"
+                  style={{ animationDelay: `${index * 50}ms` }}
+                >
+                  <p className="text-sm text-[hsl(var(--foreground))]">“{item.text}”</p>
+                  <span className="mt-3 inline-flex items-center rounded-full border border-[hsl(var(--border))]/70 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[hsl(var(--muted-foreground))]">
+                    {item.tag}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Guidelines Section */}
+        <section className="border-t border-[hsl(var(--border))]/70 bg-[hsl(var(--secondary))]/60">
+          <div className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6 sm:py-20">
+            <div className="grid gap-6 lg:grid-cols-[1.2fr_1fr]">
+              <div className="animate-slide-in-left">
+                <h2 className="text-xl font-semibold text-[hsl(var(--foreground))] sm:text-3xl">
+                  Community guidelines
+                </h2>
+                <p className="mt-2 text-sm text-[hsl(var(--muted-foreground))] sm:text-base">
+                  Keep it kind. We review every post for safety and clarity.
+                </p>
+              </div>
+              <div className="rounded-2xl border border-[hsl(var(--border))]/70 bg-[hsl(var(--card))] p-5 shadow-sm transition hover:shadow-md animate-slide-in-right">
+                <ul className="space-y-3 text-sm text-[hsl(var(--muted-foreground))]">
+                  <li className="flex items-start gap-2 transition hover:text-[hsl(var(--accent))]">
+                    <span className="mt-1 h-2 w-2 rounded-full bg-[hsl(var(--accent))]"></span>
+                    No hate, threats, or harassment.
+                  </li>
+                  <li className="flex items-start gap-2 transition hover:text-[hsl(var(--accent))]">
+                    <span className="mt-1 h-2 w-2 rounded-full bg-[hsl(var(--accent))]"></span>
+                    Keep personal details private.
+                  </li>
+                  <li className="flex items-start gap-2 transition hover:text-[hsl(var(--accent))]">
+                    <span className="mt-1 h-2 w-2 rounded-full bg-[hsl(var(--accent))]"></span>
+                    Be honest, concise, and respectful.
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* FAQ Section */}
+        <section className="border-t border-[hsl(var(--border))]/70">
+          <div className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6 sm:py-20">
+            <div className="mb-6 animate-slide-up">
+              <h2 className="text-xl font-semibold text-[hsl(var(--foreground))] sm:text-3xl">
+                Quick answers
+              </h2>
+              <p className="mt-2 text-sm text-[hsl(var(--muted-foreground))] sm:text-base">
+                The basics, in plain language.
+              </p>
+            </div>
+            <div className="grid gap-4 md:grid-cols-2">
+              {[
+                {
+                  q: 'Do I need an account?',
+                  a: 'No. Posts are anonymous by default.',
+                },
+                {
+                  q: 'How long does review take?',
+                  a: 'Most posts are reviewed within a day.',
+                },
+                {
+                  q: 'Can I include a song?',
+                  a: 'Yes. You can add a song or artist (optional).',
+                },
+                {
+                  q: 'Will my post be edited?',
+                  a: 'We only remove personal details or unsafe content.',
+                },
+              ].map((item, idx) => (
+                <details
+                  key={item.q}
+                  className="rounded-2xl border border-[hsl(var(--border))]/70 bg-[hsl(var(--card))] p-4 shadow-sm transition hover:shadow-md hover:border-[hsl(var(--accent))]/40 animate-slide-up"
+                  style={{ animationDelay: `${idx * 75}ms` }}
+                >
+                  <summary className="cursor-pointer text-sm font-semibold text-[hsl(var(--foreground))] transition hover:text-[hsl(var(--accent))]">
+                    {item.q}
+                  </summary>
+                  <p className="mt-2 text-sm text-[hsl(var(--muted-foreground))]">{item.a}</p>
+                </details>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Final CTA Section */}
+        <section className="border-t border-[hsl(var(--border))]/70 bg-[hsl(var(--secondary))]/70">
+          <div className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6 sm:py-24 lg:py-28">
+            <div className="relative overflow-hidden rounded-3xl border border-[hsl(var(--border))]/70 bg-[hsl(var(--card))] p-5 shadow-sm sm:p-10 lg:p-12 animate-slide-up">
+              <div className="absolute -top-24 right-0 h-48 w-48 rounded-full bg-[hsl(var(--accent))]/10 blur-3xl"></div>
+              <div className="absolute -bottom-24 left-0 h-48 w-48 rounded-full bg-[hsl(var(--accent))]/10 blur-3xl"></div>
+              <div className="relative flex flex-col items-center justify-between gap-6 sm:flex-row sm:gap-8">
+                <div className="space-y-2 text-center sm:text-left min-w-0 flex-1 animate-slide-in-left animation-delay-200">
+                  <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[hsl(var(--border))]/70 bg-[hsl(var(--card))] px-3 py-1 text-xs font-semibold text-[hsl(var(--muted-foreground))]">
+                    <Sparkles className="h-3.5 w-3.5 text-[hsl(var(--accent))]" />
+                    Start here
+                  </div>
+                  <h3 className="text-balance wrap-break-word text-xl font-semibold text-[hsl(var(--foreground))] sm:text-3xl">
+                    Ready to share?
+                  </h3>
+                  <p className="text-balance wrap-break-word text-sm text-[hsl(var(--muted-foreground))] sm:text-base">
+                    It takes under a minute. Anonymous by default.
+                  </p>
+                </div>
+                <a
+                  href="/submit"
+                  className="inline-flex w-full shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-full bg-[hsl(var(--accent))] px-6 py-2.5 text-sm font-semibold text-[hsl(var(--accent-foreground))] shadow-sm transition hover:opacity-90 active:scale-95 sm:w-auto sm:px-8 sm:py-3 animate-slide-in-right animation-delay-200"
+                >
+                  Start writing
+                  <ArrowUpRight className="h-4 w-4" />
+                </a>
+              </div>
             </div>
           </div>
         </section>

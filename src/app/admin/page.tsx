@@ -27,24 +27,24 @@ export default async function AdminPage() {
     <div className="flex min-h-screen flex-col bg-[hsl(var(--background))]">
       <main className="flex-1">
         {/* Header Section */}
-        <section className="border-b border-[hsl(var(--border))] bg-[hsl(var(--secondary))]">
-          <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-24 lg:py-28">
+        <section className="border-b border-[hsl(var(--border))]/70 bg-[hsl(var(--background))]">
+          <div className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6 sm:py-24 lg:py-28">
             <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
               <div className="min-w-0 flex-1 space-y-1 sm:space-y-2">
-                <h1 className="break-words text-2xl font-bold tracking-tight text-[hsl(var(--foreground))] sm:text-3xl lg:text-4xl">
-                  Manage Community Confessions
+                <h1 className="text-balance wrap-break-word text-xl font-semibold tracking-tight text-[hsl(var(--foreground))] sm:text-3xl lg:text-4xl">
+                  Confession review
                 </h1>
-                <p className="break-words text-sm text-[hsl(var(--muted-foreground))] sm:text-base">
-                  Review, approve, and curate authentic submissions from your community.
+                <p className="wrap-break-word text-sm text-[hsl(var(--muted-foreground))] sm:text-base">
+                  Approve or reject new submissions.
                 </p>
               </div>
-              <form action="/api/admin/logout" method="POST" className="shrink-0">
+              <form action="/api/admin/logout" method="POST" className="shrink-0 w-full sm:w-auto">
                 <button
                   type="submit"
-                  className="inline-flex items-center gap-2 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-4 py-2.5 text-sm font-semibold text-[hsl(var(--foreground))] transition hover:bg-[hsl(var(--secondary))] whitespace-nowrap"
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-[hsl(var(--border))]/70 bg-[hsl(var(--card))]/80 px-4 py-2.5 text-sm font-semibold text-[hsl(var(--foreground))] transition hover:border-[hsl(var(--accent))]/40 hover:text-[hsl(var(--accent))] whitespace-nowrap sm:w-auto"
                 >
                   <LogOut className="h-4 w-4" />
-                  Logout
+                  Sign out
                 </button>
               </form>
             </div>
@@ -52,7 +52,7 @@ export default async function AdminPage() {
         </section>
 
         {/* Content Section */}
-        <section className="mx-auto w-full max-w-6xl overflow-x-hidden px-4 py-16 sm:px-6 sm:py-24">
+        <section className="mx-auto w-full max-w-6xl overflow-x-hidden px-4 py-12 sm:px-6 sm:py-24">
           <AdminList />
         </section>
       </main>

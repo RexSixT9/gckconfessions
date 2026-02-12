@@ -16,5 +16,15 @@ const ConfessionSchema = new Schema(
   { timestamps: true }
 );
 
+ConfessionSchema.index({ createdAt: -1 });
+ConfessionSchema.index({ status: 1, createdAt: -1 });
+ConfessionSchema.index({ posted: 1, createdAt: -1 });
+ConfessionSchema.index({ instagramPosted: 1, createdAt: -1 });
+ConfessionSchema.index({ messageHash: 1, createdAt: -1 });
+ConfessionSchema.index(
+  { message: "text", music: "text" },
+  { name: "confession_text_search" }
+);
+
 export default mongoose.models.Confession ||
   mongoose.model("Confession", ConfessionSchema);

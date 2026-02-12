@@ -1,20 +1,20 @@
 @import "tailwindcss";
 
 :root {
-  /* Light Mode - Clean and Professional */
+  /* Light Mode - Dark Pink + White */
   --background: 0 0% 100%;
-  --foreground: 0 0% 12%;
-  --card: 0 0% 97%;
-  --card-foreground: 0 0% 12%;
+  --foreground: 350 30% 12%;
+  --card: 0 0% 100%;
+  --card-foreground: 350 30% 12%;
   --popover: 0 0% 100%;
-  --popover-foreground: 0 0% 12%;
-  --primary: 0 0% 8%;
+  --popover-foreground: 350 30% 12%;
+  --primary: 350 30% 12%;
   --primary-foreground: 0 0% 100%;
-  --secondary: 0 0% 95%;
-  --secondary-foreground: 0 0% 20%;
-  --muted: 0 0% 92%;
-  --muted-foreground: 0 0% 50%;
-  --accent: 346 70% 58%;
+  --secondary: 350 30% 96%;
+  --secondary-foreground: 350 20% 18%;
+  --muted: 350 24% 94%;
+  --muted-foreground: 350 12% 45%;
+  --accent: 338 78% 42%;
   --accent-foreground: 0 0% 100%;
   --success: 142 71% 45%;
   --success-foreground: 0 0% 100%;
@@ -22,27 +22,34 @@
   --warning-foreground: 0 0% 100%;
   --destructive: 0 84% 60%;
   --destructive-foreground: 0 0% 100%;
-  --border: 0 0% 85%;
-  --input: 0 0% 90%;
-  --ring: 346 70% 58%;
-  --radius: 0.9rem;
+  --border: 350 18% 88%;
+  --input: 350 18% 92%;
+  --ring: 338 78% 42%;
+  --radius: 1rem;
+  /* Light Mode - Action button colors */
+  --action-accept: 142 71% 45%;
+  --action-accept-foreground: 0 0% 100%;
+  --action-publish: 217 91% 60%;
+  --action-publish-foreground: 0 0% 100%;
+  --action-reject: 0 84% 60%;
+  --action-reject-foreground: 0 0% 100%;
 }
 
 .dark {
-  /* Dark Mode - Enhanced Contrast */
-  --background: 0 0% 4%;
+  /* Dark Mode - Deep Pink */
+  --background: 350 20% 6%;
   --foreground: 0 0% 96%;
-  --card: 0 0% 11%;
+  --card: 350 18% 10%;
   --card-foreground: 0 0% 96%;
-  --popover: 0 0% 11%;
+  --popover: 350 18% 10%;
   --popover-foreground: 0 0% 96%;
-  --primary: 0 0% 8%;
-  --primary-foreground: 0 0% 100%;
-  --secondary: 0 0% 16%;
+  --primary: 0 0% 96%;
+  --primary-foreground: 350 20% 6%;
+  --secondary: 350 16% 16%;
   --secondary-foreground: 0 0% 96%;
-  --muted: 0 0% 16%;
-  --muted-foreground: 0 0% 60%;
-  --accent: 346 70% 65%;
+  --muted: 350 16% 16%;
+  --muted-foreground: 0 0% 62%;
+  --accent: 338 78% 52%;
   --accent-foreground: 0 0% 100%;
   --success: 142 65% 55%;
   --success-foreground: 0 0% 100%;
@@ -50,18 +57,202 @@
   --warning-foreground: 0 0% 5%;
   --destructive: 0 80% 55%;
   --destructive-foreground: 0 0% 100%;
-  --border: 0 0% 20%;
-  --input: 0 0% 20%;
-  --ring: 346 70% 65%;
+  --border: 350 16% 22%;
+  --input: 350 16% 22%;
+  --ring: 338 78% 52%;
+  /* Action button colors */
+  --action-accept: 142 65% 55%;
+  --action-accept-foreground: 0 0% 100%;
+  --action-publish: 217 85% 65%;
+  --action-publish-foreground: 0 0% 100%;
+  --action-reject: 0 80% 55%;
+  --action-reject-foreground: 0 0% 100%;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes pulse-subtle {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 600ms ease-out;
+}
+
+.animate-slide-up {
+  animation: slideUp 600ms ease-out;
+}
+
+.animate-slide-down {
+  animation: slideDown 600ms ease-out;
+}
+
+.animate-slide-in-left {
+  animation: slideInLeft 600ms ease-out;
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 600ms ease-out;
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-pulse-subtle {
+  animation: pulse-subtle 2s ease-in-out infinite;
+}
+
+.animate-scale-in {
+  animation: scaleIn 600ms ease-out;
+}
+
+/* Staggered animation delays */
+.animation-delay-100 {
+  animation-delay: 100ms;
+}
+
+.animation-delay-200 {
+  animation-delay: 200ms;
+}
+
+.animation-delay-300 {
+  animation-delay: 300ms;
+}
+
+.animation-delay-400 {
+  animation-delay: 400ms;
+}
+
+.animation-delay-500 {
+  animation-delay: 500ms;
 }
 
 body {
-  background: hsl(var(--background));
+  background: radial-gradient(1200px 600px at 10% -20%, hsl(var(--accent) / 0.16), transparent 60%),
+    radial-gradient(900px 500px at 90% -10%, hsl(var(--accent) / 0.08), transparent 55%),
+    hsl(var(--background));
   color: hsl(var(--foreground));
   font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
   color-scheme: light dark;
 }
 
+@media (max-width: 640px) {
+  body {
+    background: hsl(var(--background));
+  }
+
+  .backdrop-blur {
+    backdrop-filter: none !important;
+  }
+
+  .blur-3xl {
+    filter: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0ms !important;
+    animation-duration: 0ms !important;
+  }
+}
+
 * {
   border-color: hsl(var(--border));
+}
+
+a,
+button {
+  transition: color 150ms ease, background-color 150ms ease, border-color 150ms ease, box-shadow 150ms ease, transform 150ms ease;
+}
+
+a:active,
+button:active {
+  transform: translateY(1px);
+}
+
+input,
+textarea,
+select {
+  transition: border-color 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
 }

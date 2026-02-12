@@ -82,10 +82,7 @@ export async function GET(request: Request) {
     const filter: Record<string, unknown> = {};
 
     if (query) {
-      filter.$or = [
-        { message: { $regex: query, $options: "i" } },
-        { music: { $regex: query, $options: "i" } },
-      ];
+      filter.$text = { $search: query };
     }
 
     if (status) {
@@ -96,12 +93,15 @@ export async function GET(request: Request) {
       filter.posted = posted === "true";
     }
 
-    const total = await Confession.countDocuments(filter);
-    const data = await Confession.find(filter)
-      .sort({ createdAt: -1 })
-      .skip((page - 1) * limit)
-      .limit(limit)
-      .lean();
+    const [total, data] = await Promise.all([
+      Confession.countDocuments(filter),
+      Confession.find(filter)
+        .select({ message: 1, music: 1, status: 1, posted: 1, instagramPosted: 1, createdAt: 1 })
+        .sort({ createdAt: -1 })
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .lean(),
+    ]);
 
     const confessions = data.map((item) => ({
       _id: String(item._id),
@@ -113,12 +113,15 @@ export async function GET(request: Request) {
       createdAt: item.createdAt?.toISOString(),
     }));
 
-    return NextResponse.json({
-      confessions,
-      page,
-      total,
-      totalPages: Math.ceil(total / limit),
-    });
+    return NextResponse.json(
+      {
+        confessions,
+        page,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+      { headers: { "Cache-Control": "no-store" } }
+    );
   } catch (error) {
     return NextResponse.json(
       {
@@ -237,7 +240,9 @@ export async function POST(request: Request) {
     const recentDuplicate = await Confession.findOne({
       messageHash,
       createdAt: { $gte: new Date(Date.now() - duplicateWindowMs) },
-    }).lean();
+    })
+      .select({ _id: 1 })
+      .lean();
 
     if (recentDuplicate) {
       return NextResponse.json(
