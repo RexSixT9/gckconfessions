@@ -183,7 +183,7 @@ export default function AdminList() {
   const [items, setItems] = useState<ConfessionItem[]>([]);
   const [notice, setNotice] = useState<Notice>(null);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<"all" | "posted" | "pending">("all");
+  const [filter, setFilter] = useState<"all" | "published" | "draft">("all");
   const [statusFilter, setStatusFilter] = useState<
     "all" | "pending" | "approved" | "rejected"
   >("all");
@@ -201,9 +201,9 @@ export default function AdminList() {
       params.set("page", String(page));
       params.set("limit", "10");
 
-      if (filter === "posted") {
+      if (filter === "published") {
         params.set("posted", "true");
-      } else if (filter === "pending") {
+      } else if (filter === "draft") {
         params.set("posted", "false");
       }
 
@@ -312,8 +312,8 @@ export default function AdminList() {
 
   const filteredItems = useMemo(() => {
     return items.filter((item) => {
-      if (filter === "posted" && !item.posted) return false;
-      if (filter === "pending" && item.posted) return false;
+      if (filter === "published" && !item.posted) return false;
+      if (filter === "draft" && item.posted) return false;
       if (statusFilter !== "all" && item.status !== statusFilter) return false;
       return true;
     });
@@ -342,19 +342,19 @@ export default function AdminList() {
 
       {/* Filter Tabs */}
       <div className="space-y-3 sm:space-y-4">
-        {/* Posted/Pending Filter */}
+        {/* Published/Draft Filter */}
         <div className="flex flex-wrap gap-2">
           {[
             { id: "all", label: "All Submissions" },
-            { id: "pending", label: "Pending" },
-            { id: "posted", label: "Posted" },
+            { id: "draft", label: "Draft" },
+            { id: "published", label: "Published" },
           ].map((option) => (
             <button
               key={option.id}
               type="button"
               onClick={() => {
                 setPage(1);
-                setFilter(option.id as "all" | "posted" | "pending");
+                setFilter(option.id as "all" | "published" | "draft");
               }}
               className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition sm:px-4 sm:py-2 sm:text-sm ${
                 filter === option.id
