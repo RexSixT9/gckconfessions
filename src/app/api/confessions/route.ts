@@ -29,7 +29,10 @@ function isSameOrigin(request: Request) {
 }
 
 async function verifyTurnstile(token: string, ip: string) {
-  const secret = process.env.TURNSTILE_SECRET_KEY;
+  const secret =
+    process.env.NODE_ENV === "production"
+      ? process.env.TURNSTILE_SECRET_KEY_PROD ?? process.env.TURNSTILE_SECRET_KEY
+      : process.env.TURNSTILE_SECRET_KEY_DEV ?? process.env.TURNSTILE_SECRET_KEY;
   if (!secret) {
     return { success: false };
   }

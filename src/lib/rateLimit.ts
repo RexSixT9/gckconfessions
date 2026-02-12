@@ -7,6 +7,20 @@ type RateLimitResult = {
 };
 
 export function getClientIp(request: Request) {
+  if (process.env.NODE_ENV !== "production" && process.env.DEV_IP_OVERRIDE) {
+    return process.env.DEV_IP_OVERRIDE;
+  }
+
+  const cfConnectingIp = request.headers.get("cf-connecting-ip");
+  if (cfConnectingIp) {
+    return cfConnectingIp;
+  }
+
+  const vercelForwarded = request.headers.get("x-vercel-forwarded-for");
+  if (vercelForwarded) {
+    return vercelForwarded.split(",")[0]?.trim() || "unknown";
+  }
+
   const forwarded = request.headers.get("x-forwarded-for");
   if (forwarded) {
     return forwarded.split(",")[0]?.trim() || "unknown";
@@ -25,12 +39,12 @@ export function getBlockedIps() {
 
 const submissionLimiter = new RateLimiterMemory({
   points: 5,
-  duration: 15 * 60,
+  duration: process.env.NODE_ENV === "production" ? 10 * 60 : 15 * 60,
 });
 
 const loginLimiter = new RateLimiterMemory({
   points: 5,
-  duration: 10 * 60,
+  duration: process.env.NODE_ENV === "production" ? 5 * 60 : 10 * 60,
 });
 
 async function consume(limiter: RateLimiterMemory, key: string): Promise<RateLimitResult> {

@@ -38,7 +38,14 @@ export default function SubmitPage() {
   const [turnstileWidgetId, setTurnstileWidgetId] = useState<string | number | null>(null);
   const [turnstileLoadError, setTurnstileLoadError] = useState(false);
   const turnstileRef = useRef<HTMLDivElement | null>(null);
-  const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? "";
+  const siteKey =
+    process.env.NODE_ENV === "production"
+      ? process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY_PROD ??
+        process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ??
+        ""
+      : process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY_DEV ??
+        process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ??
+        "";
   const [turnstileEnabled, setTurnstileEnabled] = useState(false);
   const [mounted, setMounted] = useState(false);
 
