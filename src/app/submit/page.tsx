@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import Link from "next/link";
 import { Heart, Lock, AlertCircle, CheckCircle2 } from "lucide-react";
 import dynamic from "next/dynamic";
+import Script from "next/script";
 
 const Footer = dynamic(() => import("@/components/Footer"), {
   loading: () => null,
@@ -12,23 +13,72 @@ const Footer = dynamic(() => import("@/components/Footer"), {
 
 type Notice = { type: "error" | "success"; message: string } | null;
 
+declare global {
+  interface Window {
+    turnstile?: {
+      render: (container: HTMLElement, options: {
+        sitekey: string;
+        callback: (token: string) => void;
+        "expired-callback"?: () => void;
+        "error-callback"?: () => void;
+      }) => string | number;
+      reset: (widgetId?: string | number) => void;
+    };
+  }
+}
+
 export default function SubmitPage() {
   const [message, setMessage] = useState("");
   const [music, setMusic] = useState("");
   const [website, setWebsite] = useState("");
   const [notice, setNotice] = useState<Notice>(null);
   const [loading, setLoading] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState("");
+  const [turnstileReady, setTurnstileReady] = useState(false);
+  const [turnstileWidgetId, setTurnstileWidgetId] = useState<string | number | null>(null);
+  const turnstileRef = useRef<HTMLDivElement | null>(null);
+  const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? "";
+  const [turnstileEnabled, setTurnstileEnabled] = useState(false);
+
+  useEffect(() => {
+    setTurnstileEnabled(Boolean(siteKey));
+  }, [siteKey]);
+
+  useEffect(() => {
+    if (!turnstileReady || !siteKey || !turnstileRef.current || turnstileWidgetId) return;
+    if (!window.turnstile) return;
+
+    const widgetId = window.turnstile.render(turnstileRef.current, {
+      sitekey: siteKey,
+      callback: (token) => setTurnstileToken(token),
+      "expired-callback": () => setTurnstileToken(""),
+      "error-callback": () => setTurnstileToken(""),
+    });
+
+    setTurnstileWidgetId(widgetId);
+  }, [turnstileReady, siteKey, turnstileWidgetId]);
 
   const handleSubmit = useCallback(async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setNotice(null);
+
+    if (!turnstileEnabled) {
+      setNotice({ type: "error", message: "Verification is not configured." });
+      return;
+    }
+
+    if (!turnstileToken) {
+      setNotice({ type: "error", message: "Please complete the verification." });
+      return;
+    }
+
     setLoading(true);
 
     try {
       const response = await fetch("/api/confessions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message, music, website }),
+        body: JSON.stringify({ message, music, website, turnstileToken }),
       });
 
       const data = await response.json();
@@ -40,6 +90,10 @@ export default function SubmitPage() {
       setMessage("");
       setMusic("");
       setWebsite("");
+      setTurnstileToken("");
+      if (window.turnstile && turnstileWidgetId !== null) {
+        window.turnstile.reset(turnstileWidgetId);
+      }
       setNotice({ type: "success", message: "Confession submitted successfully!" });
     } catch (error) {
       setNotice({
@@ -49,13 +103,20 @@ export default function SubmitPage() {
     } finally {
       setLoading(false);
     }
-  }, [message, music]);
+  }, [message, music, turnstileToken, turnstileWidgetId, website]);
 
   const charCount = message.length;
   const charLimit = 500;
 
   return (
     <div className="flex min-h-screen flex-col bg-[hsl(var(--background))]">
+      {turnstileEnabled && (
+        <Script
+          src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
+          strategy="afterInteractive"
+          onLoad={() => setTurnstileReady(true)}
+        />
+      )}
       <main className="flex-1">
         {/* Header Section */}
         <section className="border-b border-[hsl(var(--border))] bg-[hsl(var(--secondary))]">
@@ -157,7 +218,7 @@ export default function SubmitPage() {
               {/* Submit Button */}
               <button
                 type="submit"
-                disabled={loading || !message.trim()}
+                disabled={loading || !message.trim() || !turnstileEnabled}
                 className="w-full rounded-lg bg-[hsl(var(--accent))] py-2.5 text-sm font-semibold text-[hsl(var(--accent-foreground))] shadow-md transition disabled:opacity-50 hover:shadow-lg hover:opacity-90 sm:py-3"
               >
                 {loading ? (
@@ -172,6 +233,16 @@ export default function SubmitPage() {
                   </span>
                 )}
               </button>
+
+              {turnstileEnabled ? (
+                <div className="flex items-center justify-center">
+                  <div ref={turnstileRef} />
+                </div>
+              ) : (
+                <p className="text-center text-xs text-[hsl(var(--muted-foreground))]">
+                  Verification is not configured. Add TURNSTILE keys to enable submissions.
+                </p>
+              )}
 
               {/* Success Notice */}
               {notice?.type === "success" && (

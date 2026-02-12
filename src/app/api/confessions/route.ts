@@ -28,6 +28,33 @@ function isSameOrigin(request: Request) {
   }
 }
 
+async function verifyTurnstile(token: string, ip: string) {
+  const secret = process.env.TURNSTILE_SECRET_KEY;
+  if (!secret) {
+    return { success: false };
+  }
+
+  const response = await fetch(
+    "https://challenges.cloudflare.com/turnstile/v0/siteverify",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        secret,
+        response: token,
+        remoteip: ip,
+      }).toString(),
+    }
+  );
+
+  if (!response.ok) {
+    return { success: false };
+  }
+
+  const data = (await response.json()) as { success?: boolean };
+  return { success: Boolean(data.success) };
+}
+
 export async function GET(request: Request) {
   try {
     const cookieStore = await cookies();
@@ -171,11 +198,27 @@ export async function POST(request: Request) {
     const rawMessage = String(body.message ?? "");
     const rawMusic = String(body.music ?? "");
     const website = String(body.website ?? "").trim();
+    const turnstileToken = String(body.turnstileToken ?? "").trim();
 
     if (website) {
       return NextResponse.json(
         { error: "Submission rejected." },
         { status: 400 }
+      );
+    }
+
+    if (!turnstileToken) {
+      return NextResponse.json(
+        { error: "Verification required." },
+        { status: 400 }
+      );
+    }
+
+    const turnstile = await verifyTurnstile(turnstileToken, ip);
+    if (!turnstile.success) {
+      return NextResponse.json(
+        { error: "Verification failed." },
+        { status: 403 }
       );
     }
 
