@@ -36,6 +36,7 @@ export default function SubmitPage() {
   const [turnstileToken, setTurnstileToken] = useState("");
   const [turnstileReady, setTurnstileReady] = useState(false);
   const [turnstileWidgetId, setTurnstileWidgetId] = useState<string | number | null>(null);
+  const [turnstileLoadError, setTurnstileLoadError] = useState(false);
   const turnstileRef = useRef<HTMLDivElement | null>(null);
   const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? "";
   const [turnstileEnabled, setTurnstileEnabled] = useState(false);
@@ -43,6 +44,18 @@ export default function SubmitPage() {
   useEffect(() => {
     setTurnstileEnabled(Boolean(siteKey));
   }, [siteKey]);
+
+  useEffect(() => {
+    if (!turnstileEnabled || turnstileReady) return;
+    const timer = setTimeout(() => setTurnstileLoadError(true), 5000);
+    return () => clearTimeout(timer);
+  }, [turnstileEnabled, turnstileReady]);
+
+  useEffect(() => {
+    if (turnstileReady) {
+      setTurnstileLoadError(false);
+    }
+  }, [turnstileReady]);
 
   useEffect(() => {
     if (!turnstileReady || !siteKey || !turnstileRef.current || turnstileWidgetId) return;
@@ -114,7 +127,11 @@ export default function SubmitPage() {
         <Script
           src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
           strategy="afterInteractive"
-          onLoad={() => setTurnstileReady(true)}
+          onLoad={() => {
+            setTurnstileReady(true);
+            setTurnstileLoadError(false);
+          }}
+          onError={() => setTurnstileLoadError(true)}
         />
       )}
       <main className="flex-1">
@@ -247,6 +264,12 @@ export default function SubmitPage() {
               {turnstileEnabled && !turnstileToken && (
                 <p className="text-center text-xs text-[hsl(var(--muted-foreground))]">
                   Complete the verification to submit.
+                </p>
+              )}
+
+              {turnstileEnabled && turnstileLoadError && (
+                <p className="text-center text-xs text-[hsl(var(--destructive))]">
+                  Verification failed to load. Disable ad blockers or refresh the page.
                 </p>
               )}
 
