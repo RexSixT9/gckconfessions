@@ -4,7 +4,7 @@ import { useState, useCallback, useEffect, useLayoutEffect } from "react";
 import { X } from "lucide-react";
 
 const BANNER_STORAGE_KEY = "gck_announcement_dismissed";
-const BANNER_RESET_DAYS = 7; // Reset banner every 7 days
+const BANNER_RESET_DAYS = 3; // Reset banner every 3 days
 
 function getBannerVisibility(): boolean {
   // Safely check if we're in browser

@@ -3,8 +3,8 @@ import { redirect } from "next/navigation";
 import { verifyAdminToken } from "@/lib/auth";
 import { COOKIE_NAME } from "@/lib/constants";
 import AdminList from "@/components/admin/AdminList";
+import SignOutButton from "@/components/admin/SignOutButton";
 import Footer from "@/components/Footer";
-import { LogOut } from "lucide-react";
 
 export default async function AdminPage() {
   const cookieStore = await cookies();
@@ -38,15 +38,9 @@ export default async function AdminPage() {
                   Approve or reject new submissions.
                 </p>
               </div>
-              <form action="/api/admin/logout" method="POST" className="shrink-0 w-full sm:w-auto">
-                <button
-                  type="submit"
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-[hsl(var(--border))]/70 bg-[hsl(var(--card))]/80 px-4 py-2.5 text-sm font-semibold text-[hsl(var(--foreground))] transition hover:border-[hsl(var(--accent))]/40 hover:text-[hsl(var(--accent))] whitespace-nowrap sm:w-auto"
-                >
-                  <LogOut className="h-4 w-4" />
-                  Sign out
-                </button>
-              </form>
+              <div className="shrink-0 w-full sm:w-auto">
+                <SignOutButton />
+              </div>
             </div>
           </div>
         </section>
