@@ -191,52 +191,52 @@ export default function AdminList() {
   }, [searchInput]);
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-2">
-          <h2 className="text-base font-medium text-[hsl(var(--foreground))]">Confessions</h2>
+          <h2 className="text-sm font-semibold text-[hsl(var(--foreground))] sm:text-base">Confessions</h2>
           <span className="text-xs text-[hsl(var(--muted-foreground))]">({totalCount})</span>
         </div>
         <button
           type="button"
           onClick={fetchItems}
           disabled={loading}
-          className="flex items-center gap-1.5 rounded-md border border-[hsl(var(--border))] px-3 py-1.5 text-xs font-medium text-[hsl(var(--foreground))] transition hover:bg-[hsl(var(--secondary))] disabled:opacity-50"
+          className="flex items-center justify-center gap-1.5 rounded-md border border-[hsl(var(--border))] px-3 py-2 text-xs font-medium text-[hsl(var(--foreground))] transition hover:bg-[hsl(var(--secondary))] disabled:opacity-50 sm:w-auto"
         >
           <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
-          Refresh
+          <span>Refresh</span>
         </button>
       </div>
 
       {/* Search */}
-      <form onSubmit={handleSearch} className="flex gap-2">
+      <form onSubmit={handleSearch} className="flex flex-col gap-2 sm:flex-row">
         <div className="relative flex-1">
-          <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[hsl(var(--muted-foreground))]" />
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[hsl(var(--muted-foreground))]" />
           <input
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
-            placeholder="Search..."
-            className="w-full rounded-md border border-[hsl(var(--border))] bg-[hsl(var(--background))] pl-9 pr-3 py-2 text-sm outline-none transition focus:border-[hsl(var(--accent))] focus:ring-1 focus:ring-[hsl(var(--accent))]"
+            placeholder="Search confessions..."
+            className="w-full rounded-md border border-[hsl(var(--border))] bg-[hsl(var(--background))] py-2 pl-9 pr-3 text-sm outline-none transition placeholder:text-[hsl(var(--muted-foreground))] focus:border-[hsl(var(--accent))] focus:ring-1 focus:ring-[hsl(var(--accent))]"
           />
         </div>
         <button
           type="submit"
-          className="rounded-md bg-[hsl(var(--accent))] px-4 py-2 text-sm font-medium text-[hsl(var(--accent-foreground))] transition hover:opacity-90"
+          className="rounded-md bg-[hsl(var(--accent))] px-4 py-2 text-sm font-medium text-[hsl(var(--accent-foreground))] transition hover:opacity-90 sm:w-auto"
         >
           Search
         </button>
       </form>
 
       {/* Filters */}
-      <div className="space-y-3">
-        <div className="flex flex-wrap gap-2">
+      <div className="space-y-2.5">
+        <div className="flex flex-wrap gap-1.5">
           {["all", "draft", "published"].map((f) => (
             <button
               key={f}
               type="button"
               onClick={() => setFilter(f as typeof filter)}
-              className={`rounded-md px-3 py-1.5 text-xs font-medium transition ${
+              className={`rounded-md px-2.5 py-1.5 text-xs font-medium transition ${
                 filter === f
                   ? "bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]"
                   : "border border-[hsl(var(--border))] text-[hsl(var(--foreground))] hover:bg-[hsl(var(--secondary))]"
@@ -247,21 +247,15 @@ export default function AdminList() {
           ))}
         </div>
 
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-1.5">
           {["all", "pending", "approved", "rejected"].map((s) => (
             <button
               key={s}
               type="button"
               onClick={() => setStatusFilter(s as typeof statusFilter)}
-              className={`rounded-md px-3 py-1.5 text-xs font-medium transition ${
+              className={`rounded-md px-2.5 py-1.5 text-xs font-medium transition ${
                 statusFilter === s
-                  ? s === "pending"
-                    ? "bg-amber-500 text-white dark:bg-amber-600"
-                    : s === "approved"
-                    ? "bg-green-600 text-white dark:bg-green-700"
-                    : s === "rejected"
-                    ? "bg-red-600 text-white dark:bg-red-700"
-                    : "bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]"
+                  ? "bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]"
                   : "border border-[hsl(var(--border))] text-[hsl(var(--foreground))] hover:bg-[hsl(var(--secondary))]"
               }`}
             >
@@ -274,18 +268,18 @@ export default function AdminList() {
       {/* Notices */}
       {notice && (
         <div
-          className={`flex items-center gap-2 rounded-md border p-3 text-sm ${
+          className={`flex items-start gap-2.5 rounded-md border p-3 text-sm ${
             notice.type === "error"
               ? "border-red-200 bg-red-50 text-red-700 dark:border-red-900/30 dark:bg-red-950/20 dark:text-red-300"
               : "border-green-200 bg-green-50 text-green-700 dark:border-green-900/30 dark:bg-green-950/20 dark:text-green-300"
           }`}
         >
           {notice.type === "error" ? (
-            <AlertCircle className="h-4 w-4 shrink-0" />
+            <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
           ) : (
-            <CheckCircle2 className="h-4 w-4 shrink-0" />
+            <CheckCircle2 className="h-4 w-4 shrink-0 mt-0.5" />
           )}
-          <p>{notice.message}</p>
+          <p className="flex-1">{notice.message}</p>
         </div>
       )}
 
@@ -310,43 +304,31 @@ export default function AdminList() {
           {items.map((item) => (
             <div
               key={item._id}
-              className="rounded-md border border-[hsl(var(--border))] bg-[hsl(var(--card))] overflow-hidden"
+              className="overflow-hidden rounded-md border border-[hsl(var(--border))] bg-[hsl(var(--card))]"
             >
               {/* Header */}
-              <div className="flex items-center justify-between border-b border-[hsl(var(--border))] bg-[hsl(var(--secondary))]/50 px-4 py-2.5">
-                <div className="flex items-center gap-2 flex-wrap">
+              <div className="flex flex-col gap-2.5 border-b border-[hsl(var(--border))] bg-[hsl(var(--secondary))]/50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+                <div className="flex flex-wrap items-center gap-1.5">
                   {/* Status Badge */}
-                  <span
-                    className={`flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold shadow-sm ${
-                      item.status === "approved"
-                        ? "bg-green-600 text-white dark:bg-green-700"
-                        : item.status === "rejected"
-                        ? "bg-red-600 text-white dark:bg-red-700"
-                        : "bg-amber-500 text-white dark:bg-amber-600"
-                    }`}
-                  >
-                    {item.status === "approved" && <CheckCircle2 className="h-3.5 w-3.5" />}
-                    {item.status === "rejected" && <X className="h-3.5 w-3.5" />}
-                    {item.status === "pending" && <Clock className="h-3.5 w-3.5" />}
+                  <span className="flex items-center gap-1 rounded border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-2 py-1 text-xs font-medium capitalize text-[hsl(var(--foreground))]">
+                    {item.status === "approved" && <CheckCircle2 className="h-3 w-3" />}
+                    {item.status === "rejected" && <X className="h-3 w-3" />}
+                    {item.status === "pending" && <Clock className="h-3 w-3" />}
                     {item.status ?? "pending"}
                   </span>
 
                   {/* Published Badge */}
-                  <span
-                    className={`flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold shadow-sm ${
-                      item.posted
-                        ? "bg-blue-600 text-white dark:bg-blue-700"
-                        : "bg-gray-400 text-white dark:bg-gray-600"
-                    }`}
-                  >
-                    {item.posted ? <Eye className="h-3.5 w-3.5" /> : <EyeOff className="h-3.5 w-3.5" />}
-                    {item.posted ? "published" : "draft"}
-                  </span>
+                  {item.posted && (
+                    <span className="flex items-center gap-1 rounded border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-2 py-1 text-xs font-medium capitalize text-[hsl(var(--foreground))]">
+                      <Eye className="h-3 w-3" />
+                      Published
+                    </span>
+                  )}
 
                   {/* Instagram Badge */}
                   {item.instagramPosted && (
-                    <span className="flex items-center gap-1 rounded-full bg-gradient-to-br from-purple-600 via-pink-600 to-orange-500 px-2.5 py-1 text-xs font-semibold text-white shadow-sm">
-                      <Instagram className="h-3.5 w-3.5" />
+                    <span className="flex items-center gap-1 rounded border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-2 py-1 text-xs font-medium text-[hsl(var(--foreground))]">
+                      <Instagram className="h-3 w-3" />
                       Instagram
                     </span>
                   )}
@@ -364,23 +346,25 @@ export default function AdminList() {
               </div>
 
               {/* Message */}
-              <div className="space-y-2 p-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex-1 overflow-y-auto" style={{ maxHeight: "240px" }}>
-                    <p className="whitespace-pre-wrap text-sm leading-relaxed text-[hsl(var(--foreground))]">
-                      {item.message}
-                    </p>
+              <div className="space-y-3 p-4 sm:p-5">
+                <div className="flex items-start gap-3">
+                  <div className="min-w-0 flex-1">
+                    <div className="max-h-[180px] overflow-y-auto rounded-md border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-3.5 sm:max-h-[200px] sm:p-4">
+                      <p className="break-words whitespace-pre-wrap text-sm leading-relaxed text-[hsl(var(--foreground))]">
+                        {item.message}
+                      </p>
+                    </div>
                   </div>
                   <button
                     type="button"
                     onClick={() => handleCopy(item.message, `msg-${item._id}`)}
-                    className="shrink-0 rounded border border-[hsl(var(--border))] p-1.5 transition hover:bg-[hsl(var(--secondary))]"
-                    title="Copy"
+                    className="shrink-0 rounded-md border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-2 transition hover:bg-[hsl(var(--accent))] hover:border-[hsl(var(--accent))] active:scale-95"
+                    title="Copy Message"
                   >
                     <Copy
                       className={`h-3.5 w-3.5 ${
                         copiedId === `msg-${item._id}`
-                          ? "text-green-600 dark:text-green-400"
+                          ? "text-[hsl(var(--accent))]"
                           : "text-[hsl(var(--muted-foreground))]"
                       }`}
                     />
@@ -389,34 +373,34 @@ export default function AdminList() {
 
                 {/* Music */}
                 {item.music && (
-                  <div className="rounded-md border border-orange-200/50 bg-orange-50/30 p-3 dark:border-orange-900/30 dark:bg-orange-950/10">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex-1 overflow-y-auto" style={{ maxHeight: "120px" }}>
-                        <p className="whitespace-pre-wrap text-sm text-orange-700 dark:text-orange-300">
+                  <div className="flex items-start gap-3">
+                    <div className="min-w-0 flex-1">
+                      <div className="max-h-[80px] overflow-y-auto rounded-md border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] p-3 sm:max-h-[100px] sm:p-3.5">
+                        <p className="break-words whitespace-pre-wrap text-xs leading-relaxed text-[hsl(var(--foreground))]">
                           🎵 {item.music}
                         </p>
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => handleCopy(item.music || "", `music-${item._id}`)}
-                        className="shrink-0 rounded border border-orange-300/50 bg-orange-100/50 p-1.5 transition hover:bg-orange-100 dark:border-orange-900/40 dark:bg-orange-900/20 dark:hover:bg-orange-900/30"
-                        title="Copy"
-                      >
-                        <Copy
-                          className={`h-3.5 w-3.5 ${
-                            copiedId === `music-${item._id}`
-                              ? "text-green-600 dark:text-green-400"
-                              : "text-orange-600 dark:text-orange-400"
-                          }`}
-                        />
-                      </button>
                     </div>
+                    <button
+                      type="button"
+                      onClick={() => handleCopy(item.music || "", `music-${item._id}`)}
+                      className="shrink-0 rounded-md border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-2 transition hover:bg-[hsl(var(--accent))] hover:border-[hsl(var(--accent))] active:scale-95"
+                      title="Copy Music"
+                    >
+                      <Copy
+                        className={`h-3.5 w-3.5 ${
+                          copiedId === `music-${item._id}`
+                            ? "text-[hsl(var(--accent))]"
+                            : "text-[hsl(var(--muted-foreground))]"
+                        }`}
+                      />
+                    </button>
                   </div>
                 )}
               </div>
 
               {/* Actions */}
-              <div className="flex flex-wrap gap-2 border-t border-[hsl(var(--border))] bg-[hsl(var(--secondary))]/30 px-4 py-3">
+              <div className="flex flex-wrap gap-2 border-t border-[hsl(var(--border))] bg-[hsl(var(--secondary))]/50 px-4 py-3 sm:gap-2.5 sm:px-5">
                 {/* Pending Actions */}
                 {item.status === "pending" && (
                   <>
@@ -424,20 +408,21 @@ export default function AdminList() {
                       type="button"
                       onClick={() => acceptAndPublish(item)}
                       disabled={processingId === item._id}
-                      className="flex items-center gap-1.5 rounded-md bg-green-600 px-3 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-green-700 disabled:opacity-50"
+                      className="flex flex-1 items-center justify-center gap-1.5 rounded-md border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-3 py-2 text-xs font-medium text-[hsl(var(--foreground))] transition hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))] hover:border-[hsl(var(--accent))] active:scale-95 disabled:opacity-50 sm:flex-initial"
                     >
                       {processingId === item._id ? (
                         <Loader className="h-3.5 w-3.5 animate-spin" />
                       ) : (
                         <CheckCircle2 className="h-3.5 w-3.5" />
                       )}
-                      Accept & Publish
+                      <span className="hidden sm:inline">Accept & Publish</span>
+                      <span className="sm:hidden">Accept</span>
                     </button>
                     <button
                       type="button"
                       onClick={() => rejectConfession(item)}
                       disabled={processingId === item._id}
-                      className="flex items-center gap-1.5 rounded-md bg-red-600 px-3 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-red-700 disabled:opacity-50"
+                      className="flex flex-1 items-center justify-center gap-1.5 rounded-md border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-3 py-2 text-xs font-medium text-[hsl(var(--foreground))] transition hover:bg-[hsl(var(--secondary))] hover:border-[hsl(var(--border))] active:scale-95 disabled:opacity-50 sm:flex-initial"
                     >
                       {processingId === item._id ? (
                         <Loader className="h-3.5 w-3.5 animate-spin" />
@@ -452,19 +437,11 @@ export default function AdminList() {
                 {/* Approved Actions */}
                 {item.status === "approved" && (
                   <>
-                    <span className="flex items-center gap-1.5 rounded-md bg-green-600 px-3 py-2 text-xs font-semibold text-white shadow-sm">
-                      <CheckCircle2 className="h-3.5 w-3.5" />
-                      Approved
-                    </span>
                     <button
                       type="button"
                       onClick={() => togglePublish(item)}
                       disabled={processingId === item._id}
-                      className={`flex items-center gap-1.5 rounded-md px-3 py-2 text-xs font-semibold shadow-sm transition disabled:opacity-50 ${
-                        item.posted
-                          ? "bg-gray-600 text-white hover:bg-gray-700"
-                          : "bg-blue-600 text-white hover:bg-blue-700"
-                      }`}
+                      className="flex flex-1 items-center justify-center gap-1.5 rounded-md border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-3 py-2 text-xs font-medium text-[hsl(var(--foreground))] transition hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))] hover:border-[hsl(var(--accent))] active:scale-95 disabled:opacity-50 sm:flex-initial"
                     >
                       {processingId === item._id ? (
                         <Loader className="h-3.5 w-3.5 animate-spin" />
@@ -479,25 +456,21 @@ export default function AdminList() {
                       type="button"
                       onClick={() => toggleInstagram(item)}
                       disabled={processingId === item._id}
-                      className={`flex items-center gap-1.5 rounded-md px-3 py-2 text-xs font-semibold shadow-sm transition disabled:opacity-50 ${
-                        item.instagramPosted
-                          ? "bg-gradient-to-br from-purple-600 via-pink-600 to-orange-500 text-white hover:opacity-90"
-                          : "border-2 border-purple-500 bg-white text-purple-700 hover:bg-purple-50 dark:bg-gray-800 dark:text-purple-300 dark:hover:bg-gray-700"
-                      }`}
+                      className="flex flex-1 items-center justify-center gap-1.5 rounded-md border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-3 py-2 text-xs font-medium text-[hsl(var(--foreground))] transition hover:bg-[hsl(var(--secondary))] hover:border-[hsl(var(--border))] active:scale-95 disabled:opacity-50 sm:flex-initial"
                     >
                       {processingId === item._id ? (
                         <Loader className="h-3.5 w-3.5 animate-spin" />
                       ) : (
                         <Instagram className="h-3.5 w-3.5" />
                       )}
-                      {item.instagramPosted ? "Posted on IG" : "Mark as IG Posted"}
+                      {item.instagramPosted ? "Instagram Posted" : "Mark Instagram"}
                     </button>
                   </>
                 )}
 
                 {/* Rejected Status */}
                 {item.status === "rejected" && (
-                  <span className="flex items-center gap-1.5 rounded-md bg-red-600 px-3 py-2 text-xs font-semibold text-white shadow-sm">
+                  <span className="flex items-center gap-1.5 rounded-md border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-3 py-2 text-xs font-medium capitalize text-[hsl(var(--foreground))]">
                     <X className="h-3.5 w-3.5" />
                     Rejected
                   </span>
