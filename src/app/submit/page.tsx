@@ -1,10 +1,9 @@
 "use client";
 
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback } from "react";
 import Link from "next/link";
 import { Heart, Lock, AlertCircle, CheckCircle2 } from "lucide-react";
 import dynamic from "next/dynamic";
-import Script from "next/script";
 
 const Footer = dynamic(() => import("@/components/Footer"), {
   loading: () => null,
@@ -13,94 +12,12 @@ const Footer = dynamic(() => import("@/components/Footer"), {
 
 type Notice = { type: "error" | "success"; message: string } | null;
 
-declare global {
-  interface Window {
-    hcaptcha?: {
-      render: (container: HTMLElement, options: {
-        sitekey: string;
-        callback: (response: { response: string }) => void;
-        "expired-callback"?: () => void;
-        "error-callback"?: () => void;
-      }) => string | number;
-      reset: (widgetId?: string | number) => void;
-    };
-  }
-}
-
 export default function SubmitPage() {
   const [message, setMessage] = useState("");
   const [music, setMusic] = useState("");
   const [website, setWebsite] = useState("");
   const [notice, setNotice] = useState<Notice>(null);
   const [loading, setLoading] = useState(false);
-  const [captchaToken, setCaptchaToken] = useState("");
-  const [captchaReady, setCaptchaReady] = useState(false);
-  const [captchaWidgetId, setCaptchaWidgetId] = useState<string | number | null>(null);
-  const [captchaLoadError, setCaptchaLoadError] = useState(false);
-  const [shouldLoadCaptcha, setShouldLoadCaptcha] = useState(false);
-  const captchaRef = useRef<HTMLDivElement | null>(null);
-  const captchaObserverRef = useRef<IntersectionObserver | null>(null);
-  const hCaptchaSiteKey = process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY ?? "";
-  const [captchaEnabled, setCaptchaEnabled] = useState(false);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    setCaptchaEnabled(Boolean(hCaptchaSiteKey));
-  }, [hCaptchaSiteKey]);
-
-  // Lazy-load hCaptcha when user reaches the form
-  useEffect(() => {
-    if (!captchaEnabled || !mounted || shouldLoadCaptcha) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0]?.isIntersecting) {
-          setShouldLoadCaptcha(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    if (captchaRef.current) {
-      observer.observe(captchaRef.current);
-      captchaObserverRef.current = observer;
-    }
-
-    return () => {
-      observer.disconnect();
-    };
-  }, [captchaEnabled, mounted, shouldLoadCaptcha]);
-
-  useEffect(() => {
-    if (!captchaReady || !hCaptchaSiteKey || !captchaRef.current || captchaWidgetId) return;
-    if (!window.hcaptcha) return;
-
-    const widgetId = window.hcaptcha.render(captchaRef.current, {
-      sitekey: hCaptchaSiteKey,
-      callback: (response: { response: string }) => setCaptchaToken(response.response),
-      "expired-callback": () => setCaptchaToken(""),
-      "error-callback": () => setCaptchaToken(""),
-    });
-
-    setCaptchaWidgetId(widgetId);
-  }, [captchaReady, hCaptchaSiteKey, captchaWidgetId]);
-
-  useEffect(() => {
-    if (!captchaEnabled || captchaReady || !shouldLoadCaptcha) return;
-    const timer = setTimeout(() => setCaptchaLoadError(true), 8000);
-    return () => clearTimeout(timer);
-  }, [captchaEnabled, captchaReady, shouldLoadCaptcha]);
-
-  useEffect(() => {
-    if (captchaReady) {
-      setCaptchaLoadError(false);
-    }
-  }, [captchaReady]);
 
   // Optimized input handlers with memoization
   const handleMessageChange = useCallback((event: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -116,16 +33,10 @@ export default function SubmitPage() {
     if (loading) return; // Prevent double submission
     setNotice(null);
 
-    if (captchaEnabled && !captchaToken) {
-      setNotice({ type: "error", message: "Please complete the verification." });
-      return;
-    }
-
     setLoading(true);
 
     try {
-      // Optimize: Batch state updates
-      const submitData = { message, music, website, captchaToken };
+      const submitData = { message, music, website };
       
       const response = await fetch("/api/confessions", {
         method: "POST",
@@ -144,10 +55,6 @@ export default function SubmitPage() {
       setMessage("");
       setMusic("");
       setWebsite("");
-      setCaptchaToken("");
-      if (window.hcaptcha && captchaWidgetId !== null) {
-        window.hcaptcha.reset(captchaWidgetId);
-      }
       setNotice({ type: "success", message: "Confession submitted successfully!" });
     } catch (error) {
       if (error instanceof Error && error.name === "AbortError") {
@@ -164,24 +71,13 @@ export default function SubmitPage() {
     } finally {
       setLoading(false);
     }
-  }, [message, music, captchaToken, captchaWidgetId, website, captchaEnabled, loading]);
+  }, [message, music, website, loading]);
 
   const charCount = message.length;
   const charLimit = 500;
 
   return (
     <div className="flex min-h-screen flex-col bg-[hsl(var(--background))]">
-      {mounted && captchaEnabled && shouldLoadCaptcha && (
-        <Script
-          src="https://js.hcaptcha.com/1/api.js?render=explicit"
-          strategy="lazyOnload"
-          onLoad={() => {
-            setCaptchaReady(true);
-            setCaptchaLoadError(false);
-          }}
-          onError={() => setCaptchaLoadError(true)}
-        />
-      )}
       <main className="flex-1">
         {/* Header Section */}
         <section className="border-b border-[hsl(var(--border))] bg-[hsl(var(--secondary))]">
@@ -283,7 +179,7 @@ export default function SubmitPage() {
               {/* Submit Button */}
               <button
                 type="submit"
-                disabled={loading || !message.trim() || (captchaEnabled && (!captchaReady || !captchaToken))}
+                disabled={loading || !message.trim()}
                 className="w-full rounded-lg bg-[hsl(var(--accent))] py-2.5 text-sm font-semibold text-[hsl(var(--accent-foreground))] shadow-md transition disabled:opacity-50 hover:shadow-lg hover:opacity-90 sm:py-3"
               >
                 {loading ? (
@@ -298,29 +194,6 @@ export default function SubmitPage() {
                   </span>
                 )}
               </button>
-
-              {captchaEnabled && (
-                <div className="flex items-center justify-center">
-                  {!captchaReady && !captchaLoadError && (
-                    <p className="text-center text-xs text-[hsl(var(--muted-foreground))]">
-                      Loading verification...
-                    </p>
-                  )}
-                  <div ref={captchaRef} />
-                </div>
-              )}
-
-              {mounted && captchaEnabled && !captchaToken && captchaReady && (
-                <p className="text-center text-xs text-[hsl(var(--muted-foreground))]">
-                  Complete the verification to submit.
-                </p>
-              )}
-
-              {mounted && captchaEnabled && captchaLoadError && (
-                <p className="text-center text-xs text-[hsl(var(--destructive))]">
-                  Verification failed to load. Disable ad blockers or refresh the page.
-                </p>
-              )}
 
               {/* Success Notice */}
               {notice?.type === "success" && (

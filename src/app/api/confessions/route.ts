@@ -28,6 +28,9 @@ function isSameOrigin(request: Request) {
   }
 }
 
+// NOTE: hCaptcha verification disabled - will be implemented in future
+// To enable CAPTCHA protection, uncomment below and add verification logic to POST handler
+/*
 async function verifyHCaptcha(token: string) {
   const secret = process.env.HCAPTCHA_SECRET_KEY;
   if (!secret) {
@@ -50,6 +53,7 @@ async function verifyHCaptcha(token: string) {
   const data = (await response.json()) as { success?: boolean };
   return { success: Boolean(data.success) };
 }
+*/
 
 export async function GET(request: Request) {
   try {
@@ -197,33 +201,12 @@ export async function POST(request: Request) {
     const rawMessage = String(body.message ?? "");
     const rawMusic = String(body.music ?? "");
     const website = String(body.website ?? "").trim();
-    const captchaToken = String(body.captchaToken ?? "").trim();
 
     if (website) {
       return NextResponse.json(
         { error: "Submission rejected." },
         { status: 400 }
       );
-    }
-
-    const isProduction = process.env.NODE_ENV === "production";
-    const captchaEnabled = isProduction ? process.env.HCAPTCHA_SECRET_KEY : process.env.HCAPTCHA_SECRET_KEY || process.env.NODE_ENV !== "production";
-
-    if (captchaEnabled && !captchaToken) {
-      return NextResponse.json(
-        { error: "Verification required.", code: "CAPTCHA_REQUIRED" },
-        { status: 400 }
-      );
-    }
-
-    if (captchaEnabled && captchaToken) {
-      const hcaptcha = await verifyHCaptcha(captchaToken);
-      if (!hcaptcha.success) {
-        return NextResponse.json(
-          { error: "Verification failed.", code: "CAPTCHA_FAIL" },
-          { status: 403 }
-        );
-      }
     }
 
     const message = sanitizeText(rawMessage, 500);
