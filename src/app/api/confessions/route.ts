@@ -29,10 +29,7 @@ function isSameOrigin(request: Request) {
 }
 
 async function verifyTurnstile(token: string, ip: string) {
-  const secret =
-    process.env.NODE_ENV === "production"
-      ? process.env.TURNSTILE_SECRET_KEY_PROD ?? process.env.TURNSTILE_SECRET_KEY
-      : process.env.TURNSTILE_SECRET_KEY_DEV ?? process.env.TURNSTILE_SECRET_KEY;
+  const secret = process.env.TURNSTILE_SECRET_KEY;
   if (!secret) {
     return { success: false };
   }
@@ -49,6 +46,29 @@ async function verifyTurnstile(token: string, ip: string) {
       }).toString(),
     }
   );
+
+  if (!response.ok) {
+    return { success: false };
+  }
+
+  const data = (await response.json()) as { success?: boolean };
+  return { success: Boolean(data.success) };
+}
+
+async function verifyHCaptcha(token: string) {
+  const secret = process.env.HCAPTCHA_SECRET_KEY;
+  if (!secret) {
+    return { success: false };
+  }
+
+  const response = await fetch("https://hcaptcha.com/siteverify", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      secret,
+      response: token,
+    }).toString(),
+  });
 
   if (!response.ok) {
     return { success: false };
@@ -204,7 +224,7 @@ export async function POST(request: Request) {
     const rawMessage = String(body.message ?? "");
     const rawMusic = String(body.music ?? "");
     const website = String(body.website ?? "").trim();
-    const turnstileToken = String(body.turnstileToken ?? "").trim();
+    const captchaToken = String(body.captchaToken ?? "").trim();
 
     if (website) {
       return NextResponse.json(
@@ -213,19 +233,24 @@ export async function POST(request: Request) {
       );
     }
 
-    if (!turnstileToken) {
+    const isProduction = process.env.NODE_ENV === "production";
+    const captchaEnabled = isProduction ? process.env.HCAPTCHA_SECRET_KEY : process.env.HCAPTCHA_SECRET_KEY || process.env.NODE_ENV !== "production";
+
+    if (captchaEnabled && !captchaToken) {
       return NextResponse.json(
-        { error: "Verification required.", code: "TURNSTILE_REQUIRED" },
+        { error: "Verification required.", code: "CAPTCHA_REQUIRED" },
         { status: 400 }
       );
     }
 
-    const turnstile = await verifyTurnstile(turnstileToken, ip);
-    if (!turnstile.success) {
-      return NextResponse.json(
-        { error: "Verification failed.", code: "TURNSTILE_FAIL" },
-        { status: 403 }
-      );
+    if (captchaEnabled && captchaToken) {
+      const hcaptcha = await verifyHCaptcha(captchaToken);
+      if (!hcaptcha.success) {
+        return NextResponse.json(
+          { error: "Verification failed.", code: "CAPTCHA_FAIL" },
+          { status: 403 }
+        );
+      }
     }
 
     const message = sanitizeText(rawMessage, 500);

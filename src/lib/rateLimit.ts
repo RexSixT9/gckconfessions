@@ -38,13 +38,15 @@ export function getBlockedIps() {
 }
 
 const submissionLimiter = new RateLimiterMemory({
-  points: 5,
-  duration: process.env.NODE_ENV === "production" ? 10 * 60 : 15 * 60,
+  points: process.env.NODE_ENV === "production" ? 3 : 5,
+  duration: process.env.NODE_ENV === "production" ? 5 * 60 : 15 * 60,
+  blockDurationMs: process.env.NODE_ENV === "production" ? 15 * 60 * 1000 : 0,
 });
 
 const loginLimiter = new RateLimiterMemory({
-  points: 5,
-  duration: process.env.NODE_ENV === "production" ? 5 * 60 : 10 * 60,
+  points: process.env.NODE_ENV === "production" ? 3 : 5,
+  duration: process.env.NODE_ENV === "production" ? 3 * 60 : 10 * 60,
+  blockDurationMs: process.env.NODE_ENV === "production" ? 10 * 60 * 1000 : 0,
 });
 
 async function consume(limiter: RateLimiterMemory, key: string): Promise<RateLimitResult> {
