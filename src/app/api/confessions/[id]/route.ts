@@ -58,7 +58,7 @@ export async function PATCH(
       );
     }
 
-    if (status && !["pending", "approved", "rejected"].includes(status)) {
+    if (status && !["pending", "approved"].includes(status)) {
       return NextResponse.json({ error: "Invalid status." }, { status: 400 });
     }
 
