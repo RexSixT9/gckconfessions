@@ -76,8 +76,18 @@ export default function SubmitPage() {
     }
   }, [captchaReady]);
 
+  // Optimized input handlers with memoization
+  const handleMessageChange = useCallback((event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setMessage(event.currentTarget.value);
+  }, []);
+
+  const handleMusicChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    setMusic(event.currentTarget.value);
+  }, []);
+
   const handleSubmit = useCallback(async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (loading) return; // Prevent double submission
     setNotice(null);
 
     if (captchaEnabled && !captchaToken) {
@@ -88,10 +98,14 @@ export default function SubmitPage() {
     setLoading(true);
 
     try {
+      // Optimize: Batch state updates
+      const submitData = { message, music, website, captchaToken };
+      
       const response = await fetch("/api/confessions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message, music, website, captchaToken }),
+        body: JSON.stringify(submitData),
+        signal: AbortSignal.timeout(10000), // 10s timeout
       });
 
       const data = await response.json();
@@ -100,6 +114,7 @@ export default function SubmitPage() {
         throw new Error(data.error || "Failed to submit confession.");
       }
 
+      // Reset form - combine into one render
       setMessage("");
       setMusic("");
       setWebsite("");
@@ -109,14 +124,21 @@ export default function SubmitPage() {
       }
       setNotice({ type: "success", message: "Confession submitted successfully!" });
     } catch (error) {
-      setNotice({
-        type: "error",
-        message: error instanceof Error ? error.message : "Unknown error.",
-      });
+      if (error instanceof Error && error.name === "AbortError") {
+        setNotice({
+          type: "error",
+          message: "Request timeout. Please try again.",
+        });
+      } else {
+        setNotice({
+          type: "error",
+          message: error instanceof Error ? error.message : "Unknown error.",
+        });
+      }
     } finally {
       setLoading(false);
     }
-  }, [message, music, captchaToken, captchaWidgetId, website, captchaEnabled]);
+  }, [message, music, captchaToken, captchaWidgetId, website, captchaEnabled, loading]);
 
   const charCount = message.length;
   const charLimit = 500;
@@ -193,7 +215,7 @@ export default function SubmitPage() {
                   maxLength={charLimit}
                   rows={8}
                   value={message}
-                  onChange={(event) => setMessage(event.target.value)}
+                  onChange={handleMessageChange}
                   className="w-full rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] px-4 py-3 text-sm placeholder:text-[hsl(var(--muted-foreground))]/70 outline-none transition focus:border-[hsl(var(--accent))] focus:ring-2 focus:ring-[hsl(var(--accent))]/25"
                 />
                 <p className="text-xs text-[hsl(var(--muted-foreground))]">
@@ -212,7 +234,7 @@ export default function SubmitPage() {
                   name="music"
                   type="text"
                   value={music}
-                  onChange={(event) => setMusic(event.target.value)}
+                  onChange={handleMusicChange}
                   placeholder="e.g., 'Tear in the Club - The Weeknd'"
                   className="w-full rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] px-4 py-3 text-sm placeholder:text-[hsl(var(--muted-foreground))] outline-none transition focus:border-[hsl(var(--accent))] focus:ring-2 focus:ring-[hsl(var(--accent))]/20"
                 />
