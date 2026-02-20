@@ -51,7 +51,7 @@ export default function Home() {
           {[
             { icon: Lock, title: "No account needed", desc: "Zero sign-up. Fully anonymous." },
             { icon: ShieldCheck, title: "Moderated", desc: "Every post reviewed for safety." },
-            { icon: Zap, title: "Under a minute", desc: "Write, submit, done." },
+            { icon: Zap, title: "Easy to submit", desc: "Write and send — we handle the rest." },
           ].map(({ icon: Icon, title, desc }) => (
             <div
               key={title}
@@ -109,8 +109,8 @@ export default function Home() {
               {
                 step: "02",
                 icon: MessageSquare,
-                title: "Review",
-                desc: "Moderators keep the space safe before anything goes live.",
+                title: "Queue",
+                desc: "Your confession joins a review queue — moderators check each one.",
               },
               {
                 step: "03",
@@ -186,7 +186,7 @@ export default function Home() {
           {/* bottom-left mirror blob */}
           <div className="pointer-events-none absolute -bottom-8 -left-8 h-32 w-32 rounded-full bg-[hsl(var(--accent))]/6 opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-100" />
           <p className="relative text-lg font-black text-[hsl(var(--foreground))] sm:text-2xl">Ready to confess?</p>
-          <p className="relative mt-1.5 text-sm text-[hsl(var(--muted-foreground))]">Anonymous. Reviewed. Under a minute.</p>
+          <p className="relative mt-1.5 text-sm text-[hsl(var(--muted-foreground))]">Anonymous. Queued. Reviewed by humans.</p>
           <Link
             href="/submit"
             className="relative mt-6 inline-flex items-center gap-2 rounded-xl bg-[hsl(var(--accent))] px-6 py-3 text-sm font-bold text-white shadow-md shadow-[hsl(var(--accent))]/20 transition-all duration-200 hover:scale-105 hover:opacity-90 active:scale-[0.98]"

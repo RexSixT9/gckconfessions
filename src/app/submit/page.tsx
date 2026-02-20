@@ -313,7 +313,7 @@ export default function SubmitPage() {
               {[
                 { icon: Lock, label: "Anonymous" },
                 { icon: Heart, label: "No account" },
-                { icon: Sparkles, label: "Under 1 min" },
+                { icon: Sparkles, label: "Queued review" },
               ].map(({ icon: Icon, label }) => (
                 <div key={label} className="flex flex-1 items-center justify-center gap-1.5 px-3 py-2.5">
                   <Icon className="h-3 w-3 text-[hsl(var(--accent))]" />
