@@ -1,6 +1,7 @@
 ﻿"use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
+import gsap from "@/lib/gsap";
 import {
   Eye,
   EyeOff,
@@ -43,6 +44,15 @@ export default function AdminList() {
   const [page, setPage] = useState(1);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [processingId, setProcessingId] = useState<string | null>(null);
+
+  // GSAP ref — animate confession cards when items change
+  const listRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (loading || !listRef.current) return;
+    const cards = listRef.current.querySelectorAll<HTMLElement>("[data-card]");
+    if (!cards.length) return;
+    gsap.from(cards, { opacity: 0, y: 18, duration: 0.4, stagger: 0.05, ease: "power2.out", clearProps: "all" });
+  }, [loading, items]);
 
   // Reset to page 1 whenever filters or query change
   useEffect(() => {
@@ -88,7 +98,10 @@ export default function AdminList() {
   }, [fetchItems]);
 
   const handleCopy = useCallback((text: string, id: string) => {
-    navigator.clipboard.writeText(text);
+    navigator.clipboard.writeText(text).catch(() => {
+      // Clipboard API may be denied (e.g. non-HTTPS or permissions blocked)
+      console.warn("Clipboard write failed");
+    });
     setCopiedId(id);
     setTimeout(() => setCopiedId(null), 2000);
   }, []);
@@ -324,10 +337,11 @@ export default function AdminList() {
 
       {/* Confession List */}
       {!loading && items.length > 0 && (
-        <div className="space-y-3">
+        <div ref={listRef} className="space-y-3">
           {items.map((item) => (
             <div
               key={item._id}
+              data-card
               className="bento-cell overflow-hidden"
             >
               {/* Header */}
@@ -374,7 +388,7 @@ export default function AdminList() {
                 <div className="flex items-start gap-3">
                   <div className="min-w-0 flex-1">
                     <div className="max-h-45 overflow-y-auto rounded-2xl border border-[hsl(var(--border))]/70 bg-[hsl(var(--card))] p-3.5 sm:max-h-50 sm:p-4">
-                      <p className="wrap-break-word whitespace-pre-wrap text-sm leading-relaxed text-[hsl(var(--foreground))]">
+                      <p className="break-words whitespace-pre-wrap text-sm leading-relaxed text-[hsl(var(--foreground))]">
                         {item.message}
                       </p>
                     </div>
@@ -400,8 +414,8 @@ export default function AdminList() {
                   <div className="flex items-start gap-3">
                     <div className="min-w-0 flex-1">
                       <div className="max-h-20 overflow-y-auto rounded-2xl border border-[hsl(var(--border))]/70 bg-[hsl(var(--secondary))]/70 p-3 sm:max-h-25 sm:p-3.5">
-                        <p className="wrap-break-word whitespace-pre-wrap text-xs leading-relaxed text-[hsl(var(--foreground))]">
-                          ðŸŽµ {item.music}
+                        <p className="break-words whitespace-pre-wrap text-xs leading-relaxed text-[hsl(var(--foreground))]">
+                          🎵 {item.music}
                         </p>
                       </div>
                     </div>

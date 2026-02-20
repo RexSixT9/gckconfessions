@@ -125,12 +125,15 @@
   border-radius: var(--radius);
   border: 1px solid hsl(var(--border));
   background: hsl(var(--card));
-  overflow: hidden;
-  transition: box-shadow 200ms ease, transform 200ms ease, border-color 200ms ease;
+  transition: box-shadow 220ms ease, border-color 220ms ease;
 }
 
-.bento-cell:hover {
-  box-shadow: 0 4px 24px hsl(var(--foreground) / 0.06);
+/* Hover lift only on pointer-capable devices (no mobile tap flash) */
+@media (hover: hover) and (pointer: fine) {
+  .bento-cell:hover {
+    box-shadow: 0 4px 20px hsl(var(--foreground) / 0.06);
+    border-color: hsl(var(--border));
+  }
 }
 
 /* ─────────────────────────────────────────
@@ -175,6 +178,10 @@ body {
   color: hsl(var(--foreground));
   font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
   color-scheme: light dark;
+  min-height: 100svh;
+  overflow-x: hidden;
+  /* Smooth momentum scrolling on iOS */
+  -webkit-overflow-scrolling: touch;
 }
 
 a,

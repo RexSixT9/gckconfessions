@@ -1,16 +1,14 @@
 ﻿"use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import Link from "next/link";
 import { Heart, HeartHandshake, AlertCircle, CheckCircle2, ArrowLeft } from "lucide-react";
-import dynamic from "next/dynamic";
-
-const Footer = dynamic(() => import("@/components/Footer"), {
-  loading: () => null,
-  ssr: true,
-});
+import Footer from "@/components/Footer";
+import { useStaggerEntrance } from "@/lib/gsap";
 
 type Notice = { type: "error" | "success"; message: string } | null;
+
+const CHAR_LIMIT = 500;
 
 export default function SubmitPage() {
   const [message, setMessage] = useState("");
@@ -139,33 +137,35 @@ export default function SubmitPage() {
   }, [message, music, website, loading]);
 
   const charCount = message.length;
-  const charLimit = 500;
+
+  const pageRef = useRef<HTMLDivElement>(null);
+  useStaggerEntrance(pageRef, { selector: "[data-animate]", stagger: 0.08, duration: 0.5 });
 
   return (
-    <div className="flex min-h-screen flex-col bg-[hsl(var(--background))]">
+    <div ref={pageRef} className="flex min-h-screen flex-col">
       <main className="flex-1">
-        <div className="mx-auto w-full max-w-2xl px-4 py-8 sm:px-6 sm:py-12">
+        <div className="mx-auto w-full max-w-xl px-4 py-6 sm:px-6 sm:py-10">
 
           {/* Page header */}
-          <div className="mb-6 animate-slide-up">
+          <div data-animate className="mb-5">
             <Link
               href="/"
-              className="mb-5 inline-flex items-center gap-1.5 text-xs font-medium text-[hsl(var(--muted-foreground))] transition hover:text-[hsl(var(--accent))]"
+              className="inline-flex items-center gap-1.5 text-xs font-medium text-[hsl(var(--muted-foreground))] transition hover:text-[hsl(var(--accent))]"
             >
               <ArrowLeft className="h-3.5 w-3.5" />
               Back
             </Link>
-            <h1 className="mt-3 text-2xl font-bold tracking-tight text-[hsl(var(--foreground))] sm:text-3xl">
+            <h1 className="mt-3 text-xl font-bold tracking-tight text-[hsl(var(--foreground))] sm:text-2xl">
               Submit a confession
             </h1>
             <p className="mt-1 text-sm text-[hsl(var(--muted-foreground))]">
-              Anonymous Â· Reviewed before publishing
+              Anonymous · Reviewed before publishing
             </p>
           </div>
 
           {/* Form card */}
-          <div className="bento-cell p-6 sm:p-8 animate-slide-up animation-delay-100">
-            <form onSubmit={handleSubmit} className="space-y-5">
+          <div data-animate className="bento-cell p-5 sm:p-7">
+            <form onSubmit={handleSubmit} className="space-y-4">
               {/* Honeypot */}
               <input
                 type="text"
@@ -180,20 +180,20 @@ export default function SubmitPage() {
 
               {/* Textarea */}
               <div>
-                <div className="mb-1.5 flex items-center justify-between">
+                <div className="mb-1.5 flex flex-wrap items-center justify-between gap-1">
                   <label htmlFor="confession" className="text-sm font-semibold text-[hsl(var(--foreground))]">
                     Confession
                   </label>
-                  <span className={`text-xs ${charCount > charLimit * 0.9 ? 'text-[hsl(var(--destructive))]' : 'text-[hsl(var(--muted-foreground))]'}`}>
-                    {charCount} / {charLimit}
+                  <span className={`text-xs tabular-nums ${charCount > CHAR_LIMIT * 0.9 ? 'text-[hsl(var(--destructive))]' : 'text-[hsl(var(--muted-foreground))]'}`}>
+                    {charCount} / {CHAR_LIMIT}
                   </span>
                 </div>
                 <textarea
                   id="confession"
                   name="confession"
-                  placeholder="Write your confessionâ€¦"
-                  maxLength={charLimit}
-                  rows={6}
+                  placeholder="Write your confession…"
+                  maxLength={CHAR_LIMIT}
+                  rows={5}
                   value={message}
                   onChange={handleMessageChange}
                   className="input-base w-full resize-none"
@@ -203,7 +203,8 @@ export default function SubmitPage() {
               {/* Music */}
               <div>
                 <label htmlFor="music" className="mb-1.5 block text-sm font-semibold text-[hsl(var(--foreground))]">
-                  Song <span className="font-normal text-[hsl(var(--muted-foreground))]">(optional)</span>
+                  Song{" "}
+                  <span className="font-normal text-[hsl(var(--muted-foreground))]">(optional)</span>
                 </label>
                 <input
                   id="music"
@@ -212,25 +213,25 @@ export default function SubmitPage() {
                   value={music}
                   onChange={handleMusicChange}
                   maxLength={120}
-                  placeholder="Artist â€“ Song title"
+                  placeholder="Artist – Song title"
                   className="input-base w-full"
                 />
               </div>
 
               {/* Draft toggle row */}
-              <div className="flex items-center justify-between rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] px-4 py-3">
-                <div>
+              <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] px-4 py-3">
+                <div className="min-w-0">
                   <p className="text-xs font-semibold text-[hsl(var(--foreground))]">Save draft locally</p>
-                  <p className="text-xs text-[hsl(var(--muted-foreground))]">
+                  <p className="truncate text-xs text-[hsl(var(--muted-foreground))]">
                     {draftError ? "Storage unavailable" : hasDraft && saveDraft ? "Draft saved" : "Restores text on refresh"}
                   </p>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex shrink-0 items-center gap-2">
                   <button
                     type="button"
                     onClick={() => setSaveDraft((p) => !p)}
                     disabled={draftError}
-                    className={`relative inline-flex h-5 w-9 items-center rounded-full border transition disabled:cursor-not-allowed disabled:opacity-50 ${saveDraft ? 'border-[hsl(var(--accent))] bg-[hsl(var(--accent))]' : 'border-[hsl(var(--border))] bg-[hsl(var(--secondary))]'}`}
+                    className={`relative inline-flex h-5 w-9 items-center rounded-full border transition disabled:cursor-not-allowed disabled:opacity-50 ${saveDraft ? 'border-[hsl(var(--accent))] bg-[hsl(var(--accent))]' : 'border-[hsl(var(--border))] bg-[hsl(var(--background))]'}`}
                     aria-pressed={saveDraft}
                     aria-label="Toggle save draft"
                   >
@@ -249,13 +250,13 @@ export default function SubmitPage() {
               </div>
 
               {/* Notices */}
-              {notice?.type === 'success' && (
+              {notice?.type === "success" && (
                 <div className="flex items-start gap-2.5 rounded-lg border border-green-200 bg-green-50 p-3.5 text-sm text-green-700 dark:border-green-900/40 dark:bg-green-950/20 dark:text-green-400">
                   <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
                   <p>{notice.message}</p>
                 </div>
               )}
-              {notice?.type === 'error' && (
+              {notice?.type === "error" && (
                 <div className="flex items-start gap-2.5 rounded-lg border border-red-200 bg-red-50 p-3.5 text-sm text-red-700 dark:border-red-900/40 dark:bg-red-950/20 dark:text-red-400">
                   <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
                   <p>{notice.message}</p>
@@ -263,28 +264,30 @@ export default function SubmitPage() {
               )}
 
               {/* Submit */}
-              <button
-                type="submit"
-                disabled={loading || !message.trim()}
-                className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-[hsl(var(--accent))] py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
-              >
-                {loading ? (
-                  <>
-                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
-                    Submittingâ€¦
-                  </>
-                ) : (
-                  <>
-                    <Heart className="h-4 w-4" />
-                    Submit confession
-                  </>
-                )}
-              </button>
+              <div>
+                <button
+                  type="submit"
+                  disabled={loading || !message.trim()}
+                  className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-[hsl(var(--accent))] py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
+                >
+                  {loading ? (
+                    <>
+                      <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+                      Submitting…
+                    </>
+                  ) : (
+                    <>
+                      <Heart className="h-4 w-4" />
+                      Submit confession
+                    </>
+                  )}
+                </button>
+              </div>
             </form>
           </div>
 
           {/* Info note */}
-          <div className="mt-3 flex items-start gap-2 px-1 animate-slide-up animation-delay-200">
+          <div data-animate className="mt-3 flex items-start gap-2 px-1">
             <HeartHandshake className="mt-0.5 h-4 w-4 shrink-0 text-[hsl(var(--accent))]" />
             <p className="text-xs text-[hsl(var(--muted-foreground))]">
               Every submission is reviewed by a moderator before being published.
@@ -297,3 +300,6 @@ export default function SubmitPage() {
     </div>
   );
 }
+
+
+

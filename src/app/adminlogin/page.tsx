@@ -1,8 +1,9 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { AlertCircle, CheckCircle2, Loader, Heart, Mail, Eye, EyeOff, KeyRound } from "lucide-react";
+import { useScaleEntrance } from "@/lib/gsap";
 
 type Notice = { type: "error" | "success"; message: string } | null;
 
@@ -77,6 +78,10 @@ export default function AdminLoginPage() {
     }
   };
 
+  // Refs for GSAP animations (hooks must be called unconditionally)
+  const cardContainerRef = useRef<HTMLDivElement>(null);
+  useScaleEntrance(cardContainerRef, { duration: 0.45, delay: 0.05 });
+
   if (isChecking) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[hsl(var(--background))]">
@@ -86,8 +91,8 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[hsl(var(--background))] px-4 py-8">
-      <div className="w-full max-w-sm animate-scale-in">
+    <div className="flex min-h-screen items-center justify-center px-4 py-8 sm:py-12">
+      <div ref={cardContainerRef} className="w-full max-w-sm">
 
         {/* Header */}
         <div className="mb-6 text-center">
@@ -100,8 +105,6 @@ export default function AdminLoginPage() {
 
         {/* Card */}
         <div className="bento-cell p-6">
-          <div className="">
-
           {/* Notice */}
             {notice && (
               <div className={`mb-5 flex items-start gap-2.5 rounded-lg border p-3.5 text-sm ${
@@ -163,7 +166,6 @@ export default function AdminLoginPage() {
                 {loading ? <><Loader className="h-4 w-4 animate-spin" /> Signing in…</> : 'Sign in'}
               </button>
             </form>
-          </div>
         </div>
 
         <p className="mt-4 text-center text-xs text-[hsl(var(--muted-foreground))]">GCK Confessions · Admin</p>
