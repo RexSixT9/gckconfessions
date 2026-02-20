@@ -108,3 +108,87 @@ export function useFadeIn(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 }
+
+/**
+ * Animate a number counting up from 0 to its target value.
+ * Targets elements with `[data-count]` attribute inside the container.
+ * The attribute value should be the target number.
+ */
+export function useCountUp(
+  container: RefObject<HTMLElement | null>,
+  options: {
+    duration?: number;
+    delay?: number;
+    /** Extra deps that, when changed, re-trigger the animation. */
+    deps?: unknown[];
+  } = {}
+) {
+  const { duration = 1.2, delay = 0.15, deps = [] } = options;
+
+  useLayoutEffect(() => {
+    if (!container.current) return;
+    const targets = container.current.querySelectorAll<HTMLElement>("[data-count]");
+    if (!targets.length) return;
+
+    const ctx = gsap.context(() => {
+      targets.forEach((el, i) => {
+        const end = parseInt(el.getAttribute("data-count") || "0", 10);
+        const obj = { val: 0 };
+        gsap.to(obj, {
+          val: end,
+          duration,
+          delay: delay + i * 0.1,
+          ease: "power2.out",
+          onUpdate() {
+            el.textContent = Math.round(obj.val).toLocaleString();
+          },
+        });
+      });
+    }, container);
+    return () => ctx.revert();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, deps);
+}
+
+/**
+ * Reveal children with a blur-to-clear + slide-up entrance.
+ * Modern "glass" reveal effect used by trendy interfaces.
+ */
+export function useBlurReveal(
+  container: RefObject<HTMLElement | null>,
+  options: {
+    stagger?: number;
+    delay?: number;
+    duration?: number;
+    selector?: string;
+    deps?: unknown[];
+  } = {}
+) {
+  const {
+    stagger = 0.08,
+    delay = 0,
+    duration = 0.6,
+    selector = "[data-reveal]",
+    deps = [],
+  } = options;
+
+  useLayoutEffect(() => {
+    if (!container.current) return;
+    const targets = container.current.querySelectorAll<HTMLElement>(selector);
+    if (!targets.length) return;
+    const ctx = gsap.context(() => {
+      gsap.from(targets, {
+        opacity: 0,
+        y: 20,
+        filter: "blur(8px)",
+        duration,
+        stagger,
+        delay,
+        ease: "power3.out",
+        clearProps: "all",
+      });
+    }, container);
+    return () => ctx.revert();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, deps);
+}

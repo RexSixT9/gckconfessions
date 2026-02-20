@@ -13,14 +13,8 @@ const Footer = memo(function Footer() {
       <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
         <p className="text-xs text-[hsl(var(--muted-foreground))]">
           © {new Date().getFullYear()} GCK Confessions
-          <span className="mx-2 opacity-30">·</span>
-          <span className="opacity-50">made with ❤️ by </span>
-          <span
-            title="The anonymous ones behind this."
-            className="cursor-default font-semibold opacity-60 transition-opacity duration-200 hover:opacity-100"
-          >
-            🦇 batman
-          </span>
+          <span className="mx-1.5 opacity-40">·</span>
+          made with ❤️ by 🦇 batman
         </p>
         <div className="flex gap-4 text-xs">
           <Link href="/guidelines" className="text-[hsl(var(--muted-foreground))] transition hover:text-[hsl(var(--accent))]">Privacy</Link>
