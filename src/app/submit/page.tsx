@@ -149,10 +149,10 @@ export default function SubmitPage() {
           <div data-animate className="mb-5">
             <Link
               href="/"
-              className="inline-flex items-center gap-1.5 text-xs font-medium text-[hsl(var(--muted-foreground))] transition hover:text-[hsl(var(--accent))]"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-[hsl(var(--border))] bg-transparent px-2.5 py-1.5 text-xs font-medium text-[hsl(var(--muted-foreground))] transition hover:border-[hsl(var(--accent))]/40 hover:text-[hsl(var(--accent))]"
             >
               <ArrowLeft className="h-3.5 w-3.5" />
-              Back to home
+              Home
             </Link>
             <h1 className="mt-3 text-xl font-bold tracking-tight text-[hsl(var(--foreground))] sm:text-2xl">
               Share your confession

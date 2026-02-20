@@ -19,25 +19,25 @@ export const metadata = {
 export default function GuidelinesPage() {
   return (
     <main className="flex-1">
-      <div className="mx-auto w-full max-w-2xl px-5 sm:px-6">
+      <div className="mx-auto w-full max-w-2xl px-4 sm:px-6">
         {/* Back */}
         <div className="pt-8 pb-2">
           <Link
             href="/"
-            className="inline-flex items-center gap-1.5 text-xs font-medium text-[hsl(var(--muted-foreground))] transition hover:text-[hsl(var(--foreground))]"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-[hsl(var(--border))] bg-transparent px-2.5 py-1.5 text-xs font-medium text-[hsl(var(--muted-foreground))] transition hover:border-[hsl(var(--accent))]/40 hover:text-[hsl(var(--accent))]"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
-            Back to home
+            Home
           </Link>
         </div>
 
         {/* Page header */}
-        <section className="pb-8 pt-6">
+        <section className="pb-6 pt-5 sm:pb-8 sm:pt-6">
           <span className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-[hsl(var(--accent))]/20 bg-[hsl(var(--accent))]/8 px-3 py-1 text-xs font-semibold text-[hsl(var(--accent))]">
             <BookOpen className="h-3.5 w-3.5" />
             Privacy &amp; Guidelines
           </span>
-          <h1 className="mt-3 text-3xl font-black tracking-tight text-[hsl(var(--foreground))] sm:text-4xl">
+          <h1 className="mt-3 text-2xl font-black tracking-tight text-[hsl(var(--foreground))] sm:text-4xl">
             How this space works.
           </h1>
           <p className="mt-3 text-sm leading-relaxed text-[hsl(var(--muted-foreground))] sm:text-base">
@@ -49,11 +49,11 @@ export default function GuidelinesPage() {
         {/* ── PRIVACY SECTION ─────────────────────────────── */}
         <section className="mb-8 overflow-hidden rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))]">
           {/* Section header */}
-          <div className="flex items-center gap-3 border-b border-[hsl(var(--border))] px-6 py-4">
+          <div className="flex items-center gap-3 border-b border-[hsl(var(--border))] px-4 py-3 sm:px-6 sm:py-4">
             <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[hsl(var(--accent))]/10">
               <Lock className="h-4 w-4 text-[hsl(var(--accent))]" />
             </span>
-            <h2 className="text-base font-bold text-[hsl(var(--foreground))]">Privacy Policy</h2>
+            <h2 className="text-sm font-bold text-[hsl(var(--foreground))] sm:text-base">Privacy Policy</h2>
           </div>
 
           <div className="divide-y divide-[hsl(var(--border))]">
@@ -84,7 +84,7 @@ export default function GuidelinesPage() {
                 body: "The public-facing site uses no tracking cookies. Admin sessions use a secure, HttpOnly cookie for authentication that expires automatically.",
               },
             ].map(({ icon: Icon, title, body }) => (
-              <div key={title} className="flex items-start gap-4 px-6 py-5">
+              <div key={title} className="flex items-start gap-3 px-4 py-4 sm:gap-4 sm:px-6 sm:py-5">
                 <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[hsl(var(--secondary))]">
                   <Icon className="h-3.5 w-3.5 text-[hsl(var(--muted-foreground))]" />
                 </span>
@@ -99,11 +99,11 @@ export default function GuidelinesPage() {
 
         {/* ── COMMUNITY GUIDELINES ────────────────────────── */}
         <section className="mb-8 overflow-hidden rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))]">
-          <div className="flex items-center gap-3 border-b border-[hsl(var(--border))] px-6 py-4">
+          <div className="flex items-center gap-3 border-b border-[hsl(var(--border))] px-4 py-3 sm:px-6 sm:py-4">
             <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[hsl(var(--accent))]/10">
               <Heart className="h-4 w-4 text-[hsl(var(--accent))]" />
             </span>
-            <h2 className="text-base font-bold text-[hsl(var(--foreground))]">Community Guidelines</h2>
+            <h2 className="text-sm font-bold text-[hsl(var(--foreground))] sm:text-base">Community Guidelines</h2>
           </div>
 
           <div className="divide-y divide-[hsl(var(--border))]">
@@ -131,7 +131,7 @@ export default function GuidelinesPage() {
                 ],
               },
             ].map(({ label, variant, items }) => (
-              <div key={label} className="px-6 py-5">
+              <div key={label} className="px-4 py-4 sm:px-6 sm:py-5">
                 <p
                   className={`mb-3 inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-[11px] font-semibold ${
                     variant === "accept"
@@ -166,7 +166,7 @@ export default function GuidelinesPage() {
         </section>
 
         {/* ── ENFORCEMENT ─────────────────────────────────── */}
-        <section className="mb-10 rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] px-6 py-5">
+        <section className="mb-10 rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] px-4 py-4 sm:px-6 sm:py-5">
           <div className="flex items-start gap-3">
             <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-950/40">
               <AlertTriangle className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
