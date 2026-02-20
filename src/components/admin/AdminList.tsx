@@ -204,7 +204,7 @@ export default function AdminList() {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
         {/* Search */}
         <form onSubmit={handleSearch} className="relative flex-1">
-          <span className="pointer-events-none absolute inset-y-0 left-0 flex w-9 items-center justify-center text-[hsl(var(--muted-foreground))]">
+          <span className="pointer-events-none absolute inset-y-0 left-0 flex w-8 items-center justify-center text-[hsl(var(--muted-foreground))]">
             <Search className="h-3.5 w-3.5" />
           </span>
           <input
@@ -342,7 +342,7 @@ export default function AdminList() {
               <div key={item._id} data-card className="overflow-hidden rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] transition-shadow hover:shadow-sm">
 
                 {/* Card header */}
-                <div className="flex items-center justify-between gap-3 px-5 pt-4 pb-3">
+                <div className="flex items-center justify-between gap-2 px-3 pt-3 pb-2 sm:gap-3 sm:px-5 sm:pt-4 sm:pb-3">
                   <div className="flex flex-wrap items-center gap-1.5">
                     <StatusBadge status={item.status} />
                     {item.posted && (
@@ -369,7 +369,7 @@ export default function AdminList() {
                 </div>
 
                 {/* Message */}
-                <div className="px-5 pb-3">
+                <div className="px-3 pb-3 sm:px-5">
                   <div className="group relative">
                     <div className="max-h-40 overflow-y-auto rounded-xl bg-[hsl(var(--secondary))] px-4 py-3">
                       <p className="wrap-break-word whitespace-pre-wrap text-sm leading-relaxed text-[hsl(var(--foreground))]">
@@ -410,10 +410,10 @@ export default function AdminList() {
                 </div>
 
                 {/* Divider */}
-                <div className="mx-5 border-t border-[hsl(var(--border))]" />
+                <div className="mx-3 border-t border-[hsl(var(--border))] sm:mx-5" />
 
                 {/* Actions */}
-                <div className="flex flex-wrap items-center gap-2 px-5 py-3">
+                <div className="flex flex-wrap items-center gap-2 px-3 py-3 sm:px-5">
                   {item.status === "pending" && (
                     <>
                       <ActionBtn
@@ -466,7 +466,7 @@ export default function AdminList() {
 
                   <ActionBtn
                     variant="danger"
-                    className="ml-auto"
+                    className="ml-auto w-full sm:w-auto"
                     onClick={() => {
                       if (!window.confirm("Permanently delete this confession?")) return;
                       void run(

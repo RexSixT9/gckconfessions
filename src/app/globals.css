@@ -160,7 +160,10 @@
     border-radius: calc(var(--radius) * 0.85);
     border: 1px solid hsl(var(--border));
     background: hsl(var(--background));
-    padding: 0.625rem 0.875rem;
+    padding-top: 0.625rem;
+    padding-right: 0.875rem;
+    padding-bottom: 0.625rem;
+    padding-left: 0.875rem;
     font-size: 0.875rem;
     line-height: 1.5;
     color: hsl(var(--foreground));

@@ -33,10 +33,10 @@ export default function HeaderNav() {
 
         {/* Actions */}
         <div className="flex items-center gap-2 sm:gap-3">
-          {/* Write button — visible on all screens */}
+          {/* Write button — hidden on small screens (hero CTA is visible there) */}
           <Link
             href="/submit"
-            className="inline-flex items-center gap-1 rounded-lg bg-[hsl(var(--accent))] px-3 py-1.5 text-xs font-semibold text-white transition hover:opacity-90"
+            className="hidden items-center gap-1 rounded-lg bg-[hsl(var(--accent))] px-3 py-1.5 text-xs font-semibold text-white transition hover:opacity-90 sm:inline-flex"
           >
             Write
           </Link>
