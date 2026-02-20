@@ -1,260 +1,203 @@
 @import "tailwindcss";
 
 :root {
-  /* Light Mode - Dark Pink + White */
   --header-height: 3.5rem;
   --announcement-height: 0px;
-  --background: 0 0% 100%;
-  --foreground: 350 30% 12%;
-  --card: 0 0% 100%;
-  --card-foreground: 350 30% 12%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 350 30% 12%;
-  --primary: 350 30% 12%;
+
+  /* ── Light mode palette ── */
+  --background:      0 0% 97%;
+  --foreground:      220 15% 10%;
+  --card:            0 0% 100%;
+  --card-foreground: 220 15% 10%;
+  --popover:         0 0% 100%;
+  --popover-foreground: 220 15% 10%;
+  --primary:         220 15% 10%;
   --primary-foreground: 0 0% 100%;
-  --secondary: 350 30% 96%;
-  --secondary-foreground: 350 20% 18%;
-  --muted: 350 24% 94%;
-  --muted-foreground: 350 12% 45%;
-  --accent: 338 78% 42%;
+  --secondary:       220 12% 93%;
+  --secondary-foreground: 220 12% 28%;
+  --muted:           220 10% 91%;
+  --muted-foreground:220 8% 48%;
+  --accent:          338 78% 42%;
   --accent-foreground: 0 0% 100%;
-  --success: 142 71% 45%;
+  --success:         142 71% 40%;
   --success-foreground: 0 0% 100%;
-  --warning: 38 92% 50%;
+  --warning:         38 92% 50%;
   --warning-foreground: 0 0% 100%;
-  --destructive: 0 84% 60%;
+  --destructive:     0 80% 56%;
   --destructive-foreground: 0 0% 100%;
-  --border: 350 18% 88%;
-  --input: 350 18% 92%;
-  --ring: 338 78% 42%;
-  --radius: 1rem;
-  /* Light Mode - Action button colors */
-  --action-accept: 142 71% 45%;
-  --action-accept-foreground: 0 0% 100%;
-  --action-publish: 217 91% 60%;
-  --action-publish-foreground: 0 0% 100%;
-  --action-reject: 0 84% 60%;
-  --action-reject-foreground: 0 0% 100%;
+  --border:          220 12% 87%;
+  --input:           220 12% 90%;
+  --ring:            338 78% 42%;
+  --radius:          0.875rem;
+  --action-accept:   142 71% 40%;
+  --action-publish:  217 91% 58%;
+  --action-reject:   0 80% 56%;
 }
 
 .dark {
-  /* Dark Mode - Deep Pink */
-  --background: 350 20% 6%;
-  --foreground: 0 0% 96%;
-  --card: 350 18% 10%;
-  --card-foreground: 0 0% 96%;
-  --popover: 350 18% 10%;
-  --popover-foreground: 0 0% 96%;
-  --primary: 0 0% 96%;
-  --primary-foreground: 350 20% 6%;
-  --secondary: 350 16% 16%;
-  --secondary-foreground: 0 0% 96%;
-  --muted: 350 16% 16%;
-  --muted-foreground: 0 0% 62%;
-  --accent: 338 78% 52%;
+  /* ── Dark mode palette ── */
+  --background:      224 18% 7%;
+  --foreground:      220 14% 93%;
+  --card:            224 16% 11%;
+  --card-foreground: 220 14% 93%;
+  --popover:         224 16% 11%;
+  --popover-foreground: 220 14% 93%;
+  --primary:         220 14% 93%;
+  --primary-foreground: 224 18% 7%;
+  --secondary:       224 14% 16%;
+  --secondary-foreground: 220 14% 80%;
+  --muted:           224 14% 16%;
+  --muted-foreground:220 8% 55%;
+  --accent:          338 75% 55%;
   --accent-foreground: 0 0% 100%;
-  --success: 142 65% 55%;
+  --success:         142 60% 50%;
   --success-foreground: 0 0% 100%;
-  --warning: 38 100% 60%;
-  --warning-foreground: 0 0% 5%;
-  --destructive: 0 80% 55%;
+  --warning:         38 100% 58%;
+  --warning-foreground: 0 0% 8%;
+  --destructive:     0 72% 52%;
   --destructive-foreground: 0 0% 100%;
-  --border: 350 16% 22%;
-  --input: 350 16% 22%;
-  --ring: 338 78% 52%;
-  /* Action button colors */
-  --action-accept: 142 65% 55%;
-  --action-accept-foreground: 0 0% 100%;
-  --action-publish: 217 85% 65%;
-  --action-publish-foreground: 0 0% 100%;
-  --action-reject: 0 80% 55%;
-  --action-reject-foreground: 0 0% 100%;
+  --border:          224 14% 20%;
+  --input:           224 14% 20%;
+  --ring:            338 75% 55%;
+  --action-accept:   142 60% 50%;
+  --action-publish:  217 82% 62%;
+  --action-reject:   0 72% 52%;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+/* ─────────────────────────────────────────
+   Animations
+───────────────────────────────────────── */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(16px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-16px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+@keyframes slide-down {
+  from { opacity: 0; transform: translateY(-12px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes slideInLeft {
-  from {
-    opacity: 0;
-    transform: translateX(-16px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+@keyframes slide-in-left {
+  from { opacity: 0; transform: translateX(-12px); }
+  to   { opacity: 1; transform: translateX(0); }
 }
 
-@keyframes slideInRight {
-  from {
-    opacity: 0;
-    transform: translateX(16px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+@keyframes slide-in-right {
+  from { opacity: 0; transform: translateX(12px); }
+  to   { opacity: 1; transform: translateX(0); }
 }
 
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-8px);
-  }
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: scale(1); }
 }
 
-@keyframes pulse-subtle {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.8;
-  }
+.animate-fade-in      { animation: fade-in 500ms ease-out both; }
+.animate-slide-up     { animation: slide-up 500ms ease-out both; }
+.animate-slide-down   { animation: slide-down 500ms ease-out both; }
+.animate-slide-in-left  { animation: slide-in-left 500ms ease-out both; }
+.animate-slide-in-right { animation: slide-in-right 500ms ease-out both; }
+.animate-scale-in     { animation: scale-in 500ms ease-out both; }
+
+.animation-delay-50  { animation-delay: 50ms; }
+.animation-delay-100 { animation-delay: 100ms; }
+.animation-delay-150 { animation-delay: 150ms; }
+.animation-delay-200 { animation-delay: 200ms; }
+.animation-delay-300 { animation-delay: 300ms; }
+.animation-delay-400 { animation-delay: 400ms; }
+.animation-delay-500 { animation-delay: 500ms; }
+
+/* ─────────────────────────────────────────
+   Bento utilities
+───────────────────────────────────────── */
+.bento-grid {
+  display: grid;
+  gap: 0.75rem;
 }
 
-@keyframes scaleIn {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+/* Shared bento cell appearance */
+.bento-cell {
+  border-radius: var(--radius);
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--card));
+  overflow: hidden;
+  transition: box-shadow 200ms ease, transform 200ms ease, border-color 200ms ease;
 }
 
-.animate-fade-in {
-  animation: fadeIn 600ms ease-out;
+.bento-cell:hover {
+  box-shadow: 0 4px 24px hsl(var(--foreground) / 0.06);
 }
 
-.animate-slide-up {
-  animation: slideUp 600ms ease-out;
+/* ─────────────────────────────────────────
+   Form / input resets
+───────────────────────────────────────── */
+.input-base {
+  width: 100%;
+  border-radius: calc(var(--radius) * 0.85);
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--background));
+  padding: 0.625rem 0.875rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: hsl(var(--foreground));
+  outline: none;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
 }
 
-.animate-slide-down {
-  animation: slideDown 600ms ease-out;
+.input-base::placeholder {
+  color: hsl(var(--muted-foreground) / 0.7);
 }
 
-.animate-slide-in-left {
-  animation: slideInLeft 600ms ease-out;
+.input-base:focus {
+  border-color: hsl(var(--accent));
+  box-shadow: 0 0 0 3px hsl(var(--accent) / 0.15);
 }
 
-.animate-slide-in-right {
-  animation: slideInRight 600ms ease-out;
+.input-base:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
-.animate-float {
-  animation: float 6s ease-in-out infinite;
-}
-
-.animate-pulse-subtle {
-  animation: pulse-subtle 2s ease-in-out infinite;
-}
-
-.animate-scale-in {
-  animation: scaleIn 600ms ease-out;
-}
-
-/* Staggered animation delays */
-.animation-delay-100 {
-  animation-delay: 100ms;
-}
-
-.animation-delay-200 {
-  animation-delay: 200ms;
-}
-
-.animation-delay-300 {
-  animation-delay: 300ms;
-}
-
-.animation-delay-400 {
-  animation-delay: 400ms;
-}
-
-.animation-delay-500 {
-  animation-delay: 500ms;
+/* ─────────────────────────────────────────
+   Base styles
+───────────────────────────────────────── */
+* {
+  border-color: hsl(var(--border));
 }
 
 body {
-  background: radial-gradient(1200px 600px at 10% -20%, hsl(var(--accent) / 0.16), transparent 60%),
-    radial-gradient(900px 500px at 90% -10%, hsl(var(--accent) / 0.08), transparent 55%),
-    hsl(var(--background));
+  background-color: hsl(var(--background));
   color: hsl(var(--foreground));
   font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
   color-scheme: light dark;
 }
 
-@media (max-width: 640px) {
-  body {
-    background: hsl(var(--background));
-  }
-
-  .backdrop-blur {
-    backdrop-filter: none !important;
-  }
-
-  .blur-3xl {
-    filter: none !important;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    scroll-behavior: auto !important;
-    transition-duration: 0ms !important;
-    animation-duration: 0ms !important;
-  }
-}
-
-* {
-  border-color: hsl(var(--border));
-}
-
 a,
 button {
-  transition: color 150ms ease, background-color 150ms ease, border-color 150ms ease, box-shadow 150ms ease, transform 150ms ease;
+  transition: color 150ms ease, background-color 150ms ease,
+    border-color 150ms ease, box-shadow 150ms ease, transform 150ms ease,
+    opacity 150ms ease;
 }
 
 a:active,
 button:active {
-  transform: translateY(1px);
+  transform: scale(0.98);
 }
 
 input,
 textarea,
 select {
-  transition: border-color 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0ms !important;
+    transition-duration: 0ms !important;
+  }
 }

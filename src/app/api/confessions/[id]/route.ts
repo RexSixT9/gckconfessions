@@ -101,3 +101,64 @@ export async function PATCH(
     );
   }
 }
+
+export async function DELETE(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    let arcjetDecision;
+    try {
+      arcjetDecision = await aj.protect(request);
+    } catch (arcjetError) {
+      console.error("Arcjet error:", arcjetError);
+      arcjetDecision = null;
+    }
+
+    if (arcjetDecision?.isDenied()) {
+      return NextResponse.json({ error: "Request blocked." }, { status: 403 });
+    }
+
+    const cookieStore = await cookies();
+    const token = cookieStore.get(COOKIE_NAME)?.value;
+
+    if (!token) {
+      return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+    }
+
+    const admin = await verifyAdminToken(token);
+    if (!admin.sub) {
+      return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+    }
+
+    const { id } = await params;
+
+    if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+      return NextResponse.json({ error: "Invalid confession id." }, { status: 400 });
+    }
+
+    await connectToDatabase();
+    const confession = await Confession.findByIdAndDelete(id).lean();
+
+    if (!confession) {
+      return NextResponse.json({ error: "Confession not found." }, { status: 404 });
+    }
+
+    await AuditLog.create({
+      action: "confession_deleted",
+      adminEmail: admin.email,
+      ip: getClientIp(request),
+      meta: { confessionId: id },
+    });
+
+    return NextResponse.json({ ok: true });
+  } catch (error) {
+    return NextResponse.json(
+      {
+        error:
+          error instanceof Error ? error.message : "Failed to delete confession.",
+      },
+      { status: 500 }
+    );
+  }
+}

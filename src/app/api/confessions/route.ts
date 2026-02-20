@@ -7,27 +7,13 @@ import { isbot } from "isbot";
 import { verifyAdminToken } from "@/lib/auth";
 import { COOKIE_NAME } from "@/lib/constants";
 import { filterProfanity, sanitizeText } from "@/lib/moderation";
+import { isSameOrigin } from "@/lib/requestUtils";
 import {
   checkSubmissionLimit,
   getBlockedIps,
   getClientIp,
 } from "@/lib/rateLimit";
 import Confession from "@/models/Confession";
-
-function isSameOrigin(request: Request) {
-  const origin = request.headers.get("origin");
-  if (!origin) return true;
-
-  const host = request.headers.get("host");
-  if (!host) return false;
-
-  try {
-    const originHost = new URL(origin).host;
-    return originHost === host;
-  } catch {
-    return false;
-  }
-}
 
 // NOTE: hCaptcha verification disabled - will be implemented in future
 // To enable CAPTCHA protection, uncomment below and add verification logic to POST handler
@@ -197,11 +183,10 @@ export async function POST(request: Request) {
     if (!rate.allowed) {
       return NextResponse.json(
         { error: "Too many submissions. Please try again later." },
-        { status: 429 }
+        { status: 429, headers: { "Retry-After": String(rate.retryAfterSeconds) } }
       );
     }
 
-    // TODO: Add IP-based rate limiting here (keep anonymity intact).
     const body = await request.json();
     const rawMessage = String(body.message ?? "");
     const rawMusic = String(body.music ?? "");
@@ -247,7 +232,7 @@ export async function POST(request: Request) {
     if (recentDuplicate) {
       return NextResponse.json(
         { error: "Duplicate submission detected. Please wait." },
-        { status: 429 }
+        { status: 429, headers: { "Retry-After": "1800" } }
       );
     }
 

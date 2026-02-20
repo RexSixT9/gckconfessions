@@ -26,32 +26,24 @@ export default async function AdminPage() {
   return (
     <div className="flex min-h-screen flex-col bg-[hsl(var(--background))]">
       <main className="flex-1">
-        {/* Header Section */}
-        <section className="border-b border-[hsl(var(--border))]/70 bg-[hsl(var(--background))]">
-          <div className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6 sm:py-24 lg:py-28">
-            <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-              <div className="min-w-0 flex-1 space-y-1 sm:space-y-2">
-                <h1 className="text-balance wrap-break-word text-xl font-semibold tracking-tight text-[hsl(var(--foreground))] sm:text-3xl lg:text-4xl">
-                  Confession review
-                </h1>
-                <p className="wrap-break-word text-sm text-[hsl(var(--muted-foreground))] sm:text-base">
-                  Approve or reject new submissions.
-                </p>
-              </div>
-              <div className="shrink-0 w-full sm:w-auto">
-                <SignOutButton />
-              </div>
+        <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
+
+          {/* Page header */}
+          <div className="mb-6 flex items-center justify-between">
+            <div>
+              <h1 className="text-xl font-bold tracking-tight text-[hsl(var(--foreground))] sm:text-2xl">
+                Confession review
+              </h1>
+              <p className="mt-0.5 text-sm text-[hsl(var(--muted-foreground))]">
+                Approve or reject new submissions
+              </p>
             </div>
+            <SignOutButton />
           </div>
-        </section>
 
-        {/* Content Section */}
-        <section className="mx-auto w-full max-w-6xl overflow-x-hidden px-4 py-12 sm:px-6 sm:py-24">
           <AdminList />
-        </section>
+        </div>
       </main>
-
-      {/* Footer */}
       <Footer />
     </div>
   );

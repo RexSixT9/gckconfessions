@@ -5,23 +5,9 @@ import { aj } from "@/lib/arcjet";
 import { signAdminToken } from "@/lib/auth";
 import { checkLoginLimit, getBlockedIps, getClientIp } from "@/lib/rateLimit";
 import { COOKIE_NAME, COOKIE_OPTIONS, COOKIE_MAX_AGE } from "@/lib/constants";
+import { isSameOrigin, isValidEmail } from "@/lib/requestUtils";
 import Admin from "@/models/Admin";
 import AuditLog from "@/models/AuditLog";
-
-function isSameOrigin(request: Request) {
-  const origin = request.headers.get("origin");
-  if (!origin) return true;
-
-  const host = request.headers.get("host");
-  if (!host) return false;
-
-  try {
-    const originHost = new URL(origin).host;
-    return originHost === host;
-  } catch {
-    return false;
-  }
-}
 
 export async function POST(request: Request) {
   try {
@@ -65,17 +51,28 @@ export async function POST(request: Request) {
     if (!rate.allowed) {
       return NextResponse.json(
         { error: "Too many login attempts. Try again later." },
-        { status: 429 }
+        {
+          status: 429,
+          headers: { "Retry-After": String(rate.retryAfterSeconds) },
+        }
       );
     }
 
     const body = await request.json();
     const email = String(body.email ?? "").toLowerCase().trim();
-    const password = String(body.password ?? "").trim();
+    // Do NOT trim passwords — whitespace may be intentional
+    const password = String(body.password ?? "");
 
     if (!email || !password) {
       return NextResponse.json(
         { error: "Email and password are required." },
+        { status: 400 }
+      );
+    }
+
+    if (!isValidEmail(email)) {
+      return NextResponse.json(
+        { error: "Invalid email address." },
         { status: 400 }
       );
     }
@@ -102,7 +99,7 @@ export async function POST(request: Request) {
           action: "admin_login_failed",
           adminEmail: email,
           ip,
-          metadata: { reason: "invalid_credentials" },
+          meta: { reason: "invalid_credentials" },
         });
       } catch (logError) {
         console.error("Failed to log failed login attempt:", logError);

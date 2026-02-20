@@ -16,12 +16,19 @@
 # next.js
 /.next/
 /out/
+# SWC compiler cache (Next.js)
+/.swc/
 
 # production
 /build
 
 # misc
 .DS_Store
+# Windows OS metadata
+Thumbs.db
+ehthumbs.db
+desktop.ini
+$RECYCLE.BIN/
 *.pem
 
 # debug
@@ -30,8 +37,10 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
+# env files — ignore all .env* EXCEPT template/example files
 .env*
+!.env.example
+!.env.*.example
 
 # vercel
 .vercel
@@ -39,3 +48,14 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# editor settings (personal preferences should not be shared)
+.vscode/settings.json
+.vscode/launch.json
+.vscode/*.code-snippets
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

@@ -10,6 +10,7 @@ const AuditLogSchema = new Schema(
         "admin_login_failed",
         "admin_logout",
         "admin_created",
+        "admin_deleted",
         "confession_created",
         "confession_updated",
         "confession_deleted",
@@ -24,12 +25,9 @@ const AuditLogSchema = new Schema(
     ip: { type: String, default: "", index: true },
     userAgent: { type: String },
     meta: { type: Schema.Types.Mixed, default: {} },
-    metadata: { type: Schema.Types.Mixed, default: {} },
   },
   { 
     timestamps: true,
-    // Auto-delete logs after 90 days for privacy
-    expireAfterSeconds: 7776000,
   }
 );
 
@@ -37,6 +35,8 @@ const AuditLogSchema = new Schema(
 AuditLogSchema.index({ createdAt: -1 });
 AuditLogSchema.index({ action: 1, createdAt: -1 });
 AuditLogSchema.index({ ip: 1, createdAt: -1 });
+// TTL index: auto-delete audit logs after 90 days for privacy
+AuditLogSchema.index({ createdAt: 1 }, { expireAfterSeconds: 7776000 });
 
 export default mongoose.models.AuditLog ||
   mongoose.model("AuditLog", AuditLogSchema);

@@ -3,10 +3,22 @@ import bcrypt from "bcryptjs";
 import { connectToDatabase } from "@/lib/mongodb";
 import { aj } from "@/lib/arcjet";
 import { validatePasswordPolicy } from "@/lib/moderation";
+import { BCRYPT_ROUNDS } from "@/lib/constants";
+import { checkSetupLimit, getBlockedIps, getClientIp } from "@/lib/rateLimit";
+import { isSameOrigin, isValidEmail } from "@/lib/requestUtils";
 import Admin from "@/models/Admin";
 
 export async function POST(request: Request) {
   try {
+    if (!isSameOrigin(request)) {
+      return NextResponse.json({ error: "Invalid origin." }, { status: 403 });
+    }
+
+    const contentType = request.headers.get("content-type") ?? "";
+    if (!contentType.includes("application/json")) {
+      return NextResponse.json({ error: "Unsupported content type." }, { status: 415 });
+    }
+
     let arcjetDecision;
     try {
       arcjetDecision = await aj.protect(request);
@@ -16,14 +28,24 @@ export async function POST(request: Request) {
     }
 
     if (arcjetDecision?.isDenied()) {
+      return NextResponse.json({ error: "Setup blocked." }, { status: 403 });
+    }
+
+    const ip = getClientIp(request);
+
+    if (getBlockedIps().includes(ip)) {
+      return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+    }
+
+    const rate = await checkSetupLimit(`setup:${ip}`);
+    if (!rate.allowed) {
       return NextResponse.json(
-        { error: "Setup blocked." },
-        { status: 403 }
+        { error: "Too many setup attempts. Try again later." },
+        { status: 429, headers: { "Retry-After": String(rate.retryAfterSeconds) } }
       );
     }
 
     const setupKey = process.env.ADMIN_SETUP_KEY;
-
     if (!setupKey) {
       return NextResponse.json(
         { error: "ADMIN_SETUP_KEY is not configured." },
@@ -33,7 +55,8 @@ export async function POST(request: Request) {
 
     const body = await request.json();
     const email = String(body.email ?? "").toLowerCase().trim();
-    const password = String(body.password ?? "").trim();
+    // Do NOT trim passwords — whitespace may be intentional
+    const password = String(body.password ?? "");
     const providedKey = String(body.setupKey ?? "").trim();
 
     if (!email || !password || !providedKey) {
@@ -41,6 +64,10 @@ export async function POST(request: Request) {
         { error: "Email, password, and setupKey are required." },
         { status: 400 }
       );
+    }
+
+    if (!isValidEmail(email)) {
+      return NextResponse.json({ error: "Invalid email address." }, { status: 400 });
     }
 
     if (!validatePasswordPolicy(password)) {
@@ -62,12 +89,12 @@ export async function POST(request: Request) {
 
     if (existingCount > 0) {
       return NextResponse.json(
-        { error: "Admin already exists." },
+        { error: "Admin already exists. Use the admin panel to add more admins." },
         { status: 409 }
       );
     }
 
-    const passwordHash = await bcrypt.hash(password, 10);
+    const passwordHash = await bcrypt.hash(password, BCRYPT_ROUNDS);
     await Admin.create({ email, passwordHash });
 
     return NextResponse.json({ ok: true }, { status: 201 });
@@ -75,9 +102,7 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         error:
-          error instanceof Error
-            ? error.message
-            : "Failed to create admin.",
+          error instanceof Error ? error.message : "Failed to create admin.",
       },
       { status: 500 }
     );

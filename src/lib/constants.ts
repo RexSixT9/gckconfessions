@@ -25,7 +25,7 @@ export const MAX_EMAIL_LENGTH = 254; // RFC 5321
 export const MAX_PASSWORD_LENGTH = 128;
 export const MAX_MESSAGE_LENGTH = 1000;
 export const MAX_MUSIC_LENGTH = 120;
-export const MIN_PASSWORD_LENGTH = 8;
+export const MIN_PASSWORD_LENGTH = 12;
 
 // Bcrypt configuration
 export const BCRYPT_ROUNDS = 10;

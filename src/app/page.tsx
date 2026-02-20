@@ -1,283 +1,206 @@
-'use client';
+﻿'use client';
 
-import { ArrowUpRight, Heart, MessageSquare, Sparkles, Send } from 'lucide-react';
+import Link from 'next/link';
+import { ArrowUpRight, Heart, ShieldCheck, MessageSquare, Zap, Send } from 'lucide-react';
 import dynamic from 'next/dynamic';
 
-const Footer = dynamic(() => import('@/components/Footer'), {
-  loading: () => null,
-  ssr: true,
-});
+const Footer = dynamic(() => import('@/components/Footer'), { ssr: true });
 
 export default function Home() {
-
-
   return (
     <div className="flex min-h-screen flex-col bg-[hsl(var(--background))]">
       <main className="flex-1">
-        {/* Mobile CTA Bar */}
-        <div className="sticky top-[calc(var(--header-height)+var(--announcement-height))] z-40 border-b border-[hsl(var(--border))]/70 bg-[hsl(var(--background))]/90 backdrop-blur sm:hidden">
-          <div className="mx-auto flex w-full max-w-6xl px-4 py-3">
-            <a
-              className="flex w-full items-center justify-center gap-2 rounded-full border border-[hsl(var(--border))]/70 bg-[hsl(var(--card))] px-4 py-2.5 text-center text-sm font-semibold text-[hsl(var(--foreground))] shadow-sm transition hover:border-[hsl(var(--accent))]/40 hover:text-[hsl(var(--accent))]"
-              href="/submit"
-            >
-              <Sparkles className="h-4 w-4 text-[hsl(var(--accent))]" />
-              Write a confession
-              <ArrowUpRight className="h-4 w-4" />
-            </a>
-          </div>
-        </div>
+        <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
 
-        {/* Hero Section */}
-        <section className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6 sm:py-20 lg:py-28">
-          <div className="grid gap-10 lg:grid-cols-2 lg:gap-16">
-            {/* Left Content */}
-            <div className="flex flex-col justify-center space-y-6 sm:space-y-8">
-              {/* Badge */}
-              <div className="inline-flex w-fit items-center gap-2 rounded-full border border-[hsl(var(--border))]/70 bg-[hsl(var(--card))] px-4 py-2 animate-slide-down">
-                <span className="inline-block h-2.5 w-2.5 rounded-full bg-[hsl(var(--accent))]"></span>
-                <span className="text-xs font-semibold text-[hsl(var(--accent))]">
-                  Anonymous • Moderated
-                </span>
-              </div>
+          {/* â”€â”€ Bento Grid â”€â”€ */}
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
 
-              {/* Main Heading */}
-              <div className="space-y-4 animate-slide-up animation-delay-100">
-                <h1 className="text-balance wrap-break-word text-2xl font-semibold leading-tight tracking-tight text-[hsl(var(--foreground))] sm:text-4xl lg:text-5xl">
-                  Share a confession.
-                </h1>
-                <p className="text-balance wrap-break-word text-base leading-relaxed text-[hsl(var(--muted-foreground))] sm:text-lg">
-                  Post anonymously. Every message is reviewed before it appears.
-                </p>
-                <p className="text-sm text-[hsl(var(--muted-foreground))]">
-                  Why anonymous? It helps people share honestly without pressure.
-                </p>
-              </div>
+            {/* Cell 1 â€” Hero (lg: col-span-2) */}
+            <div className="bento-cell relative col-span-1 overflow-hidden p-7 sm:col-span-2 sm:p-8 lg:p-10 animate-slide-up">
+              {/* Subtle accent glow */}
+              <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-[hsl(var(--accent))]/10 blur-3xl" />
 
-              {/* CTA Buttons */}
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4 animate-slide-up animation-delay-200">
-                <a
-                  href="/submit"
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[hsl(var(--accent))] px-6 py-3 text-sm font-semibold text-[hsl(var(--accent-foreground))] shadow-sm transition hover:opacity-90 active:scale-95 sm:w-auto sm:px-8 sm:py-3.5"
-                >
-                  Write a confession
-                  <ArrowUpRight className="h-4 w-4" />
-                </a>
-                <a
-                  href="#how-it-works"
-                  className="inline-flex w-full items-center justify-center rounded-full border border-[hsl(var(--border))] px-6 py-3 text-sm font-semibold text-[hsl(var(--foreground))] transition hover:border-[hsl(var(--accent))]/40 hover:text-[hsl(var(--accent))] active:scale-95 sm:w-auto sm:px-8 sm:py-3.5"
-                >
-                  How it works
-                </a>
-              </div>
-
-              {/* Trust Indicators */}
-              <div className="flex flex-wrap gap-2 pt-4 sm:flex-row sm:items-center sm:gap-3 animate-slide-up animation-delay-300">
-                {[
-                  { icon: MessageSquare, label: 'No accounts' },
-                  { icon: Heart, label: 'Reviewed for safety' },
-                ].map((item) => {
-                  const Icon = item.icon;
-                  return (
-                    <div
-                      key={item.label}
-                      className="inline-flex items-center gap-2 rounded-full border border-[hsl(var(--border))]/70 bg-[hsl(var(--card))] px-3 py-1.5 text-xs text-[hsl(var(--muted-foreground))] transition hover:border-[hsl(var(--accent))]/40 hover:bg-[hsl(var(--accent))]/5"
-                    >
-                      <Icon className="h-4 w-4 text-[hsl(var(--accent))]" />
-                      <span>{item.label}</span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Right Visual */}
-            <div className="hidden lg:flex lg:items-center lg:justify-center animate-slide-in-right animation-delay-200">
-              <div className="relative">
-                {/* Gradient Background */}
-                <div className="absolute inset-0 rounded-3xl bg-linear-to-br from-[hsl(var(--accent))]/10 to-transparent blur-3xl"></div>
-
-                {/* Card Display */}
-                <div className="relative space-y-3 rounded-3xl border border-[hsl(var(--border))]/70 bg-[hsl(var(--card))] p-6 shadow-sm">
-                  {[
-                    {
-                      text: 'I have a confession.',
-                      color: 'from-[hsl(var(--accent))] to-[hsl(var(--accent))]/85',
-                    },
-                    {
-                      text: 'I never said this out loud.',
-                      color: 'from-[hsl(var(--accent))]/70 to-[hsl(var(--accent))]/45',
-                    },
-                    {
-                      text: 'This has been on my mind.',
-                      color: 'from-[hsl(var(--accent))]/55 to-[hsl(var(--accent))]/30',
-                    },
-                  ].map((item, i) => (
-                    <div
-                      key={i}
-                      className={`transform rounded-2xl bg-linear-to-r ${item.color} p-4 text-white shadow-sm transition hover:shadow-md hover:-translate-y-1 sm:p-6 animate-slide-up`}
-                      style={{
-                        transform: `rotate(${i === 0 ? -2 : i === 1 ? 0 : 2}deg) translateY(${i * 8}px)`,
-                        animationDelay: `${(i + 3) * 100}ms`,
-                      }}
-                    >
-                      <p className="text-sm font-medium sm:text-base">{item.text}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-            <div className="lg:hidden animate-slide-up animation-delay-200">
-              <div className="rounded-3xl border border-[hsl(var(--border))]/70 bg-[hsl(var(--card))] p-4 shadow-sm sm:p-5">
-                <div className="space-y-3">
-                  <div className="rounded-2xl border border-[hsl(var(--border))]/60 bg-[hsl(var(--secondary))] p-4 transition hover:border-[hsl(var(--accent))]/40 hover:bg-[hsl(var(--accent))]/5">
-                    <p className="text-sm text-[hsl(var(--foreground))]">&ldquo;I have a confession.&rdquo;</p>
-                  </div>
-                  <div className="rounded-2xl border border-[hsl(var(--border))]/60 bg-[hsl(var(--secondary))] p-4 transition hover:border-[hsl(var(--accent))]/40 hover:bg-[hsl(var(--accent))]/5">
-                    <p className="text-sm text-[hsl(var(--foreground))]">&ldquo;I never said this out loud.&rdquo;</p>
-                  </div>
-                  <div className="rounded-2xl border border-[hsl(var(--border))]/60 bg-[hsl(var(--secondary))] p-4 transition hover:border-[hsl(var(--accent))]/40 hover:bg-[hsl(var(--accent))]/5">
-                    <p className="text-sm text-[hsl(var(--foreground))]">&ldquo;This has been on my mind.&rdquo;</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* How It Works Section */}
-        <section id="how-it-works" className="border-t border-[hsl(var(--border))]/70">
-          <div className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6 sm:py-20 lg:py-24">
-            <div className="mb-8 text-center sm:mb-14 animate-slide-up">
-              <div className="mx-auto mb-4 inline-flex items-center gap-2 rounded-full border border-[hsl(var(--border))]/70 bg-[hsl(var(--card))] px-3 py-1 text-xs font-semibold text-[hsl(var(--muted-foreground))]">
-                <span className="h-2 w-2 rounded-full bg-[hsl(var(--accent))]"></span>
-                How it works
-              </div>
-              <h2 className="text-xl font-semibold tracking-tight text-[hsl(var(--foreground))] sm:text-3xl">
-                Three simple steps
-              </h2>
-              <p className="mt-3 text-sm text-[hsl(var(--muted-foreground))] sm:text-base">
-                Anonymous by design.
-              </p>
-            </div>
-
-            <div className="grid gap-5 sm:grid-cols-2 md:grid-cols-3">
-              {[
-                {
-                  step: '01',
-                  title: 'Write',
-                  description: 'Share your message. No account needed.',
-                  icon: Heart,
-                },
-                {
-                  step: '02',
-                  title: 'Review',
-                  description: 'Moderators check for safety and clarity.',
-                  icon: MessageSquare,
-                },
-                {
-                  step: '03',
-                  title: 'Publish',
-                  description: 'Approved posts go live for the community.',
-                  icon: Send,
-                },
-              ].map((item, idx) => {
-                const Icon = item.icon;
-                return (
-                  <div
-                    key={item.step}
-                    className="group rounded-3xl border border-[hsl(var(--border))]/70 bg-[hsl(var(--card))] p-6 shadow-sm transition hover:shadow-md hover:-translate-y-1 animate-slide-up"
-                    style={{ animationDelay: `${idx * 100}ms` }}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[hsl(var(--accent))]/12 transition group-hover:bg-[hsl(var(--accent))]/20">
-                        <Icon className="h-5 w-5 text-[hsl(var(--accent))]" />
-                      </div>
-                      <span className="text-xs font-semibold text-[hsl(var(--muted-foreground))]">
-                        {item.step}
-                      </span>
-                    </div>
-                    <h3 className="mt-4 text-lg font-semibold text-[hsl(var(--foreground))]">
-                      {item.title}
-                    </h3>
-                    <p className="mt-2 text-sm leading-relaxed text-[hsl(var(--muted-foreground))]">
-                      {item.description}
-                    </p>
-                    <div className="mt-4 h-1 w-full rounded-full bg-[hsl(var(--accent))]/10">
-                      <div className="h-1 w-10 rounded-full bg-[hsl(var(--accent))] transition group-hover:w-12"></div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-
-        {/* Guidelines Section */}
-        <section className="border-t border-[hsl(var(--border))]/70 bg-[hsl(var(--secondary))]/60">
-          <div className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6 sm:py-20">
-            <div className="grid gap-6 lg:grid-cols-[1.2fr_1fr]">
-              <div className="animate-slide-in-left">
-                <h2 className="text-xl font-semibold text-[hsl(var(--foreground))] sm:text-3xl">
-                  Community guidelines
-                </h2>
-                <p className="mt-2 text-sm text-[hsl(var(--muted-foreground))] sm:text-base">
-                  Keep it kind. We review every post for safety and clarity.
-                </p>
-              </div>
-              <div className="rounded-2xl border border-[hsl(var(--border))]/70 bg-[hsl(var(--card))] p-5 shadow-sm transition hover:shadow-md animate-slide-in-right">
-                <ul className="space-y-3 text-sm text-[hsl(var(--muted-foreground))]">
-                  <li className="flex items-start gap-2 transition hover:text-[hsl(var(--accent))]">
-                    <span className="mt-1 h-2 w-2 rounded-full bg-[hsl(var(--accent))]"></span>
-                    No hate, threats, or harassment.
-                  </li>
-                  <li className="flex items-start gap-2 transition hover:text-[hsl(var(--accent))]">
-                    <span className="mt-1 h-2 w-2 rounded-full bg-[hsl(var(--accent))]"></span>
-                    Keep personal details private.
-                  </li>
-                  <li className="flex items-start gap-2 transition hover:text-[hsl(var(--accent))]">
-                    <span className="mt-1 h-2 w-2 rounded-full bg-[hsl(var(--accent))]"></span>
-                    Be honest, concise, and respectful.
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Final CTA Section */}
-        <section className="border-t border-[hsl(var(--border))]/70 bg-[hsl(var(--secondary))]/70">
-          <div className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6 sm:py-24 lg:py-28">
-            <div className="relative overflow-hidden rounded-3xl border border-[hsl(var(--border))]/70 bg-[hsl(var(--card))] p-5 shadow-sm sm:p-10 lg:p-12 animate-slide-up">
-              <div className="absolute -top-24 right-0 h-48 w-48 rounded-full bg-[hsl(var(--accent))]/10 blur-3xl"></div>
-              <div className="absolute -bottom-24 left-0 h-48 w-48 rounded-full bg-[hsl(var(--accent))]/10 blur-3xl"></div>
-              <div className="relative flex flex-col items-center justify-between gap-6 sm:flex-row sm:gap-8">
-                <div className="space-y-2 text-center sm:text-left min-w-0 flex-1 animate-slide-in-left animation-delay-200">
-                  <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[hsl(var(--border))]/70 bg-[hsl(var(--card))] px-3 py-1 text-xs font-semibold text-[hsl(var(--muted-foreground))]">
-                    <Sparkles className="h-3.5 w-3.5 text-[hsl(var(--accent))]" />
-                    Start here
-                  </div>
-                  <h3 className="text-balance wrap-break-word text-xl font-semibold text-[hsl(var(--foreground))] sm:text-3xl">
-                    Ready to share?
-                  </h3>
-                  <p className="text-balance wrap-break-word text-sm text-[hsl(var(--muted-foreground))] sm:text-base">
-                    It takes under a minute. Anonymous by default.
+              <div className="relative flex h-full flex-col justify-between gap-8 lg:min-h-64">
+                <div className="space-y-4">
+                  <span className="inline-flex items-center gap-1.5 rounded-md bg-[hsl(var(--accent))]/10 px-2.5 py-1 text-xs font-semibold text-[hsl(var(--accent))]">
+                    <span className="h-1.5 w-1.5 rounded-full bg-[hsl(var(--accent))]" />
+                    Anonymous Â· Moderated
+                  </span>
+                  <h1 className="text-3xl font-bold tracking-tight text-[hsl(var(--foreground))] sm:text-4xl lg:text-5xl">
+                    Share a<br />confession.
+                  </h1>
+                  <p className="max-w-sm text-sm leading-relaxed text-[hsl(var(--muted-foreground))] sm:text-base">
+                    Post anonymously. Every message is reviewed before it appears â€” no account needed.
                   </p>
                 </div>
-                <a
-                  href="/submit"
-                  className="inline-flex w-full shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-full bg-[hsl(var(--accent))] px-6 py-2.5 text-sm font-semibold text-[hsl(var(--accent-foreground))] shadow-sm transition hover:opacity-90 active:scale-95 sm:w-auto sm:px-8 sm:py-3 animate-slide-in-right animation-delay-200"
-                >
-                  Start writing
-                  <ArrowUpRight className="h-4 w-4" />
-                </a>
+
+                <div className="flex flex-wrap gap-2">
+                  <Link
+                    href="/submit"
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-[hsl(var(--accent))] px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
+                  >
+                    Write a confession
+                    <ArrowUpRight className="h-4 w-4" />
+                  </Link>
+                  <a
+                    href="#how-it-works"
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--background))] px-5 py-2.5 text-sm font-semibold text-[hsl(var(--foreground))] transition hover:border-[hsl(var(--accent))]/40 hover:text-[hsl(var(--accent))]"
+                  >
+                    How it works
+                  </a>
+                </div>
               </div>
             </div>
+
+            {/* Cell 2 â€” Anonymous pill */}
+            <div className="bento-cell flex flex-col items-start justify-between p-6 animate-slide-up animation-delay-100">
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[hsl(var(--accent))]/10">
+                <Heart className="h-5 w-5 text-[hsl(var(--accent))]" />
+              </span>
+              <div className="mt-6">
+                <p className="text-lg font-bold text-[hsl(var(--foreground))]">No account</p>
+                <p className="mt-1 text-xs text-[hsl(var(--muted-foreground))]">
+                  Zero sign-up. Fully anonymous by design.
+                </p>
+              </div>
+            </div>
+
+            {/* Cell 3 â€” Reviewed pill */}
+            <div className="bento-cell flex flex-col items-start justify-between p-6 animate-slide-up animation-delay-150">
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[hsl(var(--accent))]/10">
+                <ShieldCheck className="h-5 w-5 text-[hsl(var(--accent))]" />
+              </span>
+              <div className="mt-6">
+                <p className="text-lg font-bold text-[hsl(var(--foreground))]">Safe & reviewed</p>
+                <p className="mt-1 text-xs text-[hsl(var(--muted-foreground))]">
+                  Moderators check every post before publishing.
+                </p>
+              </div>
+            </div>
+
+            {/* Cell 4 â€” Community count / accent fill */}
+            <div className="bento-cell flex flex-col justify-between bg-[hsl(var(--accent))] p-6 animate-slide-up animation-delay-200">
+              <Zap className="h-8 w-8 text-white/70" />
+              <div>
+                <p className="text-3xl font-black text-white">Fast.</p>
+                <p className="text-3xl font-black text-white/70">Simple.</p>
+                <p className="mt-2 text-xs text-white/60">Under a minute to share.</p>
+              </div>
+            </div>
+
+            {/* Cell 5 â€” Preview card */}
+            <div className="bento-cell p-5 sm:col-span-2 animate-slide-up animation-delay-200">
+              <p className="mb-4 text-xs font-semibold uppercase tracking-widest text-[hsl(var(--muted-foreground))]">
+                Sample confessions
+              </p>
+              <div className="space-y-2">
+                {[
+                  'I still think about that conversation every day.',
+                  'I never told anyone, but it changed everything.',
+                  'This has been on my mind for months.',
+                ].map((text, i) => (
+                  <div
+                    key={i}
+                    className="rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] px-4 py-3 text-sm text-[hsl(var(--foreground))]"
+                  >
+                    &ldquo;{text}&rdquo;
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* â”€â”€ How it works â”€â”€ */}
+            <div id="how-it-works" className="bento-cell col-span-1 bg-[hsl(var(--secondary))] p-6 animate-slide-up animation-delay-100 sm:col-span-2 lg:col-span-1">
+              <p className="mb-1 text-xs font-semibold uppercase tracking-widest text-[hsl(var(--muted-foreground))]">
+                How it works
+              </p>
+              <p className="text-xl font-bold text-[hsl(var(--foreground))]">Three steps</p>
+            </div>
+
+            {[
+              {
+                step: '01',
+                icon: Heart,
+                title: 'Write',
+                desc: 'Share your message. No account or login needed.',
+              },
+              {
+                step: '02',
+                icon: MessageSquare,
+                title: 'Review',
+                desc: 'Moderators check every post for safety.',
+              },
+              {
+                step: '03',
+                icon: Send,
+                title: 'Publish',
+                desc: 'Approved posts go live for the community.',
+              },
+            ].map((item, i) => {
+              const Icon = item.icon;
+              return (
+                <div
+                  key={item.step}
+                  className="bento-cell group p-6 animate-slide-up"
+                  style={{ animationDelay: `${(i + 2) * 80}ms` }}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[hsl(var(--accent))]/10 transition group-hover:bg-[hsl(var(--accent))]/20">
+                      <Icon className="h-4 w-4 text-[hsl(var(--accent))]" />
+                    </span>
+                    <span className="text-xs font-mono font-semibold text-[hsl(var(--muted-foreground))]">
+                      {item.step}
+                    </span>
+                  </div>
+                  <p className="mt-5 font-bold text-[hsl(var(--foreground))]">{item.title}</p>
+                  <p className="mt-1 text-xs leading-relaxed text-[hsl(var(--muted-foreground))]">
+                    {item.desc}
+                  </p>
+                </div>
+              );
+            })}
+
+            {/* Cell â€” Guidelines */}
+            <div className="bento-cell col-span-1 p-6 sm:col-span-2 animate-slide-up animation-delay-200">
+              <p className="mb-4 text-xs font-semibold uppercase tracking-widest text-[hsl(var(--muted-foreground))]">
+                Community guidelines
+              </p>
+              <ul className="space-y-2.5">
+                {[
+                  'No hate, threats, or harassment.',
+                  'Keep personal details private.',
+                  'Be honest, concise, and respectful.',
+                ].map((rule) => (
+                  <li key={rule} className="flex items-center gap-2.5 text-sm text-[hsl(var(--foreground))]">
+                    <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[hsl(var(--accent))]" />
+                    {rule}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Cell â€” CTA */}
+            <div className="bento-cell col-span-1 flex flex-col items-start justify-between gap-6 p-6 animate-slide-up animation-delay-300">
+              <div>
+                <p className="text-lg font-bold text-[hsl(var(--foreground))]">Ready to share?</p>
+                <p className="mt-1 text-xs text-[hsl(var(--muted-foreground))]">
+                  Anonymous. Reviewed. Under a minute.
+                </p>
+              </div>
+              <Link
+                href="/submit"
+                className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-[hsl(var(--foreground))] px-4 py-2.5 text-sm font-semibold text-[hsl(var(--background))] transition hover:opacity-80"
+              >
+                Start writing
+                <ArrowUpRight className="h-4 w-4" />
+              </Link>
+            </div>
+
           </div>
-        </section>
+          {/* End bento grid */}
+        </div>
       </main>
 
-      {/* Footer */}
       <Footer />
     </div>
   );

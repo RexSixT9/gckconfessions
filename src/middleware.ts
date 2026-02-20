@@ -2,17 +2,22 @@ import { NextResponse, type NextRequest } from "next/server";
 import { verifyAdminToken } from "@/lib/auth";
 import { COOKIE_NAME } from "@/lib/constants";
 
-export default async function proxy(request: NextRequest) {
+export default async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  const isAdminPage = pathname.startsWith("/admin");
-  const isAdminApi = pathname.startsWith("/api/admin");
+  // Use precise matching: /admin starts /admin/ or is exactly /admin
+  // This avoids /adminlogin being caught by a naive startsWith("/admin") check
+  const isAdminPage =
+    pathname === "/admin" || pathname.startsWith("/admin/");
+  const isAdminApi = pathname.startsWith("/api/admin/");
   const isConfessionApi = pathname.startsWith("/api/confessions");
-  const isAdminLogin = pathname.startsWith("/adminlogin");
-  const isAdminLoginApi = pathname.startsWith("/api/admin/login");
-  const isAdminSetupApi = pathname.startsWith("/api/admin/setup");
+  const isAdminLogin =
+    pathname === "/adminlogin" || pathname.startsWith("/adminlogin/");
+  const isAdminLoginApi = pathname === "/api/admin/login";
+  const isAdminSetupApi = pathname === "/api/admin/setup";
+  const isAdminCheckApi = pathname === "/api/admin/check";
 
-  if (isAdminLogin || isAdminLoginApi || isAdminSetupApi) {
+  if (isAdminLogin || isAdminLoginApi || isAdminSetupApi || isAdminCheckApi) {
     return NextResponse.next();
   }
 

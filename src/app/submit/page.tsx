@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
@@ -144,31 +144,29 @@ export default function SubmitPage() {
   return (
     <div className="flex min-h-screen flex-col bg-[hsl(var(--background))]">
       <main className="flex-1">
-        {/* Header Section */}
-        <section className="border-b border-[hsl(var(--border))]/70 bg-[hsl(var(--secondary))]/70">
-          <div className="mx-auto w-full max-w-4xl px-4 py-16 sm:px-6 sm:py-24">
-            <div className="space-y-4 text-center">
-              <div className="inline-flex items-center gap-2 rounded-full border border-[hsl(var(--border))]/70 bg-[hsl(var(--card))] px-4 py-2">
-                <span className="inline-block h-2.5 w-2.5 rounded-full bg-[hsl(var(--accent))]"></span>
-                <span className="text-xs font-semibold text-[hsl(var(--accent))]">
-                  Anonymous • Reviewed
-                </span>
-              </div>
-              <h1 className="text-balance wrap-break-word text-2xl font-semibold tracking-tight text-[hsl(var(--foreground))] sm:text-3xl lg:text-4xl">
-                Submit a confession
-              </h1>
-              <p className="mx-auto max-w-2xl text-balance wrap-break-word text-base text-[hsl(var(--muted-foreground))] sm:text-lg">
-                Short, clear, and anonymous. We review every post.
-              </p>
-            </div>
-          </div>
-        </section>
+        <div className="mx-auto w-full max-w-2xl px-4 py-8 sm:px-6 sm:py-12">
 
-        {/* Form Section */}
-        <section className="mx-auto w-full max-w-4xl overflow-x-hidden px-4 py-16 sm:px-6 sm:py-24">
-          {/* Form Card */}
-          <div className="rounded-3xl border border-[hsl(var(--border))]/70 bg-[hsl(var(--card))] p-5 shadow-sm sm:p-8 lg:p-10">
-            <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8">
+          {/* Page header */}
+          <div className="mb-6 animate-slide-up">
+            <Link
+              href="/"
+              className="mb-5 inline-flex items-center gap-1.5 text-xs font-medium text-[hsl(var(--muted-foreground))] transition hover:text-[hsl(var(--accent))]"
+            >
+              <ArrowLeft className="h-3.5 w-3.5" />
+              Back
+            </Link>
+            <h1 className="mt-3 text-2xl font-bold tracking-tight text-[hsl(var(--foreground))] sm:text-3xl">
+              Submit a confession
+            </h1>
+            <p className="mt-1 text-sm text-[hsl(var(--muted-foreground))]">
+              Anonymous Â· Reviewed before publishing
+            </p>
+          </div>
+
+          {/* Form card */}
+          <div className="bento-cell p-6 sm:p-8 animate-slide-up animation-delay-100">
+            <form onSubmit={handleSubmit} className="space-y-5">
+              {/* Honeypot */}
               <input
                 type="text"
                 name="website"
@@ -179,41 +177,33 @@ export default function SubmitPage() {
                 aria-hidden="true"
                 className="hidden"
               />
-              {/* Confession Textarea */}
-              <div className="space-y-3">
-                <div className="flex items-baseline justify-between">
-                  <label className="text-base font-semibold text-[hsl(var(--foreground))]">
+
+              {/* Textarea */}
+              <div>
+                <div className="mb-1.5 flex items-center justify-between">
+                  <label htmlFor="confession" className="text-sm font-semibold text-[hsl(var(--foreground))]">
                     Confession
                   </label>
-                  <span
-                    className={`text-xs font-medium ${
-                      charCount > charLimit * 0.9
-                        ? 'text-[hsl(var(--destructive))]'
-                        : 'text-[hsl(var(--muted-foreground))]'
-                    }`}
-                  >
-                    {charCount} / {charLimit} characters
+                  <span className={`text-xs ${charCount > charLimit * 0.9 ? 'text-[hsl(var(--destructive))]' : 'text-[hsl(var(--muted-foreground))]'}`}>
+                    {charCount} / {charLimit}
                   </span>
                 </div>
                 <textarea
                   id="confession"
                   name="confession"
-                  placeholder="Write your confession..."
+                  placeholder="Write your confessionâ€¦"
                   maxLength={charLimit}
-                  rows={8}
+                  rows={6}
                   value={message}
                   onChange={handleMessageChange}
-                  className="w-full rounded-2xl border border-[hsl(var(--border))]/70 bg-[hsl(var(--background))] px-4 py-3 text-sm placeholder:text-[hsl(var(--muted-foreground))]/70 outline-none transition focus:border-[hsl(var(--accent))] focus:ring-2 focus:ring-[hsl(var(--accent))]/25"
+                  className="input-base w-full resize-none"
                 />
-                <p className="text-xs text-[hsl(var(--muted-foreground))]">
-                  Keep it respectful. 500 characters max.
-                </p>
               </div>
 
-              {/* Music Field */}
-              <div className="space-y-3">
-                <label className="text-base font-semibold text-[hsl(var(--foreground))]">
-                  Song (optional)
+              {/* Music */}
+              <div>
+                <label htmlFor="music" className="mb-1.5 block text-sm font-semibold text-[hsl(var(--foreground))]">
+                  Song <span className="font-normal text-[hsl(var(--muted-foreground))]">(optional)</span>
                 </label>
                 <input
                   id="music"
@@ -222,133 +212,87 @@ export default function SubmitPage() {
                   value={music}
                   onChange={handleMusicChange}
                   maxLength={120}
-                  placeholder="Add a song or artist"
-                  className="w-full wrap-break-word rounded-2xl border border-[hsl(var(--border))]/70 bg-[hsl(var(--background))] px-4 py-3 text-sm placeholder:text-[hsl(var(--muted-foreground))] outline-none transition focus:border-[hsl(var(--accent))] focus:ring-2 focus:ring-[hsl(var(--accent))]/20"
+                  placeholder="Artist â€“ Song title"
+                  className="input-base w-full"
                 />
-                <p className="text-xs text-[hsl(var(--muted-foreground))]">Optional.</p>
               </div>
 
-              {/* Info Banner */}
-              <div className="flex gap-3 rounded-2xl border border-[hsl(var(--border))]/70 bg-[hsl(var(--secondary))] p-4">
-                <HeartHandshake className="mt-0.5 h-5 w-5 shrink-0 text-[hsl(var(--accent))]" />
-                <div className="min-w-0 flex-1 space-y-1">
-                  <p className="wrap-break-word text-sm font-semibold text-[hsl(var(--foreground))]">
-                    Anonymous by default
-                  </p>
-                  <p className="wrap-break-word text-xs text-[hsl(var(--muted-foreground))]">
-                    No accounts. Reviewed before publishing.
-                  </p>
-                </div>
-              </div>
-
-              {/* Save Draft Toggle */}
-              <div className="flex items-center justify-between rounded-2xl border border-[hsl(var(--border))]/70 bg-[hsl(var(--card))] px-4 py-3">
+              {/* Draft toggle row */}
+              <div className="flex items-center justify-between rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] px-4 py-3">
                 <div>
-                  <p className="text-sm font-semibold text-[hsl(var(--foreground))]">Save draft locally</p>
+                  <p className="text-xs font-semibold text-[hsl(var(--foreground))]">Save draft locally</p>
                   <p className="text-xs text-[hsl(var(--muted-foreground))]">
-                    {draftError
-                      ? "Storage not available"
-                      : hasDraft && saveDraft
-                      ? "Draft saved"
-                      : "Keeps your text if you refresh."}
+                    {draftError ? "Storage unavailable" : hasDraft && saveDraft ? "Draft saved" : "Restores text on refresh"}
                   </p>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
                   <button
                     type="button"
-                    onClick={() => setSaveDraft((prev) => !prev)}
+                    onClick={() => setSaveDraft((p) => !p)}
                     disabled={draftError}
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full border transition ${
-                      draftError
-                        ? "border-[hsl(var(--destructive))]/30 bg-[hsl(var(--destructive))]/10 opacity-60 cursor-not-allowed"
-                        : saveDraft
-                        ? "border-[hsl(var(--accent))] bg-[hsl(var(--accent))]"
-                        : "border-[hsl(var(--border))] bg-[hsl(var(--secondary))]"
-                    }`}
+                    className={`relative inline-flex h-5 w-9 items-center rounded-full border transition disabled:cursor-not-allowed disabled:opacity-50 ${saveDraft ? 'border-[hsl(var(--accent))] bg-[hsl(var(--accent))]' : 'border-[hsl(var(--border))] bg-[hsl(var(--secondary))]'}`}
                     aria-pressed={saveDraft}
                     aria-label="Toggle save draft"
                   >
-                    <span
-                      className={`inline-block h-5 w-5 rounded-full bg-white shadow-sm transition ${
-                        saveDraft ? "translate-x-5" : "translate-x-0.5"
-                      }`}
-                    />
+                    <span className={`inline-block h-4 w-4 rounded-full bg-white shadow-sm transition ${saveDraft ? 'translate-x-4' : 'translate-x-0.5'}`} />
                   </button>
                   {hasDraft && saveDraft && !draftError && (
                     <button
                       type="button"
                       onClick={clearDraft}
-                      className="text-xs font-medium text-[hsl(var(--muted-foreground))] transition hover:text-[hsl(var(--destructive))] border border-[hsl(var(--border))]/70 rounded-full px-3 py-1"
-                      title="Clear draft"
+                      className="text-xs text-[hsl(var(--muted-foreground))] transition hover:text-[hsl(var(--destructive))]"
                     >
                       Clear
                     </button>
                   )}
-                  {draftError && (
-                    <span className="text-xs font-medium text-[hsl(var(--destructive))]" title="Storage error">
-                      Storage unavailable
-                    </span>
-                  )}
                 </div>
               </div>
 
-              {/* Submit Button */}
+              {/* Notices */}
+              {notice?.type === 'success' && (
+                <div className="flex items-start gap-2.5 rounded-lg border border-green-200 bg-green-50 p-3.5 text-sm text-green-700 dark:border-green-900/40 dark:bg-green-950/20 dark:text-green-400">
+                  <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
+                  <p>{notice.message}</p>
+                </div>
+              )}
+              {notice?.type === 'error' && (
+                <div className="flex items-start gap-2.5 rounded-lg border border-red-200 bg-red-50 p-3.5 text-sm text-red-700 dark:border-red-900/40 dark:bg-red-950/20 dark:text-red-400">
+                  <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                  <p>{notice.message}</p>
+                </div>
+              )}
+
+              {/* Submit */}
               <button
                 type="submit"
                 disabled={loading || !message.trim()}
-                className="w-full rounded-full bg-[hsl(var(--accent))] py-2.5 text-sm font-semibold text-[hsl(var(--accent-foreground))] shadow-sm transition disabled:opacity-50 hover:opacity-90 sm:py-3"
+                className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-[hsl(var(--accent))] py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
               >
                 {loading ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"></div>
-                    Submitting
-                  </span>
+                  <>
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+                    Submittingâ€¦
+                  </>
                 ) : (
-                  <span className="flex items-center justify-center gap-2">
+                  <>
                     <Heart className="h-4 w-4" />
-                    Submit
-                  </span>
+                    Submit confession
+                  </>
                 )}
               </button>
-
-              {/* Success Notice */}
-              {notice?.type === "success" && (
-                <div className="flex gap-3 rounded-2xl border border-[hsl(var(--success))]/40 bg-[hsl(var(--success))]/8 p-4 text-sm text-[hsl(var(--success))] dark:border-[hsl(var(--success))]/50 dark:bg-[hsl(var(--success))]/10 dark:text-[hsl(var(--success))]">
-                  <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0" />
-                  <div>
-                    <p className="font-semibold">Submitted</p>
-                    <p className="mt-1 text-xs opacity-90">We will review it soon.</p>
-                  </div>
-                </div>
-              )}
-
-              {/* Error Notice */}
-              {notice?.type === "error" && (
-                <div className="flex gap-3 rounded-2xl border border-[hsl(var(--destructive))]/40 bg-[hsl(var(--destructive))]/8 p-4 text-sm text-[hsl(var(--destructive))] dark:border-[hsl(var(--destructive))]/50 dark:bg-[hsl(var(--destructive))]/10 dark:text-[hsl(var(--destructive))]">
-                  <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" />
-                  <div>
-                    <p className="font-semibold">Something went wrong</p>
-                    <p className="mt-1 text-xs opacity-90">{notice.message}</p>
-                  </div>
-                </div>
-              )}
-
-              {/* Back Link */}
-              <div className="text-center">
-                <Link
-                  href="/"
-                  className="inline-flex items-center justify-center gap-2 rounded-full border border-[hsl(var(--border))]/70 bg-[hsl(var(--card))]/80 px-4 py-2 text-sm font-semibold text-[hsl(var(--foreground))] shadow-sm transition hover:border-[hsl(var(--accent))]/40 hover:text-[hsl(var(--accent))] active:scale-95"
-                >
-                  <ArrowLeft className="h-4 w-4" />
-                  Back to home
-                </Link>
-              </div>
             </form>
           </div>
-        </section>
-      </main>
 
-      {/* Footer */}
+          {/* Info note */}
+          <div className="mt-3 flex items-start gap-2 px-1 animate-slide-up animation-delay-200">
+            <HeartHandshake className="mt-0.5 h-4 w-4 shrink-0 text-[hsl(var(--accent))]" />
+            <p className="text-xs text-[hsl(var(--muted-foreground))]">
+              Every submission is reviewed by a moderator before being published.
+            </p>
+          </div>
+
+        </div>
+      </main>
       <Footer />
     </div>
   );

@@ -77,151 +77,96 @@ export default function AdminLoginPage() {
     }
   };
 
-  // Show loading state while checking authentication
   if (isChecking) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[hsl(var(--background))]">
-        <div className="flex flex-col items-center gap-3">
-          <Loader className="h-5 w-5 animate-spin text-[hsl(var(--accent))]" />
-          <p className="text-sm text-[hsl(var(--muted-foreground))]">Checking authentication...</p>
-        </div>
+        <Loader className="h-5 w-5 animate-spin text-[hsl(var(--accent))]" />
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[hsl(var(--background))] px-4 py-6 sm:px-6 lg:px-8">
-      <div className="w-full max-w-md">
-        {/* Card Container */}
-        <div className="rounded-3xl border border-[hsl(var(--border))]/70 bg-[hsl(var(--card))] shadow-sm transition-all duration-300 hover:shadow-md lg:max-w-lg">
-          {/* Header Section */}
-          <div className="border-b border-[hsl(var(--border))]/70 bg-[hsl(var(--secondary))] px-6 py-7 sm:px-8 sm:py-10">
-            <div className="flex items-center justify-center gap-2 mb-3">
-              <Heart className="h-6 w-6 text-[hsl(var(--accent))]" />
-            </div>
-            <h1 className="text-center text-xl font-semibold tracking-tight text-[hsl(var(--foreground))] sm:text-3xl">
-              Admin sign in
-            </h1>
-            <p className="mt-2 text-center text-sm text-[hsl(var(--muted-foreground))]">
-              Access moderation tools.
-            </p>
-          </div>
+    <div className="flex min-h-screen items-center justify-center bg-[hsl(var(--background))] px-4 py-8">
+      <div className="w-full max-w-sm animate-scale-in">
 
-          {/* Form Section */}
-          <div className="px-6 py-8 sm:px-8 sm:py-10">
-            {/* Notice */}
+        {/* Header */}
+        <div className="mb-6 text-center">
+          <span className="mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-[hsl(var(--accent))]/10">
+            <Heart className="h-5 w-5 text-[hsl(var(--accent))]" />
+          </span>
+          <h1 className="text-xl font-bold tracking-tight text-[hsl(var(--foreground))]">Admin sign in</h1>
+          <p className="mt-1 text-sm text-[hsl(var(--muted-foreground))]">Access moderation tools</p>
+        </div>
+
+        {/* Card */}
+        <div className="bento-cell p-6">
+          <div className="">
+
+          {/* Notice */}
             {notice && (
-              <div
-                className={`mb-6 flex items-center gap-3 rounded-2xl border p-4 text-sm ${
-                  notice.type === "error"
-                    ? "border-red-200/50 bg-red-50 text-red-700 dark:border-red-900/30 dark:bg-red-950/20 dark:text-red-300"
-                    : "border-green-200/50 bg-green-50 text-green-700 dark:border-green-900/30 dark:bg-green-950/20 dark:text-green-300"
-                }`}
-              >
-                {notice.type === "error" ? (
-                  <AlertCircle className="h-5 w-5 shrink-0" />
-                ) : (
-                  <CheckCircle2 className="h-5 w-5 shrink-0" />
-                )}
+              <div className={`mb-5 flex items-start gap-2.5 rounded-lg border p-3.5 text-sm ${
+                notice.type === 'error'
+                  ? 'border-red-200 bg-red-50 text-red-700 dark:border-red-900/40 dark:bg-red-950/20 dark:text-red-400'
+                  : 'border-green-200 bg-green-50 text-green-700 dark:border-green-900/40 dark:bg-green-950/20 dark:text-green-400'
+              }`}>
+                {notice.type === 'error' ? <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" /> : <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />}
                 <p>{notice.message}</p>
               </div>
             )}
 
-            <form className="space-y-5" onSubmit={handleSubmit}>
-              {/* Email Field */}
+            <form className="space-y-4" onSubmit={handleSubmit}>
+              {/* Email */}
               <div>
-                <label
-                  className="block text-sm font-semibold text-[hsl(var(--foreground))]"
-                  htmlFor="email"
-                >
-                  Email
-                </label>
-                <div className="relative mt-2">
-                  <Mail className="absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-[hsl(var(--muted-foreground))]" />
+                <label htmlFor="email" className="mb-1.5 block text-sm font-semibold text-[hsl(var(--foreground))]">Email</label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[hsl(var(--muted-foreground))]" />
                   <input
-                    id="email"
-                    name="email"
-                    type="email"
-                    value={email}
-                    onChange={(event) => setEmail(event.target.value)}
+                    id="email" name="email" type="email"
+                    value={email} onChange={(e) => setEmail(e.target.value)}
                     placeholder="admin@example.com"
-                    autoComplete="email"
-                    autoCapitalize="off"
-                    autoCorrect="off"
-                    spellCheck="false"
-                    maxLength={254}
-                    required
-                    disabled={loading}
-                    className="w-full rounded-2xl border border-[hsl(var(--border))]/70 bg-[hsl(var(--background))] pl-11 pr-4 py-3 text-sm outline-none transition focus:border-[hsl(var(--accent))] focus:ring-2 focus:ring-[hsl(var(--accent))]/20 disabled:cursor-not-allowed disabled:opacity-50"
+                    autoComplete="email" autoCapitalize="off" autoCorrect="off" spellCheck="false"
+                    maxLength={254} required disabled={loading}
+                    className="input-base w-full pl-9"
                   />
                 </div>
               </div>
 
-              {/* Password Field */}
+              {/* Password */}
               <div>
-                <label
-                  className="block text-sm font-semibold text-[hsl(var(--foreground))]"
-                  htmlFor="password"
-                >
-                  Password
-                </label>
-                <div className="relative mt-2">
-                  <KeyRound className="absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-[hsl(var(--muted-foreground))]" />
+                <label htmlFor="password" className="mb-1.5 block text-sm font-semibold text-[hsl(var(--foreground))]">Password</label>
+                <div className="relative">
+                  <KeyRound className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[hsl(var(--muted-foreground))]" />
                   <input
-                    id="password"
-                    name="password"
-                    type={showPassword ? "text" : "password"}
-                    value={password}
-                    onChange={(event) => setPassword(event.target.value)}
+                    id="password" name="password" type={showPassword ? 'text' : 'password'}
+                    value={password} onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
-                    autoComplete="current-password"
-                    autoCapitalize="off"
-                    autoCorrect="off"
-                    spellCheck="false"
-                    maxLength={128}
-                    required
-                    disabled={loading}
-                    className="w-full rounded-2xl border border-[hsl(var(--border))]/70 bg-[hsl(var(--background))] pl-11 pr-12 py-3 text-sm outline-none transition focus:border-[hsl(var(--accent))] focus:ring-2 focus:ring-[hsl(var(--accent))]/20 disabled:cursor-not-allowed disabled:opacity-50"
+                    autoComplete="current-password" autoCapitalize="off" autoCorrect="off" spellCheck="false"
+                    maxLength={128} required disabled={loading}
+                    className="input-base w-full pl-9 pr-10"
                   />
                   <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    disabled={loading}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[hsl(var(--muted-foreground))] transition hover:text-[hsl(var(--foreground))] disabled:cursor-not-allowed disabled:opacity-50"
-                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    type="button" onClick={() => setShowPassword(!showPassword)} disabled={loading}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[hsl(var(--muted-foreground))] transition hover:text-[hsl(var(--foreground))] disabled:opacity-50"
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
                   >
-                    {showPassword ? (
-                      <EyeOff className="h-5 w-5" />
-                    ) : (
-                      <Eye className="h-5 w-5" />
-                    )}
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
               </div>
 
-              {/* Submit Button */}
-                <button
+              {/* Submit */}
+              <button
                 type="submit"
                 disabled={loading || !email || !password}
-                  className="w-full rounded-full bg-[hsl(var(--accent))] py-3 text-sm font-semibold text-[hsl(var(--accent-foreground))] shadow-sm transition-all hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 mt-8 flex items-center justify-center gap-2"
+                className="mt-1 inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-[hsl(var(--accent))] py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {loading ? (
-                  <>
-                    <Loader className="h-4 w-4 animate-spin" />
-                    <span>Signing in</span>
-                  </>
-                ) : (
-                  <span>Sign in</span>
-                )}
+                {loading ? <><Loader className="h-4 w-4 animate-spin" /> Signing in…</> : 'Sign in'}
               </button>
             </form>
           </div>
         </div>
 
-        {/* Bottom Note */}
-        <p className="mt-6 text-center text-xs text-[hsl(var(--muted-foreground))]">
-          GCK Confessions admin
-        </p>
+        <p className="mt-4 text-center text-xs text-[hsl(var(--muted-foreground))]">GCK Confessions · Admin</p>
       </div>
     </div>
   );
