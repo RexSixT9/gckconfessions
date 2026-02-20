@@ -9,6 +9,7 @@ import {
   AlertCircle,
   CheckCircle2,
   Copy,
+  Check,
   Loader,
   RefreshCw,
   X,
@@ -17,8 +18,79 @@ import {
   Trash2,
   ChevronLeft,
   ChevronRight,
+  Music2,
+  MessageSquare,
 } from "lucide-react";
 
+// ─── tiny helpers ────────────────────────────────────────────────
+function StatusBadge({ status }: { status?: string }) {
+  const map: Record<string, { icon: React.ReactNode; label: string; cls: string }> = {
+    approved: {
+      icon: <CheckCircle2 className="h-3 w-3" />,
+      label: "Approved",
+      cls: "border-[hsl(var(--action-accept))]/30 bg-[hsl(var(--action-accept))]/10 text-[hsl(var(--action-accept))]",
+    },
+    rejected: {
+      icon: <X className="h-3 w-3" />,
+      label: "Rejected",
+      cls: "border-[hsl(var(--border))] bg-[hsl(var(--secondary))] text-[hsl(var(--muted-foreground))]",
+    },
+    pending: {
+      icon: <Clock className="h-3 w-3" />,
+      label: "Pending",
+      cls: "border-amber-300/40 bg-amber-50/80 text-amber-600 dark:border-amber-700/30 dark:bg-amber-950/20 dark:text-amber-400",
+    },
+  };
+  const s = status ?? "pending";
+  const { icon, label, cls } = map[s] ?? map.pending;
+  return (
+    <span className={`inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[11px] font-semibold ${cls}`}>
+      {icon}
+      {label}
+    </span>
+  );
+}
+
+function ActionBtn({
+  onClick,
+  disabled,
+  variant = "ghost",
+  children,
+  className = "",
+}: {
+  onClick: () => void;
+  disabled?: boolean;
+  variant?: "ghost" | "accept" | "reject" | "publish" | "danger";
+  children: React.ReactNode;
+  className?: string;
+}) {
+  const base =
+    "inline-flex items-center justify-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition active:scale-95 disabled:cursor-not-allowed disabled:opacity-40";
+  const variants: Record<string, string> = {
+    ghost:
+      "border-[hsl(var(--border))] bg-transparent text-[hsl(var(--foreground))] hover:border-[hsl(var(--accent))]/40 hover:text-[hsl(var(--accent))]",
+    accept:
+      "border-[hsl(var(--action-accept))]/30 bg-[hsl(var(--action-accept))]/10 text-[hsl(var(--action-accept))] hover:bg-[hsl(var(--action-accept))]/20",
+    reject:
+      "border-[hsl(var(--action-reject))]/30 bg-[hsl(var(--action-reject))]/10 text-[hsl(var(--action-reject))] hover:bg-[hsl(var(--action-reject))]/20",
+    publish:
+      "border-[hsl(var(--action-publish))]/30 bg-[hsl(var(--action-publish))]/10 text-[hsl(var(--action-publish))] hover:bg-[hsl(var(--action-publish))]/20",
+    danger:
+      "border-red-300/30 bg-transparent text-red-500 hover:bg-red-50 dark:border-red-800/30 dark:text-red-400 dark:hover:bg-red-950/30",
+  };
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className={`${base} ${variants[variant]} ${className}`}
+    >
+      {children}
+    </button>
+  );
+}
+
+// ─── types ───────────────────────────────────────────────────────
 type Notice = { type: "error" | "success"; message: string } | null;
 
 type ConfessionItem = {
@@ -31,6 +103,7 @@ type ConfessionItem = {
   createdAt?: string;
 };
 
+// ─── main component ──────────────────────────────────────────────
 export default function AdminList() {
   const [items, setItems] = useState<ConfessionItem[]>([]);
   const [notice, setNotice] = useState<Notice>(null);
@@ -45,30 +118,23 @@ export default function AdminList() {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [processingId, setProcessingId] = useState<string | null>(null);
 
-  // GSAP ref — animate confession cards when items change
   const listRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (loading || !listRef.current) return;
     const cards = listRef.current.querySelectorAll<HTMLElement>("[data-card]");
     if (!cards.length) return;
-    gsap.from(cards, { opacity: 0, y: 18, duration: 0.4, stagger: 0.05, ease: "power2.out", clearProps: "all" });
+    gsap.from(cards, { opacity: 0, y: 14, duration: 0.35, stagger: 0.04, ease: "power2.out", clearProps: "all" });
   }, [loading, items]);
 
-  // Reset to page 1 whenever filters or query change
-  useEffect(() => {
-    setPage(1);
-  }, [filter, statusFilter, query]);
+  useEffect(() => { setPage(1); }, [filter, statusFilter, query]);
 
   const fetchItems = useCallback(async () => {
     setLoading(true);
     setNotice(null);
-
     try {
       const params = new URLSearchParams();
-      
       if (filter === "published") params.set("posted", "true");
       else if (filter === "draft") params.set("posted", "false");
-      
       if (statusFilter !== "all") params.set("status", statusFilter);
       if (query.trim()) params.set("q", query.trim());
       params.set("page", String(page));
@@ -76,207 +142,111 @@ export default function AdminList() {
 
       const response = await fetch(`/api/confessions?${params.toString()}`);
       const data = await response.json();
-
       if (!response.ok) throw new Error(data.error || "Failed to load.");
-
       setItems(data.confessions ?? []);
       setTotalCount(data.total ?? 0);
       setTotalPages(data.totalPages ?? 1);
     } catch (error) {
-      setNotice({
-        type: "error",
-        message: error instanceof Error ? error.message : "Load failed.",
-      });
+      setNotice({ type: "error", message: error instanceof Error ? error.message : "Load failed." });
       setItems([]);
     } finally {
       setLoading(false);
     }
   }, [filter, statusFilter, query, page]);
 
-  useEffect(() => {
-    fetchItems();
-  }, [fetchItems]);
+  useEffect(() => { fetchItems(); }, [fetchItems]);
 
   const handleCopy = useCallback((text: string, id: string) => {
-    navigator.clipboard.writeText(text).catch(() => {
-      // Clipboard API may be denied (e.g. non-HTTPS or permissions blocked)
-      console.warn("Clipboard write failed");
-    });
+    navigator.clipboard.writeText(text).catch(() => console.warn("Clipboard write failed"));
     setCopiedId(id);
     setTimeout(() => setCopiedId(null), 2000);
   }, []);
 
-  const patchConfession = useCallback(async (id: string, body: Record<string, unknown>): Promise<void> => {
+  const patch = useCallback(async (id: string, body: Record<string, unknown>) => {
     const res = await fetch(`/api/confessions/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     });
     if (!res.ok) {
-      const data = await res.json().catch(() => ({}));
-      throw new Error((data as { error?: string }).error ?? "Action failed.");
+      const d = await res.json().catch(() => ({}));
+      throw new Error((d as { error?: string }).error ?? "Action failed.");
     }
   }, []);
 
-  const acceptAndPublish = useCallback(async (item: ConfessionItem) => {
-    setNotice(null);
-    setProcessingId(item._id);
-
-    try {
-      // Single atomic request: approve and publish together
-      await patchConfession(item._id, { status: "approved", posted: true });
-      await fetchItems();
-      setNotice({ type: "success", message: "Published." });
-      setTimeout(() => setNotice(null), 3000);
-    } catch (error) {
-      setNotice({
-        type: "error",
-        message: error instanceof Error ? error.message : "Action failed.",
-      });
-    } finally {
-      setProcessingId(null);
-    }
-  }, [fetchItems, patchConfession]);
-
-  const togglePublish = useCallback(async (item: ConfessionItem) => {
-    setNotice(null);
-    setProcessingId(item._id);
-
-    try {
-      await patchConfession(item._id, { posted: !item.posted });
-      await fetchItems();
-      setNotice({ type: "success", message: item.posted ? "Unpublished." : "Published." });
-      setTimeout(() => setNotice(null), 3000);
-    } catch (error) {
-      setNotice({
-        type: "error",
-        message: error instanceof Error ? error.message : "Action failed.",
-      });
-    } finally {
-      setProcessingId(null);
-    }
-  }, [fetchItems, patchConfession]);
-
-  const toggleInstagram = useCallback(async (item: ConfessionItem) => {
-    setNotice(null);
-    setProcessingId(item._id);
-
-    try {
-      await patchConfession(item._id, { instagramPosted: !item.instagramPosted });
-      await fetchItems();
-      setNotice({
-        type: "success",
-        message: item.instagramPosted ? "Instagram cleared." : "Marked Instagram.",
-      });
-      setTimeout(() => setNotice(null), 3000);
-    } catch (error) {
-      setNotice({
-        type: "error",
-        message: error instanceof Error ? error.message : "Action failed.",
-      });
-    } finally {
-      setProcessingId(null);
-    }
-  }, [fetchItems, patchConfession]);
-
-  const rejectConfession = useCallback(async (item: ConfessionItem) => {
-    setNotice(null);
-    setProcessingId(item._id);
-
-    try {
-      await patchConfession(item._id, { status: "rejected" });
-      await fetchItems();
-      setNotice({ type: "success", message: "Rejected." });
-      setTimeout(() => setNotice(null), 3000);
-    } catch (error) {
-      setNotice({
-        type: "error",
-        message: error instanceof Error ? error.message : "Action failed.",
-      });
-    } finally {
-      setProcessingId(null);
-    }
-  }, [fetchItems, patchConfession]);
-
-  const deleteConfession = useCallback(async (item: ConfessionItem) => {
-    if (!window.confirm("Permanently delete this confession? This cannot be undone.")) return;
-    setNotice(null);
-    setProcessingId(item._id);
-
-    try {
-      const res = await fetch(`/api/confessions/${item._id}`, { method: "DELETE" });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error((data as { error?: string }).error ?? "Delete failed.");
+  const run = useCallback(
+    async (id: string, action: () => Promise<void>, msg: string) => {
+      setNotice(null);
+      setProcessingId(id);
+      try {
+        await action();
+        await fetchItems();
+        setNotice({ type: "success", message: msg });
+        setTimeout(() => setNotice(null), 3000);
+      } catch (err) {
+        setNotice({ type: "error", message: err instanceof Error ? err.message : "Action failed." });
+      } finally {
+        setProcessingId(null);
       }
-      await fetchItems();
-      setNotice({ type: "success", message: "Deleted." });
-      setTimeout(() => setNotice(null), 3000);
-    } catch (error) {
-      setNotice({
-        type: "error",
-        message: error instanceof Error ? error.message : "Delete failed.",
-      });
-    } finally {
-      setProcessingId(null);
-    }
-  }, [fetchItems]);
+    },
+    [fetchItems],
+  );
 
-  const handleSearch = useCallback((event: React.FormEvent) => {
-    event.preventDefault();
-    setQuery(searchInput.trim());
-  }, [searchInput]);
+  const handleSearch = useCallback(
+    (e: React.FormEvent) => { e.preventDefault(); setQuery(searchInput.trim()); },
+    [searchInput],
+  );
 
   return (
-    <div className="space-y-4">
-      {/* Header */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-2">
-          <h2 className="text-sm font-semibold text-[hsl(var(--foreground))] sm:text-base">Queue</h2>
-          <span className="text-xs text-[hsl(var(--muted-foreground))]">({totalCount})</span>
-        </div>
+    <div className="space-y-5">
+
+      {/* ── Toolbar ───────────────────────────────────── */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        {/* Search */}
+        <form onSubmit={handleSearch} className="relative flex-1">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[hsl(var(--muted-foreground))]" />
+          <input
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            placeholder="Search confessions or songs…"
+            className="input-base w-full py-2 pl-9 pr-9 text-sm"
+          />
+          {searchInput && (
+            <button
+              type="button"
+              onClick={() => { setSearchInput(""); setQuery(""); }}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-[hsl(var(--muted-foreground))] transition hover:text-[hsl(var(--foreground))]"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          )}
+        </form>
+
+        {/* Reload */}
         <button
           type="button"
           onClick={fetchItems}
           disabled={loading}
-          className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-[hsl(var(--accent))]/30 bg-[hsl(var(--accent))]/10 px-3 py-2 text-xs font-medium text-[hsl(var(--accent))] transition hover:bg-[hsl(var(--accent))]/20 active:scale-95 disabled:opacity-50 sm:w-auto"
+          className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-[hsl(var(--border))] bg-transparent px-3 py-2 text-xs font-medium text-[hsl(var(--muted-foreground))] transition hover:border-[hsl(var(--accent))]/40 hover:text-[hsl(var(--accent))] disabled:opacity-50"
         >
           <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
-          <span>Reload</span>
+          <span className="sm:hidden">Reload</span>
         </button>
       </div>
 
-      {/* Search */}
-      <form onSubmit={handleSearch} className="flex flex-col gap-2 sm:flex-row">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[hsl(var(--muted-foreground))]" />
-          <input
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            placeholder="Search text or song"
-            className="input-base w-full pl-9"
-          />
-        </div>
-        <button
-          type="submit"
-          className="w-full rounded-lg border border-[hsl(var(--accent))]/30 bg-[hsl(var(--accent))]/10 px-4 py-2 text-sm font-medium text-[hsl(var(--accent))] transition hover:bg-[hsl(var(--accent))]/20 sm:w-auto"
-        >
-          Search
-        </button>
-      </form>
-
-      {/* Filters */}
-      <div className="space-y-2.5">
-        <div className="flex flex-wrap gap-1.5">
-          {["all", "draft", "published"].map((f) => (
+      {/* ── Filters ───────────────────────────────────── */}
+      <div className="flex flex-wrap items-center gap-3 border-b border-[hsl(var(--border))] pb-4">
+        {/* Publish segmented control */}
+        <div className="flex items-center gap-0.5 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] p-0.5">
+          {(["all", "draft", "published"] as const).map((f) => (
             <button
               key={f}
               type="button"
-              onClick={() => setFilter(f as typeof filter)}
-              className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${
+              onClick={() => setFilter(f)}
+              className={`rounded-md px-2.5 py-1 text-xs font-medium transition ${
                 filter === f
-                  ? "border border-[hsl(var(--accent))] bg-[hsl(var(--accent))]/15 text-[hsl(var(--accent))] shadow-sm"
-                  : "border border-[hsl(var(--border))]/70 text-[hsl(var(--foreground))] hover:border-[hsl(var(--accent))]/30 hover:bg-[hsl(var(--accent))]/5"
+                  ? "bg-[hsl(var(--card))] text-[hsl(var(--foreground))] shadow-sm"
+                  : "text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]"
               }`}
             >
               {f.charAt(0).toUpperCase() + f.slice(1)}
@@ -284,281 +254,268 @@ export default function AdminList() {
           ))}
         </div>
 
-        <div className="flex flex-wrap gap-1.5">
-          {["all", "pending", "approved", "rejected"].map((s) => (
+        {/* Status segmented control */}
+        <div className="flex items-center gap-0.5 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] p-0.5">
+          {(["all", "pending", "approved", "rejected"] as const).map((s) => (
             <button
               key={s}
               type="button"
-              onClick={() => setStatusFilter(s as typeof statusFilter)}
-              className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${
+              onClick={() => setStatusFilter(s)}
+              className={`rounded-md px-2.5 py-1 text-xs font-medium transition ${
                 statusFilter === s
-                  ? "border border-[hsl(var(--accent))] bg-[hsl(var(--accent))]/15 text-[hsl(var(--accent))] shadow-sm"
-                  : "border border-[hsl(var(--border))]/70 text-[hsl(var(--foreground))] hover:border-[hsl(var(--accent))]/30 hover:bg-[hsl(var(--accent))]/5"
+                  ? "bg-[hsl(var(--card))] text-[hsl(var(--foreground))] shadow-sm"
+                  : "text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]"
               }`}
             >
               {s.charAt(0).toUpperCase() + s.slice(1)}
             </button>
           ))}
         </div>
+
+        <span className="ml-auto text-xs tabular-nums text-[hsl(var(--muted-foreground))]">
+          {totalCount} result{totalCount !== 1 ? "s" : ""}
+        </span>
       </div>
 
-      {/* Notices */}
+      {/* ── Notice ────────────────────────────────────── */}
       {notice && (
-        <div
-          className={`flex items-start gap-2.5 rounded-2xl border p-3 text-sm ${
-            notice.type === "error"
-              ? "border-red-200 bg-red-50 text-red-700 dark:border-red-900/30 dark:bg-red-950/20 dark:text-red-300"
-              : "border-green-200 bg-green-50 text-green-700 dark:border-green-900/30 dark:bg-green-950/20 dark:text-green-300"
-          }`}
-        >
-          {notice.type === "error" ? (
-            <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
-          ) : (
-            <CheckCircle2 className="h-4 w-4 shrink-0 mt-0.5" />
-          )}
-          <p className="flex-1">{notice.message}</p>
+        <div className={`flex items-center gap-2.5 rounded-lg border px-3.5 py-2.5 ${
+          notice.type === "error"
+            ? "border-red-200 bg-red-50 text-red-700 dark:border-red-900/30 dark:bg-red-950/20 dark:text-red-300"
+            : "border-green-200 bg-green-50 text-green-700 dark:border-green-900/30 dark:bg-green-950/20 dark:text-green-300"
+        }`}>
+          {notice.type === "error"
+            ? <AlertCircle className="h-4 w-4 shrink-0" />
+            : <CheckCircle2 className="h-4 w-4 shrink-0" />}
+          <p className="flex-1 text-xs font-medium">{notice.message}</p>
+          <button type="button" onClick={() => setNotice(null)}>
+            <X className="h-3.5 w-3.5 opacity-50 hover:opacity-100" />
+          </button>
         </div>
       )}
 
-      {/* Loading */}
+      {/* ── Loading skeleton ──────────────────────────── */}
       {loading && (
-        <div className="flex items-center justify-center gap-2 rounded-2xl border border-[hsl(var(--border))]/70 bg-[hsl(var(--secondary))]/70 py-8">
-          <Loader className="h-4 w-4 animate-spin text-[hsl(var(--accent))]" />
-          <span className="text-sm text-[hsl(var(--muted-foreground))]">Loading...</span>
-        </div>
-      )}
-
-      {/* Empty State */}
-      {!loading && items.length === 0 && (
-        <div className="rounded-2xl border border-[hsl(var(--border))]/70 bg-[hsl(var(--secondary))]/70 py-8 text-center">
-          <p className="text-sm text-[hsl(var(--muted-foreground))]">No results.</p>
-        </div>
-      )}
-
-      {/* Confession List */}
-      {!loading && items.length > 0 && (
-        <div ref={listRef} className="space-y-3">
-          {items.map((item) => (
-            <div
-              key={item._id}
-              data-card
-              className="bento-cell overflow-hidden"
-            >
-              {/* Header */}
-              <div className="flex flex-col gap-2.5 border-b border-[hsl(var(--border))] bg-[hsl(var(--secondary))] px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5">
-                <div className="flex flex-wrap items-center gap-1.5">
-                  {/* Status Badge */}
-                  <span className="flex items-center gap-1 rounded-md border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] px-2 py-0.5 text-xs font-medium capitalize text-[hsl(var(--foreground))]">
-                    {item.status === "approved" && <CheckCircle2 className="h-3 w-3" />}
-                    {item.status === "rejected" && <X className="h-3 w-3" />}
-                    {item.status === "pending" && <Clock className="h-3 w-3" />}
-                    {item.status ?? "pending"}
-                  </span>
-
-                  {/* Published Badge */}
-                  {item.posted && (
-                    <span className="flex items-center gap-1 rounded-md border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] px-2 py-0.5 text-xs font-medium capitalize text-[hsl(var(--foreground))]">
-                      <Eye className="h-3 w-3" />
-                      Published
-                    </span>
-                  )}
-
-                  {/* Instagram Badge */}
-                  {item.instagramPosted && (
-                    <span className="flex items-center gap-1 rounded-md border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] px-2 py-0.5 text-xs font-medium text-[hsl(var(--foreground))]">
-                      <Share2 className="h-3 w-3" />
-                      Shared
-                    </span>
-                  )}
+        <div className="flex flex-col gap-3">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="bento-cell overflow-hidden">
+              <div className="px-5 py-4">
+                <div className="mb-3 flex items-center gap-2">
+                  <div className="h-5 w-16 animate-pulse rounded-md bg-[hsl(var(--secondary))]" />
+                  <div className="h-5 w-12 animate-pulse rounded-md bg-[hsl(var(--secondary))]" />
+                  <div className="ml-auto h-4 w-24 animate-pulse rounded-md bg-[hsl(var(--secondary))]" />
                 </div>
-                <time className="text-xs font-medium text-[hsl(var(--muted-foreground))]">
-                  {item.createdAt
-                    ? new Date(item.createdAt).toLocaleDateString("en-US", {
-                        month: "short",
-                        day: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })
-                    : ""}
-                </time>
-              </div>
-
-              {/* Message */}
-              <div className="space-y-3 p-4 sm:p-5">
-                <div className="flex items-start gap-3">
-                  <div className="min-w-0 flex-1">
-                    <div className="max-h-45 overflow-y-auto rounded-2xl border border-[hsl(var(--border))]/70 bg-[hsl(var(--card))] p-3.5 sm:max-h-50 sm:p-4">
-                      <p className="break-words whitespace-pre-wrap text-sm leading-relaxed text-[hsl(var(--foreground))]">
-                        {item.message}
-                      </p>
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => handleCopy(item.message, `msg-${item._id}`)}
-                    className="shrink-0 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] p-1.5 transition hover:border-[hsl(var(--accent))]/40 hover:text-[hsl(var(--accent))] active:scale-95"
-                    title="Copy Message"
-                  >
-                    <Copy
-                      className={`h-3.5 w-3.5 ${
-                        copiedId === `msg-${item._id}`
-                          ? "text-[hsl(var(--accent))]"
-                          : "text-[hsl(var(--muted-foreground))]"
-                      }`}
-                    />
-                  </button>
+                <div className="h-16 animate-pulse rounded-lg bg-[hsl(var(--secondary))]" />
+                <div className="mt-3 flex gap-2">
+                  <div className="h-7 w-28 animate-pulse rounded-lg bg-[hsl(var(--secondary))]" />
+                  <div className="h-7 w-16 animate-pulse rounded-lg bg-[hsl(var(--secondary))]" />
                 </div>
-
-                {/* Music */}
-                {item.music && (
-                  <div className="flex items-start gap-3">
-                    <div className="min-w-0 flex-1">
-                      <div className="max-h-20 overflow-y-auto rounded-2xl border border-[hsl(var(--border))]/70 bg-[hsl(var(--secondary))]/70 p-3 sm:max-h-25 sm:p-3.5">
-                        <p className="break-words whitespace-pre-wrap text-xs leading-relaxed text-[hsl(var(--foreground))]">
-                          🎵 {item.music}
-                        </p>
-                      </div>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => handleCopy(item.music || "", `music-${item._id}`)}
-                      className="shrink-0 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] p-1.5 transition hover:border-[hsl(var(--accent))]/40 hover:text-[hsl(var(--accent))] active:scale-95"
-                      title="Copy Music"
-                    >
-                      <Copy
-                        className={`h-3.5 w-3.5 ${
-                          copiedId === `music-${item._id}`
-                            ? "text-[hsl(var(--accent))]"
-                            : "text-[hsl(var(--muted-foreground))]"
-                        }`}
-                      />
-                    </button>
-                  </div>
-                )}
-              </div>
-
-              {/* Actions */}
-              <div className="flex flex-wrap gap-2 border-t border-[hsl(var(--border))] bg-[hsl(var(--secondary))] px-4 py-3 sm:gap-2.5 sm:px-5">
-                {/* Pending Actions */}
-                {item.status === "pending" && (
-                  <>
-                    <button
-                      type="button"
-                      onClick={() => acceptAndPublish(item)}
-                      disabled={processingId === item._id}
-                      className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-[hsl(var(--action-accept))]/30 bg-[hsl(var(--action-accept))]/10 px-3 py-2 text-xs font-medium text-[hsl(var(--action-accept))] transition hover:bg-[hsl(var(--action-accept))]/20 active:scale-95 disabled:opacity-50 sm:w-auto"
-                    >
-                      {processingId === item._id ? (
-                        <Loader className="h-3.5 w-3.5 animate-spin" />
-                      ) : (
-                        <CheckCircle2 className="h-3.5 w-3.5" />
-                      )}
-                      <span className="hidden sm:inline">Approve + publish</span>
-                      <span className="sm:hidden">Approve</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => rejectConfession(item)}
-                      disabled={processingId === item._id}
-                      className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-[hsl(var(--action-reject))]/30 bg-[hsl(var(--action-reject))]/10 px-3 py-2 text-xs font-medium text-[hsl(var(--action-reject))] transition hover:bg-[hsl(var(--action-reject))]/20 active:scale-95 disabled:opacity-50 sm:w-auto"
-                    >
-                      {processingId === item._id ? (
-                        <Loader className="h-3.5 w-3.5 animate-spin" />
-                      ) : (
-                        <X className="h-3.5 w-3.5" />
-                      )}
-                      Reject
-                    </button>
-                  </>
-                )}
-
-                {/* Approved Actions */}
-                {item.status === "approved" && (
-                  <>
-                    <button
-                      type="button"
-                      onClick={() => togglePublish(item)}
-                      disabled={processingId === item._id}
-                      className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-[hsl(var(--action-publish))]/30 bg-[hsl(var(--action-publish))]/10 px-3 py-2 text-xs font-medium text-[hsl(var(--action-publish))] transition hover:bg-[hsl(var(--action-publish))]/20 active:scale-95 disabled:opacity-50 sm:w-auto"
-                    >
-                      {processingId === item._id ? (
-                        <Loader className="h-3.5 w-3.5 animate-spin" />
-                      ) : item.posted ? (
-                        <EyeOff className="h-3.5 w-3.5" />
-                      ) : (
-                        <Eye className="h-3.5 w-3.5" />
-                      )}
-                      {item.posted ? "Unpublish" : "Publish"}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => toggleInstagram(item)}
-                      disabled={processingId === item._id}
-                      className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-[hsl(var(--accent))]/30 bg-[hsl(var(--accent))]/10 px-3 py-2 text-xs font-medium text-[hsl(var(--accent))] transition hover:bg-[hsl(var(--accent))]/20 active:scale-95 disabled:opacity-50 sm:w-auto"
-                    >
-                      {processingId === item._id ? (
-                        <Loader className="h-3.5 w-3.5 animate-spin" />
-                      ) : (
-                        <Share2 className="h-3.5 w-3.5" />
-                      )}
-                      {item.instagramPosted ? "Shared" : "Mark Share"}
-                    </button>
-                  </>
-                )}
-
-                {/* Rejected Status */}
-                {item.status === "rejected" && (
-                  <span className="flex w-full items-center gap-1.5 rounded-full border border-[hsl(var(--border))]/70 bg-[hsl(var(--card))]/80 px-3 py-2 text-xs font-medium capitalize text-[hsl(var(--foreground))] sm:w-auto">
-                    <X className="h-3.5 w-3.5" />
-                    Rejected
-                  </span>
-                )}
-
-                {/* Delete (always available) */}
-                <button
-                  type="button"
-                  onClick={() => deleteConfession(item)}
-                  disabled={processingId === item._id}
-                  className="ml-auto flex w-full items-center justify-center gap-1.5 rounded-lg border border-red-300/30 bg-red-50/50 px-3 py-2 text-xs font-medium text-red-600 transition hover:bg-red-50 active:scale-95 disabled:opacity-50 dark:border-red-900/30 dark:bg-red-950/20 dark:text-red-400 dark:hover:bg-red-950/30 sm:w-auto"
-                  title="Delete confession"
-                >
-                  {processingId === item._id ? (
-                    <Loader className="h-3.5 w-3.5 animate-spin" />
-                  ) : (
-                    <Trash2 className="h-3.5 w-3.5" />
-                  )}
-                  Delete
-                </button>
               </div>
             </div>
           ))}
         </div>
       )}
 
-      {/* Pagination */}
+      {/* ── Empty state ───────────────────────────────── */}
+      {!loading && items.length === 0 && (
+        <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-[hsl(var(--border))] py-14 text-center">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[hsl(var(--secondary))]">
+            <MessageSquare className="h-5 w-5 text-[hsl(var(--muted-foreground))]" />
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-[hsl(var(--foreground))]">Nothing here</p>
+            <p className="mt-0.5 text-xs text-[hsl(var(--muted-foreground))]">No confessions match the current filters.</p>
+          </div>
+        </div>
+      )}
+
+      {/* ── Confession cards ──────────────────────────── */}
+      {!loading && items.length > 0 && (
+        <div ref={listRef} className="flex flex-col gap-3">
+          {items.map((item) => {
+            const busy = processingId === item._id;
+            const msgId = `msg-${item._id}`;
+            const musId = `music-${item._id}`;
+            return (
+              <div key={item._id} data-card className="bento-cell overflow-hidden">
+
+                {/* Card header */}
+                <div className="flex items-center justify-between gap-3 px-5 pt-4 pb-3">
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <StatusBadge status={item.status} />
+                    {item.posted && (
+                      <span className="inline-flex items-center gap-1 rounded-md border border-[hsl(var(--action-publish))]/30 bg-[hsl(var(--action-publish))]/10 px-1.5 py-0.5 text-[11px] font-semibold text-[hsl(var(--action-publish))]">
+                        <Eye className="h-3 w-3" />
+                        Live
+                      </span>
+                    )}
+                    {item.instagramPosted && (
+                      <span className="inline-flex items-center gap-1 rounded-md border border-[hsl(var(--accent))]/30 bg-[hsl(var(--accent))]/10 px-1.5 py-0.5 text-[11px] font-semibold text-[hsl(var(--accent))]">
+                        <Share2 className="h-3 w-3" />
+                        Shared
+                      </span>
+                    )}
+                  </div>
+                  <time className="shrink-0 text-[11px] tabular-nums text-[hsl(var(--muted-foreground))]">
+                    {item.createdAt
+                      ? new Date(item.createdAt).toLocaleString("en-US", {
+                          month: "short", day: "numeric",
+                          hour: "2-digit", minute: "2-digit",
+                        })
+                      : "—"}
+                  </time>
+                </div>
+
+                {/* Message */}
+                <div className="px-5 pb-3">
+                  <div className="group relative">
+                    <div className="max-h-40 overflow-y-auto rounded-lg bg-[hsl(var(--secondary))] px-4 py-3">
+                      <p className="break-words whitespace-pre-wrap text-sm leading-relaxed text-[hsl(var(--foreground))]">
+                        {item.message}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleCopy(item.message, msgId)}
+                      title="Copy message"
+                      className="absolute right-2 top-2 rounded-md border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-1 text-[hsl(var(--muted-foreground))] opacity-0 transition hover:text-[hsl(var(--accent))] group-hover:opacity-100"
+                    >
+                      {copiedId === msgId
+                        ? <Check className="h-3 w-3 text-[hsl(var(--action-accept))]" />
+                        : <Copy className="h-3 w-3" />}
+                    </button>
+                  </div>
+
+                  {/* Music pill */}
+                  {item.music && (
+                    <div className="mt-2">
+                      <div className="group/mus flex min-w-0 items-center gap-2 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] px-3 py-2">
+                        <Music2 className="h-3.5 w-3.5 shrink-0 text-[hsl(var(--accent))]" />
+                        <span className="min-w-0 flex-1 truncate text-xs text-[hsl(var(--muted-foreground))]">{item.music}</span>
+                        <button
+                          type="button"
+                          onClick={() => handleCopy(item.music!, musId)}
+                          title="Copy song"
+                          className="shrink-0 text-[hsl(var(--muted-foreground))] opacity-0 transition hover:text-[hsl(var(--accent))] group-hover/mus:opacity-100"
+                        >
+                          {copiedId === musId
+                            ? <Check className="h-3 w-3 text-[hsl(var(--action-accept))]" />
+                            : <Copy className="h-3 w-3" />}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Divider */}
+                <div className="mx-5 border-t border-[hsl(var(--border))]" />
+
+                {/* Actions */}
+                <div className="flex flex-wrap items-center gap-2 px-5 py-3">
+                  {item.status === "pending" && (
+                    <>
+                      <ActionBtn
+                        variant="accept"
+                        onClick={() => run(item._id, () => patch(item._id, { status: "approved", posted: true }), "Published ✓")}
+                        disabled={busy}
+                      >
+                        {busy ? <Loader className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
+                        <span className="hidden sm:inline">Approve &amp; publish</span>
+                        <span className="sm:hidden">Approve</span>
+                      </ActionBtn>
+                      <ActionBtn
+                        variant="reject"
+                        onClick={() => run(item._id, () => patch(item._id, { status: "rejected" }), "Rejected.")}
+                        disabled={busy}
+                      >
+                        {busy ? <Loader className="h-3.5 w-3.5 animate-spin" /> : <X className="h-3.5 w-3.5" />}
+                        Reject
+                      </ActionBtn>
+                    </>
+                  )}
+
+                  {item.status === "approved" && (
+                    <>
+                      <ActionBtn
+                        variant="publish"
+                        onClick={() => run(item._id, () => patch(item._id, { posted: !item.posted }), item.posted ? "Unpublished." : "Published ✓")}
+                        disabled={busy}
+                      >
+                        {busy ? <Loader className="h-3.5 w-3.5 animate-spin" /> : item.posted ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                        {item.posted ? "Unpublish" : "Publish"}
+                      </ActionBtn>
+                      <ActionBtn
+                        variant="ghost"
+                        onClick={() => run(item._id, () => patch(item._id, { instagramPosted: !item.instagramPosted }), item.instagramPosted ? "Cleared." : "Marked shared ✓")}
+                        disabled={busy}
+                      >
+                        {busy ? <Loader className="h-3.5 w-3.5 animate-spin" /> : <Share2 className="h-3.5 w-3.5" />}
+                        {item.instagramPosted ? "Unmark share" : "Mark share"}
+                      </ActionBtn>
+                    </>
+                  )}
+
+                  {item.status === "rejected" && (
+                    <span className="inline-flex items-center gap-1.5 rounded-lg border border-[hsl(var(--border))] px-3 py-1.5 text-xs text-[hsl(var(--muted-foreground))]">
+                      <X className="h-3.5 w-3.5" />
+                      Rejected — no further actions
+                    </span>
+                  )}
+
+                  <ActionBtn
+                    variant="danger"
+                    className="ml-auto"
+                    onClick={() => {
+                      if (!window.confirm("Permanently delete this confession?")) return;
+                      void run(
+                        item._id,
+                        async () => {
+                          const res = await fetch(`/api/confessions/${item._id}`, { method: "DELETE" });
+                          if (!res.ok) {
+                            const d = await res.json().catch(() => ({}));
+                            throw new Error((d as { error?: string }).error ?? "Delete failed.");
+                          }
+                        },
+                        "Deleted.",
+                      );
+                    }}
+                    disabled={busy}
+                  >
+                    {busy ? <Loader className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
+                    Delete
+                  </ActionBtn>
+                </div>
+
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* ── Pagination ────────────────────────────────── */}
       {!loading && totalPages > 1 && (
-        <div className="flex items-center justify-between gap-2 pt-2">
-          <span className="text-xs text-[hsl(var(--muted-foreground))]">
-            Page {page} of {totalPages} ({totalCount} total)
+        <div className="flex items-center justify-between gap-3 pt-1">
+          <span className="text-xs tabular-nums text-[hsl(var(--muted-foreground))]">
+            Page {page} / {totalPages}
           </span>
           <div className="flex items-center gap-1">
             <button
               type="button"
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page <= 1 || loading}
-              className="flex items-center gap-1 rounded-lg border border-[hsl(var(--border))] px-3 py-1.5 text-xs font-medium transition hover:border-[hsl(var(--accent))]/40 hover:text-[hsl(var(--accent))] disabled:opacity-40"
+              className="inline-flex items-center gap-1 rounded-lg border border-[hsl(var(--border))] px-3 py-1.5 text-xs font-medium transition hover:border-[hsl(var(--accent))]/40 hover:text-[hsl(var(--accent))] disabled:opacity-40"
             >
-              <ChevronLeft className="h-3.5 w-3.5" />
+              <ChevronLeft className="h-3 w-3" />
               Prev
             </button>
             <button
               type="button"
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page >= totalPages || loading}
-              className="flex items-center gap-1 rounded-lg border border-[hsl(var(--border))] px-3 py-1.5 text-xs font-medium transition hover:border-[hsl(var(--accent))]/40 hover:text-[hsl(var(--accent))] disabled:opacity-40"
+              className="inline-flex items-center gap-1 rounded-lg border border-[hsl(var(--border))] px-3 py-1.5 text-xs font-medium transition hover:border-[hsl(var(--accent))]/40 hover:text-[hsl(var(--accent))] disabled:opacity-40"
             >
               Next
-              <ChevronRight className="h-3.5 w-3.5" />
+              <ChevronRight className="h-3 w-3" />
             </button>
           </div>
         </div>
@@ -566,5 +523,3 @@ export default function AdminList() {
     </div>
   );
 }
-
-

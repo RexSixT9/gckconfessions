@@ -2,12 +2,15 @@
 
 import { useRouter } from 'next/navigation';
 import { Home, ArrowLeft, Search } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { useFadeIn } from '@/lib/gsap';
 
 export default function NotFound() {
   const router = useRouter();
   const [countdown, setCountdown] = useState(10);
   const [autoRedirect, setAutoRedirect] = useState(true);
+  const pageRef = useRef<HTMLDivElement>(null);
+  useFadeIn(pageRef);
 
   useEffect(() => {
     if (!autoRedirect || countdown <= 0) return;
@@ -39,10 +42,9 @@ export default function NotFound() {
   };
 
   return (
-    <div className="flex flex-1 flex-col">
-      <main className="flex-1">
-        {/* Hero Section */}
-        <section className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6 sm:py-24 lg:py-32">
+    <div ref={pageRef} className="flex flex-1 flex-col items-center justify-center">
+        {/* 404 Section */}
+        <section className="mx-auto w-full max-w-2xl px-4 py-12 sm:px-6 sm:py-20">
           <div className="flex flex-col items-center text-center">
             {/* 404 Illustration */}
             <div className="relative mb-8 sm:mb-12">
@@ -98,10 +100,10 @@ export default function NotFound() {
             </div>
 
             {/* Action Buttons */}
-            <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+            <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-center sm:gap-3">
               <button
                 onClick={handleGoHome}
-                className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[hsl(var(--accent))] px-6 py-3 text-sm font-semibold text-[hsl(var(--accent-foreground))] shadow-sm transition hover:opacity-90 sm:w-auto sm:px-8 sm:py-3.5"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[hsl(var(--accent))] px-6 py-3 text-sm font-semibold text-[hsl(var(--accent-foreground))] shadow-sm transition hover:opacity-90 active:scale-95 sm:w-auto sm:px-7"
               >
                 <Home className="h-4 w-4" />
                 Home
@@ -109,15 +111,14 @@ export default function NotFound() {
               
               <button
                 onClick={handleGoBack}
-                className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-[hsl(var(--border))] px-6 py-3 text-sm font-semibold text-[hsl(var(--foreground))] transition hover:border-[hsl(var(--accent))]/40 hover:text-[hsl(var(--accent))] sm:w-auto sm:px-8 sm:py-3.5"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-[hsl(var(--border))] px-6 py-3 text-sm font-semibold text-[hsl(var(--foreground))] transition hover:border-[hsl(var(--accent))]/40 hover:text-[hsl(var(--accent))] active:scale-95 sm:w-auto sm:px-7"
               >
                 <ArrowLeft className="h-4 w-4" />
-                Back
+                Go back
               </button>
             </div>
           </div>
         </section>
-      </main>
     </div>
   );
 }
