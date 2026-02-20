@@ -116,11 +116,15 @@ export async function POST(request: Request) {
       email: admin.email ?? email,
     });
 
-    await AuditLog.create({
-      action: "admin_login",
-      adminEmail: admin.email ?? email,
-      ip,
-    });
+    try {
+      await AuditLog.create({
+        action: "admin_login",
+        adminEmail: admin.email ?? email,
+        ip,
+      });
+    } catch (logErr) {
+      console.error("AuditLog write failed (login):", logErr);
+    }
 
     const response = NextResponse.json({ 
       ok: true,

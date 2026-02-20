@@ -298,14 +298,14 @@ export default function AdminList() {
       {loading && (
         <div className="flex flex-col gap-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="bento-cell overflow-hidden">
+            <div key={i} className="overflow-hidden rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--background))]">
               <div className="px-5 py-4">
                 <div className="mb-3 flex items-center gap-2">
                   <div className="h-5 w-16 animate-pulse rounded-md bg-[hsl(var(--secondary))]" />
                   <div className="h-5 w-12 animate-pulse rounded-md bg-[hsl(var(--secondary))]" />
                   <div className="ml-auto h-4 w-24 animate-pulse rounded-md bg-[hsl(var(--secondary))]" />
                 </div>
-                <div className="h-16 animate-pulse rounded-lg bg-[hsl(var(--secondary))]" />
+                <div className="h-16 animate-pulse rounded-xl bg-[hsl(var(--secondary))]" />
                 <div className="mt-3 flex gap-2">
                   <div className="h-7 w-28 animate-pulse rounded-lg bg-[hsl(var(--secondary))]" />
                   <div className="h-7 w-16 animate-pulse rounded-lg bg-[hsl(var(--secondary))]" />
@@ -319,8 +319,8 @@ export default function AdminList() {
       {/* ── Empty state ───────────────────────────────── */}
       {!loading && items.length === 0 && (
         <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-[hsl(var(--border))] py-14 text-center">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[hsl(var(--secondary))]">
-            <MessageSquare className="h-5 w-5 text-[hsl(var(--muted-foreground))]" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[hsl(var(--accent))]/10">
+            <MessageSquare className="h-5 w-5 text-[hsl(var(--accent))]" />
           </div>
           <div>
             <p className="text-sm font-semibold text-[hsl(var(--foreground))]">Nothing here</p>
@@ -337,7 +337,7 @@ export default function AdminList() {
             const msgId = `msg-${item._id}`;
             const musId = `music-${item._id}`;
             return (
-              <div key={item._id} data-card className="bento-cell overflow-hidden">
+              <div key={item._id} data-card className="overflow-hidden rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] transition-shadow hover:shadow-sm">
 
                 {/* Card header */}
                 <div className="flex items-center justify-between gap-3 px-5 pt-4 pb-3">
@@ -369,8 +369,8 @@ export default function AdminList() {
                 {/* Message */}
                 <div className="px-5 pb-3">
                   <div className="group relative">
-                    <div className="max-h-40 overflow-y-auto rounded-lg bg-[hsl(var(--secondary))] px-4 py-3">
-                      <p className="break-words whitespace-pre-wrap text-sm leading-relaxed text-[hsl(var(--foreground))]">
+                    <div className="max-h-40 overflow-y-auto rounded-xl bg-[hsl(var(--secondary))] px-4 py-3">
+                      <p className="wrap-break-word whitespace-pre-wrap text-sm leading-relaxed text-[hsl(var(--foreground))]">
                         {item.message}
                       </p>
                     </div>

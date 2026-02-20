@@ -81,12 +81,16 @@ export async function PATCH(
       );
     }
 
-    await AuditLog.create({
-      action: "confession_updated",
-      adminEmail: admin.email,
-      ip: getClientIp(request),
-      meta: { confessionId: id, update },
-    });
+    try {
+      await AuditLog.create({
+        action: "confession_updated",
+        adminEmail: admin.email,
+        ip: getClientIp(request),
+        meta: { confessionId: id, update },
+      });
+    } catch (logErr) {
+      console.error("AuditLog write failed (PATCH):", logErr);
+    }
 
     return NextResponse.json({ confession });
   } catch (error) {
@@ -144,12 +148,16 @@ export async function DELETE(
       return NextResponse.json({ error: "Confession not found." }, { status: 404 });
     }
 
-    await AuditLog.create({
-      action: "confession_deleted",
-      adminEmail: admin.email,
-      ip: getClientIp(request),
-      meta: { confessionId: id },
-    });
+    try {
+      await AuditLog.create({
+        action: "confession_deleted",
+        adminEmail: admin.email,
+        ip: getClientIp(request),
+        meta: { confessionId: id },
+      });
+    } catch (logErr) {
+      console.error("AuditLog write failed (DELETE):", logErr);
+    }
 
     return NextResponse.json({ ok: true });
   } catch (error) {

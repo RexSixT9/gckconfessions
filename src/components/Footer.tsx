@@ -1,6 +1,7 @@
 'use client';
 
 import { memo, useRef } from 'react';
+import Link from 'next/link';
 import { useFadeIn } from '@/lib/gsap';
 
 const Footer = memo(function Footer() {
@@ -14,8 +15,8 @@ const Footer = memo(function Footer() {
           © {new Date().getFullYear()} GCK Confessions
         </p>
         <div className="flex gap-4 text-xs">
-          <a href="#" className="text-[hsl(var(--muted-foreground))] transition hover:text-[hsl(var(--accent))]">Privacy</a>
-          <a href="#" className="text-[hsl(var(--muted-foreground))] transition hover:text-[hsl(var(--accent))]">Guidelines</a>
+          <Link href="/guidelines" className="text-[hsl(var(--muted-foreground))] transition hover:text-[hsl(var(--accent))]">Privacy</Link>
+          <Link href="/guidelines" className="text-[hsl(var(--muted-foreground))] transition hover:text-[hsl(var(--accent))]">Guidelines</Link>
         </div>
       </div>
     </footer>
