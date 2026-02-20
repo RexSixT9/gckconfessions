@@ -139,31 +139,33 @@
 /* ─────────────────────────────────────────
    Form / input resets
 ───────────────────────────────────────── */
-.input-base {
-  width: 100%;
-  border-radius: calc(var(--radius) * 0.85);
-  border: 1px solid hsl(var(--border));
-  background: hsl(var(--background));
-  padding: 0.625rem 0.875rem;
-  font-size: 0.875rem;
-  line-height: 1.5;
-  color: hsl(var(--foreground));
-  outline: none;
-  transition: border-color 150ms ease, box-shadow 150ms ease;
-}
+@layer components {
+  .input-base {
+    width: 100%;
+    border-radius: calc(var(--radius) * 0.85);
+    border: 1px solid hsl(var(--border));
+    background: hsl(var(--background));
+    padding: 0.625rem 0.875rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: hsl(var(--foreground));
+    outline: none;
+    transition: border-color 150ms ease, box-shadow 150ms ease;
+  }
 
-.input-base::placeholder {
-  color: hsl(var(--muted-foreground) / 0.7);
-}
+  .input-base::placeholder {
+    color: hsl(var(--muted-foreground) / 0.7);
+  }
 
-.input-base:focus {
-  border-color: hsl(var(--accent));
-  box-shadow: 0 0 0 3px hsl(var(--accent) / 0.15);
-}
+  .input-base:focus {
+    border-color: hsl(var(--accent));
+    box-shadow: 0 0 0 3px hsl(var(--accent) / 0.15);
+  }
 
-.input-base:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+  .input-base:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 }
 
 /* ─────────────────────────────────────────

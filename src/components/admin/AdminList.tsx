@@ -204,7 +204,9 @@ export default function AdminList() {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
         {/* Search */}
         <form onSubmit={handleSearch} className="relative flex-1">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[hsl(var(--muted-foreground))]" />
+          <span className="pointer-events-none absolute inset-y-0 left-0 flex w-9 items-center justify-center text-[hsl(var(--muted-foreground))]">
+            <Search className="h-3.5 w-3.5" />
+          </span>
           <input
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
@@ -215,7 +217,7 @@ export default function AdminList() {
             <button
               type="button"
               onClick={() => { setSearchInput(""); setQuery(""); }}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-[hsl(var(--muted-foreground))] transition hover:text-[hsl(var(--foreground))]"
+              className="absolute inset-y-0 right-0 flex w-9 items-center justify-center text-[hsl(var(--muted-foreground))] transition hover:text-[hsl(var(--foreground))]"
             >
               <X className="h-3.5 w-3.5" />
             </button>
