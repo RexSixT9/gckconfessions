@@ -85,11 +85,11 @@ export async function POST(request: Request) {
     }
 
     await connectToDatabase();
-    const existingCount = await Admin.countDocuments();
 
-    if (existingCount > 0) {
+    const existing = await Admin.findOne({ email }).select({ _id: 1 }).lean();
+    if (existing) {
       return NextResponse.json(
-        { error: "Admin already exists. Use the admin panel to add more admins." },
+        { error: "An admin with that email already exists." },
         { status: 409 }
       );
     }

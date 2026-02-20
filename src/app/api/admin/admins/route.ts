@@ -6,8 +6,8 @@ import { aj } from "@/lib/arcjet";
 import { verifyAdminToken } from "@/lib/auth";
 import { validatePasswordPolicy } from "@/lib/moderation";
 import { COOKIE_NAME, BCRYPT_ROUNDS, MAX_EMAIL_LENGTH } from "@/lib/constants";
-import { checkAdminActionLimit, getClientIp } from "@/lib/rateLimit";
-import { isValidEmail } from "@/lib/requestUtils";
+import { checkAdminActionLimit, checkSetupLimit, getBlockedIps, getClientIp } from "@/lib/rateLimit";
+import { isSameOrigin, isValidEmail } from "@/lib/requestUtils";
 import Admin from "@/models/Admin";
 import AuditLog from "@/models/AuditLog";
 
@@ -48,12 +48,16 @@ export async function GET(request: Request) {
 
 /**
  * POST /api/admin/admins
- * Create a new admin account. Requires an existing authenticated admin.
+ * Create a new admin account. Authenticated via ADMIN_SETUP_KEY.
  *
- * Body: { email: string; password: string }
+ * Body: { email: string; password: string; setupKey: string }
  */
 export async function POST(request: Request) {
   try {
+    if (!isSameOrigin(request)) {
+      return NextResponse.json({ error: "Invalid origin." }, { status: 403 });
+    }
+
     let arcjetDecision;
     try {
       arcjetDecision = await aj.protect(request);
@@ -66,15 +70,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Request blocked." }, { status: 403 });
     }
 
-    const cookieStore = await cookies();
-    const token = cookieStore.get(COOKIE_NAME)?.value;
-    if (!token) return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
-
-    const caller = await verifyAdminToken(token);
-    if (!caller.sub) return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
-
     const ip = getClientIp(request);
-    const rate = await checkAdminActionLimit(`admin-create:${ip}`);
+
+    if (getBlockedIps().includes(ip)) {
+      return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+    }
+
+    const rate = await checkSetupLimit(`admin-create:${ip}`);
     if (!rate.allowed) {
       return NextResponse.json(
         { error: "Too many requests. Try again later." },
@@ -87,16 +89,29 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unsupported content type." }, { status: 415 });
     }
 
+    const setupKey = process.env.ADMIN_SETUP_KEY;
+    if (!setupKey) {
+      return NextResponse.json(
+        { error: "ADMIN_SETUP_KEY is not configured." },
+        { status: 500 }
+      );
+    }
+
     const body = await request.json();
     const email = String(body.email ?? "").toLowerCase().trim();
     // Do NOT trim passwords — whitespace may be intentional
     const password = String(body.password ?? "");
+    const providedKey = String(body.setupKey ?? "").trim();
 
-    if (!email || !password) {
+    if (!email || !password || !providedKey) {
       return NextResponse.json(
-        { error: "Email and password are required." },
+        { error: "Email, password, and setupKey are required." },
         { status: 400 }
       );
+    }
+
+    if (providedKey !== setupKey) {
+      return NextResponse.json({ error: "Invalid setup key." }, { status: 401 });
     }
 
     if (email.length > MAX_EMAIL_LENGTH || !isValidEmail(email)) {
@@ -128,7 +143,7 @@ export async function POST(request: Request) {
 
     await AuditLog.create({
       action: "admin_created",
-      adminEmail: caller.email,
+      adminEmail: email,
       ip,
       meta: { createdEmail: email },
     });
