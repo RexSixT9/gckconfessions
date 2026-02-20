@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import HeaderNav from "@/components/HeaderNav";
+import Footer from "@/components/Footer";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -47,7 +48,10 @@ export default function RootLayout({
           {/* ── Header ── */}
           <HeaderNav />
 
-          {children}
+          <div className="flex min-h-[calc(100svh-3.5rem)] flex-col">
+            {children}
+            <Footer />
+          </div>
         </ThemeProvider>
       </body>
     </html>

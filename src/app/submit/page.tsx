@@ -2,8 +2,7 @@
 
 import { useEffect, useState, useCallback, useRef } from "react";
 import Link from "next/link";
-import { Heart, HeartHandshake, AlertCircle, CheckCircle2, ArrowLeft } from "lucide-react";
-import Footer from "@/components/Footer";
+import { Heart, ShieldCheck, AlertCircle, CheckCircle2, ArrowLeft, Lock, Music2, Sparkles } from "lucide-react";
 import { useStaggerEntrance } from "@/lib/gsap";
 
 type Notice = { type: "error" | "success"; message: string } | null;
@@ -142,7 +141,7 @@ export default function SubmitPage() {
   useStaggerEntrance(pageRef, { selector: "[data-animate]", stagger: 0.08, duration: 0.5 });
 
   return (
-    <div ref={pageRef} className="flex min-h-screen flex-col">
+    <div ref={pageRef} className="flex flex-1 flex-col">
       <main className="flex-1">
         <div className="mx-auto w-full max-w-xl px-4 py-6 sm:px-6 sm:py-10">
 
@@ -153,19 +152,19 @@ export default function SubmitPage() {
               className="inline-flex items-center gap-1.5 text-xs font-medium text-[hsl(var(--muted-foreground))] transition hover:text-[hsl(var(--accent))]"
             >
               <ArrowLeft className="h-3.5 w-3.5" />
-              Back
+              Back to home
             </Link>
             <h1 className="mt-3 text-xl font-bold tracking-tight text-[hsl(var(--foreground))] sm:text-2xl">
-              Submit a confession
+              Share your confession
             </h1>
             <p className="mt-1 text-sm text-[hsl(var(--muted-foreground))]">
-              Anonymous · Reviewed before publishing
+              100% anonymous — reviewed by a human before it goes live
             </p>
           </div>
 
           {/* Form card */}
           <div data-animate className="bento-cell p-5 sm:p-7">
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-5">
               {/* Honeypot */}
               <input
                 type="text"
@@ -180,18 +179,19 @@ export default function SubmitPage() {
 
               {/* Textarea */}
               <div>
-                <div className="mb-1.5 flex flex-wrap items-center justify-between gap-1">
-                  <label htmlFor="confession" className="text-sm font-semibold text-[hsl(var(--foreground))]">
-                    Confession
+                <div className="mb-2 flex flex-wrap items-center justify-between gap-1">
+                  <label htmlFor="confession" className="flex items-center gap-1.5 text-sm font-semibold text-[hsl(var(--foreground))]">
+                    <Sparkles className="h-3.5 w-3.5 text-[hsl(var(--accent))]" />
+                    Your confession
                   </label>
-                  <span className={`text-xs tabular-nums ${charCount > CHAR_LIMIT * 0.9 ? 'text-[hsl(var(--destructive))]' : 'text-[hsl(var(--muted-foreground))]'}`}>
+                  <span className={`text-xs tabular-nums transition ${charCount > CHAR_LIMIT * 0.9 ? 'font-semibold text-[hsl(var(--destructive))]' : 'text-[hsl(var(--muted-foreground))]'}`}>
                     {charCount} / {CHAR_LIMIT}
                   </span>
                 </div>
                 <textarea
                   id="confession"
                   name="confession"
-                  placeholder="Write your confession…"
+                  placeholder="What's been on your mind? Write it here — no one will know it's you…"
                   maxLength={CHAR_LIMIT}
                   rows={5}
                   value={message}
@@ -202,8 +202,9 @@ export default function SubmitPage() {
 
               {/* Music */}
               <div>
-                <label htmlFor="music" className="mb-1.5 block text-sm font-semibold text-[hsl(var(--foreground))]">
-                  Song{" "}
+                <label htmlFor="music" className="mb-2 flex items-center gap-1.5 text-sm font-semibold text-[hsl(var(--foreground))]">
+                  <Music2 className="h-3.5 w-3.5 text-[hsl(var(--accent))]" />
+                  Song that fits this moment
                   <span className="font-normal text-[hsl(var(--muted-foreground))]">(optional)</span>
                 </label>
                 <input
@@ -213,7 +214,7 @@ export default function SubmitPage() {
                   value={music}
                   onChange={handleMusicChange}
                   maxLength={120}
-                  placeholder="Artist – Song title"
+                  placeholder="e.g. Taylor Swift – All Too Well"
                   className="input-base w-full"
                 />
               </div>
@@ -223,7 +224,7 @@ export default function SubmitPage() {
                 <div className="min-w-0">
                   <p className="text-xs font-semibold text-[hsl(var(--foreground))]">Save draft locally</p>
                   <p className="truncate text-xs text-[hsl(var(--muted-foreground))]">
-                    {draftError ? "Storage unavailable" : hasDraft && saveDraft ? "Draft saved" : "Restores text on refresh"}
+                    {draftError ? "Storage unavailable" : hasDraft && saveDraft ? "Draft saved ✓" : "Restored automatically on refresh"}
                   </p>
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
@@ -235,7 +236,7 @@ export default function SubmitPage() {
                     aria-pressed={saveDraft}
                     aria-label="Toggle save draft"
                   >
-                    <span className={`inline-block h-4 w-4 rounded-full bg-white shadow-sm transition ${saveDraft ? 'translate-x-4' : 'translate-x-0.5'}`} />
+                    <span className={`inline-block h-4 w-4 rounded-full bg-white shadow-sm transition-transform ${saveDraft ? 'translate-x-4' : 'translate-x-0.5'}`} />
                   </button>
                   {hasDraft && saveDraft && !draftError && (
                     <button
@@ -264,16 +265,20 @@ export default function SubmitPage() {
               )}
 
               {/* Submit */}
-              <div>
+              <div className="relative">
+                {/* Pulse ring while submitting */}
+                {loading && (
+                  <span className="absolute inset-0 rounded-lg animate-ping bg-[hsl(var(--accent))]/20 duration-1000" />
+                )}
                 <button
                   type="submit"
                   disabled={loading || !message.trim()}
-                  className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-[hsl(var(--accent))] py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
+                  className="relative inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[hsl(var(--accent))] py-2.5 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loading ? (
                     <>
                       <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
-                      Submitting…
+                      Sending your confession…
                     </>
                   ) : (
                     <>
@@ -286,17 +291,40 @@ export default function SubmitPage() {
             </form>
           </div>
 
-          {/* Info note */}
-          <div data-animate className="mt-3 flex items-start gap-2 px-1">
-            <HeartHandshake className="mt-0.5 h-4 w-4 shrink-0 text-[hsl(var(--accent))]" />
-            <p className="text-xs text-[hsl(var(--muted-foreground))]">
-              Every submission is reviewed by a moderator before being published.
-            </p>
+          {/* Moderation notice — redesigned */}
+          <div data-animate className="mt-4 overflow-hidden rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--secondary))]">
+            {/* Top row */}
+            <div className="flex items-start gap-3 px-4 py-4">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[hsl(var(--accent))]/10">
+                <ShieldCheck className="h-4 w-4 text-[hsl(var(--accent))]" />
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="text-xs font-semibold text-[hsl(var(--foreground))]">Reviewed before publishing</p>
+                <p className="mt-0.5 text-xs leading-relaxed text-[hsl(var(--muted-foreground))]">
+                  Every confession is read by a moderator. Content that violates guidelines is never published.
+                </p>
+              </div>
+              <span className="ml-1 shrink-0 rounded-full bg-[hsl(var(--accent))]/10 px-2 py-0.5 text-[10px] font-semibold text-[hsl(var(--accent))]">
+                Safe
+              </span>
+            </div>
+            {/* Stats strip */}
+            <div className="flex divide-x divide-[hsl(var(--border))] border-t border-[hsl(var(--border))]">
+              {[
+                { icon: Lock, label: "Anonymous" },
+                { icon: Heart, label: "No account" },
+                { icon: Sparkles, label: "Under 1 min" },
+              ].map(({ icon: Icon, label }) => (
+                <div key={label} className="flex flex-1 items-center justify-center gap-1.5 px-3 py-2.5">
+                  <Icon className="h-3 w-3 text-[hsl(var(--accent))]" />
+                  <p className="text-[10px] font-medium text-[hsl(var(--muted-foreground))]">{label}</p>
+                </div>
+              ))}
+            </div>
           </div>
 
         </div>
       </main>
-      <Footer />
     </div>
   );
 }

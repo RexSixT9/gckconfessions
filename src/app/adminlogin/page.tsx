@@ -78,20 +78,22 @@ export default function AdminLoginPage() {
     }
   };
 
-  // Refs for GSAP animations (hooks must be called unconditionally)
+  // Refs for GSAP animations (hooks must be called unconditionally).
+  // Pass isChecking as a dep so the animation fires once it resolves
+  // and the card is actually in the DOM.
   const cardContainerRef = useRef<HTMLDivElement>(null);
-  useScaleEntrance(cardContainerRef, { duration: 0.45, delay: 0.05 });
+  useScaleEntrance(cardContainerRef, { duration: 0.45, delay: 0.05, deps: [isChecking] });
 
   if (isChecking) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[hsl(var(--background))]">
+      <div className="flex flex-1 items-center justify-center">
         <Loader className="h-5 w-5 animate-spin text-[hsl(var(--accent))]" />
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4 py-8 sm:py-12">
+    <div className="flex flex-1 items-center justify-center px-4 py-8 sm:py-12">
       <div ref={cardContainerRef} className="w-full max-w-sm">
 
         {/* Header */}

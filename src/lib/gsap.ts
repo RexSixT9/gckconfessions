@@ -3,7 +3,7 @@
  *
  * Deliberately avoids @gsap/react to keep dependencies minimal.
  * Uses useLayoutEffect so GSAP sets initial states before the browser paints,
- * preventing flashes of un-animated content.
+ * preventing flashes of un-animated content (FOUC).
  *
  * Usage (in a "use client" component):
  *   const ref = useRef<HTMLDivElement>(null);
@@ -19,8 +19,9 @@ export default gsap;
 const EASE = "power2.out";
 
 /**
- * Stagger-fade-up for elements with [data-animate] inside the container.
- * Plays once on mount.
+ * Stagger-fade-up for elements matching `selector` inside the container.
+ * Pass `deps` to re-trigger the animation when values change (e.g. after
+ * an async check completes and the container becomes visible).
  */
 export function useStaggerEntrance(
   container: RefObject<HTMLElement | null>,
@@ -30,6 +31,8 @@ export function useStaggerEntrance(
     delay?: number;
     duration?: number;
     selector?: string;
+    /** Extra deps that, when changed, re-trigger the animation. */
+    deps?: unknown[];
   } = {}
 ) {
   const {
@@ -38,6 +41,7 @@ export function useStaggerEntrance(
     delay = 0,
     duration = 0.55,
     selector = "[data-animate]",
+    deps = [],
   } = options;
 
   useLayoutEffect(() => {
@@ -49,18 +53,24 @@ export function useStaggerEntrance(
     }, container);
     return () => ctx.revert();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, deps);
 }
 
 /**
  * Scale + fade for a single element (cards, modals, login form).
- * Plays once on mount.
+ * Pass `deps` to re-trigger once the element is actually mounted
+ * (e.g. after an async loading check resolves).
  */
 export function useScaleEntrance(
   container: RefObject<HTMLElement | null>,
-  options: { delay?: number; duration?: number } = {}
+  options: {
+    delay?: number;
+    duration?: number;
+    /** Extra deps that, when changed, re-trigger the animation. */
+    deps?: unknown[];
+  } = {}
 ) {
-  const { delay = 0, duration = 0.45 } = options;
+  const { delay = 0, duration = 0.45, deps = [] } = options;
 
   useLayoutEffect(() => {
     if (!container.current) return;
@@ -77,7 +87,7 @@ export function useScaleEntrance(
     }, container);
     return () => ctx.revert();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, deps);
 }
 
 /**

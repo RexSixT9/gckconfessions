@@ -3,12 +3,6 @@
 import { useRouter } from 'next/navigation';
 import { Home, ArrowLeft, Search } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import dynamic from 'next/dynamic';
-
-const Footer = dynamic(() => import('@/components/Footer'), {
-  loading: () => null,
-  ssr: true,
-});
 
 export default function NotFound() {
   const router = useRouter();
@@ -45,7 +39,7 @@ export default function NotFound() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-[hsl(var(--background))]">
+    <div className="flex flex-1 flex-col">
       <main className="flex-1">
         {/* Hero Section */}
         <section className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6 sm:py-24 lg:py-32">
@@ -124,9 +118,6 @@ export default function NotFound() {
           </div>
         </section>
       </main>
-
-      {/* Footer */}
-      <Footer />
     </div>
   );
 }

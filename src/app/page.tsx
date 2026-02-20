@@ -3,7 +3,6 @@
 import { useRef } from "react";
 import Link from "next/link";
 import { ArrowUpRight, Heart, ShieldCheck, MessageSquare, Zap, Send } from "lucide-react";
-import Footer from "@/components/Footer";
 import { useStaggerEntrance } from "@/lib/gsap";
 
 export default function Home() {
@@ -11,9 +10,8 @@ export default function Home() {
   useStaggerEntrance(gridRef, { stagger: 0.06, duration: 0.55, from: { opacity: 0, y: 28 } });
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <main className="flex-1">
-        <div className="mx-auto w-full max-w-6xl px-4 py-5 sm:px-6 sm:py-8">
+    <main className="flex-1">
+      <div className="mx-auto w-full max-w-6xl px-4 py-5 sm:px-6 sm:py-8">
 
           {/*  Bento Grid  */}
           <div
@@ -186,9 +184,6 @@ export default function Home() {
 
           </div>
         </div>
-      </main>
-
-      <Footer />
-    </div>
+    </main>
   );
 }
