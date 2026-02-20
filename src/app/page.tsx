@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 import Link from "next/link";
-import { ArrowUpRight, ShieldCheck, MessageSquare, Send, PenLine, Lock } from "lucide-react";
+import { ArrowUpRight, ShieldCheck, MessageSquare, Send, PenLine, Lock, Zap } from "lucide-react";
 import { useStaggerEntrance } from "@/lib/gsap";
 
 export default function Home() {
@@ -51,7 +51,7 @@ export default function Home() {
           {[
             { icon: Lock, title: "No account needed", desc: "Zero sign-up. Fully anonymous." },
             { icon: ShieldCheck, title: "Moderated", desc: "Every post reviewed for safety." },
-            { icon: Send, title: "Under a minute", desc: "Write, submit, done." },
+            { icon: Zap, title: "Under a minute", desc: "Write, submit, done." },
           ].map(({ icon: Icon, title, desc }) => (
             <div
               key={title}
@@ -180,18 +180,19 @@ export default function Home() {
         </section>
 
         {/*  Bottom CTA  */}
-        <section data-animate className="group relative mb-16 cursor-default overflow-hidden rounded-2xl bg-[hsl(var(--accent))] px-8 py-10 text-center transition-all duration-300 hover:shadow-xl hover:shadow-[hsl(var(--accent))]/30">
-          <div className="pointer-events-none absolute inset-0 bg-white/5" />
-          {/* animated shimmer blob on hover */}
-          <div className="pointer-events-none absolute -left-10 -top-10 h-40 w-40 rounded-full bg-white/10 opacity-0 blur-3xl transition-opacity duration-500 group-hover:opacity-100" />
-          <p className="relative text-lg font-black text-white sm:text-2xl">Ready to confess?</p>
-          <p className="relative mt-1.5 text-sm text-white/70">Anonymous. Reviewed. Under a minute.</p>
+        <section data-animate className="group relative mb-16 cursor-default overflow-hidden rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-8 py-10 text-center transition-all duration-300 hover:border-[hsl(var(--accent))]/30 hover:shadow-lg hover:shadow-[hsl(var(--accent))]/8">
+          {/* accent glow blob on hover */}
+          <div className="pointer-events-none absolute -right-8 -top-8 h-40 w-40 rounded-full bg-[hsl(var(--accent))]/10 opacity-0 blur-3xl transition-opacity duration-500 group-hover:opacity-100" />
+          {/* bottom-left mirror blob */}
+          <div className="pointer-events-none absolute -bottom-8 -left-8 h-32 w-32 rounded-full bg-[hsl(var(--accent))]/6 opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-100" />
+          <p className="relative text-lg font-black text-[hsl(var(--foreground))] sm:text-2xl">Ready to confess?</p>
+          <p className="relative mt-1.5 text-sm text-[hsl(var(--muted-foreground))]">Anonymous. Reviewed. Under a minute.</p>
           <Link
             href="/submit"
-            className="relative mt-6 inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3 text-sm font-bold text-[hsl(var(--accent))] transition-all duration-200 hover:scale-105 hover:opacity-95 active:scale-[0.98]"
+            className="relative mt-6 inline-flex items-center gap-2 rounded-xl bg-[hsl(var(--accent))] px-6 py-3 text-sm font-bold text-white shadow-md shadow-[hsl(var(--accent))]/20 transition-all duration-200 hover:scale-105 hover:opacity-90 active:scale-[0.98]"
           >
+            <PenLine className="h-4 w-4" />
             Start writing
-            <ArrowUpRight className="h-4 w-4" />
           </Link>
         </section>
 

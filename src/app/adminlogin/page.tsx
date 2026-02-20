@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useRef } from "react";
-import { AlertCircle, CheckCircle2, Loader, Heart, Mail, Eye, EyeOff, KeyRound } from "lucide-react";
+import { AlertCircle, CheckCircle2, Loader, ShieldCheck, Mail, Eye, EyeOff, KeyRound } from "lucide-react";
 import { useScaleEntrance } from "@/lib/gsap";
 
 type Notice = { type: "error" | "success"; message: string } | null;
@@ -97,16 +97,16 @@ export default function AdminLoginPage() {
       <div ref={cardContainerRef} className="w-full max-w-sm">
 
         {/* Header */}
-        <div className="mb-6 text-center">
-          <span className="mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-[hsl(var(--accent))]/10">
-            <Heart className="h-5 w-5 text-[hsl(var(--accent))]" />
+        <div className="mb-8 text-center">
+          <span className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))]">
+            <ShieldCheck className="h-6 w-6 text-[hsl(var(--foreground))]" />
           </span>
           <h1 className="text-xl font-bold tracking-tight text-[hsl(var(--foreground))]">Admin sign in</h1>
-          <p className="mt-1 text-sm text-[hsl(var(--muted-foreground))]">Access moderation tools</p>
+          <p className="mt-1.5 text-sm text-[hsl(var(--muted-foreground))]">Access moderation tools</p>
         </div>
 
         {/* Card */}
-        <div className="bento-cell p-6">
+        <div className="rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-6 shadow-sm">
           {/* Notice */}
             {notice && (
               <div className={`mb-5 flex items-start gap-2.5 rounded-lg border p-3.5 text-sm ${
@@ -119,39 +119,43 @@ export default function AdminLoginPage() {
               </div>
             )}
 
-            <form className="space-y-4" onSubmit={handleSubmit}>
+            <form className="space-y-5" onSubmit={handleSubmit}>
               {/* Email */}
               <div>
-                <label htmlFor="email" className="mb-1.5 block text-sm font-semibold text-[hsl(var(--foreground))]">Email</label>
+                <label htmlFor="email" className="mb-2 block text-xs font-semibold uppercase tracking-wide text-[hsl(var(--muted-foreground))]">Email</label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[hsl(var(--muted-foreground))]" />
+                  <span className="pointer-events-none absolute inset-y-0 left-0 flex w-10 items-center justify-center text-[hsl(var(--muted-foreground))]">
+                    <Mail className="h-4 w-4" />
+                  </span>
                   <input
                     id="email" name="email" type="email"
                     value={email} onChange={(e) => setEmail(e.target.value)}
                     placeholder="admin@example.com"
                     autoComplete="email" autoCapitalize="off" autoCorrect="off" spellCheck="false"
                     maxLength={254} required disabled={loading}
-                    className="input-base w-full pl-9"
+                    className="input-base w-full pl-10"
                   />
                 </div>
               </div>
 
               {/* Password */}
               <div>
-                <label htmlFor="password" className="mb-1.5 block text-sm font-semibold text-[hsl(var(--foreground))]">Password</label>
+                <label htmlFor="password" className="mb-2 block text-xs font-semibold uppercase tracking-wide text-[hsl(var(--muted-foreground))]">Password</label>
                 <div className="relative">
-                  <KeyRound className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[hsl(var(--muted-foreground))]" />
+                  <span className="pointer-events-none absolute inset-y-0 left-0 flex w-10 items-center justify-center text-[hsl(var(--muted-foreground))]">
+                    <KeyRound className="h-4 w-4" />
+                  </span>
                   <input
                     id="password" name="password" type={showPassword ? 'text' : 'password'}
                     value={password} onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
                     autoComplete="current-password" autoCapitalize="off" autoCorrect="off" spellCheck="false"
                     maxLength={128} required disabled={loading}
-                    className="input-base w-full pl-9 pr-10"
+                    className="input-base w-full pl-10 pr-10"
                   />
                   <button
                     type="button" onClick={() => setShowPassword(!showPassword)} disabled={loading}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[hsl(var(--muted-foreground))] transition hover:text-[hsl(var(--foreground))] disabled:opacity-50"
+                    className="absolute inset-y-0 right-0 flex w-10 items-center justify-center rounded-r-[calc(var(--radius)*0.85)] text-[hsl(var(--muted-foreground))] transition-colors hover:text-[hsl(var(--foreground))] disabled:opacity-50"
                     aria-label={showPassword ? 'Hide password' : 'Show password'}
                   >
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -163,7 +167,7 @@ export default function AdminLoginPage() {
               <button
                 type="submit"
                 disabled={loading || !email || !password}
-                className="mt-1 inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-[hsl(var(--accent))] py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[hsl(var(--foreground))] py-2.5 text-sm font-semibold text-[hsl(var(--background))] transition-all duration-200 hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 {loading ? <><Loader className="h-4 w-4 animate-spin" /> Signing in…</> : 'Sign in'}
               </button>

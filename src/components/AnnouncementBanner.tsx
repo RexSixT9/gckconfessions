@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect, useLayoutEffect, useRef } from "react";
-import { X } from "lucide-react";
+import { X, Megaphone } from "lucide-react";
 
 const BANNER_STORAGE_KEY = "gck_announcement_dismissed";
 const BANNER_RESET_DAYS = 3; // Reset banner every 3 days
@@ -81,22 +81,33 @@ export default function AnnouncementBanner() {
   return (
     <div
       ref={bannerRef}
-      className="w-full border-b border-[hsl(var(--border))]/70 bg-[hsl(var(--card))]/80 text-[hsl(var(--foreground))] animate-slide-down"
+      className="w-full border-b border-[hsl(var(--border))]/70 bg-[hsl(var(--card))]/90 text-[hsl(var(--foreground))] animate-slide-down backdrop-blur-sm"
     >
-      <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-4 py-2 sm:px-6">
-        <p className="flex-1 text-center text-xs font-medium sm:text-sm">
-          New: posts are reviewed before publishing.{" "}
-          <a href="/submit" className="font-semibold text-[hsl(var(--accent))] underline underline-offset-2 transition hover:opacity-80">
-            Share now
-          </a>
-        </p>
+      <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-3 px-4 py-2 sm:px-6">
+        <div className="flex flex-1 items-center justify-center gap-2.5">
+          {/* Event type pill */}
+          <span className="hidden shrink-0 items-center gap-1 rounded-full bg-[hsl(var(--accent))]/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-[hsl(var(--accent))] sm:inline-flex">
+            <Megaphone className="h-2.5 w-2.5" />
+            Event
+          </span>
+          <p className="text-center text-xs font-medium sm:text-sm">
+            <span className="font-semibold text-[hsl(var(--foreground))]">Confession Week is live</span>
+            <span className="text-[hsl(var(--muted-foreground))]"> — share yours before Feb&nbsp;28.&nbsp;</span>
+            <a
+              href="/submit"
+              className="font-semibold text-[hsl(var(--accent))] underline underline-offset-2 transition hover:opacity-75"
+            >
+              Submit now
+            </a>
+          </p>
+        </div>
         <button
           type="button"
           onClick={handleDismiss}
-          className="ml-2 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full transition hover:bg-[hsl(var(--accent))]/10 active:scale-95"
+          className="ml-1 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[hsl(var(--muted-foreground))] transition hover:bg-[hsl(var(--secondary))] hover:text-[hsl(var(--foreground))] active:scale-95"
           aria-label="Close announcement"
         >
-          <X className="h-4 w-4" />
+          <X className="h-3.5 w-3.5" />
           <span className="sr-only">Close announcement</span>
         </button>
       </div>
