@@ -45,16 +45,16 @@ export default function Home() {
             </a>
           </div>
 
-          {/* Feature highlights */}
-          <div className="mt-10 grid w-full max-w-2xl grid-cols-3 gap-3">
+          {/* Feature highlights — bento: full-width first card on mobile, half-half for rest */}
+          <div className="mt-10 grid w-full max-w-2xl grid-cols-2 gap-3 sm:grid-cols-3">
             {[
-              { icon: Lock, title: "No account needed", desc: "Zero sign-up. Fully anonymous." },
-              { icon: ShieldCheck, title: "Moderated", desc: "Every post reviewed for safety." },
-              { icon: Zap, title: "Easy to submit", desc: "Write and send — we handle the rest." },
-            ].map(({ icon: Icon, title, desc }) => (
+              { icon: Lock, title: "No account needed", desc: "Zero sign-up. Fully anonymous.", span: "col-span-2 sm:col-span-1" },
+              { icon: ShieldCheck, title: "Moderated", desc: "Every post reviewed for safety.", span: "col-span-1" },
+              { icon: Zap, title: "Easy to submit", desc: "Write and send — we handle the rest.", span: "col-span-1" },
+            ].map(({ icon: Icon, title, desc, span }) => (
               <div
                 key={title}
-                className="flex flex-col items-center gap-1.5 rounded-xl border border-[hsl(var(--border))]/60 bg-[hsl(var(--card))]/60 px-3 py-3 text-center backdrop-blur-sm"
+                className={`flex flex-col items-center gap-1.5 rounded-xl border border-[hsl(var(--border))]/60 bg-[hsl(var(--card))]/60 px-3 py-3 text-center backdrop-blur-sm ${span}`}
               >
                 <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[hsl(var(--accent))]/10">
                   <Icon className="h-4 w-4 text-[hsl(var(--accent))]" />
