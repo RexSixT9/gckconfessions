@@ -55,8 +55,14 @@ const nextConfig: NextConfig = {
   },
   // Enable experimental optimizations
   experimental: {
-    optimizePackageImports: ["lucide-react"],
+    optimizePackageImports: ["lucide-react", "gsap"],
   },
+  // Optimize images
+  images: {
+    formats: ["image/avif", "image/webp"],
+  },
+  // Compress responses
+  compress: true,
 };
 
 export default nextConfig;

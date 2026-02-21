@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import HeaderNav from "@/components/HeaderNav";
@@ -8,17 +8,46 @@ import "./globals.css";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
+  display: "swap",
+  preload: true,
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  display: "swap",
+  preload: true,
 });
 
 export const metadata: Metadata = {
-  title: "GCK Confessions",
+  title: {
+    default: "GCK Confessions",
+    template: "%s | GCK Confessions",
+  },
   description:
     "Anonymous confessions for students. Every post is reviewed before publishing.",
+  keywords: ["confessions", "anonymous", "students", "community"],
+  authors: [{ name: "GCK Confessions" }],
+  robots: {
+    index: true,
+    follow: true,
+  },
+  openGraph: {
+    title: "GCK Confessions",
+    description: "Share your thoughts anonymously. Moderated for safety.",
+    type: "website",
+    locale: "en_US",
+  },
+};
+
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#0a0a0a" },
+  ],
 };
 
 export default function RootLayout({
@@ -29,6 +58,10 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        {/* Preconnect to speed up external resource loading */}
+        <link rel="dns-prefetch" href="//fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        {/* Inline theme script to prevent flash */}
         <script
           dangerouslySetInnerHTML={{
             __html: `try{const t=localStorage.getItem('theme')||(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.classList.toggle('dark',t==='dark')}catch(e){}`,
