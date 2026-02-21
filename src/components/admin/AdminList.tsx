@@ -1,6 +1,7 @@
 ﻿"use client";
 
 import { useEffect, useState, useCallback, useRef } from "react";
+import { useRouter } from "next/navigation";
 import gsap from "@/lib/gsap";
 import {
   Search,
@@ -36,7 +37,7 @@ function StatusBadge({ status }: { status?: string }) {
     pending: {
       icon: <Clock className="h-3 w-3" />,
       label: "Pending",
-      cls: "border-amber-300/40 bg-amber-50/80 text-amber-600 dark:border-amber-700/30 dark:bg-amber-950/20 dark:text-amber-400",
+      cls: "border-orange-500/30 bg-orange-500/10 text-orange-600 dark:border-orange-400/30 dark:bg-orange-400/10 dark:text-orange-400",
     },
   };
   const s = status ?? "pending";
@@ -89,7 +90,7 @@ function ActionBtn({
 }
 
 // ─── constants ───────────────────────────────────────────────────
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 10;
 
 // ─── types ───────────────────────────────────────────────────────
 type Notice = { type: "error" | "success"; message: string } | null;
@@ -118,6 +119,8 @@ export default function AdminList() {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+
+  const router = useRouter();
 
   const listRef = useRef<HTMLDivElement>(null);
   const skipAnimation = useRef(false);
@@ -152,13 +155,14 @@ export default function AdminList() {
       setItems(data.confessions ?? []);
       setTotalCount(data.total ?? 0);
       setTotalPages(data.totalPages ?? 1);
+      router.refresh();
     } catch (error) {
       setNotice({ type: "error", message: error instanceof Error ? error.message : "Load failed." });
       setItems([]);
     } finally {
       setLoading(false);
     }
-  }, [filter, statusFilter, query, page]);
+  }, [filter, statusFilter, query, page, router]);
 
   useEffect(() => { fetchItems(); }, [fetchItems]);
 
@@ -221,6 +225,7 @@ export default function AdminList() {
         await action();
         setNotice({ type: "success", message: successMsg });
         setTimeout(() => setNotice(null), 3000);
+        router.refresh();
       } catch (err) {
         // Rollback optimistic update
         skipAnimation.current = true;
@@ -268,6 +273,7 @@ export default function AdminList() {
         }
         setNotice({ type: "success", message: "Deleted." });
         setTimeout(() => setNotice(null), 3000);
+        router.refresh();
       } catch (err) {
         skipAnimation.current = true;
         setItems(snapshot);
