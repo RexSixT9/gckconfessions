@@ -9,6 +9,9 @@ import {
   MessageSquare,
   ArrowLeft,
 } from "lucide-react";
+import { motion, useMotionValue, useSpring } from "framer-motion";
+import { useRef } from "react";
+import { useScrollReveal } from "@/lib/gsap";
 
 export const metadata = {
   title: "Privacy & Guidelines — GCK Confessions",
@@ -17,9 +20,32 @@ export const metadata = {
 };
 
 export default function GuidelinesPage() {
+  const contentRef = useRef<HTMLDivElement>(null);
+  useScrollReveal(contentRef, { from: { opacity: 0, y: 34 }, duration: 0.55, stagger: 0.08 });
+
+  function useBentoCardMotion() {
+    const x = useMotionValue(0);
+    const y = useMotionValue(0);
+    const scale = useSpring(1, { stiffness: 300, damping: 30 });
+    const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const px = (e.clientX - rect.left) / rect.width;
+      const py = (e.clientY - rect.top) / rect.height;
+      x.set((px - 0.5) * 16);
+      y.set((py - 0.5) * 16);
+      scale.set(1.035);
+    };
+    const handlePointerLeave = () => {
+      x.set(0);
+      y.set(0);
+      scale.set(1);
+    };
+    return { x, y, scale, handlePointerMove, handlePointerLeave };
+  }
+
   return (
     <main className="flex-1">
-      <div className="mx-auto w-full max-w-2xl px-4 sm:px-6">
+      <div ref={contentRef} className="mx-auto w-full max-w-2xl px-4 sm:px-6">
         {/* Back */}
         <div className="pt-8 pb-2">
           <Link
@@ -56,7 +82,8 @@ export default function GuidelinesPage() {
             <h2 className="text-sm font-bold text-[hsl(var(--foreground))] sm:text-base">Privacy Policy</h2>
           </div>
 
-          <div className="divide-y divide-[hsl(var(--border))]">
+          {/* Bento grid for privacy points */}
+          <div className="grid grid-cols-1 gap-3 py-4 sm:grid-cols-2">
             {[
               {
                 icon: Eye,
@@ -83,17 +110,33 @@ export default function GuidelinesPage() {
                 title: "Cookies",
                 body: "The public-facing site uses no tracking cookies. Admin sessions use a secure, HttpOnly cookie for authentication that expires automatically.",
               },
-            ].map(({ icon: Icon, title, body }) => (
-              <div key={title} className="flex items-start gap-3 px-4 py-4 sm:gap-4 sm:px-6 sm:py-5">
-                <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[hsl(var(--secondary))]">
-                  <Icon className="h-3.5 w-3.5 text-[hsl(var(--muted-foreground))]" />
-                </span>
-                <div>
+            ].map(({ icon: Icon, title, body }) => {
+              const motionProps = useBentoCardMotion();
+              return (
+                <motion.div
+                  key={title}
+                  className="flex flex-col gap-2 rounded-xl border border-[hsl(var(--border))]/60 bg-[hsl(var(--card))]/60 px-4 py-5 backdrop-blur-sm transition-all duration-200 focus:outline-none"
+                  style={{
+                    rotateX: motionProps.y,
+                    rotateY: motionProps.x,
+                    scale: motionProps.scale,
+                    willChange: "transform"
+                  }}
+                  onPointerMove={motionProps.handlePointerMove}
+                  onPointerLeave={motionProps.handlePointerLeave}
+                  onPointerDown={motionProps.handlePointerMove}
+                  onPointerUp={motionProps.handlePointerLeave}
+                  tabIndex={0}
+                  aria-label={title}
+                >
+                  <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[hsl(var(--secondary))]">
+                    <Icon className="h-3.5 w-3.5 text-[hsl(var(--muted-foreground))]" />
+                  </span>
                   <p className="text-sm font-semibold text-[hsl(var(--foreground))]">{title}</p>
                   <p className="mt-1 text-xs leading-relaxed text-[hsl(var(--muted-foreground))]">{body}</p>
-                </div>
-              </div>
-            ))}
+                </motion.div>
+              );
+            })}
           </div>
         </section>
 

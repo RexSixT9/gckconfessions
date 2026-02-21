@@ -4,6 +4,7 @@ import { useRef } from "react";
 import Link from "next/link";
 import { ArrowUpRight, ShieldCheck, MessageSquare, Send, PenLine, Lock, Zap } from "lucide-react";
 import { useStaggerEntrance, useScrollReveal } from "@/lib/gsap";
+import { motion, useMotionValue, useSpring } from "framer-motion";
 
 export default function Home() {
   const heroRef = useRef<HTMLDivElement>(null);
@@ -14,6 +15,27 @@ export default function Home() {
 
   // Scroll-triggered reveals for below-fold sections
   useScrollReveal(contentRef, { from: { opacity: 0, y: 34 }, duration: 0.55, stagger: 0.08 });
+
+  // Touch/hover bento card effect
+  function useBentoCardMotion() {
+    const x = useMotionValue(0);
+    const y = useMotionValue(0);
+    const scale = useSpring(1, { stiffness: 300, damping: 30 });
+    const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const px = (e.clientX - rect.left) / rect.width;
+      const py = (e.clientY - rect.top) / rect.height;
+      x.set((px - 0.5) * 16); // tilt range
+      y.set((py - 0.5) * 16);
+      scale.set(1.035);
+    };
+    const handlePointerLeave = () => {
+      x.set(0);
+      y.set(0);
+      scale.set(1);
+    };
+    return { x, y, scale, handlePointerMove, handlePointerLeave };
+  }
 
   return (
     <main className="flex-1">
@@ -57,18 +79,33 @@ export default function Home() {
               { icon: Lock, title: "No account needed", desc: "Zero sign-up. Fully anonymous.", span: "col-span-2 sm:col-span-1" },
               { icon: ShieldCheck, title: "Moderated", desc: "Every post reviewed for safety.", span: "col-span-1" },
               { icon: Zap, title: "Easy to submit", desc: "Write and send — we handle the rest.", span: "col-span-1" },
-            ].map(({ icon: Icon, title, desc, span }) => (
-              <div
-                key={title}
-                className={`flex flex-col items-center gap-1.5 rounded-xl border border-[hsl(var(--border))]/60 bg-[hsl(var(--card))]/60 px-3 py-3 text-center backdrop-blur-sm ${span}`}
-              >
-                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[hsl(var(--accent))]/10">
-                  <Icon className="h-4 w-4 text-[hsl(var(--accent))]" />
-                </span>
-                <p className="text-xs font-semibold text-[hsl(var(--foreground))] sm:text-sm">{title}</p>
-                <p className="hidden text-[11px] leading-snug text-[hsl(var(--muted-foreground))] sm:block">{desc}</p>
-              </div>
-            ))}
+            ].map(({ icon: Icon, title, desc, span }) => {
+              const motionProps = useBentoCardMotion();
+              return (
+                <motion.div
+                  key={title}
+                  className={`flex flex-col items-center gap-1.5 rounded-xl border border-[hsl(var(--border))]/60 bg-[hsl(var(--card))]/60 px-3 py-3 text-center backdrop-blur-sm ${span}`}
+                  style={{
+                    rotateX: motionProps.y,
+                    rotateY: motionProps.x,
+                    scale: motionProps.scale,
+                    willChange: "transform"
+                  }}
+                  onPointerMove={motionProps.handlePointerMove}
+                  onPointerLeave={motionProps.handlePointerLeave}
+                  onPointerDown={motionProps.handlePointerMove}
+                  onPointerUp={motionProps.handlePointerLeave}
+                  tabIndex={0}
+                  aria-label={title}
+                >
+                  <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[hsl(var(--accent))]/10">
+                    <Icon className="h-4 w-4 text-[hsl(var(--accent))]" />
+                  </span>
+                  <p className="text-xs font-semibold text-[hsl(var(--foreground))] sm:text-sm">{title}</p>
+                  <p className="hidden text-[11px] leading-snug text-[hsl(var(--muted-foreground))] sm:block">{desc}</p>
+                </motion.div>
+              );
+            })}
           </div>
         </section>
 
@@ -128,11 +165,24 @@ export default function Home() {
               },
             ].map((item) => {
               const Icon = item.icon;
+              const motionProps = useBentoCardMotion();
               return (
-                <div
+                <motion.div
                   data-scroll-child
                   key={item.step}
-                  className="group relative flex cursor-default flex-col justify-between gap-6 overflow-hidden rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-5 transition-all duration-200 hover:border-[hsl(var(--accent))]/30 hover:bg-[hsl(var(--accent))]/5 hover:shadow-md hover:shadow-[hsl(var(--accent))]/8 active:scale-[0.98]"
+                  className="group relative flex cursor-pointer flex-col justify-between gap-6 overflow-hidden rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-5 transition-all duration-200 hover:border-[hsl(var(--accent))]/30 hover:bg-[hsl(var(--accent))]/5 hover:shadow-md hover:shadow-[hsl(var(--accent))]/8 active:scale-[0.98]"
+                  style={{
+                    rotateX: motionProps.y,
+                    rotateY: motionProps.x,
+                    scale: motionProps.scale,
+                    willChange: "transform"
+                  }}
+                  onPointerMove={motionProps.handlePointerMove}
+                  onPointerLeave={motionProps.handlePointerLeave}
+                  onPointerDown={motionProps.handlePointerMove}
+                  onPointerUp={motionProps.handlePointerLeave}
+                  tabIndex={0}
+                  aria-label={item.title}
                 >
                   {/* subtle bg glow on hover */}
                   <div className="pointer-events-none absolute -right-6 -top-6 h-20 w-20 rounded-full bg-[hsl(var(--accent))]/10 opacity-0 blur-2xl transition-opacity duration-300 group-hover:opacity-100" />
@@ -154,7 +204,7 @@ export default function Home() {
                     </p>
                     <p className="mt-1 text-xs leading-relaxed text-[hsl(var(--muted-foreground))]">{item.desc}</p>
                   </div>
-                </div>
+                </motion.div>
               );
             })}
           </div>
