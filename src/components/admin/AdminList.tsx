@@ -3,8 +3,6 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import gsap from "@/lib/gsap";
 import {
-  Eye,
-  EyeOff,
   Search,
   AlertCircle,
   CheckCircle2,
@@ -90,6 +88,9 @@ function ActionBtn({
   );
 }
 
+// ─── constants ───────────────────────────────────────────────────
+const PAGE_SIZE = 20;
+
 // ─── types ───────────────────────────────────────────────────────
 type Notice = { type: "error" | "success"; message: string } | null;
 
@@ -99,7 +100,6 @@ type ConfessionItem = {
   music?: string;
   status?: "pending" | "approved" | "rejected";
   posted?: boolean;
-  instagramPosted?: boolean;
   createdAt?: string;
 };
 
@@ -108,7 +108,7 @@ export default function AdminList() {
   const [items, setItems] = useState<ConfessionItem[]>([]);
   const [notice, setNotice] = useState<Notice>(null);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<"all" | "published" | "draft">("all");
+  const [filter, setFilter] = useState<"all" | "shared" | "not-shared">("all");
   const [statusFilter, setStatusFilter] = useState<"all" | "pending" | "approved" | "rejected">("all");
   const [searchInput, setSearchInput] = useState("");
   const [query, setQuery] = useState("");
@@ -117,10 +117,16 @@ export default function AdminList() {
   const [page, setPage] = useState(1);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [processingId, setProcessingId] = useState<string | null>(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
   const listRef = useRef<HTMLDivElement>(null);
+  const skipAnimation = useRef(false);
   useEffect(() => {
     if (loading || !listRef.current) return;
+    if (skipAnimation.current) {
+      skipAnimation.current = false;
+      return;
+    }
     const cards = listRef.current.querySelectorAll<HTMLElement>("[data-card]");
     if (!cards.length) return;
     gsap.from(cards, { opacity: 0, y: 14, duration: 0.35, stagger: 0.04, ease: "power2.out", clearProps: "all" });
@@ -133,12 +139,12 @@ export default function AdminList() {
     setNotice(null);
     try {
       const params = new URLSearchParams();
-      if (filter === "published") params.set("posted", "true");
-      else if (filter === "draft") params.set("posted", "false");
+      if (filter === "shared") params.set("posted", "true");
+      else if (filter === "not-shared") params.set("posted", "false");
       if (statusFilter !== "all") params.set("status", statusFilter);
       if (query.trim()) params.set("q", query.trim());
       params.set("page", String(page));
-      params.set("limit", "20");
+      params.set("limit", String(PAGE_SIZE));
 
       const response = await fetch(`/api/confessions?${params.toString()}`);
       const data = await response.json();
@@ -162,34 +168,120 @@ export default function AdminList() {
     setTimeout(() => setCopiedId(null), 2000);
   }, []);
 
-  const patch = useCallback(async (id: string, body: Record<string, unknown>) => {
+  const patch = useCallback(async (id: string, body: Record<string, unknown>): Promise<ConfessionItem> => {
     const res = await fetch(`/api/confessions/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     });
+    const data = (await res.json().catch(() => ({}))) as { error?: string; confession?: ConfessionItem };
     if (!res.ok) {
-      const d = await res.json().catch(() => ({}));
-      throw new Error((d as { error?: string }).error ?? "Action failed.");
+      throw new Error(data.error ?? "Action failed.");
     }
+    return data.confession!;
   }, []);
 
-  const run = useCallback(
-    async (id: string, action: () => Promise<void>, msg: string) => {
+  /** Optimistic update: apply local state change immediately, call API in background, rollback on error. */
+  const optimisticRun = useCallback(
+    async (
+      id: string,
+      updater: (item: ConfessionItem) => ConfessionItem,
+      action: () => Promise<unknown>,
+      successMsg: string,
+    ) => {
       setNotice(null);
       setProcessingId(id);
+
+      let snapshot: ConfessionItem[] = [];
+      let removedCount = 0;
+
+      skipAnimation.current = true;
+      setItems((prev) => {
+        snapshot = prev;
+        const updated = prev.map((i) => (i._id === id ? updater(i) : i));
+        const filtered = updated.filter((i) => {
+          if (statusFilter !== "all" && i.status !== statusFilter) return false;
+          if (filter === "shared" && !i.posted) return false;
+          if (filter === "not-shared" && i.posted) return false;
+          return true;
+        });
+        removedCount = updated.length - filtered.length;
+        return filtered;
+      });
+
+      if (removedCount > 0) {
+        setTotalCount((c) => {
+          const next = Math.max(0, c - removedCount);
+          setTotalPages(Math.max(1, Math.ceil(next / PAGE_SIZE)));
+          return next;
+        });
+      }
+
       try {
         await action();
-        await fetchItems();
-        setNotice({ type: "success", message: msg });
+        setNotice({ type: "success", message: successMsg });
         setTimeout(() => setNotice(null), 3000);
       } catch (err) {
+        // Rollback optimistic update
+        skipAnimation.current = true;
+        setItems(snapshot);
+        if (removedCount > 0) {
+          setTotalCount((c) => {
+            const next = c + removedCount;
+            setTotalPages(Math.max(1, Math.ceil(next / PAGE_SIZE)));
+            return next;
+          });
+        }
         setNotice({ type: "error", message: err instanceof Error ? err.message : "Action failed." });
       } finally {
         setProcessingId(null);
       }
     },
-    [fetchItems],
+    [filter, statusFilter],
+  );
+
+  /** Optimistic delete: remove item instantly, call API, rollback on failure. */
+  const handleDeleteConfirm = useCallback(
+    async (id: string) => {
+      setNotice(null);
+      setProcessingId(id);
+      setDeleteConfirmId(null);
+
+      let snapshot: ConfessionItem[] = [];
+
+      skipAnimation.current = true;
+      setItems((prev) => {
+        snapshot = prev;
+        return prev.filter((i) => i._id !== id);
+      });
+      setTotalCount((c) => {
+        const next = Math.max(0, c - 1);
+        setTotalPages(Math.max(1, Math.ceil(next / PAGE_SIZE)));
+        return next;
+      });
+
+      try {
+        const res = await fetch(`/api/confessions/${id}`, { method: "DELETE" });
+        if (!res.ok) {
+          const d = (await res.json().catch(() => ({}))) as { error?: string };
+          throw new Error(d.error ?? "Delete failed.");
+        }
+        setNotice({ type: "success", message: "Deleted." });
+        setTimeout(() => setNotice(null), 3000);
+      } catch (err) {
+        skipAnimation.current = true;
+        setItems(snapshot);
+        setTotalCount((c) => {
+          const next = c + 1;
+          setTotalPages(Math.max(1, Math.ceil(next / PAGE_SIZE)));
+          return next;
+        });
+        setNotice({ type: "error", message: err instanceof Error ? err.message : "Delete failed." });
+      } finally {
+        setProcessingId(null);
+      }
+    },
+    [],
   );
 
   const handleSearch = useCallback(
@@ -237,44 +329,51 @@ export default function AdminList() {
       </div>
 
       {/* ── Filters ───────────────────────────────────── */}
-      <div className="flex flex-wrap items-center gap-3 border-b border-[hsl(var(--border))] pb-4">
-        {/* Publish segmented control */}
-        <div className="flex items-center gap-0.5 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] p-0.5">
-          {(["all", "draft", "published"] as const).map((f) => (
-            <button
-              key={f}
-              type="button"
-              onClick={() => setFilter(f)}
-              className={`rounded-md px-2.5 py-1 text-xs font-medium transition ${
-                filter === f
-                  ? "bg-[hsl(var(--card))] text-[hsl(var(--foreground))] shadow-sm"
-                  : "text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]"
-              }`}
-            >
-              {f.charAt(0).toUpperCase() + f.slice(1)}
-            </button>
-          ))}
+      <div className="flex flex-col gap-3 border-b border-[hsl(var(--border))] pb-4 sm:flex-row sm:flex-wrap sm:items-center">
+        {/* Share filter */}
+        <div className="-mx-1 overflow-x-auto px-1 sm:mx-0 sm:px-0">
+          <div className="inline-flex items-center gap-0.5 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] p-0.5">
+            {(["all", "shared", "not-shared"] as const).map((f) => {
+              const labels: Record<string, string> = { all: "All", shared: "Shared", "not-shared": "Not shared" };
+              return (
+                <button
+                  key={f}
+                  type="button"
+                  onClick={() => setFilter(f)}
+                  className={`shrink-0 rounded-md px-2.5 py-1.5 text-xs font-medium transition sm:py-1 ${
+                    filter === f
+                      ? "bg-[hsl(var(--card))] text-[hsl(var(--foreground))] shadow-sm"
+                      : "text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]"
+                  }`}
+                >
+                  {labels[f]}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* Status segmented control */}
-        <div className="flex items-center gap-0.5 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] p-0.5">
-          {(["all", "pending", "approved", "rejected"] as const).map((s) => (
-            <button
-              key={s}
-              type="button"
-              onClick={() => setStatusFilter(s)}
-              className={`rounded-md px-2.5 py-1 text-xs font-medium transition ${
-                statusFilter === s
-                  ? "bg-[hsl(var(--card))] text-[hsl(var(--foreground))] shadow-sm"
-                  : "text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]"
-              }`}
-            >
-              {s.charAt(0).toUpperCase() + s.slice(1)}
-            </button>
-          ))}
+        <div className="-mx-1 overflow-x-auto px-1 sm:mx-0 sm:px-0">
+          <div className="inline-flex items-center gap-0.5 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] p-0.5">
+            {(["all", "pending", "approved", "rejected"] as const).map((s) => (
+              <button
+                key={s}
+                type="button"
+                onClick={() => setStatusFilter(s)}
+                className={`shrink-0 rounded-md px-2.5 py-1.5 text-xs font-medium transition sm:py-1 ${
+                  statusFilter === s
+                    ? "bg-[hsl(var(--card))] text-[hsl(var(--foreground))] shadow-sm"
+                    : "text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]"
+                }`}
+              >
+                {s.charAt(0).toUpperCase() + s.slice(1)}
+              </button>
+            ))}
+          </div>
         </div>
 
-        <span className="ml-auto text-xs tabular-nums text-[hsl(var(--muted-foreground))]">
+        <span className="text-xs tabular-nums text-[hsl(var(--muted-foreground))] sm:ml-auto">
           {totalCount} result{totalCount !== 1 ? "s" : ""}
         </span>
       </div>
@@ -347,12 +446,6 @@ export default function AdminList() {
                     <StatusBadge status={item.status} />
                     {item.posted && (
                       <span className="inline-flex items-center gap-1 rounded-md border border-[hsl(var(--action-publish))]/30 bg-[hsl(var(--action-publish))]/10 px-1.5 py-0.5 text-[11px] font-semibold text-[hsl(var(--action-publish))]">
-                        <Eye className="h-3 w-3" />
-                        Live
-                      </span>
-                    )}
-                    {item.instagramPosted && (
-                      <span className="inline-flex items-center gap-1 rounded-md border border-[hsl(var(--accent))]/30 bg-[hsl(var(--accent))]/10 px-1.5 py-0.5 text-[11px] font-semibold text-[hsl(var(--accent))]">
                         <Share2 className="h-3 w-3" />
                         Shared
                       </span>
@@ -380,7 +473,7 @@ export default function AdminList() {
                       type="button"
                       onClick={() => handleCopy(item.message, msgId)}
                       title="Copy message"
-                      className="absolute right-2 top-2 rounded-md border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-1 text-[hsl(var(--muted-foreground))] opacity-0 transition hover:text-[hsl(var(--accent))] group-hover:opacity-100"
+                      className="absolute right-2 top-2 rounded-md border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-1 text-[hsl(var(--muted-foreground))] opacity-100 transition hover:text-[hsl(var(--accent))] sm:opacity-0 sm:group-hover:opacity-100"
                     >
                       {copiedId === msgId
                         ? <Check className="h-3 w-3 text-[hsl(var(--action-accept))]" />
@@ -398,7 +491,7 @@ export default function AdminList() {
                           type="button"
                           onClick={() => handleCopy(item.music!, musId)}
                           title="Copy song"
-                          className="shrink-0 text-[hsl(var(--muted-foreground))] opacity-0 transition hover:text-[hsl(var(--accent))] group-hover/mus:opacity-100"
+                          className="shrink-0 text-[hsl(var(--muted-foreground))] opacity-100 transition hover:text-[hsl(var(--accent))] sm:opacity-0 sm:group-hover/mus:opacity-100"
                         >
                           {copiedId === musId
                             ? <Check className="h-3 w-3 text-[hsl(var(--action-accept))]" />
@@ -418,16 +511,25 @@ export default function AdminList() {
                     <>
                       <ActionBtn
                         variant="accept"
-                        onClick={() => run(item._id, () => patch(item._id, { status: "approved", posted: true }), "Published ✓")}
+                        onClick={() => optimisticRun(
+                          item._id,
+                          (i) => ({ ...i, status: "approved" as const }),
+                          () => patch(item._id, { status: "approved" }),
+                          "Approved ✓",
+                        )}
                         disabled={busy}
                       >
                         {busy ? <Loader className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
-                        <span className="hidden sm:inline">Approve &amp; publish</span>
-                        <span className="sm:hidden">Approve</span>
+                        Approve
                       </ActionBtn>
                       <ActionBtn
                         variant="reject"
-                        onClick={() => run(item._id, () => patch(item._id, { status: "rejected" }), "Rejected.")}
+                        onClick={() => optimisticRun(
+                          item._id,
+                          (i) => ({ ...i, status: "rejected" as const, posted: false }),
+                          () => patch(item._id, { status: "rejected" }),
+                          "Rejected.",
+                        )}
                         disabled={busy}
                       >
                         {busy ? <Loader className="h-3.5 w-3.5 animate-spin" /> : <X className="h-3.5 w-3.5" />}
@@ -437,55 +539,71 @@ export default function AdminList() {
                   )}
 
                   {item.status === "approved" && (
-                    <>
-                      <ActionBtn
-                        variant="publish"
-                        onClick={() => run(item._id, () => patch(item._id, { posted: !item.posted }), item.posted ? "Unpublished." : "Published ✓")}
-                        disabled={busy}
-                      >
-                        {busy ? <Loader className="h-3.5 w-3.5 animate-spin" /> : item.posted ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
-                        {item.posted ? "Unpublish" : "Publish"}
-                      </ActionBtn>
-                      <ActionBtn
-                        variant="ghost"
-                        onClick={() => run(item._id, () => patch(item._id, { instagramPosted: !item.instagramPosted }), item.instagramPosted ? "Cleared." : "Marked shared ✓")}
-                        disabled={busy}
-                      >
-                        {busy ? <Loader className="h-3.5 w-3.5 animate-spin" /> : <Share2 className="h-3.5 w-3.5" />}
-                        {item.instagramPosted ? "Unmark share" : "Mark share"}
-                      </ActionBtn>
-                    </>
+                    <ActionBtn
+                      variant="publish"
+                      onClick={() => optimisticRun(
+                        item._id,
+                        (i) => ({ ...i, posted: !i.posted }),
+                        () => patch(item._id, { posted: !item.posted }),
+                        item.posted ? "Unshared." : "Shared to Instagram ✓",
+                      )}
+                      disabled={busy}
+                    >
+                      {busy ? <Loader className="h-3.5 w-3.5 animate-spin" /> : <Share2 className="h-3.5 w-3.5" />}
+                      <span className="sm:hidden">{item.posted ? "Unshare" : "Share"}</span>
+                      <span className="hidden sm:inline">{item.posted ? "Unshare" : "Share to Instagram"}</span>
+                    </ActionBtn>
                   )}
 
                   {item.status === "rejected" && (
                     <span className="inline-flex items-center gap-1.5 rounded-lg border border-[hsl(var(--border))] px-3 py-1.5 text-xs text-[hsl(var(--muted-foreground))]">
                       <X className="h-3.5 w-3.5" />
-                      Rejected — no further actions
+                      <span className="sm:hidden">Rejected</span>
+                      <span className="hidden sm:inline">Rejected — no further actions</span>
                     </span>
                   )}
 
-                  <ActionBtn
-                    variant="danger"
-                    className="ml-auto w-full sm:w-auto"
-                    onClick={() => {
-                      if (!window.confirm("Permanently delete this confession?")) return;
-                      void run(
-                        item._id,
-                        async () => {
-                          const res = await fetch(`/api/confessions/${item._id}`, { method: "DELETE" });
-                          if (!res.ok) {
-                            const d = await res.json().catch(() => ({}));
-                            throw new Error((d as { error?: string }).error ?? "Delete failed.");
-                          }
-                        },
-                        "Deleted.",
-                      );
-                    }}
-                    disabled={busy}
-                  >
-                    {busy ? <Loader className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
-                    Delete
-                  </ActionBtn>
+                  {/* Delete — only for pending & approved */}
+                  {item.status !== "rejected" && (
+                    <ActionBtn
+                      variant="danger"
+                      className="ml-auto w-full sm:w-auto"
+                      onClick={() => setDeleteConfirmId(item._id)}
+                      disabled={busy}
+                    >
+                      {busy ? <Loader className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
+                      Delete
+                    </ActionBtn>
+                  )}
+
+                  {/* Delete confirmation dialog */}
+                  {deleteConfirmId === item._id && (
+                    <div className="mt-2 flex w-full flex-col gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2.5 dark:border-red-900/40 dark:bg-red-950/30 sm:flex-row sm:items-center">
+                      <div className="flex items-center gap-2">
+                        <AlertCircle className="h-4 w-4 shrink-0 text-red-500" />
+                        <p className="flex-1 text-xs font-medium text-red-700 dark:text-red-300">
+                          Permanently delete this confession?
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2 sm:ml-auto sm:shrink-0">
+                        <button
+                          type="button"
+                          className="flex-1 rounded-md border border-red-300 bg-red-100 px-2.5 py-1.5 text-xs font-semibold text-red-700 transition hover:bg-red-200 dark:border-red-800 dark:bg-red-900/50 dark:text-red-300 dark:hover:bg-red-900 sm:flex-none sm:py-1"
+                          disabled={busy}
+                          onClick={() => void handleDeleteConfirm(item._id)}
+                        >
+                          Confirm
+                        </button>
+                        <button
+                          type="button"
+                          className="flex-1 rounded-md border border-[hsl(var(--border))] px-2.5 py-1.5 text-xs font-medium text-[hsl(var(--muted-foreground))] transition hover:text-[hsl(var(--foreground))] sm:flex-none sm:py-1"
+                          onClick={() => setDeleteConfirmId(null)}
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
               </div>

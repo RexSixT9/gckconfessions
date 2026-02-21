@@ -13,6 +13,7 @@ import {
   getBlockedIps,
   getClientIp,
 } from "@/lib/rateLimit";
+import { MAX_MESSAGE_LENGTH, MAX_MUSIC_LENGTH } from "@/lib/constants";
 import Confession from "@/models/Confession";
 
 // NOTE: hCaptcha verification disabled - will be implemented in future
@@ -71,7 +72,8 @@ export async function GET(request: Request) {
       filter.$text = { $search: query };
     }
 
-    if (status) {
+    const validStatuses = ["pending", "approved", "rejected"];
+    if (status && validStatuses.includes(status)) {
       filter.status = status;
     }
 
@@ -82,7 +84,7 @@ export async function GET(request: Request) {
     const [total, data] = await Promise.all([
       Confession.countDocuments(filter),
       Confession.find(filter)
-        .select({ message: 1, music: 1, status: 1, posted: 1, instagramPosted: 1, createdAt: 1 })
+        .select({ message: 1, music: 1, status: 1, posted: 1, createdAt: 1 })
         .sort({ createdAt: -1 })
         .skip((page - 1) * limit)
         .limit(limit)
@@ -95,7 +97,6 @@ export async function GET(request: Request) {
       music: item.music,
       status: item.status,
       posted: item.posted,
-      instagramPosted: item.instagramPosted,
       createdAt: item.createdAt?.toISOString(),
     }));
 
@@ -199,8 +200,8 @@ export async function POST(request: Request) {
       );
     }
 
-    const message = sanitizeText(rawMessage, 500);
-    const music = sanitizeText(rawMusic, 120);
+    const message = sanitizeText(rawMessage, MAX_MESSAGE_LENGTH);
+    const music = sanitizeText(rawMusic, MAX_MUSIC_LENGTH);
     const moderated = filterProfanity(message);
 
     if (!message) {

@@ -12,7 +12,6 @@ const ConfessionSchema = new Schema(
       default: "pending",
     },
     posted: { type: Boolean, default: false },
-    instagramPosted: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
@@ -20,7 +19,6 @@ const ConfessionSchema = new Schema(
 ConfessionSchema.index({ createdAt: -1 });
 ConfessionSchema.index({ status: 1, createdAt: -1 });
 ConfessionSchema.index({ posted: 1, createdAt: -1 });
-ConfessionSchema.index({ instagramPosted: 1, createdAt: -1 });
 // Covers duplicate-detection query (messageHash + createdAt range)
 ConfessionSchema.index({ messageHash: 1, createdAt: -1 });
 // Covers common admin filter: status + posted together

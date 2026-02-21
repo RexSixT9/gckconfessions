@@ -50,31 +50,61 @@ export async function PATCH(
 
     const body = await request.json();
     const posted = typeof body.posted === "boolean" ? body.posted : undefined;
-    const instagramPosted = typeof body.instagramPosted === "boolean" ? body.instagramPosted : undefined;
-    const status = typeof body.status === "string" ? body.status : undefined;
+    const status = typeof body.status === "string" && body.status !== "" ? body.status : undefined;
 
-    if (posted === undefined && !status && instagramPosted === undefined) {
+    if (posted === undefined && status === undefined) {
       return NextResponse.json(
         { error: "No updates provided." },
         { status: 400 }
       );
     }
 
-    if (status && !["pending", "approved", "rejected"].includes(status)) {
+    if (status !== undefined && !["pending", "approved", "rejected"].includes(status)) {
       return NextResponse.json({ error: "Invalid status." }, { status: 400 });
     }
 
     await connectToDatabase();
+
+    // Fetch current confession to enforce state transitions
+    const current = await Confession.findById(id).lean<{
+      _id: unknown;
+      status?: string;
+      posted?: boolean;
+    }>();
+
+    if (!current) {
+      return NextResponse.json(
+        { error: "Confession not found." },
+        { status: 404 }
+      );
+    }
+
+    const effectiveStatus = status ?? current.status ?? "pending";
+
+    // Guard: posted can only be set on approved confessions
+    if (posted !== undefined && effectiveStatus !== "approved") {
+      return NextResponse.json(
+        { error: "Only approved confessions can be shared." },
+        { status: 400 }
+      );
+    }
+
     const update: Record<string, unknown> = {};
     if (typeof posted === "boolean") update.posted = posted;
-    if (typeof instagramPosted === "boolean") update.instagramPosted = instagramPosted;
-    if (status) update.status = status;
+    if (status !== undefined) {
+      update.status = status;
+      // Auto-clear posted flag when moving away from approved
+      if (status !== "approved") {
+        update.posted = false;
+      }
+    }
 
     const confession = await Confession.findByIdAndUpdate(id, update, {
       new: true,
     }).lean();
 
     if (!confession) {
+      // Should not happen since we fetched above, but handle edge case
       return NextResponse.json(
         { error: "Confession not found." },
         { status: 404 }

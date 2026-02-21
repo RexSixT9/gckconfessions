@@ -16,22 +16,22 @@
   --secondary:       220 12% 93%;
   --secondary-foreground: 220 12% 28%;
   --muted:           220 10% 91%;
-  --muted-foreground:220 8% 48%;
+  --muted-foreground:220 10% 38%;
   --accent:          338 78% 42%;
   --accent-foreground: 0 0% 100%;
-  --success:         142 71% 40%;
+  --success:         142 76% 30%;
   --success-foreground: 0 0% 100%;
   --warning:         38 92% 50%;
   --warning-foreground: 0 0% 100%;
   --destructive:     0 80% 56%;
   --destructive-foreground: 0 0% 100%;
-  --border:          220 12% 87%;
-  --input:           220 12% 90%;
+  --border:          220 13% 83%;
+  --input:           220 13% 87%;
   --ring:            338 78% 42%;
   --radius:          0.875rem;
-  --action-accept:   142 71% 40%;
-  --action-publish:  217 91% 58%;
-  --action-reject:   0 80% 56%;
+  --action-accept:   142 76% 30%;
+  --action-publish:  217 91% 48%;
+  --action-reject:   0 80% 50%;
 }
 
 .dark {
