@@ -14,7 +14,7 @@ export default function Home() {
       <div ref={contentRef} className="mx-auto w-full max-w-3xl px-5 sm:px-6">
 
         {/*  Hero  */}
-        <section data-animate className="pb-10 pt-16 text-center sm:pb-14 sm:pt-24">
+        <section data-animate className="flex h-[calc(100svh-3.5rem-var(--announcement-height,0px))] flex-col items-center justify-center py-6 text-center">
           <span className="mb-6 inline-flex items-center gap-1.5 rounded-full border border-[hsl(var(--accent))]/20 bg-[hsl(var(--accent))]/8 px-3 py-1 text-xs font-semibold text-[hsl(var(--accent))]">
             <span className="h-1.5 w-1.5 rounded-full bg-[hsl(var(--accent))]" />
             Anonymous  Moderated
@@ -44,28 +44,26 @@ export default function Home() {
               How it works
             </a>
           </div>
-        </section>
 
-        {/*  Feature strip  */}
-        <section data-animate className="mb-10 grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
-          {[
-            { icon: Lock, title: "No account needed", desc: "Zero sign-up. Fully anonymous." },
-            { icon: ShieldCheck, title: "Moderated", desc: "Every post reviewed for safety." },
-            { icon: Zap, title: "Easy to submit", desc: "Write and send — we handle the rest." },
-          ].map(({ icon: Icon, title, desc }) => (
-            <div
-              key={title}
-              className="group flex cursor-default items-start gap-3 rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-4 py-4 transition-all duration-200 hover:border-[hsl(var(--accent))]/30 hover:bg-[hsl(var(--accent))]/5"
-            >
-              <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[hsl(var(--accent))]/10 transition-all duration-200 group-hover:scale-110 group-hover:bg-[hsl(var(--accent))]/20">
-                <Icon className="h-4 w-4 text-[hsl(var(--accent))]" />
-              </span>
-              <div>
-                <p className="text-sm font-semibold text-[hsl(var(--foreground))]">{title}</p>
-                <p className="mt-0.5 text-xs text-[hsl(var(--muted-foreground))]">{desc}</p>
+          {/* Feature highlights */}
+          <div className="mt-10 grid w-full max-w-2xl grid-cols-3 gap-3">
+            {[
+              { icon: Lock, title: "No account needed", desc: "Zero sign-up. Fully anonymous." },
+              { icon: ShieldCheck, title: "Moderated", desc: "Every post reviewed for safety." },
+              { icon: Zap, title: "Easy to submit", desc: "Write and send — we handle the rest." },
+            ].map(({ icon: Icon, title, desc }) => (
+              <div
+                key={title}
+                className="flex flex-col items-center gap-1.5 rounded-xl border border-[hsl(var(--border))]/60 bg-[hsl(var(--card))]/60 px-3 py-3 text-center backdrop-blur-sm"
+              >
+                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[hsl(var(--accent))]/10">
+                  <Icon className="h-4 w-4 text-[hsl(var(--accent))]" />
+                </span>
+                <p className="text-xs font-semibold text-[hsl(var(--foreground))] sm:text-sm">{title}</p>
+                <p className="hidden text-[11px] leading-snug text-[hsl(var(--muted-foreground))] sm:block">{desc}</p>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </section>
 
         {/*  Confessions showcase  */}

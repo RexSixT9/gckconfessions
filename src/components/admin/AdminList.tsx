@@ -585,7 +585,7 @@ export default function AdminList() {
                       <div className="flex items-center gap-2">
                         <AlertCircle className="h-4 w-4 shrink-0 text-red-500" />
                         <p className="flex-1 text-xs font-medium text-red-700 dark:text-red-300">
-                          Delete this confession? A backup will be kept.
+                          Delete this confession?
                         </p>
                       </div>
                       <div className="flex items-center gap-2 sm:ml-auto sm:shrink-0">
