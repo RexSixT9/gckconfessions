@@ -7,6 +7,7 @@ import { verifyAdminToken } from "@/lib/auth";
 import { COOKIE_NAME } from "@/lib/constants";
 import { getClientIp } from "@/lib/rateLimit";
 import Confession from "@/models/Confession";
+import DeletedConfession from "@/models/DeletedConfession";
 import AuditLog from "@/models/AuditLog";
 
 export async function PATCH(
@@ -172,18 +173,47 @@ export async function DELETE(
     }
 
     await connectToDatabase();
-    const confession = await Confession.findByIdAndDelete(id).lean();
+
+    // Find the confession first
+    const confession = await Confession.findById(id).lean<{
+      _id: unknown;
+      message: string;
+      messageHash?: string;
+      music?: string;
+      status?: string;
+      posted?: boolean;
+      createdAt?: Date;
+      updatedAt?: Date;
+    }>();
 
     if (!confession) {
       return NextResponse.json({ error: "Confession not found." }, { status: 404 });
     }
+
+    // Backup to DeletedConfession collection before removing
+    await DeletedConfession.create({
+      originalId: String(confession._id),
+      message: confession.message,
+      messageHash: confession.messageHash,
+      music: confession.music,
+      status: confession.status,
+      posted: confession.posted,
+      originalCreatedAt: confession.createdAt,
+      originalUpdatedAt: confession.updatedAt,
+      deletedBy: admin.email,
+      deletedAt: new Date(),
+      deleteReason: "admin_delete",
+    });
+
+    // Now remove from the main collection
+    await Confession.findByIdAndDelete(id);
 
     try {
       await AuditLog.create({
         action: "confession_deleted",
         adminEmail: admin.email,
         ip: getClientIp(request),
-        meta: { confessionId: id },
+        meta: { confessionId: id, backedUp: true },
       });
     } catch (logErr) {
       console.error("AuditLog write failed (DELETE):", logErr);

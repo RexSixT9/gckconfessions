@@ -558,23 +558,20 @@ export default function AdminList() {
                   {item.status === "rejected" && (
                     <span className="inline-flex items-center gap-1.5 rounded-lg border border-[hsl(var(--border))] px-3 py-1.5 text-xs text-[hsl(var(--muted-foreground))]">
                       <X className="h-3.5 w-3.5" />
-                      <span className="sm:hidden">Rejected</span>
-                      <span className="hidden sm:inline">Rejected — no further actions</span>
+                      Rejected
                     </span>
                   )}
 
-                  {/* Delete — only for pending & approved */}
-                  {item.status !== "rejected" && (
-                    <ActionBtn
-                      variant="danger"
-                      className="ml-auto"
-                      onClick={() => setDeleteConfirmId(item._id)}
-                      disabled={busy}
-                    >
-                      {busy ? <Loader className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
-                      Delete
-                    </ActionBtn>
-                  )}
+                  {/* Delete — available for all statuses */}
+                  <ActionBtn
+                    variant="danger"
+                    className="ml-auto"
+                    onClick={() => setDeleteConfirmId(item._id)}
+                    disabled={busy}
+                  >
+                    {busy ? <Loader className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
+                    Delete
+                  </ActionBtn>
 
                   {/* Delete confirmation dialog */}
                   {deleteConfirmId === item._id && (
@@ -582,7 +579,7 @@ export default function AdminList() {
                       <div className="flex items-center gap-2">
                         <AlertCircle className="h-4 w-4 shrink-0 text-red-500" />
                         <p className="flex-1 text-xs font-medium text-red-700 dark:text-red-300">
-                          Permanently delete this confession?
+                          Delete this confession? A backup will be kept.
                         </p>
                       </div>
                       <div className="flex items-center gap-2 sm:ml-auto sm:shrink-0">
