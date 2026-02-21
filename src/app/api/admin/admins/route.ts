@@ -7,7 +7,7 @@ import { verifyAdminToken } from "@/lib/auth";
 import { validatePasswordPolicy } from "@/lib/moderation";
 import { COOKIE_NAME, BCRYPT_ROUNDS, MAX_EMAIL_LENGTH } from "@/lib/constants";
 import { checkAdminActionLimit, checkSetupLimit, getBlockedIps, getClientIp } from "@/lib/rateLimit";
-import { isSameOrigin, isValidEmail } from "@/lib/requestUtils";
+import { isSameOrigin, isValidEmail, safeCompare } from "@/lib/requestUtils";
 import Admin from "@/models/Admin";
 import AuditLog from "@/models/AuditLog";
 
@@ -110,7 +110,7 @@ export async function POST(request: Request) {
       );
     }
 
-    if (providedKey !== setupKey) {
+    if (!safeCompare(providedKey, setupKey)) {
       return NextResponse.json({ error: "Invalid setup key." }, { status: 401 });
     }
 

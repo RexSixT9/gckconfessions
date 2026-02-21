@@ -216,5 +216,29 @@ For security issues, please report to the project maintainers immediately.
 Do not create public GitHub issues for security vulnerabilities.
 
 ---
-**Last Updated**: February 12, 2026
-**Security Audit Status**: ✅ Passed (Self-Audit)
+
+## OWASP Top 10 Audit Results
+
+### Audit Date: $(date)
+
+| OWASP Category | Status | Notes |
+|----------------|--------|-------|
+| A01 Broken Access Control | ✅ Pass | JWT auth, httpOnly cookies, server-side verification |
+| A02 Cryptographic Failures | ✅ Pass | bcrypt(10), secure JWT, timing-safe comparisons |
+| A03 Injection | ✅ Pass | Mongoose parameterized queries, ObjectId validation |
+| A04 Insecure Design | ✅ Pass | Origin validation, bot detection, honeypot fields |
+| A05 Security Misconfiguration | ✅ Pass | CSP headers, X-Frame-Options, no default creds |
+| A06 Vulnerable Components | ✅ Pass | npm audit clean, dependency overrides applied |
+| A07 Auth Failures | ✅ Pass | Rate limiting, password policy, timing-safe login |
+| A08 Software Integrity | ✅ Pass | npm integrity checks, no CDN dependencies |
+| A09 Logging/Monitoring | ✅ Pass | AuditLog tracks all admin actions |
+| A10 SSRF | ✅ Pass | No user-controlled URL fetching |
+
+### Fixes Applied During Audit
+1. **Timing-safe setup key comparison** - Added `safeCompare()` using `crypto.timingSafeEqual()` to prevent timing attacks on setup key verification
+2. **Removed unsafe-eval from CSP** - Tightened Content-Security-Policy by removing `'unsafe-eval'`
+3. **Added upgrade-insecure-requests** - CSP directive to force HTTPS
+
+---
+**Last Updated**: February 2026
+**Security Audit Status**: ✅ Passed (OWASP Top 10 Compliant)

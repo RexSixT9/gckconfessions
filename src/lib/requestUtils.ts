@@ -1,6 +1,25 @@
+import { timingSafeEqual } from "crypto";
+
 /**
  * Shared request-level utilities used across API routes.
  */
+
+/**
+ * Timing-safe string comparison to prevent timing attacks.
+ * Used for comparing secrets like setup keys.
+ */
+export function safeCompare(a: string, b: string): boolean {
+  if (typeof a !== "string" || typeof b !== "string") return false;
+  const bufA = Buffer.from(a);
+  const bufB = Buffer.from(b);
+  // Compare length first, then actual content to prevent timing leaks
+  if (bufA.length !== bufB.length) {
+    // Still do a comparison to maintain constant time
+    timingSafeEqual(bufA, bufA);
+    return false;
+  }
+  return timingSafeEqual(bufA, bufB);
+}
 
 /**
  * Validates that the request Origin header matches the server Host.

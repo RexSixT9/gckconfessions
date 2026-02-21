@@ -5,7 +5,7 @@ import { aj } from "@/lib/arcjet";
 import { validatePasswordPolicy } from "@/lib/moderation";
 import { BCRYPT_ROUNDS } from "@/lib/constants";
 import { checkSetupLimit, getBlockedIps, getClientIp } from "@/lib/rateLimit";
-import { isSameOrigin, isValidEmail } from "@/lib/requestUtils";
+import { isSameOrigin, isValidEmail, safeCompare } from "@/lib/requestUtils";
 import Admin from "@/models/Admin";
 
 export async function POST(request: Request) {
@@ -80,7 +80,7 @@ export async function POST(request: Request) {
       );
     }
 
-    if (providedKey !== setupKey) {
+    if (!safeCompare(providedKey, setupKey)) {
       return NextResponse.json({ error: "Invalid setup key." }, { status: 401 });
     }
 
