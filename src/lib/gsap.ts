@@ -12,8 +12,12 @@
  */
 import { RefObject, useLayoutEffect } from "react";
 import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(ScrollTrigger);
 
 export default gsap;
+export { ScrollTrigger };
 
 // --- Shared tween defaults
 const EASE = "power2.out";
@@ -186,6 +190,68 @@ export function useBlurReveal(
         delay,
         ease: "power3.out",
         clearProps: "all",
+      });
+    }, container);
+    return () => ctx.revert();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, deps);
+}
+
+/**
+ * Scroll-triggered reveal: elements animate in when they enter the viewport.
+ * Uses GSAP ScrollTrigger for performant, intersection-based animation.
+ */
+export function useScrollReveal(
+  container: RefObject<HTMLElement | null>,
+  options: {
+    from?: gsap.TweenVars;
+    stagger?: number;
+    duration?: number;
+    selector?: string;
+    /** How far into the viewport the element must be before triggering (e.g. "top 90%"). */
+    start?: string;
+    deps?: unknown[];
+  } = {}
+) {
+  const {
+    from = { opacity: 0, y: 30 },
+    stagger = 0.1,
+    duration = 0.6,
+    selector = "[data-scroll]",
+    start = "top 88%",
+    deps = [],
+  } = options;
+
+  useLayoutEffect(() => {
+    if (!container.current) return;
+    const targets = container.current.querySelectorAll<HTMLElement>(selector);
+    if (!targets.length) return;
+
+    const ctx = gsap.context(() => {
+      targets.forEach((target) => {
+        // Animate children with data-scroll-child if present, else animate the target itself
+        const children = target.querySelectorAll<HTMLElement>("[data-scroll-child]");
+        const animTargets = children.length > 0 ? children : [target];
+
+        gsap.set(animTargets, { ...from });
+        ScrollTrigger.create({
+          trigger: target,
+          start,
+          once: true,
+          onEnter: () => {
+            gsap.to(animTargets, {
+              opacity: 1,
+              y: 0,
+              x: 0,
+              scale: 1,
+              filter: "blur(0px)",
+              duration,
+              stagger: children.length > 0 ? stagger : 0,
+              ease: EASE,
+              clearProps: "all",
+            });
+          },
+        });
       });
     }, container);
     return () => ctx.revert();

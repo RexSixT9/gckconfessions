@@ -3,33 +3,39 @@
 import { useRef } from "react";
 import Link from "next/link";
 import { ArrowUpRight, ShieldCheck, MessageSquare, Send, PenLine, Lock, Zap } from "lucide-react";
-import { useStaggerEntrance } from "@/lib/gsap";
+import { useStaggerEntrance, useScrollReveal } from "@/lib/gsap";
 
 export default function Home() {
+  const heroRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
-  useStaggerEntrance(contentRef, { stagger: 0.08, duration: 0.55, from: { opacity: 0, y: 24 } });
+
+  // Staggered hero entrance — each child with data-animate fades up in sequence
+  useStaggerEntrance(heroRef, { stagger: 0.12, duration: 0.6, from: { opacity: 0, y: 28 } });
+
+  // Scroll-triggered reveals for below-fold sections
+  useScrollReveal(contentRef, { from: { opacity: 0, y: 34 }, duration: 0.55, stagger: 0.08 });
 
   return (
     <main className="flex-1">
-      <div ref={contentRef} className="mx-auto w-full max-w-3xl px-5 sm:px-6">
+      <div className="mx-auto w-full max-w-3xl px-5 sm:px-6">
 
         {/*  Hero  */}
-        <section data-animate className="flex h-[calc(100svh-3.5rem-var(--announcement-height,0px))] flex-col items-center justify-center py-6 text-center">
-          <span className="mb-6 inline-flex items-center gap-1.5 rounded-full border border-[hsl(var(--accent))]/20 bg-[hsl(var(--accent))]/8 px-3 py-1 text-xs font-semibold text-[hsl(var(--accent))]">
+        <section ref={heroRef} className="flex h-[calc(100svh-3.5rem-var(--announcement-height,0px))] flex-col items-center justify-center py-6 text-center">
+          <span data-animate className="mb-6 inline-flex items-center gap-1.5 rounded-full border border-[hsl(var(--accent))]/20 bg-[hsl(var(--accent))]/8 px-3 py-1 text-xs font-semibold text-[hsl(var(--accent))]">
             <span className="h-1.5 w-1.5 rounded-full bg-[hsl(var(--accent))]" />
             Anonymous  Moderated
           </span>
 
-          <h1 className="mx-auto mt-4 max-w-xl text-4xl font-black tracking-tight text-[hsl(var(--foreground))] sm:text-5xl md:text-6xl">
+          <h1 data-animate className="mx-auto mt-4 max-w-xl text-4xl font-black tracking-tight text-[hsl(var(--foreground))] sm:text-5xl md:text-6xl">
             Say what you&rsquo;ve been
             <span className="text-[hsl(var(--accent))]"> holding back.</span>
           </h1>
 
-          <p className="mx-auto mt-5 max-w-md text-base leading-relaxed text-[hsl(var(--muted-foreground))] sm:text-lg">
+          <p data-animate className="mx-auto mt-5 max-w-md text-base leading-relaxed text-[hsl(var(--muted-foreground))] sm:text-lg">
             Share anonymously. Every confession is reviewed before it appears — no account, no trace.
           </p>
 
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+          <div data-animate className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <Link
               href="/submit"
               className="inline-flex items-center gap-2 rounded-xl bg-[hsl(var(--accent))] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-[hsl(var(--accent))]/20 transition-all duration-200 hover:opacity-90 hover:shadow-[hsl(var(--accent))]/30 active:scale-[0.97]"
@@ -46,7 +52,7 @@ export default function Home() {
           </div>
 
           {/* Feature highlights — bento: full-width first card on mobile, half-half for rest */}
-          <div className="mt-10 grid w-full max-w-2xl grid-cols-2 gap-3 sm:grid-cols-3">
+          <div data-animate className="mt-10 grid w-full max-w-2xl grid-cols-2 gap-3 sm:grid-cols-3">
             {[
               { icon: Lock, title: "No account needed", desc: "Zero sign-up. Fully anonymous.", span: "col-span-2 sm:col-span-1" },
               { icon: ShieldCheck, title: "Moderated", desc: "Every post reviewed for safety.", span: "col-span-1" },
@@ -66,9 +72,12 @@ export default function Home() {
           </div>
         </section>
 
+        {/* ── Below-fold content — scroll-triggered ── */}
+        <div ref={contentRef}>
+
         {/*  Confessions showcase  */}
-        <section data-animate className="mb-10">
-          <p className="mb-4 text-xs font-semibold uppercase tracking-widest text-[hsl(var(--muted-foreground))]">
+        <section data-scroll className="mb-10">
+          <p data-scroll-child className="mb-4 text-xs font-semibold uppercase tracking-widest text-[hsl(var(--muted-foreground))]">
             From the community
           </p>
           <div className="space-y-2.5">
@@ -78,6 +87,7 @@ export default function Home() {
               "This has been on my mind for months and I needed to say it.",
             ].map((text, i) => (
               <div
+                data-scroll-child
                 key={i}
                 className="group relative cursor-default overflow-hidden rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-5 py-4 text-sm leading-relaxed text-[hsl(var(--foreground))] transition-all duration-200 hover:border-[hsl(var(--accent))]/25 hover:bg-[hsl(var(--accent))]/4"
               >
@@ -90,11 +100,11 @@ export default function Home() {
         </section>
 
         {/*  How it works — bento grid  */}
-        <section id="how-it-works" data-animate className="mb-10">
-          <p className="mb-1 text-xs font-semibold uppercase tracking-widest text-[hsl(var(--muted-foreground))]">
+        <section id="how-it-works" data-scroll className="mb-10">
+          <p data-scroll-child className="mb-1 text-xs font-semibold uppercase tracking-widest text-[hsl(var(--muted-foreground))]">
             How it works
           </p>
-          <h2 className="mb-5 text-xl font-bold text-[hsl(var(--foreground))]">Three simple steps</h2>
+          <h2 data-scroll-child className="mb-5 text-xl font-bold text-[hsl(var(--foreground))]">Three simple steps</h2>
 
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
             {[
@@ -120,6 +130,7 @@ export default function Home() {
               const Icon = item.icon;
               return (
                 <div
+                  data-scroll-child
                   key={item.step}
                   className="group relative flex cursor-default flex-col justify-between gap-6 overflow-hidden rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-5 transition-all duration-200 hover:border-[hsl(var(--accent))]/30 hover:bg-[hsl(var(--accent))]/5 hover:shadow-md hover:shadow-[hsl(var(--accent))]/8 active:scale-[0.98]"
                 >
@@ -150,7 +161,7 @@ export default function Home() {
         </section>
 
         {/*  Guidelines teaser  */}
-        <section data-animate className="mb-10 rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-6 py-5 transition-all duration-200 hover:border-[hsl(var(--accent))]/25">
+        <section data-scroll className="mb-10 rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-6 py-5 transition-all duration-200 hover:border-[hsl(var(--accent))]/25">
           <div className="flex items-start justify-between gap-4">
             <div>
               <p className="text-sm font-bold text-[hsl(var(--foreground))]">Community guidelines</p>
@@ -178,7 +189,7 @@ export default function Home() {
         </section>
 
         {/*  Bottom CTA  */}
-        <section data-animate className="group relative mb-16 cursor-default overflow-hidden rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-8 py-10 text-center transition-all duration-300 hover:border-[hsl(var(--accent))]/30 hover:shadow-lg hover:shadow-[hsl(var(--accent))]/8">
+        <section data-scroll className="group relative mb-16 cursor-default overflow-hidden rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-8 py-10 text-center transition-all duration-300 hover:border-[hsl(var(--accent))]/30 hover:shadow-lg hover:shadow-[hsl(var(--accent))]/8">
           {/* accent glow blob on hover */}
           <div className="pointer-events-none absolute -right-8 -top-8 h-40 w-40 rounded-full bg-[hsl(var(--accent))]/10 opacity-0 blur-3xl transition-opacity duration-500 group-hover:opacity-100" />
           {/* bottom-left mirror blob */}
@@ -194,6 +205,7 @@ export default function Home() {
           </Link>
         </section>
 
+        </div>
       </div>
     </main>
   );
