@@ -567,7 +567,7 @@ export default function AdminList() {
                   {item.status !== "rejected" && (
                     <ActionBtn
                       variant="danger"
-                      className="ml-auto w-full sm:w-auto"
+                      className="ml-auto"
                       onClick={() => setDeleteConfirmId(item._id)}
                       disabled={busy}
                     >
