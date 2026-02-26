@@ -25,22 +25,23 @@ export function useStaggerEntrance(
   useLayoutEffect(() => {
     const el = container.current;
     if (!el) return;
-    const selector = options.selector || "[data-animate]";
-    const targets = el.querySelectorAll(selector);
-    if (!targets.length) return;
-    gsap.set(targets, { opacity: 0, y: 24 });
-    gsap.to(targets, {
-      opacity: 1,
-      y: 0,
-      ease: options.from?.ease || EASE,
-      stagger: options.stagger ?? 0.08,
-      delay: options.delay ?? 0,
-      duration: options.duration ?? 0.55,
-      ...options.from,
-    });
-    return () => {
+    const ctx = gsap.context(() => {
+      const selector = options.selector || "[data-animate]";
+      const targets = el.querySelectorAll(selector);
+      if (!targets.length) return;
       gsap.set(targets, { opacity: 0, y: 24 });
-    };
+      gsap.to(targets, {
+        opacity: 1,
+        y: 0,
+        ease: options.from?.ease || EASE,
+        stagger: options.stagger ?? 0.08,
+        delay: options.delay ?? 0,
+        duration: options.duration ?? 0.55,
+        ...options.from,
+      });
+    }, container);
+
+    return () => ctx.revert();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, options.deps || []);
 }
@@ -229,6 +230,7 @@ export function useScrollReveal(
         });
       });
     }, container);
+
     return () => ctx.revert();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps);
