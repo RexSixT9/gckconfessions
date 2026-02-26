@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { motion, useMotionValue, useSpring } from "framer-motion";
 import { useRef } from "react";
-import { useStaggerEntrance as useScrollReveal } from "@/lib/gsapClient";
+import { useStaggerEntrance } from "@/lib/gsapClient";
 
 export const metadata = {
   title: "Privacy & Guidelines — GCK Confessions",
@@ -22,7 +22,7 @@ export const metadata = {
 
 export default function GuidelinesPage() {
   const contentRef = useRef<HTMLDivElement>(null);
-  useScrollReveal(contentRef, { from: { opacity: 0, y: 34 }, duration: 0.55, stagger: 0.08 });
+  useStaggerEntrance(contentRef, { from: { opacity: 0, y: 34 }, duration: 0.55, stagger: 0.08 });
 
   function useBentoCardMotion() {
     const x = useMotionValue(0);
