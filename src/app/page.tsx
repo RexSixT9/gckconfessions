@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowUpRight, ShieldCheck, MessageSquare, Send, PenLine, Lock, Zap } from "lucide-react";
 import { useStaggerEntrance, useScrollReveal } from "@/lib/gsapClient";
 import TiltCard from "@/components/TiltCard";
+import TypewriterText from "@/components/TypewriterText";
 
 export default function Home() {
   const heroRef = useRef<HTMLDivElement>(null);
@@ -27,10 +28,12 @@ export default function Home() {
             Anonymous  Moderated
           </span>
 
-          <h1 data-animate className="mx-auto mt-4 max-w-xl text-4xl font-black tracking-tight text-[hsl(var(--foreground))] sm:text-5xl md:text-6xl">
-            Say what you&rsquo;ve been
-            <span className="text-[hsl(var(--accent))]"> holding back.</span>
-          </h1>
+          <TypewriterText
+            text="Say what you've been holding back."
+            delay={0.1}
+            highlightWords={["holding", "back"]}
+            className="mx-auto mt-4 max-w-xl text-4xl font-black tracking-tight text-[hsl(var(--foreground))] sm:text-5xl md:text-6xl"
+          />
 
           <p data-animate className="mx-auto mt-5 max-w-md text-base leading-relaxed text-[hsl(var(--muted-foreground))] sm:text-lg">
             Share anonymously. Every confession is reviewed before it appears — no account, no trace.
