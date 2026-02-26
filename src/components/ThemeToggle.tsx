@@ -2,26 +2,27 @@
 
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
-import { useEffect, useState, useCallback, memo } from "react";
+import { useEffect, useState } from "react";
 
-const ThemeToggle = memo(function ThemeToggle() {
+export default function ThemeToggle() {
   const { theme, resolvedTheme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [showNotification, setShowNotification] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
+    const t = setTimeout(() => setMounted(true), 0);
+    return () => clearTimeout(t);
   }, []);
 
-  const handleThemeToggle = useCallback(() => {
+  const handleThemeToggle = () => {
     const activeTheme = resolvedTheme ?? theme;
     const newTheme = activeTheme === "dark" ? "light" : "dark";
     setTheme(newTheme);
-    
+
     // Show notification
     setShowNotification(true);
     setTimeout(() => setShowNotification(false), 3000);
-  }, [theme, setTheme]);
+  };
 
   if (!mounted) {
     return null;
@@ -51,6 +52,4 @@ const ThemeToggle = memo(function ThemeToggle() {
       )}
     </div>
   );
-});
-
-export default ThemeToggle;
+}

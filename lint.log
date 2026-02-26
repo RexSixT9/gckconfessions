@@ -1,0 +1,75 @@
+
+> gckconfessions@0.1.0 lint
+> eslint
+
+
+E:\gckconfessions\eslint.config.mjs
+  3:1  warning  Assign array to a variable before exporting as module default  import/no-anonymous-default-export
+
+E:\gckconfessions\src\app\guidelines\GuidelinesClient.tsx
+  109:33  error  React Hook "useBentoCardMotion" cannot be called inside a callback. React Hooks must be called in a React function component or a custom React Hook function  react-hooks/rules-of-hooks
+
+E:\gckconfessions\src\app\not-found.tsx
+  80:43  error  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+
+E:\gckconfessions\src\app\page.tsx
+   83:35  error  React Hook "useBentoCardMotion" cannot be called inside a callback. React Hooks must be called in a React function component or a custom React Hook function  react-hooks/rules-of-hooks
+  168:35  error  React Hook "useBentoCardMotion" cannot be called inside a callback. React Hooks must be called in a React function component or a custom React Hook function  react-hooks/rules-of-hooks
+
+E:\gckconfessions\src\components\ThemeToggle.tsx
+  13:5   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+E:\gckconfessions\src\components\ThemeToggle.tsx:13:5
+  11 |
+  12 |   useEffect(() => {
+> 13 |     setMounted(true);
+     |     ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  14 |   }, []);
+  15 |
+  16 |   const handleThemeToggle = useCallback(() => {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               react-hooks/set-state-in-effect
+  16:41  error    Compilation Skipped: Existing memoization could not be preserved
+
+React Compiler has skipped optimizing this component because the existing manual memoization could not be preserved. The inferred dependencies did not match the manually specified dependencies, which could cause the value to change more or less frequently than expected. The inferred dependency was `resolvedTheme`, but the source dependencies were [theme, setTheme]. Inferred different dependency than source.
+
+E:\gckconfessions\src\components\ThemeToggle.tsx:16:41
+  14 |   }, []);
+  15 |
+> 16 |   const handleThemeToggle = useCallback(() => {
+     |                                         ^^^^^^^
+> 17 |     const activeTheme = resolvedTheme ?? theme;
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 18 |     const newTheme = activeTheme === "dark" ? "light" : "dark";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 19 |     setTheme(newTheme);
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 20 |     
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 21 |     // Show notification
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 22 |     setShowNotification(true);
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 23 |     setTimeout(() => setShowNotification(false), 3000);
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 24 |   }, [theme, setTheme]);
+     | ^^^^ Could not preserve existing manual memoization
+  25 |
+  26 |   if (!mounted) {
+  27 |     return null;  react-hooks/preserve-manual-memoization
+  24:6   warning  React Hook useCallback has a missing dependency: 'resolvedTheme'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            react-hooks/exhaustive-deps
+
+E:\gckconfessions\src\components\admin\AdminList.tsx
+  245:5  warning  React Hook useCallback has a missing dependency: 'router'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  290:5  warning  React Hook useCallback has a missing dependency: 'router'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+E:\gckconfessions\src\lib\mongodb.ts
+  15:3  warning  Unused eslint-disable directive (no problems were reported from 'no-var')
+
+Γ£û 11 problems (6 errors, 5 warnings)
+  0 errors and 1 warning potentially fixable with the `--fix` option.
+

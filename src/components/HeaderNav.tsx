@@ -5,7 +5,8 @@ import { Heart } from "lucide-react";
 import { useRef } from "react";
 import ThemeToggle from "@/components/ThemeToggle";
 import AnnouncementBanner from "@/components/AnnouncementBanner";
-import { useFadeIn } from "@/lib/gsap";
+import { useFadeIn } from "@/lib/gsapClient";
+
 
 export default function HeaderNav() {
   const ref = useRef<HTMLElement>(null);

@@ -242,7 +242,7 @@ export default function AdminList() {
         setProcessingId(null);
       }
     },
-    [filter, statusFilter],
+    [filter, statusFilter, router],
   );
 
   /** Optimistic delete: remove item instantly, call API, rollback on failure. */
@@ -287,7 +287,7 @@ export default function AdminList() {
         setProcessingId(null);
       }
     },
-    [],
+    [router],
   );
 
   const handleSearch = useCallback(
@@ -346,11 +346,10 @@ export default function AdminList() {
                   key={f}
                   type="button"
                   onClick={() => setFilter(f)}
-                  className={`shrink-0 rounded-md px-2.5 py-1.5 text-xs font-medium transition sm:py-1 ${
-                    filter === f
+                  className={`shrink-0 rounded-md px-2.5 py-1.5 text-xs font-medium transition sm:py-1 ${filter === f
                       ? "bg-[hsl(var(--card))] text-[hsl(var(--foreground))] shadow-sm"
                       : "text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]"
-                  }`}
+                    }`}
                 >
                   {labels[f]}
                 </button>
@@ -367,11 +366,10 @@ export default function AdminList() {
                 key={s}
                 type="button"
                 onClick={() => setStatusFilter(s)}
-                className={`shrink-0 rounded-md px-2.5 py-1.5 text-xs font-medium transition sm:py-1 ${
-                  statusFilter === s
+                className={`shrink-0 rounded-md px-2.5 py-1.5 text-xs font-medium transition sm:py-1 ${statusFilter === s
                     ? "bg-[hsl(var(--card))] text-[hsl(var(--foreground))] shadow-sm"
                     : "text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]"
-                }`}
+                  }`}
               >
                 {s.charAt(0).toUpperCase() + s.slice(1)}
               </button>
@@ -386,11 +384,10 @@ export default function AdminList() {
 
       {/* ── Notice ────────────────────────────────────── */}
       {notice && (
-        <div className={`flex items-center gap-2.5 rounded-lg border px-3.5 py-2.5 ${
-          notice.type === "error"
+        <div className={`flex items-center gap-2.5 rounded-lg border px-3.5 py-2.5 ${notice.type === "error"
             ? "border-red-200 bg-red-50 text-red-700 dark:border-red-900/30 dark:bg-red-950/20 dark:text-red-300"
             : "border-green-200 bg-green-50 text-green-700 dark:border-green-900/30 dark:bg-green-950/20 dark:text-green-300"
-        }`}>
+          }`}>
           {notice.type === "error"
             ? <AlertCircle className="h-4 w-4 shrink-0" />
             : <CheckCircle2 className="h-4 w-4 shrink-0" />}
@@ -460,9 +457,9 @@ export default function AdminList() {
                   <time className="shrink-0 text-[11px] tabular-nums text-[hsl(var(--muted-foreground))]">
                     {item.createdAt
                       ? new Date(item.createdAt).toLocaleString("en-US", {
-                          month: "short", day: "numeric",
-                          hour: "2-digit", minute: "2-digit",
-                        })
+                        month: "short", day: "numeric",
+                        hour: "2-digit", minute: "2-digit",
+                      })
                       : "—"}
                   </time>
                 </div>

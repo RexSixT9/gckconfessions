@@ -2,7 +2,8 @@
 
 import { memo, useRef } from 'react';
 import Link from 'next/link';
-import { useFadeIn } from '@/lib/gsap';
+import { useFadeIn } from '@/lib/gsapClient';
+
 
 const Footer = memo(function Footer() {
   const ref = useRef<HTMLElement>(null);
