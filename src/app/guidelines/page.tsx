@@ -1,7 +1,6 @@
 import Link from "next/link";
 import {
   ShieldCheck,
-  "use client";
   Lock,
   Eye,
   BookOpen,
@@ -12,7 +11,7 @@ import {
 } from "lucide-react";
 import { motion, useMotionValue, useSpring } from "framer-motion";
 import { useRef } from "react";
-import { useScrollReveal } from "@/lib/gsap";
+import { useStaggerEntrance as useScrollReveal } from "@/lib/gsapClient";
 
 export const metadata = {
   title: "Privacy & Guidelines — GCK Confessions",
