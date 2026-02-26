@@ -3,7 +3,7 @@
 import { useRef } from "react";
 import Link from "next/link";
 import { ArrowUpRight, ShieldCheck, MessageSquare, Send, PenLine, Lock, Zap } from "lucide-react";
-import { useStaggerEntrance, useScrollReveal } from "@/lib/gsap";
+import { useStaggerEntrance } from "@/lib/gsapClient";
 import { motion, useMotionValue, useSpring } from "framer-motion";
 
 export default function Home() {
@@ -14,7 +14,7 @@ export default function Home() {
   useStaggerEntrance(heroRef, { stagger: 0.12, duration: 0.6, from: { opacity: 0, y: 28 } });
 
   // Scroll-triggered reveals for below-fold sections
-  useScrollReveal(contentRef, { from: { opacity: 0, y: 34 }, duration: 0.55, stagger: 0.08 });
+  // useStaggerEntrance(contentRef, { from: { opacity: 0, y: 34 }, duration: 0.55, stagger: 0.08 });
 
   // Touch/hover bento card effect
   function useBentoCardMotion() {

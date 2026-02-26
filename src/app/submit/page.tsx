@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import Link from "next/link";
 import { Heart, ShieldCheck, AlertCircle, CheckCircle2, ArrowLeft, Lock, Music2, Sparkles } from "lucide-react";
-import { useStaggerEntrance } from "@/lib/gsap";
+import { useStaggerEntrance } from "@/lib/gsapClient";
 
 type Notice = { type: "error" | "success"; message: string } | null;
 
