@@ -33,7 +33,7 @@ export default function GuidelinesClient() {
       </div>
 
       {/* Page header */}
-      <section className="pb-6 pt-5 sm:pb-8 sm:pt-6">
+      <section data-animate className="pb-6 pt-5 sm:pb-8 sm:pt-6">
         <span className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-[hsl(var(--accent))]/20 bg-[hsl(var(--accent))]/8 px-3 py-1 text-xs font-semibold text-[hsl(var(--accent))]">
           <BookOpen className="h-3.5 w-3.5" />
           Privacy &amp; Guidelines
@@ -48,7 +48,7 @@ export default function GuidelinesClient() {
       </section>
 
       {/* ── PRIVACY SECTION ─────────────────────────────── */}
-      <section className="mb-8 overflow-hidden rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))]">
+      <section data-animate className="mb-8 overflow-hidden rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))]">
         {/* Section header */}
         <div className="flex items-center gap-3 border-b border-[hsl(var(--border))] px-4 py-3 sm:px-6 sm:py-4">
           <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[hsl(var(--accent))]/10">
@@ -103,7 +103,7 @@ export default function GuidelinesClient() {
       </section>
 
       {/* ── COMMUNITY GUIDELINES ────────────────────────── */}
-      <section className="mb-8 overflow-hidden rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))]">
+      <section data-animate className="mb-8 overflow-hidden rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))]">
         <div className="flex items-center gap-3 border-b border-[hsl(var(--border))] px-4 py-3 sm:px-6 sm:py-4">
           <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[hsl(var(--accent))]/10">
             <Heart className="h-4 w-4 text-[hsl(var(--accent))]" />
@@ -139,8 +139,8 @@ export default function GuidelinesClient() {
             <div key={label} className="px-4 py-4 sm:px-6 sm:py-5">
               <p
                 className={`mb-3 inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-[11px] font-semibold ${variant === "accept"
-                    ? "border border-[hsl(var(--action-accept))]/30 bg-[hsl(var(--action-accept))]/10 text-[hsl(var(--action-accept))]"
-                    : "border border-[hsl(var(--action-reject))]/30 bg-[hsl(var(--action-reject))]/10 text-[hsl(var(--action-reject))]"
+                  ? "border border-[hsl(var(--action-accept))]/30 bg-[hsl(var(--action-accept))]/10 text-[hsl(var(--action-accept))]"
+                  : "border border-[hsl(var(--action-reject))]/30 bg-[hsl(var(--action-reject))]/10 text-[hsl(var(--action-reject))]"
                   }`}
               >
                 {variant === "accept" ? (
@@ -155,8 +155,8 @@ export default function GuidelinesClient() {
                   <li key={item} className="flex items-start gap-2 text-xs text-[hsl(var(--muted-foreground))]">
                     <span
                       className={`mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full ${variant === "accept"
-                          ? "bg-[hsl(var(--action-accept))]"
-                          : "bg-[hsl(var(--action-reject))]"
+                        ? "bg-[hsl(var(--action-accept))]"
+                        : "bg-[hsl(var(--action-reject))]"
                         }`}
                     />
                     {item}
@@ -169,7 +169,7 @@ export default function GuidelinesClient() {
       </section>
 
       {/* ── ENFORCEMENT ─────────────────────────────────── */}
-      <section className="mb-10 rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] px-4 py-4 sm:px-6 sm:py-5">
+      <section data-animate className="mb-10 rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] px-4 py-4 sm:px-6 sm:py-5">
         <div className="flex items-start gap-3">
           <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-950/40">
             <AlertTriangle className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
