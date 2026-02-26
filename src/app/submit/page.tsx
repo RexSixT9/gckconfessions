@@ -7,7 +7,7 @@ import { useStaggerEntrance } from "@/lib/gsap";
 
 type Notice = { type: "error" | "success"; message: string } | null;
 
-const CHAR_LIMIT = 500;
+const CHAR_LIMIT = 1000;
 
 export default function SubmitPage() {
   const [message, setMessage] = useState("");
@@ -55,7 +55,7 @@ export default function SubmitPage() {
         console.error("Draft save error:", error);
         setDraftError(true);
       }
-    }, 500); // Debounce saves by 500ms to avoid frequent writes
+    }, 500); // Debounce saves by 500ms (limit is now 1000 chars)
 
     return () => clearTimeout(timer);
   }, [message, music, saveDraft]);
