@@ -99,14 +99,14 @@ export default function Home() {
             {featureHighlights.map(({ icon: Icon, title, desc, span }) => (
               <TiltCard
                 key={title}
-                className={`flex flex-col items-center gap-2 rounded-xl border border-[hsl(var(--border))]/60 bg-[hsl(var(--card))]/60 px-4 py-4 text-center backdrop-blur-sm ${span} w-full`}
+                className={`flex flex-col items-center gap-4 rounded-2xl border border-[hsl(var(--border))]/60 bg-[hsl(var(--card))]/80 px-6 py-6 text-center shadow-md hover:shadow-lg transition-all duration-200 ${span} w-full`}
                 aria-label={title}
               >
-                <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[hsl(var(--accent))]/10">
-                  <Icon className="h-5 w-5 text-[hsl(var(--accent))]" aria-hidden="true" />
+                <span className="flex items-center justify-center rounded-2xl bg-[hsl(var(--accent))]/15 p-4 mb-2 shadow-sm">
+                  <Icon className="h-8 w-8 sm:h-10 sm:w-10 text-[hsl(var(--accent))] drop-shadow-md" aria-hidden="true" />
                 </span>
-                <p className="text-sm font-semibold text-[hsl(var(--foreground))]">{title}</p>
-                <p className="hidden text-xs leading-snug text-[hsl(var(--muted-foreground))] sm:block">{desc}</p>
+                <p className="text-lg font-bold text-[hsl(var(--foreground))] mb-1 tracking-tight">{title}</p>
+                <p className="text-sm leading-snug text-[hsl(var(--muted-foreground))]">{desc}</p>
               </TiltCard>
             ))}
           </div>
@@ -153,28 +153,28 @@ export default function Home() {
                   <TiltCard
                     data-scroll-child
                     key={item.step}
-                    className="group relative flex cursor-pointer flex-col justify-between gap-6 overflow-hidden rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-4 transition-all duration-200 hover:border-[hsl(var(--accent))]/30 hover:bg-[hsl(var(--accent))]/5 hover:shadow-md hover:shadow-[hsl(var(--accent))]/8 active:scale-[0.98] sm:p-5"
+                    className="group relative flex cursor-pointer flex-col items-center justify-between gap-6 overflow-hidden rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))]/90 p-5 transition-all duration-200 hover:border-[hsl(var(--accent))]/30 hover:bg-[hsl(var(--accent))]/10 hover:shadow-lg active:scale-[0.98]"
                     aria-label={item.title}
                   >
                     {/* subtle bg glow on hover */}
                     <div className="pointer-events-none absolute -right-6 -top-6 h-20 w-20 rounded-full bg-[hsl(var(--accent))]/10 opacity-0 blur-2xl transition-opacity duration-300 group-hover:opacity-100" />
 
                     {/* step number */}
-                    <span className="absolute right-4 top-4 font-mono text-[11px] font-bold tabular-nums text-[hsl(var(--muted-foreground))]/50 transition-colors duration-200 group-hover:text-[hsl(var(--accent))]/60">
+                    <span className="mb-2 font-mono text-xs font-bold tabular-nums text-[hsl(var(--muted-foreground))]/60 group-hover:text-[hsl(var(--accent))]/80 tracking-widest">
                       {item.step}
                     </span>
 
                     {/* icon */}
-                    <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[hsl(var(--accent))]/10 transition-all duration-200 group-hover:scale-110 group-hover:bg-[hsl(var(--accent))]/25">
-                      <Icon className="h-6 w-6 text-[hsl(var(--accent))]" aria-hidden="true" />
+                    <span className="flex items-center justify-center rounded-2xl bg-[hsl(var(--accent))]/15 p-4 mb-2 shadow-sm">
+                      <Icon className="h-8 w-8 sm:h-10 sm:w-10 text-[hsl(var(--accent))] drop-shadow-md" aria-hidden="true" />
                     </span>
 
                     {/* text */}
-                    <div>
-                      <p className="text-sm font-bold text-[hsl(var(--foreground))] transition-colors duration-200 group-hover:text-[hsl(var(--accent))]">
+                    <div className="flex flex-col items-center">
+                      <p className="text-base font-bold text-[hsl(var(--foreground))] group-hover:text-[hsl(var(--accent))] mb-1 tracking-tight transition-colors duration-200">
                         {item.title}
                       </p>
-                      <p className="mt-1 text-xs leading-relaxed text-[hsl(var(--muted-foreground))]">{item.desc}</p>
+                      <p className="mt-1 text-xs leading-relaxed text-[hsl(var(--muted-foreground))] text-center">{item.desc}</p>
                     </div>
                   </TiltCard>
                 );
