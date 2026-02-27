@@ -1,18 +1,26 @@
 ﻿"use client";
 
-import { useRef } from "react";
+import { useRef, useLayoutEffect } from "react";
 import Link from "next/link";
 import { ArrowUpRight, ShieldCheck, MessageSquare, Send, PenLine, Lock, Zap } from "lucide-react";
-import { useStaggerEntrance, useScrollReveal } from "@/lib/gsapClient";
+import { useScrollReveal } from "@/lib/gsapClient";
 import TiltCard from "@/components/TiltCard";
-import TypewriterText from "@/components/TypewriterText";
+import gsap from "gsap";
 
 export default function Home() {
   const heroRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
-  // Staggered hero entrance — each child with data-animate fades up in sequence
-  useStaggerEntrance(heroRef, { stagger: 0.12, duration: 0.6, from: { opacity: 0, y: 28 } });
+  // Unified GSAP Timeline for Hero (perfectly synchronized)
+  useLayoutEffect(() => {
+    const ctx = gsap.context(() => {
+      const tl = gsap.timeline({ delay: 0.1 });
+      tl.from(".hero-tag", { opacity: 0, y: 24, duration: 0.5, ease: "power2.out" })
+        .from(".hero-char", { opacity: 0, y: 8, stagger: 0.025, duration: 0.2, ease: "power2.out", filter: "blur(4px)" }, "-=0.25")
+        .from(".hero-body", { opacity: 0, y: 24, stagger: 0.12, duration: 0.55, ease: "power2.out" }, "-=0.2");
+    }, heroRef);
+    return () => ctx.revert();
+  }, []);
 
   // Scroll-triggered reveals for below-fold sections
   useScrollReveal(contentRef, { from: { opacity: 0, y: 34 }, duration: 0.55, stagger: 0.08 });
@@ -23,23 +31,27 @@ export default function Home() {
 
         {/*  Hero  */}
         <section ref={heroRef} className="flex h-[calc(100svh-3.5rem-var(--announcement-height,0px))] flex-col items-center justify-center py-6 text-center">
-          <span data-animate className="mb-6 inline-flex items-center gap-1.5 rounded-full border border-[hsl(var(--accent))]/20 bg-[hsl(var(--accent))]/8 px-3 py-1 text-xs font-semibold text-[hsl(var(--accent))]">
+          <span className="hero-tag mb-6 inline-flex items-center gap-1.5 rounded-full border border-[hsl(var(--accent))]/20 bg-[hsl(var(--accent))]/8 px-3 py-1 text-xs font-semibold text-[hsl(var(--accent))]">
             <span className="h-1.5 w-1.5 rounded-full bg-[hsl(var(--accent))]" />
             Anonymous  Moderated
           </span>
 
-          <TypewriterText
-            text="Say what you've been holding back."
-            delay={0.1}
-            highlightWords={["holding", "back"]}
-            className="mx-auto mt-4 max-w-xl text-4xl font-black tracking-tight text-[hsl(var(--foreground))] sm:text-5xl md:text-6xl"
-          />
+          <h1 className="mx-auto mt-4 max-w-xl text-4xl font-black tracking-tight text-[hsl(var(--foreground))] sm:text-5xl md:text-6xl">
+            {"Say what you've been holding back.".split(" ").map((word, i) => {
+              const isHighlight = word === "holding" || word === "back.";
+              return (
+                <span key={i} className={`inline-block mr-[0.25em] ${isHighlight ? "text-[hsl(var(--accent))]" : ""}`}>
+                  {word.split("").map((c, j) => <span key={j} className="hero-char inline-block will-change-transform">{c}</span>)}
+                </span>
+              )
+            })}
+          </h1>
 
-          <p data-animate className="mx-auto mt-5 max-w-md text-base leading-relaxed text-[hsl(var(--muted-foreground))] sm:text-lg">
+          <p className="hero-body mx-auto mt-5 max-w-md text-base leading-relaxed text-[hsl(var(--muted-foreground))] sm:text-lg">
             Share anonymously. Every confession is reviewed before it appears — no account, no trace.
           </p>
 
-          <div data-animate className="mt-8 flex flex-wrap items-center justify-center gap-3">
+          <div className="hero-body mt-8 flex flex-wrap items-center justify-center gap-3">
             <Link
               href="/submit"
               className="inline-flex items-center gap-2 rounded-xl bg-[hsl(var(--accent))] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-[hsl(var(--accent))]/20 transition-all duration-200 hover:opacity-90 hover:shadow-[hsl(var(--accent))]/30 active:scale-[0.97]"
@@ -56,7 +68,7 @@ export default function Home() {
           </div>
 
           {/* Feature highlights — bento: full-width first card on mobile, half-half for rest */}
-          <div data-animate className="mt-10 grid w-full max-w-2xl grid-cols-2 gap-3 sm:grid-cols-3">
+          <div className="hero-body mt-10 grid w-full max-w-2xl grid-cols-2 gap-3 sm:grid-cols-3">
             {[
               { icon: Lock, title: "No account needed", desc: "Zero sign-up. Fully anonymous.", span: "col-span-2 sm:col-span-1" },
               { icon: ShieldCheck, title: "Moderated", desc: "Every post reviewed for safety.", span: "col-span-1" },

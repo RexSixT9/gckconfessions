@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useMemo } from "react";
 
 interface TypewriterTextProps {
     text: string;
@@ -17,8 +18,8 @@ export default function TypewriterText({
     highlightWords = [],
     highlightClass = "text-[hsl(var(--accent))]",
 }: TypewriterTextProps) {
-    // Split words first, so we can check if they should be highlighted
-    const words = text.split(" ");
+    // Memoize the split words to prevent recalculation during hydration
+    const words = useMemo(() => text.split(" "), [text]);
 
     const container = {
         hidden: { opacity: 0 },
@@ -32,8 +33,16 @@ export default function TypewriterText({
     };
 
     const child = {
-        visible: { opacity: 1, y: 0, transition: { type: "spring", damping: 12, stiffness: 100 } },
-        hidden: { opacity: 0, y: 10 },
+        visible: {
+            opacity: 1,
+            y: 0,
+            transition: {
+                type: "tween",
+                ease: "easeOut",
+                duration: 0.25
+            }
+        },
+        hidden: { opacity: 0, y: 8 },
     };
 
     return (
@@ -59,7 +68,7 @@ export default function TypewriterText({
                             <motion.span
                                 variants={child}
                                 key={charIndex}
-                                style={{ display: "inline-block" }}
+                                style={{ display: "inline-block", willChange: "opacity, transform" }}
                             >
                                 {char}
                             </motion.span>
