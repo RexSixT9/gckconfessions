@@ -2,19 +2,26 @@
 import { RefObject, useLayoutEffect } from "react";
 import gsap, { ScrollTrigger } from "./gsap";
 
-// --- Shared tween defaults
+// ── Shared defaults ──────────────────────────────────────────────────────────
 const EASE = "power2.out";
 
-/** Returns true when the user prefers reduced motion. Safe to call in useLayoutEffect (client-only). */
+/** True when the user has requested reduced motion. Client-only. */
 function prefersReducedMotion(): boolean {
   if (typeof window === "undefined") return false;
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
+// Configure ScrollTrigger once for better mobile scroll compatibility.
+// ignoreMobileResize prevents jumpy re-calculations on iOS during address-bar
+// hide/show. syncInterval keeps triggers up-to-date during iOS momentum scroll.
+if (typeof window !== "undefined") {
+  ScrollTrigger.config({ ignoreMobileResize: true, syncInterval: 40 });
+}
+
+// ── useStaggerEntrance ────────────────────────────────────────────────────────
 /**
  * Stagger-fade-up for elements matching `selector` inside the container.
- * Pass `deps` to re-trigger the animation when values change.
- * Respects prefers-reduced-motion.
+ * Fires immediately on mount. Pass `deps` to re-trigger.
  */
 export function useStaggerEntrance(
   container: RefObject<HTMLElement | null>,
@@ -30,29 +37,24 @@ export function useStaggerEntrance(
   useLayoutEffect(() => {
     const el = container.current;
     if (!el) return;
+    const selector = options.selector || "[data-animate]";
+    const targets = el.querySelectorAll<HTMLElement>(selector);
+    if (!targets.length) return;
 
-    // Reduced-motion: just make elements visible instantly
     if (prefersReducedMotion()) {
-      const selector = options.selector || "[data-animate]";
-      el.querySelectorAll(selector).forEach((t) => {
-        (t as HTMLElement).style.opacity = "1";
-        (t as HTMLElement).style.transform = "none";
-      });
+      targets.forEach((t) => { t.style.opacity = "1"; t.style.transform = "none"; });
       return;
     }
 
     const ctx = gsap.context(() => {
-      const selector = options.selector || "[data-animate]";
-      const targets = el.querySelectorAll(selector);
-      if (!targets.length) return;
-      gsap.set(targets, { opacity: 0, y: 24 });
+      gsap.set(targets, { opacity: 0, y: 20 });
       gsap.to(targets, {
         opacity: 1,
         y: 0,
         ease: options.from?.ease || EASE,
         stagger: options.stagger ?? 0.08,
         delay: options.delay ?? 0,
-        duration: options.duration ?? 0.55,
+        duration: options.duration ?? 0.5,
         clearProps: "all",
         ...options.from,
       });
@@ -63,17 +65,11 @@ export function useStaggerEntrance(
   }, options.deps || []);
 }
 
-/**
- * Scale + fade entrance for a single element.
- * Respects prefers-reduced-motion.
- */
+// ── useScaleEntrance ──────────────────────────────────────────────────────────
+/** Scale + fade entrance for a single element (cards, modals). */
 export function useScaleEntrance(
   container: RefObject<HTMLElement | null>,
-  options: {
-    delay?: number;
-    duration?: number;
-    deps?: unknown[];
-  } = {}
+  options: { delay?: number; duration?: number; deps?: unknown[] } = {}
 ) {
   const { delay = 0, duration = 0.45, deps = [] } = options;
 
@@ -87,25 +83,15 @@ export function useScaleEntrance(
     }
 
     const ctx = gsap.context(() => {
-      gsap.from(container.current!, {
-        opacity: 0,
-        scale: 0.97,
-        y: 12,
-        duration,
-        delay,
-        ease: EASE,
-        clearProps: "all",
-      });
+      gsap.from(container.current!, { opacity: 0, scale: 0.97, y: 10, duration, delay, ease: EASE, clearProps: "all" });
     }, container);
     return () => ctx.revert();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps);
 }
 
-/**
- * Simple fade-in for navigation / footer elements.
- * Respects prefers-reduced-motion.
- */
+// ── useFadeIn ─────────────────────────────────────────────────────────────────
+/** Simple fade-in for nav / footer. */
 export function useFadeIn(
   container: RefObject<HTMLElement | null>,
   options: { delay?: number; duration?: number; y?: number } = {}
@@ -129,17 +115,11 @@ export function useFadeIn(
   }, []);
 }
 
-/**
- * Animate a number counting up from 0 to its target value.
- * Respects prefers-reduced-motion by snapping directly to the final value.
- */
+// ── useCountUp ────────────────────────────────────────────────────────────────
+/** Count-up for [data-count] elements. Snaps immediately with reduced-motion. */
 export function useCountUp(
   container: RefObject<HTMLElement | null>,
-  options: {
-    duration?: number;
-    delay?: number;
-    deps?: unknown[];
-  } = {}
+  options: { duration?: number; delay?: number; deps?: unknown[] } = {}
 ) {
   const { duration = 1.2, delay = 0.15, deps = [] } = options;
 
@@ -150,8 +130,7 @@ export function useCountUp(
 
     if (prefersReducedMotion()) {
       targets.forEach((el) => {
-        const end = parseInt(el.getAttribute("data-count") || "0", 10);
-        el.textContent = end.toLocaleString();
+        el.textContent = parseInt(el.getAttribute("data-count") || "0", 10).toLocaleString();
       });
       return;
     }
@@ -161,13 +140,8 @@ export function useCountUp(
         const end = parseInt(el.getAttribute("data-count") || "0", 10);
         const obj = { val: 0 };
         gsap.to(obj, {
-          val: end,
-          duration,
-          delay: delay + i * 0.1,
-          ease: "power2.out",
-          onUpdate() {
-            el.textContent = Math.round(obj.val).toLocaleString();
-          },
+          val: end, duration, delay: delay + i * 0.1, ease: "power2.out",
+          onUpdate() { el.textContent = Math.round(obj.val).toLocaleString(); },
         });
       });
     }, container);
@@ -176,27 +150,13 @@ export function useCountUp(
   }, deps);
 }
 
-/**
- * Reveal children with a blur-to-clear + slide-up entrance.
- * Respects prefers-reduced-motion.
- */
+// ── useBlurReveal ─────────────────────────────────────────────────────────────
+/** Blur-to-clear + slide-up entrance for [data-reveal] children. */
 export function useBlurReveal(
   container: RefObject<HTMLElement | null>,
-  options: {
-    stagger?: number;
-    delay?: number;
-    duration?: number;
-    selector?: string;
-    deps?: unknown[];
-  } = {}
+  options: { stagger?: number; delay?: number; duration?: number; selector?: string; deps?: unknown[] } = {}
 ) {
-  const {
-    stagger = 0.08,
-    delay = 0,
-    duration = 0.6,
-    selector = "[data-reveal]",
-    deps = [],
-  } = options;
+  const { stagger = 0.08, delay = 0, duration = 0.55, selector = "[data-reveal]", deps = [] } = options;
 
   useLayoutEffect(() => {
     if (!container.current) return;
@@ -204,35 +164,29 @@ export function useBlurReveal(
     if (!targets.length) return;
 
     if (prefersReducedMotion()) {
-      targets.forEach((t) => {
-        t.style.opacity = "1";
-        t.style.filter = "none";
-        t.style.transform = "none";
-      });
+      targets.forEach((t) => { t.style.opacity = "1"; t.style.filter = "none"; t.style.transform = "none"; });
       return;
     }
 
     const ctx = gsap.context(() => {
-      gsap.from(targets, {
-        opacity: 0,
-        y: 16,
-        filter: "blur(6px)",
-        duration,
-        stagger,
-        delay,
-        ease: "power3.out",
-        clearProps: "all",
-      });
+      gsap.from(targets, { opacity: 0, y: 14, filter: "blur(5px)", duration, stagger, delay, ease: "power3.out", clearProps: "all" });
     }, container);
     return () => ctx.revert();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps);
 }
 
+// ── useScrollReveal ───────────────────────────────────────────────────────────
 /**
- * Scroll-triggered reveal: elements animate in when they enter the viewport.
- * Hidden state is applied only after mount to avoid flash of invisible content.
- * Respects prefers-reduced-motion.
+ * Scroll-triggered reveal for [data-scroll] sections.
+ *
+ * Key fixes vs prior version:
+ * 1. Uses `immediateRender: false` so elements are NOT set invisible upfront —
+ *    avoids flash-of-invisible-content for elements already near the viewport.
+ * 2. Uses `gsap.from()` with the `scrollTrigger` option (GSAP's recommended pattern)
+ *    so GSAP owns the lifecycle rather than a manual `gsap.set + onEnter`.
+ * 3. Calls `ScrollTrigger.refresh()` after setup so triggers whose elements are
+ *    already past their start point fire immediately instead of staying hidden.
  */
 export function useScrollReveal(
   container: RefObject<HTMLElement | null>,
@@ -250,7 +204,9 @@ export function useScrollReveal(
     stagger = 0.1,
     duration = 0.55,
     selector = "[data-scroll]",
-    start = "top 90%",
+    // Fire when the TOP of the element is 92% down the viewport — slightly
+    // earlier than 90% so fast-scrollers on mobile don't miss the trigger.
+    start = "top 92%",
     deps = [],
   } = options;
 
@@ -259,42 +215,40 @@ export function useScrollReveal(
     const targets = container.current.querySelectorAll<HTMLElement>(selector);
     if (!targets.length) return;
 
-    // Reduced-motion: just make everything visible immediately
     if (prefersReducedMotion()) {
-      targets.forEach((t) => {
-        t.style.opacity = "1";
-        t.style.transform = "none";
-      });
+      targets.forEach((t) => { t.style.opacity = "1"; t.style.transform = "none"; });
       return;
     }
 
     const ctx = gsap.context(() => {
       targets.forEach((target) => {
         const children = target.querySelectorAll<HTMLElement>("[data-scroll-child]");
-        const animTargets = children.length > 0 ? children : [target];
+        const animTargets = children.length > 0 ? Array.from(children) : [target];
+        const itemStagger = children.length > 0 ? stagger : 0;
 
-        // Set hidden state right away so there's no layout-shift flash
-        gsap.set(animTargets, { ...from });
-
-        ScrollTrigger.create({
-          trigger: target,
-          start,
-          once: true,
-          onEnter: () => {
-            gsap.to(animTargets, {
-              opacity: 1,
-              y: 0,
-              x: 0,
-              scale: 1,
-              filter: "blur(0px)",
-              duration,
-              stagger: children.length > 0 ? stagger : 0,
-              ease: EASE,
-              clearProps: "all",
-            });
+        gsap.from(animTargets, {
+          ...from,
+          duration,
+          stagger: itemStagger,
+          ease: EASE,
+          clearProps: "all",
+          // `immediateRender: false` is the key fix — GSAP will NOT apply the
+          // "from" values until the tween actually plays, so elements stay
+          // visible at their natural CSS state until the trigger fires.
+          immediateRender: false,
+          scrollTrigger: {
+            trigger: target,
+            start,
+            once: true,
+            invalidateOnRefresh: true,
           },
         });
       });
+
+      // After creating all triggers, force a position recalculation.
+      // Any trigger whose element is already past its start point will fire
+      // onEnter immediately, preventing permanently-hidden elements.
+      ScrollTrigger.refresh();
     }, container);
 
     return () => ctx.revert();

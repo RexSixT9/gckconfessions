@@ -76,46 +76,55 @@ export default function Home() {
     if (!heroRef.current) return;
 
     const isDesktop = window.innerWidth >= 1024;
+    const isTouchDev = window.matchMedia("(pointer: coarse)").matches;
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     const ctx = gsap.context(() => {
       if (reduced) {
-        // Instantly reveal everything
-        gsap.set([".hero-tag", ".hero-char", ".hero-body", ".hero-card"], {
-          opacity: 1, y: 0, x: 0, filter: "none", clearProps: "all",
-        });
+        gsap.set([".hero-tag", ".hero-char", ".hero-body", ".hero-card"], { clearProps: "all" });
         return;
       }
 
       const tl = gsap.timeline({ defaults: { ease: "power2.out" } });
 
-      tl.from(".hero-tag", { opacity: 0, y: 18, duration: 0.4 })
-        .from(".hero-char", { opacity: 0, y: 10, stagger: 0.016, duration: 0.2, filter: "blur(4px)" }, "-=0.2")
-        .from(".hero-body", { opacity: 0, y: 18, stagger: 0.08, duration: 0.4 }, "-=0.15")
+      tl.from(".hero-tag", { opacity: 0, y: 16, duration: 0.4 })
+        .from(
+          ".hero-char",
+          // Touch screens: no filter:blur — each span gets its own layer on iOS
+          // (~40 characters = ~40 compositor layers = severe GPU memory pressure).
+          isTouchDev
+            ? { opacity: 0, y: 8, stagger: 0.012, duration: 0.18 }
+            : { opacity: 0, y: 8, stagger: 0.014, duration: 0.18, filter: "blur(4px)" },
+          "-=0.2"
+        )
+        .from(".hero-body", { opacity: 0, y: 16, stagger: 0.07, duration: 0.4 }, "-=0.15")
         .from(
           ".hero-card",
           {
             opacity: 0,
-            y: 24,
-            // On desktop the cards come from the right; on mobile/tablet just slide up
-            x: isDesktop ? 14 : 0,
-            stagger: 0.1,
-            duration: 0.5,
+            y: 22,
+            x: isDesktop && !isTouchDev ? 12 : 0,
+            stagger: 0.09,
+            duration: 0.45,
+            clearProps: "all",
           },
-          "-=0.3"
-        );
+          "-=0.28"
+        )
+        // Strip all inline GSAP styles after the timeline finishes so CSS
+        // hover transitions on cards are not blocked by inline opacity/transform.
+        .call(() => { tl.revert(); });
     }, heroRef);
 
     return () => ctx.revert();
   }, []);
 
+
   /* ------------------------ SCROLL REVEAL BELOW FOLD ------------------------ */
 
   useScrollReveal(contentRef, {
-    from: { opacity: 0, y: 32 },
+    from: { opacity: 0, y: 28 },
     duration: 0.55,
     stagger: 0.08,
-    start: "top 90%",
   });
 
   /* ------------------------------ RENDER ------------------------------ */
