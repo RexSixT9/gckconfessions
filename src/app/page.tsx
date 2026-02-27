@@ -11,6 +11,33 @@ export default function Home() {
   const heroRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
+  // Memoized feature highlights and steps for performance
+  const featureHighlights = [
+    { icon: Lock, title: "No account needed", desc: "Zero sign-up. Fully anonymous.", span: "col-span-2 sm:col-span-1" },
+    { icon: ShieldCheck, title: "Moderated", desc: "Every post reviewed for safety.", span: "col-span-1" },
+    { icon: Zap, title: "Easy to submit", desc: "Write and send — we handle the rest.", span: "col-span-1" },
+  ];
+  const howItWorksSteps = [
+    {
+      step: "01",
+      icon: PenLine,
+      title: "Write",
+      desc: "Type your confession — no login, no name, no trace.",
+    },
+    {
+      step: "02",
+      icon: MessageSquare,
+      title: "Queue",
+      desc: "Your confession joins a review queue — moderators check each one.",
+    },
+    {
+      step: "03",
+      icon: Send,
+      title: "Publish",
+      desc: "Approved confessions go live for the whole community.",
+    },
+  ];
+
   // Unified GSAP Timeline for Hero (perfectly synchronized)
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
@@ -27,11 +54,11 @@ export default function Home() {
 
   return (
     <main className="flex-1">
-      <div className="mx-auto w-full max-w-3xl px-5 sm:px-6">
+      <div className="mx-auto w-full max-w-3xl px-3 sm:px-6 md:px-8">
 
         {/*  Hero  */}
         <section ref={heroRef} className="flex h-[calc(100svh-3.5rem-var(--announcement-height,0px))] flex-col items-center justify-center py-6 text-center">
-          <span className="hero-tag mb-6 inline-flex items-center gap-1.5 rounded-full border border-[hsl(var(--accent))]/20 bg-[hsl(var(--accent))]/8 px-3 py-1 text-xs font-semibold text-[hsl(var(--accent))]">
+          <span className="hero-tag mb-6 inline-flex items-center gap-1.5 rounded-full border border-[hsl(var(--accent))]/20 bg-[hsl(var(--accent))]/8 px-3 py-1 text-xs font-semibold text-[hsl(var(--accent))] sm:text-sm sm:px-4">
             <span className="h-1.5 w-1.5 rounded-full bg-[hsl(var(--accent))]" />
             Anonymous  Moderated
           </span>
@@ -54,29 +81,25 @@ export default function Home() {
           <div className="hero-body mt-8 flex flex-wrap items-center justify-center gap-3">
             <Link
               href="/submit"
-              className="inline-flex items-center gap-2 rounded-xl bg-[hsl(var(--accent))] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-[hsl(var(--accent))]/20 transition-all duration-200 hover:opacity-90 hover:shadow-[hsl(var(--accent))]/30 active:scale-[0.97]"
+              className="inline-flex items-center gap-2 rounded-xl bg-[hsl(var(--accent))] px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-[hsl(var(--accent))]/20 transition-all duration-200 hover:opacity-90 hover:shadow-[hsl(var(--accent))]/30 active:scale-[0.97] sm:px-6 sm:py-3"
             >
               <PenLine className="h-4 w-4" />
               Write a confession
             </Link>
             <a
               href="#how-it-works"
-              className="inline-flex items-center gap-2 rounded-xl border border-[hsl(var(--border))] bg-transparent px-6 py-3 text-sm font-semibold text-[hsl(var(--foreground))] transition-all duration-200 hover:border-[hsl(var(--accent))]/40 hover:bg-[hsl(var(--accent))]/5 hover:text-[hsl(var(--accent))] active:scale-[0.97]"
+              className="inline-flex items-center gap-2 rounded-xl border border-[hsl(var(--border))] bg-transparent px-5 py-2.5 text-sm font-semibold text-[hsl(var(--foreground))] transition-all duration-200 hover:border-[hsl(var(--accent))]/40 hover:bg-[hsl(var(--accent))]/5 hover:text-[hsl(var(--accent))] active:scale-[0.97] sm:px-6 sm:py-3"
             >
               How it works
             </a>
           </div>
 
           {/* Feature highlights — bento: full-width first card on mobile, half-half for rest */}
-          <div className="hero-body mt-10 grid w-full max-w-2xl grid-cols-2 gap-3 sm:grid-cols-3">
-            {[
-              { icon: Lock, title: "No account needed", desc: "Zero sign-up. Fully anonymous.", span: "col-span-2 sm:col-span-1" },
-              { icon: ShieldCheck, title: "Moderated", desc: "Every post reviewed for safety.", span: "col-span-1" },
-              { icon: Zap, title: "Easy to submit", desc: "Write and send — we handle the rest.", span: "col-span-1" },
-            ].map(({ icon: Icon, title, desc, span }) => (
+          <div className="hero-body mt-10 grid w-full max-w-2xl grid-cols-1 gap-3 xs:grid-cols-2 sm:grid-cols-3">
+            {featureHighlights.map(({ icon: Icon, title, desc, span }) => (
               <TiltCard
                 key={title}
-                className={`flex flex-col items-center gap-2 rounded-xl border border-[hsl(var(--border))]/60 bg-[hsl(var(--card))]/60 px-4 py-4 text-center backdrop-blur-sm ${span}`}
+                className={`flex flex-col items-center gap-2 rounded-xl border border-[hsl(var(--border))]/60 bg-[hsl(var(--card))]/60 px-4 py-4 text-center backdrop-blur-sm ${span} w-full`}
                 aria-label={title}
               >
                 <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[hsl(var(--accent))]/10">
@@ -123,33 +146,14 @@ export default function Home() {
             </p>
             <h2 data-scroll-child className="mb-5 text-xl font-bold text-[hsl(var(--foreground))]">Three simple steps</h2>
 
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
-              {[
-                {
-                  step: "01",
-                  icon: PenLine,
-                  title: "Write",
-                  desc: "Type your confession — no login, no name, no trace.",
-                },
-                {
-                  step: "02",
-                  icon: MessageSquare,
-                  title: "Queue",
-                  desc: "Your confession joins a review queue — moderators check each one.",
-                },
-                {
-                  step: "03",
-                  icon: Send,
-                  title: "Publish",
-                  desc: "Approved confessions go live for the whole community.",
-                },
-              ].map((item) => {
+            <div className="grid grid-cols-1 gap-3 xs:grid-cols-2 sm:grid-cols-3 sm:gap-4">
+              {howItWorksSteps.map((item) => {
                 const Icon = item.icon;
                 return (
                   <TiltCard
                     data-scroll-child
                     key={item.step}
-                    className="group relative flex cursor-pointer flex-col justify-between gap-6 overflow-hidden rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-5 transition-all duration-200 hover:border-[hsl(var(--accent))]/30 hover:bg-[hsl(var(--accent))]/5 hover:shadow-md hover:shadow-[hsl(var(--accent))]/8 active:scale-[0.98]"
+                    className="group relative flex cursor-pointer flex-col justify-between gap-6 overflow-hidden rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-4 transition-all duration-200 hover:border-[hsl(var(--accent))]/30 hover:bg-[hsl(var(--accent))]/5 hover:shadow-md hover:shadow-[hsl(var(--accent))]/8 active:scale-[0.98] sm:p-5"
                     aria-label={item.title}
                   >
                     {/* subtle bg glow on hover */}
@@ -180,7 +184,7 @@ export default function Home() {
 
           {/*  Guidelines teaser  */}
           <section data-scroll className="mb-10 rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-6 py-5 transition-all duration-200 hover:border-[hsl(var(--accent))]/25">
-            <div className="flex items-start justify-between gap-4">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div>
                 <p className="text-sm font-bold text-[hsl(var(--foreground))]">Community guidelines</p>
                 <ul className="mt-3 space-y-2">
@@ -209,14 +213,14 @@ export default function Home() {
           {/*  Bottom CTA  */}
           <section data-scroll className="group relative mb-16 cursor-default overflow-hidden rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-8 py-10 text-center transition-all duration-300 hover:border-[hsl(var(--accent))]/30 hover:shadow-lg hover:shadow-[hsl(var(--accent))]/8">
             {/* accent glow blob on hover */}
-            <div className="pointer-events-none absolute -right-8 -top-8 h-40 w-40 rounded-full bg-[hsl(var(--accent))]/10 opacity-0 blur-3xl transition-opacity duration-500 group-hover:opacity-100" />
+            <div className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full bg-[hsl(var(--accent))]/10 opacity-0 blur-3xl transition-opacity duration-500 group-hover:opacity-100 sm:h-40 sm:w-40" />
             {/* bottom-left mirror blob */}
-            <div className="pointer-events-none absolute -bottom-8 -left-8 h-32 w-32 rounded-full bg-[hsl(var(--accent))]/6 opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-100" />
-            <p className="relative text-lg font-black text-[hsl(var(--foreground))] sm:text-2xl">Ready to confess?</p>
-            <p className="relative mt-1.5 text-sm text-[hsl(var(--muted-foreground))]">Anonymous. Queued. Reviewed by humans.</p>
+            <div className="pointer-events-none absolute -bottom-8 -left-8 h-24 w-24 rounded-full bg-[hsl(var(--accent))]/6 opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-100 sm:h-32 sm:w-32" />
+            <p className="relative text-base font-black text-[hsl(var(--foreground))] xs:text-lg sm:text-2xl">Ready to confess?</p>
+            <p className="relative mt-1.5 text-xs text-[hsl(var(--muted-foreground))] xs:text-sm">Anonymous. Queued. Reviewed by humans.</p>
             <Link
               href="/submit"
-              className="relative mt-6 inline-flex items-center gap-2 rounded-xl bg-[hsl(var(--accent))] px-6 py-3 text-sm font-bold text-white shadow-md shadow-[hsl(var(--accent))]/20 transition-all duration-200 hover:scale-105 hover:opacity-90 active:scale-[0.98]"
+              className="relative mt-6 inline-flex items-center gap-2 rounded-xl bg-[hsl(var(--accent))] px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-[hsl(var(--accent))]/20 transition-all duration-200 hover:scale-105 hover:opacity-90 active:scale-[0.98] sm:px-6 sm:py-3"
             >
               <PenLine className="h-4 w-4" />
               Start writing
