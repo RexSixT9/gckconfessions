@@ -81,7 +81,7 @@ export default function RootLayout({
           {/* ── Header ── */}
           <HeaderNav />
 
-          <div className="flex min-h-[calc(100svh-3.5rem-var(--announcement-height,0px))] flex-col">
+          <div className="flex min-h-[calc(100svh-var(--header-height)-var(--announcement-height,0px))] flex-col">
             {children}
             <Footer />
           </div>
