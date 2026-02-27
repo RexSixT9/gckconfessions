@@ -9,6 +9,7 @@ import {
   PenLine,
   Lock,
   Zap,
+  ArrowRight,
 } from "lucide-react";
 import gsap from "gsap";
 
@@ -26,17 +27,20 @@ export default function Home() {
       {
         icon: Lock,
         title: "No account needed",
-        desc: "Zero sign-up. Fully anonymous.",
+        desc: "Zero sign-up — write and send without ever sharing your identity.",
+        tag: "100% anonymous",
       },
       {
         icon: ShieldCheck,
-        title: "Moderated",
-        desc: "Every post reviewed for safety.",
+        title: "Human-reviewed",
+        desc: "Every confession is read by a real moderator before it goes live.",
+        tag: "Safe space",
       },
       {
         icon: Zap,
-        title: "Easy to submit",
-        desc: "Write and send — we handle the rest.",
+        title: "Instant to submit",
+        desc: "Takes under a minute. Just write what's on your mind and hit send.",
+        tag: "No friction",
       },
     ],
     []
@@ -74,31 +78,21 @@ export default function Home() {
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({ defaults: { ease: "power2.out" } });
 
-      tl.from(".hero-tag", {
-        opacity: 0,
-        y: 24,
-        duration: 0.5,
-      })
+      tl.from(".hero-tag", { opacity: 0, y: 20, duration: 0.45 })
         .from(
           ".hero-char",
-          {
-            opacity: 0,
-            y: 8,
-            stagger: 0.02,
-            duration: 0.2,
-            filter: "blur(4px)",
-          },
-          "-=0.3"
+          { opacity: 0, y: 10, stagger: 0.018, duration: 0.22, filter: "blur(5px)" },
+          "-=0.25"
         )
         .from(
           ".hero-body",
-          {
-            opacity: 0,
-            y: 24,
-            stagger: 0.1,
-            duration: 0.5,
-          },
+          { opacity: 0, y: 20, stagger: 0.09, duration: 0.45 },
           "-=0.2"
+        )
+        .from(
+          ".hero-card",
+          { opacity: 0, y: 28, x: 12, stagger: 0.1, duration: 0.5 },
+          "-=0.35"
         );
     }, heroRef);
 
@@ -117,80 +111,115 @@ export default function Home() {
 
   return (
     <main className="flex-1">
-      <div className="mx-auto w-full max-w-4xl px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">
 
         {/* ============================= HERO ============================= */}
         <section
           ref={heroRef}
-          className="flex min-h-[calc(100svh-var(--header-height)-var(--announcement-height,0px))] flex-col items-center justify-center py-16 text-center"
+          className="flex min-h-[calc(100svh-var(--header-height)-var(--announcement-height,0px))] flex-col items-center justify-center py-16 lg:flex-row lg:items-center lg:gap-16"
         >
-          {/* Tag */}
-          <span className="hero-tag mb-6 inline-flex items-center gap-2 rounded-full border border-[hsl(var(--accent))]/20 bg-[hsl(var(--accent))]/10 px-4 py-1.5 text-xs font-semibold text-[hsl(var(--accent))]">
-            <span className="h-1.5 w-1.5 rounded-full bg-[hsl(var(--accent))]" />
-            Anonymous &bull; Moderated
-          </span>
+          {/* ── Left column: headline + copy + CTAs ── */}
+          <div className="flex flex-col items-center text-center lg:items-start lg:text-left lg:flex-1">
+            {/* Tag pill */}
+            <span className="hero-tag mb-5 inline-flex items-center gap-2 rounded-full border border-[hsl(var(--accent))]/25 bg-[hsl(var(--accent))]/10 px-4 py-1.5 text-xs font-semibold tracking-wide text-[hsl(var(--accent))]">
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[hsl(var(--accent))]" />
+              Anonymous &bull; Moderated &bull; Free
+            </span>
 
-          {/* Heading */}
-          <h1 className="max-w-2xl text-4xl font-black tracking-tight sm:text-5xl md:text-6xl">
-            {"Say what you've been holding back."
-              .split(" ")
-              .map((word, i, arr) => {
-                const highlight = word === "holding" || word === "back.";
-                const isLast = i === arr.length - 1;
-                return (
-                  <span
-                    key={i}
-                    className={`inline-block ${isLast ? "" : "mr-[0.25em]"}${highlight ? " text-[hsl(var(--accent))]" : ""
-                      }`}
-                  >
-                    {word.split("").map((c, j) => (
-                      <span key={j} className="hero-char inline-block">
-                        {c}
-                      </span>
-                    ))}
-                  </span>
-                );
-              })}
-          </h1>
+            {/* Heading */}
+            <h1 className="max-w-xl text-4xl font-black tracking-tight sm:text-5xl lg:text-[3.25rem] lg:leading-[1.1]">
+              {"Say what you've been holding back."
+                .split(" ")
+                .map((word, i, arr) => {
+                  const highlight = word === "holding" || word === "back.";
+                  const isLast = i === arr.length - 1;
+                  return (
+                    <span
+                      key={i}
+                      className={`inline-block ${isLast ? "" : "mr-[0.25em]"}${highlight ? " text-[hsl(var(--accent))]" : ""
+                        }`}
+                    >
+                      {word.split("").map((c, j) => (
+                        <span key={j} className="hero-char inline-block">{c}</span>
+                      ))}
+                    </span>
+                  );
+                })}
+            </h1>
 
-          {/* Subtext */}
-          <p className="hero-body mt-6 max-w-md text-base text-[hsl(var(--muted-foreground))] sm:text-lg">
-            Share anonymously. Every confession is reviewed before it appears &mdash;
-            no account, no trace.
-          </p>
+            {/* Subtext */}
+            <p className="hero-body mt-5 max-w-sm text-base leading-relaxed text-[hsl(var(--muted-foreground))] sm:text-lg">
+              Share anonymously. Every confession is reviewed before it appears &mdash; no account, no trace.
+            </p>
 
-          {/* Buttons */}
-          <div className="hero-body mt-8 flex flex-wrap items-center justify-center gap-3">
-            <Link
-              href="/submit"
-              className="inline-flex items-center gap-2 rounded-xl bg-[hsl(var(--accent))] px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 active:scale-[0.98]"
-            >
-              <PenLine className="h-4 w-4" />
-              Write a confession
-            </Link>
+            {/* CTAs */}
+            <div className="hero-body mt-7 flex flex-wrap items-center justify-center gap-3 lg:justify-start">
+              <Link
+                href="/submit"
+                className="inline-flex items-center gap-2 rounded-xl bg-[hsl(var(--accent))] px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 active:scale-[0.98]"
+              >
+                <PenLine className="h-4 w-4" />
+                Write a confession
+              </Link>
+              <a
+                href="#how-it-works"
+                className="inline-flex items-center gap-1.5 rounded-xl border border-[hsl(var(--border))] px-6 py-3 text-sm font-semibold text-[hsl(var(--foreground))] transition hover:border-[hsl(var(--accent))]/50 hover:text-[hsl(var(--accent))]"
+              >
+                How it works
+                <ArrowRight className="h-3.5 w-3.5" />
+              </a>
+            </div>
 
-            <a
-              href="#how-it-works"
-              className="inline-flex items-center gap-2 rounded-xl border border-[hsl(var(--border))] px-6 py-3 text-sm font-semibold text-[hsl(var(--foreground))] transition hover:border-[hsl(var(--accent))]/60 hover:text-[hsl(var(--accent))]"
-            >
-              How it works
-            </a>
+            {/* Trust micro-row */}
+            <div className="hero-body mt-8 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 lg:justify-start">
+              {["No sign-up", "Human review", "Free forever"].map((item) => (
+                <span key={item} className="flex items-center gap-1.5 text-xs text-[hsl(var(--muted-foreground))]">
+                  <span className="h-1 w-1 rounded-full bg-[hsl(var(--accent))]" />
+                  {item}
+                </span>
+              ))}
+            </div>
           </div>
 
-          {/* Feature Cards */}
-          <div className="hero-body mt-12 grid w-full grid-cols-1 gap-4 sm:grid-cols-3">
-            {featureHighlights.map(({ icon: Icon, title, desc }) => (
+          {/* ── Right column: Feature cards ── */}
+          <div className="mt-12 flex w-full flex-col gap-3 sm:max-w-md lg:mt-0 lg:w-auto lg:min-w-[22rem] lg:flex-1 lg:max-w-[26rem]">
+            {featureHighlights.map(({ icon: Icon, title, desc, tag }, idx) => (
               <TiltCard
                 key={title}
-                className="rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-6 text-center shadow-sm"
+                className={`hero-card group relative overflow-hidden rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-5 shadow-sm transition-all duration-300 hover:border-[hsl(var(--accent))]/40 hover:shadow-lg ${idx === 1 ? "sm:translate-x-4 lg:translate-x-6" : ""
+                  }`}
               >
-                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-[hsl(var(--accent))]/10">
-                  <Icon className="h-5 w-5 text-[hsl(var(--accent))]" />
+                {/* Subtle glow on hover */}
+                <div className="pointer-events-none absolute inset-0 rounded-2xl bg-[hsl(var(--accent))]/0 transition-all duration-300 group-hover:bg-[hsl(var(--accent))]/[0.03]" />
+
+                <div className="flex items-start gap-4">
+                  {/* Icon */}
+                  <div className="relative shrink-0">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[hsl(var(--accent))]/10 ring-1 ring-[hsl(var(--accent))]/15 transition-colors duration-300 group-hover:bg-[hsl(var(--accent))]/15">
+                      <Icon className="h-5 w-5 text-[hsl(var(--accent))]" />
+                    </div>
+                  </div>
+
+                  {/* Text */}
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-sm font-bold tracking-tight text-[hsl(var(--foreground))]">
+                        {title}
+                      </h3>
+                      <span className="shrink-0 rounded-full bg-[hsl(var(--accent))]/10 px-2 py-0.5 text-[10px] font-semibold text-[hsl(var(--accent))]">
+                        {tag}
+                      </span>
+                    </div>
+                    <p className="mt-1.5 text-xs leading-relaxed text-[hsl(var(--muted-foreground))]">
+                      {desc}
+                    </p>
+                  </div>
                 </div>
-                <h3 className="text-sm font-bold tracking-tight">{title}</h3>
-                <p className="mt-1.5 text-xs leading-relaxed text-[hsl(var(--muted-foreground))]">
-                  {desc}
-                </p>
+
+                {/* Bottom accent line */}
+                <div className="mt-4 h-px w-full overflow-hidden rounded-full bg-[hsl(var(--border))]">
+                  <div className="h-full w-0 rounded-full bg-[hsl(var(--accent))]/60 transition-all duration-500 group-hover:w-full" />
+                </div>
               </TiltCard>
             ))}
           </div>
@@ -243,7 +272,7 @@ export default function Home() {
                         {item.step}
                       </span>
                       <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[hsl(var(--secondary))]">
-                        <Icon className="h-4.5 w-4.5 text-[hsl(var(--muted-foreground))]" />
+                        <Icon className="h-4 w-4 text-[hsl(var(--muted-foreground))]" />
                       </div>
                     </div>
 
@@ -259,9 +288,9 @@ export default function Home() {
 
           {/* Bottom CTA */}
           <section data-scroll className="relative mb-20 overflow-hidden rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-6 py-12 text-center shadow-sm sm:px-14 sm:py-16">
-            {/* Subtle glow */}
+            {/* Subtle radial glow */}
             <div className="pointer-events-none absolute inset-0 flex items-center justify-center" aria-hidden>
-              <div className="h-48 w-48 rounded-full bg-[hsl(var(--accent))] opacity-[0.05] blur-3xl" />
+              <div className="h-56 w-56 rounded-full bg-[hsl(var(--accent))] opacity-[0.06] blur-3xl" />
             </div>
 
             <span className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-[hsl(var(--accent))]/20 bg-[hsl(var(--accent))]/8 px-3 py-1 text-xs font-semibold text-[hsl(var(--accent))]">
