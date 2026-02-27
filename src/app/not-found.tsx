@@ -46,26 +46,26 @@ export default function NotFound() {
   return (
     <div ref={pageRef} className="flex flex-1 flex-col items-center justify-center">
       {/* 404 Section */}
-      <section className="mx-auto w-full max-w-2xl px-4 py-12 sm:px-6 sm:py-20">
+      <section className="mx-auto w-full max-w-2xl px-4 py-8 sm:px-6 sm:py-16">
         <div className="flex flex-col items-center text-center">
           {/* 404 Illustration */}
-          <div className="relative mb-8 sm:mb-12">
+          <div className="relative mb-6 sm:mb-10">
             {/* Gradient Background */}
             <div className="absolute inset-0 rounded-full bg-linear-to-br from-[hsl(var(--accent))]/20 to-[hsl(var(--accent))]/5 blur-3xl"></div>
 
             {/* 404 Text */}
             <div className="relative">
-              <h1 className="text-6xl font-bold tracking-tighter text-[hsl(var(--foreground))] sm:text-9xl lg:text-[12rem]">
+              <h1 className="text-5xl font-bold tracking-tighter text-[hsl(var(--foreground))] sm:text-8xl lg:text-[10rem]">
                 404
               </h1>
-              <div className="absolute inset-0 bg-linear-to-r from-[hsl(var(--accent))]/30 to-transparent bg-clip-text text-6xl font-bold tracking-tighter text-transparent sm:text-9xl lg:text-[12rem]">
+              <div className="absolute inset-0 bg-linear-to-r from-[hsl(var(--accent))]/30 to-transparent bg-clip-text text-5xl font-bold tracking-tighter text-transparent sm:text-8xl lg:text-[10rem]">
                 404
               </div>
             </div>
           </div>
 
           {/* Message */}
-          <div className="mb-8 max-w-2xl space-y-4 sm:mb-12">
+          <div className="mb-6 max-w-2xl space-y-3 sm:mb-10 sm:space-y-4">
             <div className="inline-flex items-center gap-2 rounded-full border border-[hsl(var(--border))]/70 bg-[hsl(var(--card))] px-4 py-2">
               <Search className="h-4 w-4 text-[hsl(var(--accent))]" />
               <span className="text-xs font-semibold text-[hsl(var(--accent))]">
@@ -73,11 +73,11 @@ export default function NotFound() {
               </span>
             </div>
 
-            <h2 className="text-xl font-semibold tracking-tight text-[hsl(var(--foreground))] sm:text-3xl lg:text-4xl">
+            <h2 className="text-lg font-semibold tracking-tight text-[hsl(var(--foreground))] sm:text-2xl lg:text-3xl">
               Page not found
             </h2>
 
-            <p className="text-base leading-relaxed text-[hsl(var(--muted-foreground))] sm:text-lg">
+            <p className="text-sm leading-relaxed text-[hsl(var(--muted-foreground))] sm:text-base">
               The page you requested doesn&apos;t exist.
             </p>
 
@@ -105,7 +105,7 @@ export default function NotFound() {
           <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-center sm:gap-3">
             <button
               onClick={handleGoHome}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[hsl(var(--accent))] px-6 py-3 text-sm font-semibold text-[hsl(var(--accent-foreground))] shadow-sm transition hover:opacity-90 active:scale-95 sm:w-auto sm:px-7"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[hsl(var(--accent))] px-5 py-2.5 text-sm font-semibold text-[hsl(var(--accent-foreground))] shadow-sm transition hover:opacity-90 active:scale-95 sm:w-auto sm:px-7 sm:py-3"
             >
               <Home className="h-4 w-4" />
               Home
@@ -113,7 +113,7 @@ export default function NotFound() {
 
             <button
               onClick={handleGoBack}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-[hsl(var(--border))] px-6 py-3 text-sm font-semibold text-[hsl(var(--foreground))] transition hover:border-[hsl(var(--accent))]/40 hover:text-[hsl(var(--accent))] active:scale-95 sm:w-auto sm:px-7"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-[hsl(var(--border))] px-5 py-2.5 text-sm font-semibold text-[hsl(var(--foreground))] transition hover:border-[hsl(var(--accent))]/40 hover:text-[hsl(var(--accent))] active:scale-95 sm:w-auto sm:px-7 sm:py-3"
             >
               <ArrowLeft className="h-4 w-4" />
               Go back

@@ -143,10 +143,10 @@ export default function SubmitPage() {
   return (
     <div ref={pageRef} className="flex flex-1 flex-col">
       <main className="flex-1">
-        <div className="mx-auto w-full max-w-xl px-4 py-6 sm:px-6 sm:py-10">
+        <div className="mx-auto w-full max-w-xl px-4 py-5 sm:px-6 sm:py-10">
 
           {/* Page header */}
-          <div data-animate className="mb-5">
+          <div data-animate className="mb-4 sm:mb-5">
             <Link
               href="/"
               className="inline-flex items-center gap-1.5 rounded-lg border border-[hsl(var(--border))] bg-transparent px-2.5 py-1.5 text-xs font-medium text-[hsl(var(--muted-foreground))] transition hover:border-[hsl(var(--accent))]/40 hover:text-[hsl(var(--accent))]"
@@ -163,7 +163,7 @@ export default function SubmitPage() {
           </div>
 
           {/* Form card */}
-          <div data-animate className="bento-cell p-5 sm:p-7">
+          <div data-animate className="bento-cell p-4 sm:p-6">
             <form onSubmit={handleSubmit} className="space-y-5">
               {/* Honeypot */}
               <input

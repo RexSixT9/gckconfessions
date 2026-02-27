@@ -137,13 +137,13 @@ export default function Home() {
           ref={heroRef}
           className={[
             // Exact viewport height minus header + banner — hero fills precisely one screen.
-            // min-h-[500px] prevents content from being crushed on very small phones.
+            // min-h-[420px] prevents content from being crushed on very small phones (iPhone SE).
             "h-[calc(100svh-var(--header-height)-var(--announcement-height,0px))]",
-            "min-h-[500px]",
+            "min-h-[420px]",
             // Mobile: column, centered. From lg: row side-by-side.
             "flex flex-col items-center justify-center",
-            "gap-10",
-            "sm:gap-12",
+            "gap-8",
+            "sm:gap-10",
             "lg:flex-row lg:items-center lg:justify-between lg:gap-12",
             "xl:gap-16",
           ].join(" ")}
@@ -151,13 +151,13 @@ export default function Home() {
           {/* ── Left: Headline + copy + CTAs ─────────────────────────────── */}
           <div className="flex w-full flex-col items-center text-center lg:w-auto lg:max-w-[48%] lg:flex-1 lg:items-start lg:text-left xl:max-w-[50%]">
             {/* Tag pill */}
-            <span className="hero-tag mb-4 inline-flex items-center gap-2 rounded-full border border-[hsl(var(--accent))]/25 bg-[hsl(var(--accent))]/10 px-3.5 py-1.5 text-[11px] font-semibold tracking-wide text-[hsl(var(--accent))] sm:text-xs">
+            <span className="hero-tag mb-3 inline-flex items-center gap-1.5 rounded-full border border-[hsl(var(--accent))]/25 bg-[hsl(var(--accent))]/10 px-3 py-1 text-[10px] font-semibold tracking-wide text-[hsl(var(--accent))] sm:mb-4 sm:gap-2 sm:px-3.5 sm:py-1.5 sm:text-xs">
               <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[hsl(var(--accent))]" />
               Anonymous &bull; Moderated &bull; Free
             </span>
 
             {/* Heading — tightly responsive scale */}
-            <h1 className="max-w-xs text-3xl font-black tracking-tight sm:max-w-md sm:text-4xl md:text-5xl lg:max-w-none lg:text-[2.75rem] xl:text-[3.25rem] xl:leading-[1.08]">
+            <h1 className="max-w-[280px] text-[1.65rem] font-black leading-[1.15] tracking-tight sm:max-w-sm sm:text-3xl md:max-w-md md:text-4xl lg:max-w-none lg:text-[2.75rem] xl:text-[3.25rem] xl:leading-[1.08]">
               {"Say what you've been holding back."
                 .split(" ")
                 .map((word, i, arr) => {
@@ -178,23 +178,23 @@ export default function Home() {
             </h1>
 
             {/* Subtext */}
-            <p className="hero-body mt-4 max-w-xs text-sm leading-relaxed text-[hsl(var(--muted-foreground))] sm:max-w-sm sm:text-base sm:leading-relaxed md:max-w-md lg:mt-5 lg:max-w-sm xl:text-lg">
+            <p className="hero-body mt-3 max-w-[260px] text-[13px] leading-relaxed text-[hsl(var(--muted-foreground))] sm:mt-4 sm:max-w-sm sm:text-sm md:max-w-md md:text-base lg:mt-5 lg:max-w-sm xl:text-lg">
               Share anonymously. Every confession is reviewed before it appears &mdash;
               no account, no trace.
             </p>
 
             {/* CTAs */}
-            <div className="hero-body mt-6 flex flex-wrap items-center justify-center gap-3 lg:justify-start lg:mt-7">
+            <div className="hero-body mt-5 flex flex-wrap items-center justify-center gap-2.5 sm:mt-6 sm:gap-3 lg:justify-start lg:mt-7">
               <Link
                 href="/submit"
-                className="inline-flex items-center gap-2 rounded-xl bg-[hsl(var(--accent))] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 active:scale-[0.98] sm:px-6 sm:py-3"
+                className="inline-flex items-center gap-2 rounded-xl bg-[hsl(var(--accent))] px-4 py-2 text-[13px] font-semibold text-white shadow-sm transition hover:opacity-90 active:scale-[0.98] sm:px-6 sm:py-2.5 sm:text-sm"
               >
-                <PenLine className="h-4 w-4" />
+                <PenLine className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                 Write a confession
               </Link>
               <a
                 href="#how-it-works"
-                className="inline-flex items-center gap-1.5 rounded-xl border border-[hsl(var(--border))] px-5 py-2.5 text-sm font-semibold text-[hsl(var(--foreground))] transition hover:border-[hsl(var(--accent))]/50 hover:text-[hsl(var(--accent))] sm:px-6 sm:py-3"
+                className="inline-flex items-center gap-1.5 rounded-xl border border-[hsl(var(--border))] px-4 py-2 text-[13px] font-semibold text-[hsl(var(--foreground))] transition hover:border-[hsl(var(--accent))]/50 hover:text-[hsl(var(--accent))] sm:px-6 sm:py-2.5 sm:text-sm"
               >
                 How it works
                 <ArrowRight className="h-3.5 w-3.5" />
@@ -214,24 +214,22 @@ export default function Home() {
 
           {/* ── Right: Feature cards ──────────────────────────────────────── */}
           <div className={[
-            "flex w-full flex-col gap-3",
-            // Phone: full width stacked
-            "max-w-sm",          // cap width on phone so cards don't stretch to 100vw on large phones
-            "sm:max-w-md",       // allow a bit wider on tablet
+            "flex w-full flex-col gap-2.5",
+            // Phone: cap width so cards don't stretch on large phones
+            "max-w-[340px]",
+            "sm:max-w-md sm:gap-3",
             "lg:max-w-none lg:w-auto lg:flex-1 lg:max-w-[46%]",
             "xl:max-w-[44%]",
           ].join(" ")}>
-            {featureHighlights.map(({ icon: Icon, title, desc, tag }, idx) => (
+            {featureHighlights.map(({ icon: Icon, title, desc, tag }) => (
               <TiltCard
                 key={title}
                 className={[
                   "hero-card group relative overflow-hidden rounded-2xl",
                   "border border-[hsl(var(--border))] bg-[hsl(var(--card))]",
-                  "p-4 sm:p-5",
+                  "p-3.5 sm:p-4 md:p-5",
                   "shadow-sm transition-all duration-300",
                   "hover:border-[hsl(var(--accent))]/40 hover:shadow-md",
-                  // Stagger offset — only on lg+ where layout is side-by-side
-                  idx === 1 ? "lg:translate-x-5 xl:translate-x-7" : "",
                 ].join(" ")}
               >
                 {/* Hover glow layer */}
@@ -271,10 +269,10 @@ export default function Home() {
         </section>
 
         {/* ======================== BELOW FOLD ======================== */}
-        <div ref={contentRef} className="pb-6 sm:pb-10">
+        <div ref={contentRef} className="pb-8 sm:pb-12">
 
           {/* Showcase */}
-          <section data-scroll className="mb-12 sm:mb-14">
+          <section data-scroll className="mb-10 sm:mb-14">
             <p className="mb-3.5 text-[11px] font-semibold uppercase tracking-widest text-[hsl(var(--muted-foreground))] sm:text-xs">
               From the community
             </p>
@@ -298,7 +296,7 @@ export default function Home() {
           </section>
 
           {/* How It Works */}
-          <section data-scroll id="how-it-works" className="mb-12 sm:mb-14">
+          <section data-scroll id="how-it-works" className="mb-10 sm:mb-14">
             <div className="mb-6 flex items-center gap-3 sm:mb-8">
               <h2 className="text-xl font-bold tracking-tight sm:text-2xl">Three simple steps</h2>
               <div className="h-px flex-1 bg-[hsl(var(--border))]" />
@@ -333,7 +331,7 @@ export default function Home() {
           {/* Bottom CTA */}
           <section
             data-scroll
-            className="relative mb-16 overflow-hidden rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-6 py-10 text-center shadow-sm sm:mb-20 sm:px-12 sm:py-14 lg:px-16 lg:py-16"
+            className="relative mb-12 overflow-hidden rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-5 py-8 text-center shadow-sm sm:mb-20 sm:px-12 sm:py-14 lg:px-16 lg:py-16"
           >
             {/* Radial glow */}
             <div className="pointer-events-none absolute inset-0 flex items-center justify-center" aria-hidden>
