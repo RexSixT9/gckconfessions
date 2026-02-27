@@ -132,7 +132,10 @@ export default function AdminList() {
     }
     const cards = listRef.current.querySelectorAll<HTMLElement>("[data-card]");
     if (!cards.length) return;
-    gsap.from(cards, { opacity: 0, y: 14, duration: 0.35, stagger: 0.04, ease: "power2.out", clearProps: "all" });
+    const ctx = gsap.context(() => {
+      gsap.from(cards, { opacity: 0, y: 14, duration: 0.35, stagger: 0.04, ease: "power2.out", clearProps: "all" });
+    }, listRef);
+    return () => ctx.revert();
   }, [loading, items]);
 
   useEffect(() => { setPage(1); }, [filter, statusFilter, query]);
@@ -347,8 +350,8 @@ export default function AdminList() {
                   type="button"
                   onClick={() => setFilter(f)}
                   className={`shrink-0 rounded-md px-2.5 py-1.5 text-xs font-medium transition sm:py-1 ${filter === f
-                      ? "bg-[hsl(var(--card))] text-[hsl(var(--foreground))] shadow-sm"
-                      : "text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]"
+                    ? "bg-[hsl(var(--card))] text-[hsl(var(--foreground))] shadow-sm"
+                    : "text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]"
                     }`}
                 >
                   {labels[f]}
@@ -367,8 +370,8 @@ export default function AdminList() {
                 type="button"
                 onClick={() => setStatusFilter(s)}
                 className={`shrink-0 rounded-md px-2.5 py-1.5 text-xs font-medium transition sm:py-1 ${statusFilter === s
-                    ? "bg-[hsl(var(--card))] text-[hsl(var(--foreground))] shadow-sm"
-                    : "text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]"
+                  ? "bg-[hsl(var(--card))] text-[hsl(var(--foreground))] shadow-sm"
+                  : "text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]"
                   }`}
               >
                 {s.charAt(0).toUpperCase() + s.slice(1)}
@@ -385,8 +388,8 @@ export default function AdminList() {
       {/* ── Notice ────────────────────────────────────── */}
       {notice && (
         <div className={`flex items-center gap-2.5 rounded-lg border px-3.5 py-2.5 ${notice.type === "error"
-            ? "border-red-200 bg-red-50 text-red-700 dark:border-red-900/30 dark:bg-red-950/20 dark:text-red-300"
-            : "border-green-200 bg-green-50 text-green-700 dark:border-green-900/30 dark:bg-green-950/20 dark:text-green-300"
+          ? "border-red-200 bg-red-50 text-red-700 dark:border-red-900/30 dark:bg-red-950/20 dark:text-red-300"
+          : "border-green-200 bg-green-50 text-green-700 dark:border-green-900/30 dark:bg-green-950/20 dark:text-green-300"
           }`}>
           {notice.type === "error"
             ? <AlertCircle className="h-4 w-4 shrink-0" />

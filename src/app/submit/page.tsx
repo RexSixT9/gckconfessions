@@ -43,7 +43,7 @@ export default function SubmitPage() {
   // Auto-save draft to localStorage when content changes
   useEffect(() => {
     if (!saveDraft) return;
-    
+
     const timer = setTimeout(() => {
       try {
         if (message.trim() || music.trim()) {
@@ -92,7 +92,7 @@ export default function SubmitPage() {
 
     try {
       const submitData = { message, music, website };
-      
+
       const response = await fetch("/api/confessions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -328,6 +328,3 @@ export default function SubmitPage() {
     </div>
   );
 }
-
-
-

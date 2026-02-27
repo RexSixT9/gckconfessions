@@ -91,8 +91,8 @@ export default function AnnouncementBanner() {
             Event
           </span>
           <p className="min-w-0 text-center text-[11px] font-medium leading-snug sm:text-sm">
-            <span className="font-semibold text-[hsl(var(--foreground))]">Confession Week is live</span>
-            <span className="hidden text-[hsl(var(--muted-foreground))] xs:inline"> — share yours before Feb&nbsp;28.</span>
+            <span className="font-semibold text-[hsl(var(--foreground))]">Confessions are open</span>
+            <span className="hidden text-[hsl(var(--muted-foreground))] xs:inline"> — share yours anonymously today.</span>
             <span className="text-[hsl(var(--muted-foreground))]">&nbsp;</span>
             <a
               href="/submit"

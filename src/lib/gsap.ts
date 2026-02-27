@@ -1,4 +1,5 @@
-﻿/**
+﻿"use client";
+/**
  * GSAP animation utilities for Next.js App Router.
  *
  * Core GSAP logic and Re-exports.

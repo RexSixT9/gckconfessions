@@ -142,9 +142,8 @@ export default function Home() {
                 return (
                   <span
                     key={i}
-                    className={`inline-block mr-2 ${
-                      highlight ? "text-[hsl(var(--accent))]" : ""
-                    }`}
+                    className={`inline-block mr-2 ${highlight ? "text-[hsl(var(--accent))]" : ""
+                      }`}
                   >
                     {word.split("").map((c, j) => (
                       <span
@@ -206,7 +205,7 @@ export default function Home() {
         <div ref={contentRef}>
 
           {/* Showcase */}
-          <section className="mb-14">
+          <section data-scroll className="mb-14">
             <p className="mb-4 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
               From the community
             </p>
@@ -228,7 +227,7 @@ export default function Home() {
           </section>
 
           {/* How It Works */}
-          <section id="how-it-works" className="mb-14">
+          <section data-scroll id="how-it-works" className="mb-14">
             <h2 className="mb-8 text-2xl font-bold">
               Three simple steps
             </h2>
@@ -260,7 +259,7 @@ export default function Home() {
           </section>
 
           {/* Bottom CTA */}
-          <section className="mb-20 rounded-2xl border bg-card px-8 py-12 text-center shadow-sm">
+          <section data-scroll className="mb-20 rounded-2xl border bg-card px-8 py-12 text-center shadow-sm">
             <h3 className="text-xl font-bold">
               Ready to confess?
             </h3>

@@ -14,7 +14,7 @@ export default function NotFound() {
   useFadeIn(pageRef);
 
   useEffect(() => {
-    if (!autoRedirect || countdown <= 0) return;
+    if (!autoRedirect) return;
 
     const timer = setInterval(() => {
       setCountdown((prev) => {
@@ -28,7 +28,8 @@ export default function NotFound() {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [autoRedirect, countdown, router]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoRedirect]);
 
   const handleCancelRedirect = () => {
     setAutoRedirect(false);
