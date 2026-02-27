@@ -125,13 +125,9 @@ export async function PATCH(
 
     return NextResponse.json({ confession });
   } catch (error) {
+    console.error("Confession update error:", error);
     return NextResponse.json(
-      {
-        error:
-          error instanceof Error
-            ? error.message
-            : "Failed to update confession.",
-      },
+      { error: "Failed to update confession." },
       { status: 500 }
     );
   }
@@ -221,11 +217,9 @@ export async function DELETE(
 
     return NextResponse.json({ ok: true });
   } catch (error) {
+    console.error("Confession delete error:", error);
     return NextResponse.json(
-      {
-        error:
-          error instanceof Error ? error.message : "Failed to delete confession.",
-      },
+      { error: "Failed to delete confession." },
       { status: 500 }
     );
   }

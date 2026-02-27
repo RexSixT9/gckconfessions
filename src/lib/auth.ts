@@ -18,6 +18,7 @@ export async function signAdminToken(payload: AdminTokenPayload) {
   return new SignJWT({ email: payload.email })
     .setProtectedHeader({ alg: "HS256" })
     .setSubject(payload.sub)
+    .setIssuedAt()            // adds `iat` — used for token invalidation checks
     .setExpirationTime(TOKEN_EXPIRATION)
     .sign(secretKey);
 }
@@ -28,5 +29,6 @@ export async function verifyAdminToken(token: string) {
   return {
     sub: typeof payload.sub === "string" ? payload.sub : "",
     email: typeof payload.email === "string" ? payload.email : "",
+    iat: typeof payload.iat === "number" ? payload.iat : 0,
   };
 }

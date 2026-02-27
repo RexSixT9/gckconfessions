@@ -11,10 +11,13 @@ export const aj = arcjet({
   rules: [
     shield({ mode: "LIVE" }),
     detectBot({ allow: ["CATEGORY:SEARCH_ENGINE"] }),
+    // Global backstop — set high so that per-route rate limiters in
+    // rateLimit.ts are the primary defense. This only catches extreme abuse
+    // (e.g. automated tooling hammering every endpoint at once).
     slidingWindow({
       characteristics: ["ip.src"],
       interval: "10m",
-      max: 5,
+      max: 30,
     }),
   ],
 });

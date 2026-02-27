@@ -104,7 +104,7 @@ export async function POST(request: Request) {
       } catch (logError) {
         console.error("Failed to log failed login attempt:", logError);
       }
-      
+
       return NextResponse.json(
         { error: "Invalid email or password." },
         { status: 401 }
@@ -126,12 +126,12 @@ export async function POST(request: Request) {
       console.error("AuditLog write failed (login):", logErr);
     }
 
-    const response = NextResponse.json({ 
+    const response = NextResponse.json({
       ok: true,
       message: "Login successful.",
       redirectTo: "/admin"
     });
-    
+
     // Set secure httpOnly cookie
     response.cookies.set(COOKIE_NAME, token, {
       ...COOKIE_OPTIONS,
@@ -140,13 +140,9 @@ export async function POST(request: Request) {
 
     return response;
   } catch (error) {
+    console.error("Login error:", error);
     return NextResponse.json(
-      {
-        error:
-          error instanceof Error
-            ? error.message
-            : "Failed to authenticate.",
-      },
+      { error: "Failed to authenticate." },
       { status: 500 }
     );
   }

@@ -39,11 +39,9 @@ export async function GET(request: Request) {
       })),
     });
   } catch (error) {
+    console.error("Admin list error:", error);
     return NextResponse.json(
-      {
-        error: error instanceof Error ? error.message : "Failed to list admins.",
-        code: "SERVER_ERROR"
-      },
+      { error: "Failed to list admins.", code: "SERVER_ERROR" },
       { status: 500 }
     );
   }
@@ -164,11 +162,9 @@ export async function POST(request: Request) {
       { status: 201 }
     );
   } catch (error) {
+    console.error("Admin create error:", error);
     return NextResponse.json(
-      {
-        error: error instanceof Error ? error.message : "Failed to create admin.",
-        code: "SERVER_ERROR"
-      },
+      { error: "Failed to create admin.", code: "SERVER_ERROR" },
       { status: 500 }
     );
   }

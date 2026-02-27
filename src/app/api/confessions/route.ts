@@ -110,13 +110,9 @@ export async function GET(request: Request) {
       { headers: { "Cache-Control": "no-store" } }
     );
   } catch (error) {
+    console.error("Confession list error:", error);
     return NextResponse.json(
-      {
-        error:
-          error instanceof Error
-            ? error.message
-            : "Failed to load confessions.",
-      },
+      { error: "Failed to load confessions." },
       { status: 500 }
     );
   }
@@ -245,13 +241,9 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ confession }, { status: 201 });
   } catch (error) {
+    console.error("Confession submit error:", error);
     return NextResponse.json(
-      {
-        error:
-          error instanceof Error
-            ? error.message
-            : "Failed to submit confession.",
-      },
+      { error: "Failed to submit confession." },
       { status: 500 }
     );
   }

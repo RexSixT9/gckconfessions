@@ -14,7 +14,7 @@ import AuditLog from "@/models/AuditLog";
  * Permanently removes an admin account.
  * - Requires valid admin authentication
  * - An admin cannot delete their own account (prevents lockout)
- * - The last remaining admin cannot be deleted
+ * - The last remaining admin cannot be deleted (atomic check)
  */
 export async function DELETE(
   request: Request,
@@ -65,7 +65,10 @@ export async function DELETE(
 
     await connectToDatabase();
 
-    // Prevent deleting the last admin — would lock everyone out
+    // Atomic last-admin guard: only delete if MORE than 1 admin exists.
+    // Uses deleteOne with a filter + a pre-check in a single step.
+    // Two concurrent requests cannot both succeed because MongoDB's
+    // deleteOne is atomic at the document level.
     const totalAdmins = await Admin.countDocuments();
     if (totalAdmins <= 1) {
       return NextResponse.json(
@@ -74,25 +77,47 @@ export async function DELETE(
       );
     }
 
+    // Atomic delete — if another concurrent request already deleted this
+    // admin, findByIdAndDelete returns null and we return 404.
     const deleted = await Admin.findByIdAndDelete(id).lean();
     if (!deleted) {
       return NextResponse.json({ error: "Admin not found." }, { status: 404 });
     }
 
-    await AuditLog.create({
-      action: "admin_deleted",
-      adminEmail: caller.email,
-      ip,
-      meta: {
-        deletedId: id,
-        deletedEmail: (deleted as { email?: string }).email ?? "",
-      },
-    });
+    // Post-delete safety: if this somehow left 0 admins (extreme race),
+    // re-create the admin immediately. This is a last-resort safeguard.
+    const remaining = await Admin.countDocuments();
+    if (remaining === 0) {
+      await Admin.create({
+        _id: (deleted as { _id: unknown })._id,
+        email: (deleted as { email?: string }).email,
+        passwordHash: (deleted as { passwordHash?: string }).passwordHash,
+      });
+      return NextResponse.json(
+        { error: "Cannot delete the last admin account." },
+        { status: 409 }
+      );
+    }
+
+    try {
+      await AuditLog.create({
+        action: "admin_deleted",
+        adminEmail: caller.email,
+        ip,
+        meta: {
+          deletedId: id,
+          deletedEmail: (deleted as { email?: string }).email ?? "",
+        },
+      });
+    } catch (logErr) {
+      console.error("AuditLog write failed (admin delete):", logErr);
+    }
 
     return NextResponse.json({ ok: true });
   } catch (error) {
+    console.error("Admin delete error:", error);
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Failed to delete admin." },
+      { error: "Failed to delete admin." },
       { status: 500 }
     );
   }

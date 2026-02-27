@@ -99,11 +99,9 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ ok: true }, { status: 201 });
   } catch (error) {
+    console.error("Admin setup error:", error);
     return NextResponse.json(
-      {
-        error:
-          error instanceof Error ? error.message : "Failed to create admin.",
-      },
+      { error: "Failed to create admin." },
       { status: 500 }
     );
   }
