@@ -76,17 +76,16 @@ export default function Home() {
             ].map(({ icon: Icon, title, desc, span }) => (
               <TiltCard
                 key={title}
-                className={`flex flex-col items-center gap-1.5 rounded-xl border border-[hsl(var(--border))]/60 bg-[hsl(var(--card))]/60 px-3 py-3 text-center backdrop-blur-sm ${span}`}
+                className={`flex flex-col items-center gap-2 rounded-xl border border-[hsl(var(--border))]/60 bg-[hsl(var(--card))]/60 px-4 py-4 text-center backdrop-blur-sm ${span}`}
                 aria-label={title}
               >
-                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[hsl(var(--accent))]/10">
-                  <Icon className="h-4 w-4 text-[hsl(var(--accent))]" />
+                <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[hsl(var(--accent))]/10">
+                  <Icon className="h-5 w-5 text-[hsl(var(--accent))]" aria-hidden="true" />
                 </span>
-                <p className="text-xs font-semibold text-[hsl(var(--foreground))] sm:text-sm">{title}</p>
-                <p className="hidden text-[11px] leading-snug text-[hsl(var(--muted-foreground))] sm:block">{desc}</p>
+                <p className="text-sm font-semibold text-[hsl(var(--foreground))]">{title}</p>
+                <p className="hidden text-xs leading-snug text-[hsl(var(--muted-foreground))] sm:block">{desc}</p>
               </TiltCard>
-            )
-            )}
+            ))}
           </div>
         </section>
 
@@ -163,7 +162,7 @@ export default function Home() {
 
                     {/* icon */}
                     <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[hsl(var(--accent))]/10 transition-all duration-200 group-hover:scale-110 group-hover:bg-[hsl(var(--accent))]/25">
-                      <Icon className="h-4.5 w-4.5 text-[hsl(var(--accent))]" />
+                      <Icon className="h-6 w-6 text-[hsl(var(--accent))]" aria-hidden="true" />
                     </span>
 
                     {/* text */}
