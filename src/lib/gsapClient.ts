@@ -5,10 +5,16 @@ import gsap, { ScrollTrigger } from "./gsap";
 // --- Shared tween defaults
 const EASE = "power2.out";
 
+/** Returns true when the user prefers reduced motion. Safe to call in useLayoutEffect (client-only). */
+function prefersReducedMotion(): boolean {
+  if (typeof window === "undefined") return false;
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
 /**
  * Stagger-fade-up for elements matching `selector` inside the container.
- * Pass `deps` to re-trigger the animation when values change (e.g. after
- * an async check completes and the container becomes visible).
+ * Pass `deps` to re-trigger the animation when values change.
+ * Respects prefers-reduced-motion.
  */
 export function useStaggerEntrance(
   container: RefObject<HTMLElement | null>,
@@ -18,13 +24,23 @@ export function useStaggerEntrance(
     delay?: number;
     duration?: number;
     selector?: string;
-    /** Extra deps that, when changed, re-trigger the animation. */
     deps?: unknown[];
   } = {}
 ) {
   useLayoutEffect(() => {
     const el = container.current;
     if (!el) return;
+
+    // Reduced-motion: just make elements visible instantly
+    if (prefersReducedMotion()) {
+      const selector = options.selector || "[data-animate]";
+      el.querySelectorAll(selector).forEach((t) => {
+        (t as HTMLElement).style.opacity = "1";
+        (t as HTMLElement).style.transform = "none";
+      });
+      return;
+    }
+
     const ctx = gsap.context(() => {
       const selector = options.selector || "[data-animate]";
       const targets = el.querySelectorAll(selector);
@@ -37,6 +53,7 @@ export function useStaggerEntrance(
         stagger: options.stagger ?? 0.08,
         delay: options.delay ?? 0,
         duration: options.duration ?? 0.55,
+        clearProps: "all",
         ...options.from,
       });
     }, container);
@@ -47,7 +64,8 @@ export function useStaggerEntrance(
 }
 
 /**
- * Scale + fade for a single element (cards, modals, login form).
+ * Scale + fade entrance for a single element.
+ * Respects prefers-reduced-motion.
  */
 export function useScaleEntrance(
   container: RefObject<HTMLElement | null>,
@@ -61,6 +79,13 @@ export function useScaleEntrance(
 
   useLayoutEffect(() => {
     if (!container.current) return;
+
+    if (prefersReducedMotion()) {
+      container.current.style.opacity = "1";
+      container.current.style.transform = "none";
+      return;
+    }
+
     const ctx = gsap.context(() => {
       gsap.from(container.current!, {
         opacity: 0,
@@ -79,6 +104,7 @@ export function useScaleEntrance(
 
 /**
  * Simple fade-in for navigation / footer elements.
+ * Respects prefers-reduced-motion.
  */
 export function useFadeIn(
   container: RefObject<HTMLElement | null>,
@@ -88,6 +114,13 @@ export function useFadeIn(
 
   useLayoutEffect(() => {
     if (!container.current) return;
+
+    if (prefersReducedMotion()) {
+      container.current.style.opacity = "1";
+      container.current.style.transform = "none";
+      return;
+    }
+
     const ctx = gsap.context(() => {
       gsap.from(container.current!, { opacity: 0, y, duration, delay, ease: EASE, clearProps: "all" });
     }, container);
@@ -98,6 +131,7 @@ export function useFadeIn(
 
 /**
  * Animate a number counting up from 0 to its target value.
+ * Respects prefers-reduced-motion by snapping directly to the final value.
  */
 export function useCountUp(
   container: RefObject<HTMLElement | null>,
@@ -113,6 +147,14 @@ export function useCountUp(
     if (!container.current) return;
     const targets = container.current.querySelectorAll<HTMLElement>("[data-count]");
     if (!targets.length) return;
+
+    if (prefersReducedMotion()) {
+      targets.forEach((el) => {
+        const end = parseInt(el.getAttribute("data-count") || "0", 10);
+        el.textContent = end.toLocaleString();
+      });
+      return;
+    }
 
     const ctx = gsap.context(() => {
       targets.forEach((el, i) => {
@@ -136,6 +178,7 @@ export function useCountUp(
 
 /**
  * Reveal children with a blur-to-clear + slide-up entrance.
+ * Respects prefers-reduced-motion.
  */
 export function useBlurReveal(
   container: RefObject<HTMLElement | null>,
@@ -159,11 +202,21 @@ export function useBlurReveal(
     if (!container.current) return;
     const targets = container.current.querySelectorAll<HTMLElement>(selector);
     if (!targets.length) return;
+
+    if (prefersReducedMotion()) {
+      targets.forEach((t) => {
+        t.style.opacity = "1";
+        t.style.filter = "none";
+        t.style.transform = "none";
+      });
+      return;
+    }
+
     const ctx = gsap.context(() => {
       gsap.from(targets, {
         opacity: 0,
-        y: 20,
-        filter: "blur(8px)",
+        y: 16,
+        filter: "blur(6px)",
         duration,
         stagger,
         delay,
@@ -178,6 +231,8 @@ export function useBlurReveal(
 
 /**
  * Scroll-triggered reveal: elements animate in when they enter the viewport.
+ * Hidden state is applied only after mount to avoid flash of invisible content.
+ * Respects prefers-reduced-motion.
  */
 export function useScrollReveal(
   container: RefObject<HTMLElement | null>,
@@ -191,11 +246,11 @@ export function useScrollReveal(
   } = {}
 ) {
   const {
-    from = { opacity: 0, y: 30 },
+    from = { opacity: 0, y: 28 },
     stagger = 0.1,
-    duration = 0.6,
+    duration = 0.55,
     selector = "[data-scroll]",
-    start = "top 88%",
+    start = "top 90%",
     deps = [],
   } = options;
 
@@ -204,12 +259,23 @@ export function useScrollReveal(
     const targets = container.current.querySelectorAll<HTMLElement>(selector);
     if (!targets.length) return;
 
+    // Reduced-motion: just make everything visible immediately
+    if (prefersReducedMotion()) {
+      targets.forEach((t) => {
+        t.style.opacity = "1";
+        t.style.transform = "none";
+      });
+      return;
+    }
+
     const ctx = gsap.context(() => {
       targets.forEach((target) => {
         const children = target.querySelectorAll<HTMLElement>("[data-scroll-child]");
         const animTargets = children.length > 0 ? children : [target];
 
+        // Set hidden state right away so there's no layout-shift flash
         gsap.set(animTargets, { ...from });
+
         ScrollTrigger.create({
           trigger: target,
           start,
