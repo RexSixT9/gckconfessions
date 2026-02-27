@@ -11,11 +11,13 @@ function prefersReducedMotion(): boolean {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
-// Configure ScrollTrigger once for better mobile scroll compatibility.
-// ignoreMobileResize prevents jumpy re-calculations on iOS during address-bar
-// hide/show. syncInterval keeps triggers up-to-date during iOS momentum scroll.
-if (typeof window !== "undefined") {
-  ScrollTrigger.config({ ignoreMobileResize: true, syncInterval: 40 });
+// Lazy-init ScrollTrigger config — called from the first hook that uses it,
+// guaranteed to be client-side (inside useLayoutEffect).
+let stConfigured = false;
+function ensureScrollTriggerConfig() {
+  if (stConfigured) return;
+  stConfigured = true;
+  ScrollTrigger.config({ ignoreMobileResize: true });
 }
 
 // ── useStaggerEntrance ────────────────────────────────────────────────────────
@@ -180,13 +182,16 @@ export function useBlurReveal(
 /**
  * Scroll-triggered reveal for [data-scroll] sections.
  *
- * Key fixes vs prior version:
- * 1. Uses `immediateRender: false` so elements are NOT set invisible upfront —
- *    avoids flash-of-invisible-content for elements already near the viewport.
- * 2. Uses `gsap.from()` with the `scrollTrigger` option (GSAP's recommended pattern)
- *    so GSAP owns the lifecycle rather than a manual `gsap.set + onEnter`.
- * 3. Calls `ScrollTrigger.refresh()` after setup so triggers whose elements are
- *    already past their start point fire immediately instead of staying hidden.
+ * Strategy:
+ * 1. `gsap.set()` hides elements immediately (no flash — runs in useLayoutEffect).
+ * 2. `ScrollTrigger.create({ onEnter })` tweens them visible when scrolled into view.
+ * 3. After all triggers are created, `ScrollTrigger.refresh()` recalculates positions.
+ *    Any element whose trigger start is already past the scroll position fires `onEnter`
+ *    immediately — preventing permanently-hidden content.
+ *
+ * This pattern is more reliable than `gsap.from({ immediateRender: false })` because:
+ * - Elements are hidden from the very first paint (no visible → visible wobble).
+ * - Already-in-viewport elements are handled by the refresh() safety net.
  */
 export function useScrollReveal(
   container: RefObject<HTMLElement | null>,
@@ -204,14 +209,15 @@ export function useScrollReveal(
     stagger = 0.1,
     duration = 0.55,
     selector = "[data-scroll]",
-    // Fire when the TOP of the element is 92% down the viewport — slightly
-    // earlier than 90% so fast-scrollers on mobile don't miss the trigger.
     start = "top 92%",
     deps = [],
   } = options;
 
   useLayoutEffect(() => {
     if (!container.current) return;
+
+    ensureScrollTriggerConfig();
+
     const targets = container.current.querySelectorAll<HTMLElement>(selector);
     if (!targets.length) return;
 
@@ -226,29 +232,37 @@ export function useScrollReveal(
         const animTargets = children.length > 0 ? Array.from(children) : [target];
         const itemStagger = children.length > 0 ? stagger : 0;
 
-        gsap.from(animTargets, {
-          ...from,
-          duration,
-          stagger: itemStagger,
-          ease: EASE,
-          clearProps: "all",
-          // `immediateRender: false` is the key fix — GSAP will NOT apply the
-          // "from" values until the tween actually plays, so elements stay
-          // visible at their natural CSS state until the trigger fires.
-          immediateRender: false,
-          scrollTrigger: {
-            trigger: target,
-            start,
-            once: true,
-            invalidateOnRefresh: true,
+        // Hide immediately — runs before first paint since we're in useLayoutEffect.
+        gsap.set(animTargets, { ...from });
+
+        ScrollTrigger.create({
+          trigger: target,
+          start,
+          once: true,
+          // When the element enters the viewport, animate to visible.
+          onEnter: () => {
+            gsap.to(animTargets, {
+              opacity: 1,
+              y: 0,
+              x: 0,
+              scale: 1,
+              filter: "blur(0px)",
+              duration,
+              stagger: itemStagger,
+              ease: EASE,
+              clearProps: "all",
+            });
           },
         });
       });
 
-      // After creating all triggers, force a position recalculation.
-      // Any trigger whose element is already past its start point will fire
-      // onEnter immediately, preventing permanently-hidden elements.
-      ScrollTrigger.refresh();
+      // Force recalculation of all trigger positions.
+      // Any trigger whose element is already past `start` will fire onEnter
+      // immediately — this prevents permanently-hidden elements on pages
+      // where the content is already in the viewport on load.
+      requestAnimationFrame(() => {
+        ScrollTrigger.refresh();
+      });
     }, container);
 
     return () => ctx.revert();

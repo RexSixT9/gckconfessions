@@ -109,10 +109,9 @@ export default function Home() {
             clearProps: "all",
           },
           "-=0.28"
-        )
-        // Strip all inline GSAP styles after the timeline finishes so CSS
-        // hover transitions on cards are not blocked by inline opacity/transform.
-        .call(() => { tl.revert(); });
+        );
+      // Each tween above already has clearProps:"all" — no need for tl.revert()
+      // which can fire before the last frame renders on slow devices.
     }, heroRef);
 
     return () => ctx.revert();
@@ -137,12 +136,15 @@ export default function Home() {
         <section
           ref={heroRef}
           className={[
-            "flex min-h-[calc(100svh-var(--header-height)-var(--announcement-height,0px))]",
-            // Mobile: column, centered. From lg: row, space-between.
-            "flex-col items-center justify-center",
-            "gap-10 py-14",
-            "sm:gap-12 sm:py-16",
-            "lg:flex-row lg:items-center lg:justify-between lg:gap-12 lg:py-20",
+            // Exact viewport height minus header + banner — hero fills precisely one screen.
+            // min-h-[500px] prevents content from being crushed on very small phones.
+            "h-[calc(100svh-var(--header-height)-var(--announcement-height,0px))]",
+            "min-h-[500px]",
+            // Mobile: column, centered. From lg: row side-by-side.
+            "flex flex-col items-center justify-center",
+            "gap-10",
+            "sm:gap-12",
+            "lg:flex-row lg:items-center lg:justify-between lg:gap-12",
             "xl:gap-16",
           ].join(" ")}
         >

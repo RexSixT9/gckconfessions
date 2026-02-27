@@ -43,26 +43,29 @@ export default function AnnouncementBanner() {
     handleInit();
   }, []);
 
-  useEffect(() => {
-    if (typeof document === "undefined") return;
-    if (isVisible === null) return;
-
-    const setHeight = () => {
-      const height = isVisible ? `${bannerRef.current?.offsetHeight ?? 0}px` : "0px";
-      document.documentElement.style.setProperty("--announcement-height", height);
-    };
-
-    setHeight();
-
-    if (typeof ResizeObserver !== "undefined" && bannerRef.current) {
-      const observer = new ResizeObserver(() => setHeight());
-      observer.observe(bannerRef.current);
-      return () => observer.disconnect();
-    }
-
+  // Set the CSS variable synchronously before paint so the hero section
+  // never calculates its height with a stale --announcement-height value.
+  useLayoutEffect(() => {
+    if (typeof document === "undefined" || isVisible === null) return;
+    const height = isVisible ? `${bannerRef.current?.offsetHeight ?? 0}px` : "0px";
+    document.documentElement.style.setProperty("--announcement-height", height);
     return () => {
       document.documentElement.style.setProperty("--announcement-height", "0px");
     };
+  }, [isVisible]);
+
+  // Keep the CSS variable updated if the banner resizes (e.g. font scaling).
+  useEffect(() => {
+    if (!isVisible || !bannerRef.current || typeof ResizeObserver === "undefined") return;
+    const el = bannerRef.current;
+    const observer = new ResizeObserver(() => {
+      document.documentElement.style.setProperty(
+        "--announcement-height",
+        `${el.offsetHeight}px`
+      );
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
   }, [isVisible]);
 
   const handleDismiss = useCallback(() => {
