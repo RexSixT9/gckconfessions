@@ -136,10 +136,11 @@ export default function Home() {
         <section
           ref={heroRef}
           className={[
-            // Exact viewport height minus header + banner — hero fills precisely one screen.
-            // min-h-[420px] prevents content from being crushed on very small phones (iPhone SE).
-            "h-[calc(100svh-var(--header-height)-var(--announcement-height,0px))]",
-            "min-h-[420px]",
+            // Exact viewport height minus header + banner — hero fills precisely one screen on desktop.
+            // Using min-h on mobile ensures no text overlapping if the screen height is too small.
+            "min-h-[calc(100svh-var(--header-height)-var(--announcement-height,0px))] lg:h-[calc(100svh-var(--header-height)-var(--announcement-height,0px))]",
+            // Add vertical padding for mobile devices where content might stretch the height
+            "py-12 lg:py-0",
             // Mobile: column, centered. From lg: row side-by-side.
             "flex flex-col items-center justify-center",
             "gap-8",
@@ -215,9 +216,8 @@ export default function Home() {
           {/* ── Right: Feature cards ──────────────────────────────────────── */}
           <div className={[
             "flex w-full flex-col gap-2.5",
-            // Phone: cap width so cards don't stretch on large phones
-            "max-w-[340px]",
-            "sm:max-w-md sm:gap-3",
+            // Phone: allow wider cards on large phones but cap nicely
+            "max-w-sm sm:max-w-md sm:gap-3",
             "lg:max-w-none lg:w-auto lg:flex-1 lg:max-w-[46%]",
             "xl:max-w-[44%]",
           ].join(" ")}>
@@ -285,6 +285,7 @@ export default function Home() {
               ].map((text, i) => (
                 <div
                   key={i}
+                  data-scroll-child
                   className="rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-4 py-3.5 text-sm leading-relaxed text-[hsl(var(--foreground))] shadow-sm transition hover:border-[hsl(var(--accent))]/40 sm:px-5 sm:py-4"
                 >
                   <span className="mr-0.5 select-none text-[hsl(var(--accent))]">&ldquo;</span>
@@ -308,6 +309,7 @@ export default function Home() {
                 return (
                   <TiltCard
                     key={item.step}
+                    data-scroll-child
                     className="rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-5 text-left sm:p-6"
                   >
                     <div className="mb-3.5 flex items-center justify-between sm:mb-4">
