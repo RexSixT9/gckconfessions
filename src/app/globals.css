@@ -135,6 +135,14 @@
 .animation-delay-800 { animation-delay: 800ms; }
 
 /* ─────────────────────────────────────────
+   Modern transition utilities
+───────────────────────────────────────── */
+@layer utilities {
+  .duration-400 { transition-duration: 400ms; }
+  .duration-600 { transition-duration: 600ms; }
+}
+
+/* ─────────────────────────────────────────
    Bento utilities
 ───────────────────────────────────────── */
 .bento-grid {
