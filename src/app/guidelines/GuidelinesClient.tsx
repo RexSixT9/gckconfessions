@@ -101,7 +101,7 @@ export default function GuidelinesClient() {
         <Link
           href="/"
           aria-label="Back to home"
-          className="inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 text-xs font-medium text-muted-foreground transition hover:border-[hsl(var(--accent))] hover:text-[hsl(var(--accent))]"
+          className="inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 text-xs font-medium text-muted-foreground transition-all duration-200 hover:border-[hsl(var(--accent))] hover:text-[hsl(var(--accent))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--accent))]/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[hsl(var(--background))]"
         >
           <ArrowLeft className="h-4 w-4" />
           Home

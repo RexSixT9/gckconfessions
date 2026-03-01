@@ -149,7 +149,7 @@ export default function SubmitPage() {
           <div data-animate className="mb-4 sm:mb-5">
             <Link
               href="/"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-[hsl(var(--border))] bg-transparent px-2.5 py-1.5 text-xs font-medium text-[hsl(var(--muted-foreground))] transition hover:border-[hsl(var(--accent))]/40 hover:text-[hsl(var(--accent))]"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-[hsl(var(--border))] bg-transparent px-2.5 py-1.5 text-xs font-medium text-[hsl(var(--muted-foreground))] transition-all duration-200 hover:border-[hsl(var(--accent))]/40 hover:text-[hsl(var(--accent))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--accent))]/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[hsl(var(--background))]"
             >
               <ArrowLeft className="h-3.5 w-3.5" />
               Home
@@ -273,7 +273,7 @@ export default function SubmitPage() {
                 <button
                   type="submit"
                   disabled={loading || !message.trim()}
-                  className="relative inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[hsl(var(--accent))] py-2.5 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="relative inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[hsl(var(--accent))] py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:opacity-90 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--accent))] focus-visible:ring-offset-2 focus-visible:ring-offset-[hsl(var(--card))] disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loading ? (
                     <>

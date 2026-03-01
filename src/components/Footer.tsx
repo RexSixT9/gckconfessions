@@ -16,7 +16,12 @@ const Footer = memo(function Footer() {
           © {new Date().getFullYear()} GCK Confessions — With love, Batman
         </p>
         <div className="flex gap-4 text-[11px] sm:text-xs">
-          <Link href="/guidelines" className="text-[hsl(var(--muted-foreground))] transition hover:text-[hsl(var(--accent))]">Privacy &amp; Guidelines</Link>
+          <Link 
+            href="/guidelines" 
+            className="text-[hsl(var(--muted-foreground))] transition-all duration-200 hover:text-[hsl(var(--accent))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--accent))]/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[hsl(var(--background))] rounded-sm"
+          >
+            Privacy &amp; Guidelines
+          </Link>
         </div>
       </div>
     </footer>

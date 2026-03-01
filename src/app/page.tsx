@@ -221,14 +221,14 @@ export default function Home() {
             <div className="hero-body mt-6 flex flex-wrap items-center justify-center gap-3 sm:mt-7 sm:gap-3.5 lg:justify-start lg:mt-8">
               <Link
                 href="/submit"
-                className="group inline-flex items-center gap-2.5 rounded-2xl bg-[hsl(var(--accent))] px-5 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:opacity-90 active:scale-[0.98] sm:px-7 sm:py-3 sm:text-[15px]"
+                className="group inline-flex items-center gap-2.5 rounded-xl bg-[hsl(var(--accent))] px-5 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:opacity-90 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--accent))] focus-visible:ring-offset-2 focus-visible:ring-offset-[hsl(var(--background))] sm:px-7 sm:py-3 sm:text-[15px]"
               >
                 <PenLine className="h-4 w-4" />
                 Write a confession
               </Link>
               <a
                 href="#how-it-works"
-                className="group inline-flex items-center gap-2 rounded-2xl border border-[hsl(var(--border))] px-5 py-2.5 text-sm font-semibold text-[hsl(var(--foreground))] transition-all duration-200 hover:border-[hsl(var(--accent))]/40 hover:text-[hsl(var(--accent))] sm:px-7 sm:py-3 sm:text-[15px]"
+                className="group inline-flex items-center gap-2 rounded-xl border border-[hsl(var(--border))] px-5 py-2.5 text-sm font-semibold text-[hsl(var(--foreground))] transition-all duration-200 hover:border-[hsl(var(--accent))]/40 hover:text-[hsl(var(--accent))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--accent))]/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[hsl(var(--background))] sm:px-7 sm:py-3 sm:text-[15px]"
               >
                 How it works
                 <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />
@@ -421,7 +421,7 @@ export default function Home() {
 
               <Link
                 href="/submit"
-                className="mt-7 inline-flex items-center gap-2.5 rounded-2xl bg-[hsl(var(--accent))] px-7 py-3 text-sm font-semibold text-white transition-opacity duration-200 hover:opacity-90 active:scale-[0.98] sm:mt-8 sm:px-8 sm:py-3.5 sm:text-base"
+                className="mt-7 inline-flex items-center gap-2.5 rounded-xl bg-[hsl(var(--accent))] px-7 py-3 text-sm font-semibold text-white transition-all duration-200 hover:opacity-90 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--accent))] focus-visible:ring-offset-2 focus-visible:ring-offset-[hsl(var(--card))] sm:mt-8 sm:px-8 sm:py-3.5 sm:text-base"
               >
                 <PenLine className="h-4 w-4 sm:h-5 sm:w-5" />
                 Start writing

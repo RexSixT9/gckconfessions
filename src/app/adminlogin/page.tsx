@@ -167,7 +167,7 @@ export default function AdminLoginPage() {
             <button
               type="submit"
               disabled={loading || !email || !password}
-              className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[hsl(var(--foreground))] py-3 text-sm font-semibold tracking-wide text-[hsl(var(--background))] transition-all duration-200 hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-40"
+              className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[hsl(var(--foreground))] py-3 text-sm font-semibold tracking-wide text-[hsl(var(--background))] transition-all duration-200 hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--foreground))] focus-visible:ring-offset-2 focus-visible:ring-offset-[hsl(var(--card))] disabled:cursor-not-allowed disabled:opacity-40"
             >
               {loading ? <><Loader className="h-4 w-4 animate-spin" /> Signing in…</> : 'Sign in'}
             </button>

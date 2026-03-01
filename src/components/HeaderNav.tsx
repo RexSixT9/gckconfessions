@@ -22,7 +22,8 @@ export default function HeaderNav() {
         {/* Logo */}
         <Link
           href="/"
-          className="group flex items-center gap-2 rounded-lg px-1 py-1 text-[hsl(var(--foreground))] transition hover:opacity-80"
+          className="group flex items-center gap-2 rounded-lg px-1 py-1 text-[hsl(var(--foreground))] transition-all duration-200 hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--accent))]/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[hsl(var(--background))]"
+          aria-label="GCK Confessions Home"
         >
           <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[hsl(var(--accent))]">
             <Heart className="h-3.5 w-3.5 text-white" strokeWidth={2.5} />
@@ -37,7 +38,7 @@ export default function HeaderNav() {
           {/* Write button — hidden on small screens (hero CTA is visible there) */}
           <Link
             href="/submit"
-            className="hidden items-center gap-1 rounded-lg bg-[hsl(var(--accent))] px-3 py-1.5 text-xs font-semibold text-white transition hover:opacity-90 sm:inline-flex"
+            className="hidden items-center gap-1 rounded-lg bg-[hsl(var(--accent))] px-3 py-1.5 text-xs font-semibold text-white transition-all duration-200 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--accent))] focus-visible:ring-offset-2 focus-visible:ring-offset-[hsl(var(--background))] sm:inline-flex"
           >
             Write
           </Link>
