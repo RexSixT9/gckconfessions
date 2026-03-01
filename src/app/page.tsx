@@ -97,45 +97,45 @@ export default function Home() {
       });
 
       // Tag pill fades in first
-      tl.from(".hero-tag", { opacity: 0, y: 14, duration: 0.45 })
+      tl.from(".hero-tag", { opacity: 0, y: 14, duration: 0.5, delay: 0.1 })
         // Character-by-character reveal with stagger
         .from(
           ".hero-char",
           isTouchDev
-            ? { opacity: 0, y: 10, stagger: 0.012, duration: 0.2 }
+            ? { opacity: 0, y: 10, stagger: 0.015, duration: 0.25 }
             : {
               opacity: 0,
-              y: 10,
-              stagger: 0.015,
-              duration: 0.2,
+              y: 12,
+              stagger: 0.018,
+              duration: 0.25,
               filter: "blur(4px)",
             },
-          "-=0.2"
+          "-=0.15"
         )
         // Body elements cascade in
         .from(
           ".hero-body",
           {
             opacity: 0,
-            y: 18,
-            stagger: 0.08,
-            duration: 0.45,
+            y: 20,
+            stagger: 0.09,
+            duration: 0.5,
           },
-          "-=0.15"
+          "-=0.1"
         )
         // Feature cards slide in with a modern stagger
         .from(
           ".hero-card",
           {
             opacity: 0,
-            y: 24,
-            scale: 0.97,
-            stagger: 0.1,
-            duration: 0.5,
-            ease: "back.out(1.4)",
+            y: 28,
+            scale: 0.96,
+            stagger: 0.12,
+            duration: 0.6,
+            ease: "back.out(1.5)",
             clearProps: "all",
           },
-          "-=0.3"
+          "-=0.25"
         );
     }, heroRef);
 
@@ -145,9 +145,10 @@ export default function Home() {
   /* ------------------------ SCROLL REVEAL BELOW FOLD ------------------------ */
 
   useScrollReveal(contentRef, {
-    from: { opacity: 0, y: 30 },
-    duration: 0.6,
-    stagger: 0.1,
+    from: { opacity: 0, y: 40 },
+    duration: 0.7,
+    stagger: 0.12,
+    start: "top 85%",
   });
 
   /* ------------------------------ RENDER ------------------------------ */
@@ -156,8 +157,8 @@ export default function Home() {
     <main className="flex-1 overflow-hidden">
       {/* ───── Ambient background glow (trendy glassmorphism feel) ───── */}
       <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden" aria-hidden>
-        <div className="absolute -top-32 left-1/2 h-[500px] w-[700px] -translate-x-1/2 rounded-full bg-[hsl(var(--accent))] opacity-[0.04] blur-[120px] sm:h-[600px] sm:w-[900px]" />
-        <div className="absolute bottom-0 right-0 h-[350px] w-[450px] rounded-full bg-[hsl(var(--accent))] opacity-[0.025] blur-[100px]" />
+        <div className="absolute -top-32 left-1/2 h-125 w-175 -translate-x-1/2 rounded-full bg-[hsl(var(--accent))] opacity-[0.04] blur-[120px] sm:h-150 sm:w-225" />
+        <div className="absolute bottom-0 right-0 h-87.5 w-112.5 rounded-full bg-[hsl(var(--accent))] opacity-[0.025] blur-[100px]" />
       </div>
 
       <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">
@@ -211,7 +212,7 @@ export default function Home() {
             </h1>
 
             {/* Subtext */}
-            <p className="hero-body mt-4 max-w-[280px] text-sm leading-relaxed text-[hsl(var(--muted-foreground))] sm:mt-5 sm:max-w-sm sm:text-base md:max-w-md lg:mt-6 lg:max-w-sm xl:text-lg">
+            <p className="hero-body mt-4 max-w-70 text-sm leading-relaxed text-[hsl(var(--muted-foreground))] sm:mt-5 sm:max-w-sm sm:text-base md:max-w-md lg:mt-6 lg:max-w-sm xl:text-lg">
               Share anonymously. Every confession is reviewed before it appears
               &mdash; no account, no trace.
             </p>
@@ -253,7 +254,7 @@ export default function Home() {
             className={[
               "flex w-full flex-col gap-3",
               "max-w-sm sm:max-w-md sm:gap-3.5",
-              "lg:max-w-none lg:w-auto lg:flex-1 lg:max-w-[46%]",
+              "lg:w-auto lg:flex-1 lg:max-w-[46%]",
               "xl:max-w-[44%]",
             ].join(" ")}
           >
@@ -271,7 +272,7 @@ export default function Home() {
                 >
                   {/* Gradient hover background — subtle, no glow */}
                   <div
-                    className={`pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-br ${gradient} opacity-0 transition-opacity duration-400 group-hover:opacity-100`}
+                    className={`pointer-events-none absolute inset-0 rounded-2xl bg-linear-to-br ${gradient} opacity-0 transition-opacity duration-400 group-hover:opacity-100`}
                   />
 
                   <div className="relative z-10 flex items-start gap-4">
@@ -300,7 +301,7 @@ export default function Home() {
 
                   {/* Bottom accent line — gradient sweep on hover */}
                   <div className="relative z-10 mt-4 h-px w-full overflow-hidden rounded-full bg-[hsl(var(--border))]/60">
-                    <div className="absolute inset-y-0 left-0 h-full w-0 rounded-full bg-gradient-to-r from-[hsl(var(--accent))]/60 to-transparent transition-all duration-500 ease-out group-hover:w-full" />
+                    <div className="absolute inset-y-0 left-0 h-full w-0 rounded-full bg-linear-to-r from-[hsl(var(--accent))]/60 to-transparent transition-all duration-500 ease-out group-hover:w-full" />
                   </div>
                 </TiltCard>
               )
@@ -312,11 +313,11 @@ export default function Home() {
         <div ref={contentRef} className="pb-10 sm:pb-16">
           {/* ── Showcase ── */}
           <section data-scroll className="mb-14 sm:mb-20">
-            <div className="mb-5 flex items-center gap-3 sm:mb-6">
+            <div data-scroll-child className="mb-5 flex items-center gap-3 sm:mb-6">
               <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-[hsl(var(--muted-foreground))] sm:text-xs">
                 From the community
               </p>
-              <div className="h-px flex-1 bg-gradient-to-r from-[hsl(var(--border))] to-transparent" />
+              <div className="h-px flex-1 bg-linear-to-r from-[hsl(var(--border))] to-transparent" />
             </div>
 
             <div className="grid gap-3 sm:gap-4 md:grid-cols-3">
@@ -328,13 +329,13 @@ export default function Home() {
                 <div
                   key={i}
                   data-scroll-child
-                  className="rounded-2xl border border-[hsl(var(--border))]/70 bg-[hsl(var(--card))] px-5 py-5 text-sm leading-relaxed text-[hsl(var(--foreground))] transition-colors duration-200 hover:border-[hsl(var(--accent))]/30 sm:px-6 sm:py-6"
+                  className="group rounded-2xl border border-[hsl(var(--border))]/70 bg-[hsl(var(--card))] px-5 py-5 text-sm leading-relaxed text-[hsl(var(--foreground))] transition-all duration-300 hover:border-[hsl(var(--accent))]/40 hover:shadow-md hover:-translate-y-1 sm:px-6 sm:py-6"
                 >
-                  <span className="mr-1 select-none text-lg text-[hsl(var(--accent))]">
+                  <span className="mr-1 select-none text-lg text-[hsl(var(--accent))] transition-transform group-hover:scale-110">
                     &ldquo;
                   </span>
                   {text}
-                  <span className="ml-0.5 select-none text-lg text-[hsl(var(--accent))]">
+                  <span className="ml-0.5 select-none text-lg text-[hsl(var(--accent))] transition-transform group-hover:scale-110">
                     &rdquo;
                   </span>
                 </div>
@@ -344,11 +345,11 @@ export default function Home() {
 
           {/* ── How It Works ── */}
           <section data-scroll id="how-it-works" className="mb-14 sm:mb-20">
-            <div className="mb-8 flex items-center gap-4 sm:mb-10">
+            <div data-scroll-child className="mb-8 flex items-center gap-4 sm:mb-10">
               <h2 className="text-xl font-bold tracking-tight sm:text-2xl md:text-3xl">
                 Three simple steps
               </h2>
-              <div className="h-px flex-1 bg-gradient-to-r from-[hsl(var(--border))] to-transparent" />
+              <div className="h-px flex-1 bg-linear-to-r from-[hsl(var(--border))] to-transparent" />
             </div>
 
             <div className="grid gap-4 sm:gap-5 md:grid-cols-3">
@@ -358,10 +359,10 @@ export default function Home() {
                   <TiltCard
                     key={item.step}
                     data-scroll-child
-                    className="group relative overflow-hidden rounded-2xl border border-[hsl(var(--border))]/70 bg-[hsl(var(--card))] p-6 text-left transition-colors duration-200 hover:border-[hsl(var(--accent))]/30 sm:p-7"
+                    className="group relative overflow-hidden rounded-2xl border border-[hsl(var(--border))]/70 bg-[hsl(var(--card))] p-6 text-left transition-all duration-300 hover:border-[hsl(var(--accent))]/40 hover:shadow-lg sm:p-7"
                   >
                     {/* Large watermark step number */}
-                    <span className="pointer-events-none absolute -right-3 -top-5 text-[6rem] font-black leading-none text-[hsl(var(--foreground))]/[0.03] sm:text-[7rem]">
+                    <span className="pointer-events-none absolute -right-3 -top-5 text-[6rem] font-black leading-none text-[hsl(var(--foreground))]/3 sm:text-[7rem]">
                       {item.step}
                     </span>
 

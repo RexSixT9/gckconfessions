@@ -8,6 +8,8 @@ export default function ThemeToggle() {
   const { theme, resolvedTheme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [showNotification, setShowNotification] = useState(false);
+  // Tracks the theme that was just applied so the notification is always accurate
+  const [notificationIsDark, setNotificationIsDark] = useState(false);
 
   useEffect(() => {
     const t = setTimeout(() => setMounted(true), 0);
@@ -17,9 +19,11 @@ export default function ThemeToggle() {
   const handleThemeToggle = () => {
     const activeTheme = resolvedTheme ?? theme;
     const newTheme = activeTheme === "dark" ? "light" : "dark";
+    const newIsDark = newTheme === "dark";
     setTheme(newTheme);
 
-    // Show notification
+    // Capture the new state before re-render so the notification is correct
+    setNotificationIsDark(newIsDark);
     setShowNotification(true);
     setTimeout(() => setShowNotification(false), 3000);
   };
@@ -46,7 +50,7 @@ export default function ThemeToggle() {
       {showNotification && (
         <div className="absolute right-0 top-12 z-50 animate-slide-down rounded-2xl border border-[hsl(var(--border))]/70 bg-[hsl(var(--card))] px-4 py-2.5 shadow-lg backdrop-blur">
           <p className="whitespace-nowrap text-xs font-medium text-[hsl(var(--foreground))]">
-            {isDark ? '🌙 Dark mode' : '☀️ Light mode'} saved
+            {notificationIsDark ? '🌙 Dark mode' : '☀️ Light mode'} saved
           </p>
         </div>
       )}

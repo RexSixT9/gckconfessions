@@ -19,7 +19,7 @@ export default function SignOutButton() {
       });
 
       if (response.ok || response.redirected) {
-        router.replace("/");
+        router.replace("/adminlogin");
         router.refresh();
         return;
       }
@@ -29,7 +29,7 @@ export default function SignOutButton() {
       setLoading(false);
     }
 
-    router.replace("/");
+    router.replace("/adminlogin");
     router.refresh();
   }, [loading, router]);
 
