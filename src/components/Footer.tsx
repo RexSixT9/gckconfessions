@@ -10,8 +10,8 @@ const Footer = memo(function Footer() {
   useFadeIn(ref, { y: 8, duration: 0.4, delay: 0.1 });
 
   return (
-    <footer ref={ref} className="border-t border-[hsl(var(--border))] bg-[hsl(var(--background))]">
-      <div className="mx-auto flex w-full max-w-6xl flex-col items-center gap-2 px-4 py-4 sm:flex-row sm:justify-between sm:gap-0 sm:px-6">
+    <footer ref={ref} className="border-t border-[hsl(var(--border))]/80 bg-[hsl(var(--background))]">
+      <div className="mx-auto flex w-full max-w-7xl flex-col items-center gap-2 px-4 py-4 sm:flex-row sm:justify-between sm:gap-0 sm:px-6 lg:px-8">
         <p className="text-center text-[11px] text-[hsl(var(--muted-foreground))] sm:text-left sm:text-xs">
           © {new Date().getFullYear()} GCK Confessions — With love, Batman
         </p>

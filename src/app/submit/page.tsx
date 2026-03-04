@@ -165,7 +165,7 @@ export default function SubmitPage() {
       animate="visible"
     >
       <main className="flex-1">
-        <div className="mx-auto w-full max-w-xl px-4 py-5 sm:px-6 sm:py-10">
+        <div className="mx-auto w-full max-w-xl px-4 py-6 sm:px-6 sm:py-10">
 
           {/* Page header */}
           <motion.div variants={itemVariants} className="mb-6">
@@ -339,15 +339,15 @@ export default function SubmitPage() {
               </span>
             </div>
             {/* Stats strip */}
-            <div className="flex divide-x divide-[hsl(var(--border))] border-t border-[hsl(var(--border))]">
+            <div className="flex flex-wrap divide-x divide-[hsl(var(--border))] border-t border-[hsl(var(--border))]">
               {[
                 { icon: Lock, label: "Anonymous" },
                 { icon: Heart, label: "No account" },
                 { icon: Sparkles, label: "Queued review" },
               ].map(({ icon: Icon, label }) => (
-                <div key={label} className="flex flex-1 items-center justify-center gap-2 px-4 py-3.5">
-                  <Icon className="h-3.5 w-3.5 text-[hsl(var(--accent))]" />
-                  <p className="text-xs font-medium text-[hsl(var(--muted-foreground))]">{label}</p>
+                <div key={label} className="flex min-w-0 flex-1 items-center justify-center gap-1.5 px-3 py-3.5 sm:gap-2 sm:px-4">
+                  <Icon className="h-3.5 w-3.5 shrink-0 text-[hsl(var(--accent))]" />
+                  <p className="truncate text-[11px] font-medium text-[hsl(var(--muted-foreground))] sm:text-xs">{label}</p>
                 </div>
               ))}
             </div>

@@ -124,6 +124,43 @@
   }
 }
 
+@keyframes beam-sweep {
+  0% {
+    transform: translateX(-120%) skewX(-15deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(250%) skewX(-15deg);
+    opacity: 0;
+  }
+}
+
+@keyframes beam-pulse {
+  0%, 100% {
+    opacity: 0.4;
+    filter: blur(40px);
+  }
+  50% {
+    opacity: 0.7;
+    filter: blur(60px);
+  }
+}
+
+@keyframes hero-shimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
 @keyframes slide-up {
   from { opacity: 0; transform: translateY(12px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -638,6 +675,8 @@
 ───────────────────────────────────────── */
 html {
   scroll-behavior: smooth;
+  /* Offset for sticky header when navigating to anchors */
+  scroll-padding-top: calc(var(--header-height, 3.5rem) + var(--announcement-height, 0px) + 2rem);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -756,5 +795,72 @@ body {
     padding-left: env(safe-area-inset-left);
     padding-right: env(safe-area-inset-right);
   }
+}
+
+/* ─────────────────────────────────────────
+   Hero beam & gradient utilities
+───────────────────────────────────────── */
+.hero-beam {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.hero-beam::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: 0;
+  width: 20%;
+  height: 200%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    hsl(338 78% 52% / 0.08) 25%,
+    hsl(338 78% 52% / 0.18) 50%,
+    hsl(338 78% 52% / 0.08) 75%,
+    transparent
+  );
+  animation: beam-sweep 8s ease-in-out infinite;
+  animation-delay: 2s;
+}
+
+.hero-beam::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: 0;
+  width: 12%;
+  height: 200%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    hsl(350 80% 60% / 0.05) 30%,
+    hsl(350 80% 60% / 0.12) 50%,
+    hsl(350 80% 60% / 0.05) 70%,
+    transparent
+  );
+  animation: beam-sweep 12s ease-in-out infinite;
+  animation-delay: 5s;
+}
+
+.hero-gradient {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  animation: beam-pulse 6s ease-in-out infinite;
+}
+
+/* Tooltip overflow protection */
+.tooltip-container {
+  position: absolute;
+  z-index: 50;
+  max-width: min(calc(100vw - 2rem), 280px);
+}
+
+.tooltip-container span {
+  white-space: normal;
+  word-wrap: break-word;
 }
 

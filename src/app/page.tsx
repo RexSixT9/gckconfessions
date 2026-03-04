@@ -100,40 +100,42 @@ export default function Home() {
 
   return (
     <main className="flex-1 overflow-hidden">
-      {/* Modern Next.js gradient background with animated orbs */}
+      {/* Modern gradient background with animated beam of light */}
       <div
         className="pointer-events-none fixed inset-0 -z-10 overflow-hidden"
         aria-hidden
       >
-        {/* Animated gradient orbs */}
+        {/* Primary pink/red gradient orb - top left */}
         <div 
-          className="absolute -top-[40%] left-[10%] h-150 w-150 rounded-full bg-linear-to-br from-[hsl(var(--accent))]/12 via-[hsl(var(--accent))]/8 to-transparent"
+          className="hero-gradient absolute -top-[30%] -left-[10%] h-150 w-150 bg-[radial-gradient(circle,hsl(338_78%_52%/0.14)_0%,hsl(350_80%_60%/0.06)_40%,transparent_70%)]"
           style={{
-            animation: 'gradient-shift 20s ease-in-out infinite, gradient-pulse 8s ease-in-out infinite',
-            filter: 'blur(80px)',
+            animation: 'gradient-shift 20s ease-in-out infinite, beam-pulse 8s ease-in-out infinite',
           }}
         />
+        {/* Secondary rose orb - right */}
         <div 
-          className="absolute top-[20%] right-[5%] h-125 w-125 rounded-full bg-linear-to-bl from-[hsl(var(--accent))]/10 via-[hsl(var(--accent))]/6 to-transparent"
+          className="hero-gradient absolute top-[15%] -right-[5%] h-125 w-125 bg-[radial-gradient(circle,hsl(350_70%_55%/0.1)_0%,hsl(338_78%_52%/0.05)_45%,transparent_70%)]"
           style={{
-            animation: 'gradient-shift 25s ease-in-out infinite reverse, gradient-pulse 10s ease-in-out infinite',
-            filter: 'blur(90px)',
+            animation: 'gradient-shift 25s ease-in-out infinite reverse, beam-pulse 10s ease-in-out infinite',
             animationDelay: '-5s',
           }}
         />
+        {/* Deep accent orb - bottom center */}
         <div 
-          className="absolute -bottom-[30%] left-[50%] h-175 w-175 -translate-x-1/2 rounded-full bg-linear-to-tr from-[hsl(var(--accent))]/8 via-[hsl(var(--accent))]/4 to-transparent"
+          className="hero-gradient absolute -bottom-[20%] left-[40%] h-175 w-175 -translate-x-1/2 bg-[radial-gradient(circle,hsl(338_78%_42%/0.08)_0%,hsl(350_60%_50%/0.04)_50%,transparent_70%)]"
           style={{
-            animation: 'gradient-shift 30s ease-in-out infinite, gradient-pulse 12s ease-in-out infinite',
-            filter: 'blur(100px)',
+            animation: 'gradient-shift 30s ease-in-out infinite, beam-pulse 12s ease-in-out infinite',
             animationDelay: '-10s',
           }}
         />
+        {/* Animated beam of light sweeping across */}
+        <div className="hero-beam" />
         {/* Radial gradient overlay for depth */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,hsl(338_78%_52%/0.08),transparent_60%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,transparent_0%,hsl(var(--background))_100%)]" />
         {/* Subtle grid background */}
         <div
-          className="absolute inset-0 opacity-[0.015] dark:opacity-[0.02]"
+          className="absolute inset-0 opacity-[0.015] dark:opacity-[0.025]"
           style={{
             backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='currentColor' stroke-width='1'%3E%3Cpath d='M0 0h60M0 30h60M30 0v60'/%3E%3C/g%3E%3C/svg%3E")`,
           }}
@@ -142,13 +144,13 @@ export default function Home() {
 
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* ============================= HERO SECTION ============================= */}
-        <section className="flex min-h-screen flex-col justify-center gap-16 py-20 sm:gap-20 sm:py-24 md:py-32">
+        <section className="flex min-h-[calc(100svh-var(--header-height)-var(--announcement-height,0px))] flex-col justify-center gap-14 py-16 sm:gap-16 sm:py-20 md:gap-20 md:py-28">
           {/* Main Headline with Framer Motion */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: "easeOut" }}
-            className="flex flex-col items-center gap-6 text-center"
+            className="flex flex-col items-center gap-5 text-center sm:gap-6"
           >
             {/* Floating label */}
             <motion.div
@@ -207,11 +209,11 @@ export default function Home() {
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6, duration: 0.6 }}
-              className="flex flex-col gap-3 sm:flex-row sm:gap-4"
+              className="flex w-full flex-col items-center gap-3 sm:w-auto sm:flex-row sm:gap-4"
             >
               <Link
                 href="/submit"
-                className="btn-primary btn-lg"
+                className="btn-primary btn-lg w-full sm:w-auto"
               >
                 <PenLine className="h-5 w-5 shrink-0" />
                 <span>Start writing</span>
@@ -220,7 +222,7 @@ export default function Home() {
               <Tooltip content="See how it works" side="bottom">
                 <a
                   href="#how-it-works"
-                  className="btn-secondary btn-lg group"
+                  className="btn-secondary btn-lg group w-full sm:w-auto"
                 >
                   Learn more
                   <ArrowRight className="h-5 w-5 shrink-0 transition-transform duration-300 group-hover:translate-x-1" />
@@ -229,31 +231,31 @@ export default function Home() {
             </motion.div>
           </motion.div>
 
-          {/* ─── BENTO GRID ─── 6-col layout, fills every cell perfectly ─── */}
+          {/* ─── BENTO GRID ─── Responsive: 1→2→4 columns ─── */}
           <motion.div
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, margin: "-50px", amount: 0.3 }}
+            viewport={{ once: true, margin: "-50px", amount: 0.2 }}
             variants={{
               hidden: { opacity: 0 },
               visible: {
                 opacity: 1,
                 transition: {
-                  staggerChildren: 0.12,
+                  staggerChildren: 0.1,
                   delayChildren: 0.1,
                 },
               },
             }}
-            className="grid grid-cols-6 grid-rows-2 gap-4 sm:gap-5"
+            className="grid auto-rows-fr grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4 lg:grid-rows-2"
           >
-            {/* Card 1 — Large hero card: columns 1-3, rows 1-2 */}
+            {/* Card 1 — Large hero card: spans 2 cols on sm+, 2 cols + 2 rows on lg */}
             <CursorGlowCard
               variants={{
                 hidden: { opacity: 0, y: 30 },
                 visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
               }}
               whileHover={{ y: -6, transition: { duration: 0.2 } }}
-              className="card-glass border-shine col-span-6 row-span-1 flex flex-col justify-between gap-5 p-6 sm:col-span-3 sm:row-span-2 sm:p-8"
+              className="card-glass border-shine col-span-1 flex flex-col justify-between gap-5 p-6 sm:col-span-2 sm:p-8 lg:row-span-2"
               glowType="both"
             >
               <div>
@@ -285,14 +287,14 @@ export default function Home() {
               </div>
             </CursorGlowCard>
 
-            {/* Card 2 — Human Reviewed: columns 4-6, row 1 */}
+            {/* Card 2 — Human Reviewed: 1 col on mobile, 1 col on sm, spans 2 cols on lg */}
             <CursorGlowCard
               variants={{
                 hidden: { opacity: 0, y: 30 },
                 visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
               }}
               whileHover={{ y: -6, transition: { duration: 0.2 } }}
-              className="card-glass border-shine col-span-6 p-6 sm:col-span-3 sm:row-span-1"
+              className="card-glass border-shine col-span-1 p-6 lg:col-span-2"
               glowType="both"
             >
               <motion.div
@@ -312,14 +314,14 @@ export default function Home() {
               </p>
             </CursorGlowCard>
 
-            {/* Card 3 — Lightning Fast: columns 4-5, row 2 */}
+            {/* Card 3 — Lightning Fast */}
             <CursorGlowCard
               variants={{
                 hidden: { opacity: 0, y: 30 },
                 visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
               }}
               whileHover={{ y: -6, transition: { duration: 0.2 } }}
-              className="card-glass border-shine col-span-6 p-6 sm:col-span-2 sm:row-span-1"
+              className="card-glass border-shine col-span-1 p-6"
               glowType="both"
             >
               <motion.div
@@ -330,23 +332,23 @@ export default function Home() {
                 <Zap className="h-5 w-5 text-[hsl(var(--accent))] sm:h-6 sm:w-6" />
               </motion.div>
               <Tooltip content="Submit in under 60 seconds">
-                <h3 className="inline-block cursor-help border-b border-dashed border-[hsl(var(--accent))]/30 text-sm font-black text-[hsl(var(--foreground))] sm:text-base">
+                <h3 className="inline-block cursor-help border-b border-dashed border-[hsl(var(--accent))]/30 text-base font-black text-[hsl(var(--foreground))] sm:text-lg">
                   Instant Submit
                 </h3>
               </Tooltip>
-              <p className="mt-2.5 text-xs leading-relaxed text-[hsl(var(--muted-foreground))] sm:mt-3 sm:text-sm">
-                Write and send in under a minute
+              <p className="mt-2.5 text-sm leading-relaxed text-[hsl(var(--muted-foreground))] sm:mt-3">
+                Write and send in under a minute. No friction, just start typing.
               </p>
             </CursorGlowCard>
 
-            {/* Card 4 — Safe Space: column 6, row 2 */}
+            {/* Card 4 — Safe Space */}
             <CursorGlowCard
               variants={{
                 hidden: { opacity: 0, y: 30 },
                 visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
               }}
               whileHover={{ y: -6, transition: { duration: 0.2 } }}
-              className="card-glass border-shine col-span-6 p-6 sm:col-span-1 sm:row-span-1"
+              className="card-glass border-shine col-span-1 p-6"
               glowType="both"
             >
               <motion.div
@@ -357,12 +359,12 @@ export default function Home() {
                 <Heart className="h-5 w-5 text-[hsl(var(--accent))] sm:h-6 sm:w-6" />
               </motion.div>
               <Tooltip content="Moderated around the clock">
-                <h3 className="inline-block cursor-help border-b border-dashed border-[hsl(var(--accent))]/30 text-sm font-black text-[hsl(var(--foreground))] sm:text-base">
+                <h3 className="inline-block cursor-help border-b border-dashed border-[hsl(var(--accent))]/30 text-base font-black text-[hsl(var(--foreground))] sm:text-lg">
                   Safe Space
                 </h3>
               </Tooltip>
-              <p className="mt-2.5 text-xs leading-relaxed text-[hsl(var(--muted-foreground))] sm:mt-3 sm:text-sm">
-                Moderated 24/7
+              <p className="mt-2.5 text-sm leading-relaxed text-[hsl(var(--muted-foreground))] sm:mt-3">
+                Moderated 24/7 to keep the community safe and supportive.
               </p>
             </CursorGlowCard>
           </motion.div>
@@ -373,9 +375,9 @@ export default function Home() {
           ref={contentRef}
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true, margin: "-80px", amount: 0.2 }}
+          viewport={{ once: true, margin: "-60px", amount: 0.15 }}
           variants={containerVariants}
-          className="py-20 sm:py-28 md:py-32"
+          className="py-16 sm:py-24 md:py-28"
         >
           {/* Section Header */}
           <motion.section
@@ -408,14 +410,14 @@ export default function Home() {
                   transition={{ delay: index * 0.12, duration: 0.6, ease: "easeOut" }}
                   viewport={{ once: true, margin: "-30px", amount: 0.3 }}
                   whileHover={{ y: -8, transition: { duration: 0.3, ease: "easeOut" } }}
-                  className="card-glass border-shine group relative p-6 sm:p-7 md:p-8"
+                  className="card-glass border-shine group relative overflow-hidden p-6 sm:p-7 md:p-8"
                   glowType="both"
                 >
                   <div className="absolute inset-0 rounded-[inherit] bg-linear-to-br from-[hsl(var(--accent))]/5 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
 
                   {/* Number badge */}
                   <motion.div
-                    className="absolute -right-3 -top-3 flex h-16 w-16 items-center justify-center rounded-full bg-linear-to-br from-[hsl(var(--accent))]/10 to-transparent text-2xl font-black text-[hsl(var(--accent))]/15 transition-all duration-500 group-hover:scale-110 group-hover:text-[hsl(var(--accent))]/30 sm:-right-4 sm:-top-4 sm:h-20 sm:w-20 sm:text-3xl"
+                    className="absolute right-2 top-2 flex h-14 w-14 items-center justify-center rounded-full bg-linear-to-br from-[hsl(var(--accent))]/10 to-transparent text-xl font-black text-[hsl(var(--accent))]/15 transition-all duration-500 group-hover:scale-110 group-hover:text-[hsl(var(--accent))]/30 sm:right-3 sm:top-3 sm:h-16 sm:w-16 sm:text-2xl"
                     initial={{ scale: 0, rotate: -180 }}
                     whileInView={{ scale: 1, rotate: 0 }}
                     transition={{ delay: index * 0.12 + 0.3, duration: 0.6, ease: "backOut" }}

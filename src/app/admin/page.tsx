@@ -38,10 +38,10 @@ export default async function AdminPage() {
 
   return (
     <main className="flex-1 bg-[hsl(var(--background))]">
-      <div className="mx-auto w-full max-w-5xl px-4 pb-16 pt-8 sm:px-6 sm:pt-10">
+      <div className="mx-auto w-full max-w-5xl px-4 pb-16 pt-6 sm:px-6 sm:pt-10">
 
         {/*  Page header  */}
-        <div className="mb-8 flex items-start justify-between gap-4">
+        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <span className="badge badge-accent mb-3 inline-flex uppercase tracking-wider">
               Admin Panel
@@ -58,7 +58,7 @@ export default async function AdminPage() {
 
         {/*  Stats bar  */}
         {stats && (
-          <div className="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
+          <div className="mb-8 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
             {[
               { label: "Total", value: stats.total, cls: "text-[hsl(var(--foreground))]", dot: "bg-[hsl(var(--muted-foreground))]" },
               { label: "Pending", value: stats.pending, cls: "text-[hsl(var(--warning))]", dot: "bg-[hsl(var(--warning))]" },

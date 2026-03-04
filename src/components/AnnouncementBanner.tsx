@@ -108,7 +108,7 @@ export default function AnnouncementBanner() {
         <button
           type="button"
           onClick={handleDismiss}
-          className="ml-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[hsl(var(--muted-foreground))] transition hover:bg-[hsl(var(--secondary))] hover:text-[hsl(var(--foreground))] active:scale-95 sm:ml-1"
+          className="ml-0.5 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[hsl(var(--muted-foreground))] transition hover:bg-[hsl(var(--secondary))] hover:text-[hsl(var(--foreground))] active:scale-95 sm:ml-1"
           aria-label="Close announcement"
         >
           <X className="h-3.5 w-3.5" />

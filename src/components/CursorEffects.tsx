@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 
 interface TrailDot {
   id: number;
@@ -23,6 +23,27 @@ export function CursorEffects() {
   const pulseIdRef = useRef(0);
   const lastMoveTimeRef = useRef(0);
   const rafIdRef = useRef<number | undefined>(undefined);
+  const isActiveRef = useRef(false);
+
+  const fadeTrails = useCallback(() => {
+    setTrails((prev) => {
+      const next = prev
+        .map((trail) => ({
+          ...trail,
+          opacity: trail.opacity - 0.04,
+        }))
+        .filter((trail) => trail.opacity > 0);
+
+      // Stop the RAF loop if no trails remain
+      if (next.length === 0) {
+        isActiveRef.current = false;
+        return next;
+      }
+
+      rafIdRef.current = requestAnimationFrame(fadeTrails);
+      return next;
+    });
+  }, []);
 
   useEffect(() => {
     // Check for reduced motion preference
@@ -31,11 +52,11 @@ export function CursorEffects() {
 
     // Check if touch device
     const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    if (isTouchDevice) return;
 
-    // Throttle trail creation for performance
     const handleMouseMove = (e: MouseEvent) => {
       const now = Date.now();
-      if (now - lastMoveTimeRef.current < 50) return; // 20 FPS for trails
+      if (now - lastMoveTimeRef.current < 60) return; // ~16 FPS for trails
       lastMoveTimeRef.current = now;
 
       const newTrail: TrailDot = {
@@ -45,14 +66,15 @@ export function CursorEffects() {
         opacity: 1,
       };
 
-      setTrails((prev) => {
-        const updated = [...prev, newTrail];
-        // Keep only last 8 dots
-        return updated.slice(-8);
-      });
+      setTrails((prev) => [...prev, newTrail].slice(-6));
+
+      // Start fade loop if not running
+      if (!isActiveRef.current) {
+        isActiveRef.current = true;
+        rafIdRef.current = requestAnimationFrame(fadeTrails);
+      }
     };
 
-    // Create pulse ripple on click
     const handleClick = (e: MouseEvent) => {
       const newPulse: PulseRipple = {
         id: pulseIdRef.current++,
@@ -63,31 +85,13 @@ export function CursorEffects() {
 
       setPulses((prev) => [...prev, newPulse]);
 
-      // Remove after animation completes
       setTimeout(() => {
         setPulses((prev) => prev.filter((p) => p.id !== newPulse.id));
       }, 1000);
     };
 
-    // Fade out trail dots
-    const fadeTrails = () => {
-      setTrails((prev) =>
-        prev
-          .map((trail) => ({
-            ...trail,
-            opacity: trail.opacity - 0.05,
-          }))
-          .filter((trail) => trail.opacity > 0)
-      );
-      rafIdRef.current = requestAnimationFrame(fadeTrails);
-    };
-
-    // Only add effects on non-touch devices
-    if (!isTouchDevice) {
-      window.addEventListener('mousemove', handleMouseMove);
-      window.addEventListener('click', handleClick);
-      rafIdRef.current = requestAnimationFrame(fadeTrails);
-    }
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
+    window.addEventListener('click', handleClick);
 
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
@@ -96,7 +100,7 @@ export function CursorEffects() {
         cancelAnimationFrame(rafIdRef.current);
       }
     };
-  }, []);
+  }, [fadeTrails]);
 
   return (
     <>
@@ -104,13 +108,13 @@ export function CursorEffects() {
       {trails.map((trail, index) => (
         <div
           key={trail.id}
-          className="pointer-events-none fixed z-9999 h-2 w-2 rounded-full bg-[hsl(var(--accent))] mix-blend-screen"
+          className="pointer-events-none fixed z-9999 h-1.5 w-1.5 rounded-full bg-[hsl(var(--accent))] mix-blend-screen"
           style={{
             left: trail.x,
             top: trail.y,
-            opacity: trail.opacity * (index / trails.length), // Gradient fade
+            opacity: trail.opacity * (index / trails.length),
             transform: 'translate(-50%, -50%)',
-            transition: 'opacity 0.1s ease-out',
+            willChange: 'opacity',
           }}
         />
       ))}
