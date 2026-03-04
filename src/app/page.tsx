@@ -51,19 +51,19 @@ export default function Home() {
         step: "01",
         icon: PenLine,
         title: "Write",
-        desc: "Type your confession anonymously",
+        desc: "Put into words what you've been holding back. It's just you and the blank page.",
       },
       {
         step: "02",
         icon: MessageSquare,
         title: "Submit",
-        desc: "Send it to our moderation queue",
+        desc: "Hit send. Our team reviews every confession before it goes anywhere.",
       },
       {
         step: "03",
         icon: Send,
-        title: "Publish",
-        desc: "Go live for the community",
+        title: "Published",
+        desc: "Your words go live — completely anonymous — for thousands to read and relate to.",
       },
     ],
     []
@@ -157,14 +157,14 @@ export default function Home() {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.1, duration: 0.5 }}
-              className="inline-flex items-center gap-2 rounded-lg border border-[hsl(var(--accent))]/20 bg-[hsl(var(--accent))]/5 px-4 py-1.5 backdrop-blur-sm"
+              className="inline-flex items-center gap-2 rounded-full border border-[hsl(var(--accent))]/20 bg-[hsl(var(--accent))]/5 px-4 py-1.5 backdrop-blur-sm"
             >
               <span className="relative flex h-2 w-2">
                 <span className="absolute inline-flex h-full w-full animate-pulse rounded-full bg-[hsl(var(--accent))]" />
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-[hsl(var(--accent))]" />
               </span>
               <span className="text-xs font-semibold text-[hsl(var(--accent))]">
-                Join thousands today
+                Thousands sharing anonymously
               </span>
             </motion.div>
 
@@ -176,15 +176,15 @@ export default function Home() {
               className="flex max-w-4xl flex-col gap-4"
             >
               <h1 className="text-4xl font-black leading-[1.1] tracking-tight text-[hsl(var(--foreground))] sm:text-5xl md:text-6xl lg:text-7xl">
-                <span className="block">Share your truth.</span>
+                <span className="block">Say what you can&apos;t.</span>
                 <span className="block bg-linear-to-r from-[hsl(var(--accent))] via-[hsl(var(--accent))]/80 to-[hsl(var(--accent))]/60 bg-clip-text text-transparent">
                   <TypewriterText
                     phrases={[
                       "Stay anonymous.",
-                      "Share freely.",
                       "Be heard.",
                       "No judgment.",
-                      "Just confess.",
+                      "Speak freely.",
+                      "It stays here.",
                     ]}
                     typingSpeed={50}
                     deletingSpeed={25}
@@ -200,7 +200,7 @@ export default function Home() {
                 transition={{ delay: 0.5, duration: 0.6 }}
                 className="mx-auto max-w-2xl text-base leading-relaxed text-[hsl(var(--muted-foreground))] sm:text-lg md:text-xl"
               >
-                Express yourself freely. Share confessions anonymously within a safe, moderated community. No sign-ups. No judgment. Pure authenticity.
+                A place for things you can't say out loud. Fully anonymous, human-moderated, and judgment-free. No account. No trace. Just honesty.
               </motion.p>
             </motion.div>
 
@@ -271,7 +271,7 @@ export default function Home() {
                   </h3>
                 </Tooltip>
                 <p className="mt-3 text-sm leading-relaxed text-[hsl(var(--muted-foreground))] sm:mt-4 sm:text-base">
-                  Zero sign-up. No identity needed. Your confession is untraceable from the moment you hit send.
+                  No email. No name. No trace. Your words exist completely on their own — untraceable from the moment you hit send.
                 </p>
               </div>
               <div className="flex flex-wrap items-center gap-2">
@@ -308,7 +308,7 @@ export default function Home() {
                 </h3>
               </Tooltip>
               <p className="mt-2.5 text-sm leading-relaxed text-[hsl(var(--muted-foreground))] sm:mt-3">
-                Real moderators read every confession. No bots. No automation.
+                Every submission is read by a real person before it reaches the community. Nothing automated. Nothing missed.
               </p>
             </CursorGlowCard>
 
@@ -334,7 +334,7 @@ export default function Home() {
                 </h3>
               </Tooltip>
               <p className="mt-2.5 text-sm leading-relaxed text-[hsl(var(--muted-foreground))] sm:mt-3">
-                Write and send in under a minute. No friction, just start typing.
+                Open the page, type, hit send. The whole thing takes under 60 seconds with zero friction.
               </p>
             </CursorGlowCard>
 
@@ -360,7 +360,7 @@ export default function Home() {
                 </h3>
               </Tooltip>
               <p className="mt-2.5 text-sm leading-relaxed text-[hsl(var(--muted-foreground))] sm:mt-3">
-                Moderated 24/7 to keep the community safe and supportive.
+                Real humans keep this space kind and safe around the clock — because a community is only as good as its people.
               </p>
             </CursorGlowCard>
           </motion.div>
@@ -386,10 +386,10 @@ export default function Home() {
                 How it works
               </span>
               <h2 className="mt-3 text-3xl font-black text-[hsl(var(--foreground))] sm:text-4xl md:text-5xl">
-                Three simple steps
+                Done in three steps
               </h2>
               <p className="mt-4 text-base leading-relaxed text-[hsl(var(--muted-foreground))] sm:text-lg">
-                No registration. No verification. Just pure, anonymous expression.
+                No account. No email. No verification. Just say what&apos;s on your mind.
               </p>
             </div>
           </motion.section>
@@ -464,7 +464,7 @@ export default function Home() {
                 viewport={{ once: true }}
               >
                 <h3 className="text-2xl font-black text-[hsl(var(--foreground))] sm:text-3xl md:text-4xl lg:text-5xl">
-                  Ready to share?
+                  Your secret is safe here.
                 </h3>
               </motion.div>
 
@@ -475,7 +475,7 @@ export default function Home() {
                 viewport={{ once: true }}
                 className="max-w-2xl text-sm text-[hsl(var(--muted-foreground))] sm:text-base md:text-lg"
               >
-                Join thousands expressing themselves anonymously. No judgment. Pure connection. Your confession matters.
+                Thousands of people have already shared what they couldn't say out loud. Whatever it is — big, small, silly, or serious — it deserves to be heard.
               </motion.p>
 
               <motion.div
