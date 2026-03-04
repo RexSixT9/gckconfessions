@@ -101,7 +101,7 @@ export default function GuidelinesClient() {
         <Link
           href="/"
           aria-label="Back to home"
-          className="inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 text-xs font-medium text-muted-foreground transition-all duration-200 hover:border-[hsl(var(--accent))] hover:text-[hsl(var(--accent))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--accent))]/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[hsl(var(--background))]"
+          className="btn-ghost"
         >
           <ArrowLeft className="h-4 w-4" />
           Home
@@ -109,42 +109,42 @@ export default function GuidelinesClient() {
       </div>
 
       {/* ================= Header ================= */}
-      <header className="pb-8 pt-6">
-        <span className="inline-flex items-center gap-2 rounded-full border border-[hsl(var(--accent))]/20 bg-[hsl(var(--accent))]/10 px-3 py-1 text-xs font-semibold text-[hsl(var(--accent))]">
-          <BookOpen className="h-4 w-4" />
+      <header className="pb-10 pt-8">
+        <span className="badge badge-accent">
+          <BookOpen className="h-3.5 w-3.5" />
           Privacy & Guidelines
         </span>
 
-        <h1 className="mt-4 text-3xl font-black tracking-tight sm:text-4xl">
+        <h1 className="mt-5 text-4xl font-black tracking-tight sm:text-5xl">
           How this space works.
         </h1>
 
-        <p className="mt-3 max-w-xl text-sm text-muted-foreground sm:text-base">
+        <p className="mt-4 max-w-xl text-base text-muted-foreground">
           GCK Confessions is built on anonymity, care, and trust. Please review
           our privacy practices and community standards before posting.
         </p>
       </header>
 
       {/* ================= Privacy Section ================= */}
-      <section className="mb-10 rounded-2xl border bg-card">
-        <div className="flex items-center gap-3 border-b px-5 py-4">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[hsl(var(--accent))]/15">
-            <Lock className="h-4 w-4 text-[hsl(var(--accent))]" />
+      <section className="card mb-12">
+        <div className="flex items-center gap-4 border-b px-6 py-5">
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[hsl(var(--accent))]/15">
+            <Lock className="h-5 w-5 text-[hsl(var(--accent))]" />
           </div>
-          <h2 className="text-base font-bold">Privacy Policy</h2>
+          <h2 className="text-lg font-black">Privacy Policy</h2>
         </div>
 
-        <div className="grid gap-4 p-5 sm:grid-cols-2">
+        <div className="grid gap-5 p-6 sm:grid-cols-2">
           {privacyPoints.map(({ icon: Icon, title, body }) => (
             <TiltCard
               key={title}
-              className="rounded-xl border bg-muted/30 p-4 transition hover:shadow-sm"
+              className="card-glass p-5"
             >
-              <div className="mb-2 flex h-8 w-8 items-center justify-center rounded-lg bg-secondary">
-                <Icon className="h-4 w-4 text-muted-foreground" />
+              <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-secondary">
+                <Icon className="h-5 w-5 text-muted-foreground" />
               </div>
-              <h3 className="text-sm font-semibold">{title}</h3>
-              <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
+              <h3 className="text-sm font-bold">{title}</h3>
+              <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
                 {body}
               </p>
             </TiltCard>
@@ -153,12 +153,12 @@ export default function GuidelinesClient() {
       </section>
 
       {/* ================= Community Guidelines ================= */}
-      <section className="mb-10 rounded-2xl border bg-card">
-        <div className="flex items-center gap-3 border-b px-5 py-4">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[hsl(var(--accent))]/15">
-            <Heart className="h-4 w-4 text-[hsl(var(--accent))]" />
+      <section className="card mb-12">
+        <div className="flex items-center gap-4 border-b px-6 py-5">
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[hsl(var(--accent))]/15">
+            <Heart className="h-5 w-5 text-[hsl(var(--accent))]" />
           </div>
-          <h2 className="text-base font-bold">Community Guidelines</h2>
+          <h2 className="text-lg font-black">Community Guidelines</h2>
         </div>
 
         <div className="divide-y">
@@ -166,27 +166,27 @@ export default function GuidelinesClient() {
             const isAccept = variant === "accept";
 
             return (
-              <div key={label} className="px-5 py-5">
+              <div key={label} className="px-6 py-6">
                 <div
-                  className={`mb-3 inline-flex items-center gap-2 rounded-md px-2 py-0.5 text-xs font-semibold ${
+                  className={`mb-4 inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-bold uppercase tracking-wider ${
                     isAccept
                       ? "border border-emerald-500/30 bg-emerald-500/10 text-emerald-600"
                       : "border border-red-500/30 bg-red-500/10 text-red-600"
                   }`}
                 >
                   {isAccept ? (
-                    <ShieldCheck className="h-3 w-3" />
+                    <ShieldCheck className="h-3.5 w-3.5" />
                   ) : (
-                    <AlertTriangle className="h-3 w-3" />
+                    <AlertTriangle className="h-3.5 w-3.5" />
                   )}
                   {label}
                 </div>
 
-                <ul className="space-y-2 text-xs text-muted-foreground">
+                <ul className="space-y-3 text-sm text-muted-foreground">
                   {items.map((item) => (
-                    <li key={item} className="flex gap-2">
+                    <li key={item} className="flex gap-3">
                       <span
-                        className={`mt-1.5 h-1.5 w-1.5 rounded-full ${
+                        className={`mt-2 h-1.5 w-1.5 rounded-full ${
                           isAccept ? "bg-emerald-500" : "bg-red-500"
                         }`}
                       />
@@ -201,12 +201,12 @@ export default function GuidelinesClient() {
       </section>
 
       {/* ================= Enforcement ================= */}
-      <section className="mb-12 rounded-2xl border bg-muted/40 p-5">
-        <div className="flex gap-3">
-          <AlertTriangle className="mt-0.5 h-5 w-5 text-amber-500" />
+      <section className="card-glass mb-16 p-6">
+        <div className="flex gap-4">
+          <AlertTriangle className="mt-0.5 h-6 w-6 shrink-0 text-amber-500" />
           <div>
-            <h3 className="text-sm font-semibold">Enforcement</h3>
-            <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
+            <h3 className="text-base font-bold">Enforcement</h3>
+            <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
               All submissions are reviewed before publication. Violating posts
               are rejected without notification. Repeated abuse may result in
               rate-limiting or temporary submission blocks. Moderators have

@@ -38,7 +38,7 @@ export default function HeaderNav() {
           {/* Write button — hidden on small screens (hero CTA is visible there) */}
           <Link
             href="/submit"
-            className="hidden items-center gap-1 rounded-lg bg-[hsl(var(--accent))] px-3 py-1.5 text-xs font-semibold text-white transition-all duration-200 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--accent))] focus-visible:ring-offset-2 focus-visible:ring-offset-[hsl(var(--background))] sm:inline-flex"
+            className="btn-primary btn-sm hidden sm:inline-flex"
           >
             Write
           </Link>

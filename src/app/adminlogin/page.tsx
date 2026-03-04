@@ -99,30 +99,30 @@ export default function AdminLoginPage() {
 
         {/* Header */}
         <div className="mb-8 text-center">
-          <span className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))]">
-            <ShieldCheck className="h-6 w-6 text-[hsl(var(--foreground))]" />
+          <span className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))]">
+            <ShieldCheck className="h-7 w-7 text-[hsl(var(--foreground))]" />
           </span>
-          <h1 className="text-xl font-bold tracking-tight text-[hsl(var(--foreground))]">Admin sign in</h1>
-          <p className="mt-1.5 text-sm text-[hsl(var(--muted-foreground))]">Access moderation tools</p>
+          <h1 className="text-2xl font-black tracking-tight text-[hsl(var(--foreground))]">Admin sign in</h1>
+          <p className="mt-2 text-sm text-[hsl(var(--muted-foreground))]">Access moderation tools</p>
         </div>
 
         {/* Card */}
-        <div className="rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-7 shadow-sm">
+        <div className="card p-8 shadow-lg">
           {/* Notice */}
           {notice && (
-            <div className={`mb-5 flex items-start gap-2.5 rounded-lg border p-3.5 text-sm ${notice.type === 'error'
+            <div className={`mb-6 flex items-start gap-3 rounded-xl border p-4 text-sm ${notice.type === 'error'
                 ? 'border-red-200 bg-red-50 text-red-700 dark:border-red-900/40 dark:bg-red-950/20 dark:text-red-400'
                 : 'border-green-200 bg-green-50 text-green-700 dark:border-green-900/40 dark:bg-green-950/20 dark:text-green-400'
               }`}>
-              {notice.type === 'error' ? <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" /> : <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />}
+              {notice.type === 'error' ? <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" /> : <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0" />}
               <p>{notice.message}</p>
             </div>
           )}
 
-          <form className="space-y-5" onSubmit={handleSubmit}>
+          <form className="space-y-6" onSubmit={handleSubmit}>
             {/* Email */}
             <div>
-              <label htmlFor="email" className="mb-2 block text-xs font-semibold uppercase tracking-wide text-[hsl(var(--muted-foreground))]">Email</label>
+              <label htmlFor="email" className="mb-3 block text-xs font-bold uppercase tracking-wider text-[hsl(var(--muted-foreground))]">Email</label>
               <div className="relative">
                 <span className="pointer-events-none absolute inset-y-0 left-0 flex w-9 items-center justify-center text-[hsl(var(--muted-foreground))]">
                   <Mail className="h-4 w-4" />
@@ -140,7 +140,7 @@ export default function AdminLoginPage() {
 
             {/* Password */}
             <div>
-              <label htmlFor="password" className="mb-2 block text-xs font-semibold uppercase tracking-wide text-[hsl(var(--muted-foreground))]">Password</label>
+              <label htmlFor="password" className="mb-3 block text-xs font-bold uppercase tracking-wider text-[hsl(var(--muted-foreground))]">Password</label>
               <div className="relative">
                 <span className="pointer-events-none absolute inset-y-0 left-0 flex w-9 items-center justify-center text-[hsl(var(--muted-foreground))]">
                   <KeyRound className="h-4 w-4" />
@@ -167,9 +167,9 @@ export default function AdminLoginPage() {
             <button
               type="submit"
               disabled={loading || !email || !password}
-              className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[hsl(var(--foreground))] py-3 text-sm font-semibold tracking-wide text-[hsl(var(--background))] transition-all duration-200 hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--foreground))] focus-visible:ring-offset-2 focus-visible:ring-offset-[hsl(var(--card))] disabled:cursor-not-allowed disabled:opacity-40"
+              className="btn-primary mt-6 w-full bg-[hsl(var(--foreground))] text-[hsl(var(--background))] hover:bg-[hsl(var(--foreground))]/90"
             >
-              {loading ? <><Loader className="h-4 w-4 animate-spin" /> Signing in…</> : 'Sign in'}
+              {loading ? <><Loader className="h-5 w-5 animate-spin" /> Signing in…</> : 'Sign in'}
             </button>
           </form>
         </div>

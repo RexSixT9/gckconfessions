@@ -196,29 +196,19 @@ export default function Home() {
             >
               <Link
                 href="/submit"
-                className="group relative inline-flex items-center justify-center gap-2 rounded-lg bg-[hsl(var(--accent))] px-8 py-3.5 text-sm font-semibold text-white transition-all duration-300 hover:shadow-lg hover:shadow-[hsl(var(--accent))]/20 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--accent))] focus-visible:ring-offset-2 focus-visible:ring-offset-[hsl(var(--background))] sm:px-10 sm:py-4 sm:text-base overflow-hidden"
+                className="btn-primary btn-lg"
               >
-                <motion.span
-                  className="absolute inset-0 bg-linear-to-r from-white/0 via-white/20 to-white/0"
-                  initial={{ x: "-100%" }}
-                  animate={{ x: "100%" }}
-                  transition={{
-                    repeat: Infinity,
-                    duration: 2,
-                    ease: "linear",
-                  }}
-                />
-                <PenLine className="h-4 w-4 sm:h-5 sm:w-5" />
-                <span className="relative">Start writing</span>
+                <PenLine className="h-5 w-5" />
+                <span>Start writing</span>
               </Link>
 
               <Tooltip content="See how it works" side="bottom">
                 <a
                   href="#how-it-works"
-                  className="group inline-flex items-center justify-center gap-2 rounded-lg border border-[hsl(var(--border))] px-8 py-3.5 text-sm font-semibold text-[hsl(var(--foreground))] transition-all duration-300 hover:border-[hsl(var(--accent))]/50 hover:bg-[hsl(var(--accent))]/5 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--accent))]/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[hsl(var(--background))] sm:px-10 sm:py-4 sm:text-base"
+                  className="btn-secondary btn-lg group"
                 >
                   Learn more
-                  <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1 sm:h-5 sm:w-5" />
+                  <ArrowRight className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
                 </a>
               </Tooltip>
             </motion.div>
@@ -229,33 +219,33 @@ export default function Home() {
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4, duration: 0.8 }}
-            className="grid grid-cols-6 grid-rows-2 gap-4"
+            className="grid grid-cols-6 grid-rows-2 gap-5"
           >
             {/* Card 1 — Large hero card: columns 1-3, rows 1-2 */}
             <motion.div
-              whileHover={{ y: -3 }}
+              whileHover={{ y: -4 }}
               transition={{ type: "spring", stiffness: 300, damping: 25 }}
-              className="col-span-6 row-span-1 flex flex-col justify-between gap-4 overflow-hidden rounded-2xl border border-[hsl(var(--border))]/40 bg-linear-to-br from-[hsl(var(--card))]/90 to-[hsl(var(--card))]/50 p-6 backdrop-blur-md transition-all duration-300 hover:border-[hsl(var(--accent))]/30 hover:shadow-xl sm:col-span-3 sm:row-span-2 sm:p-7"
+              className="card-glass col-span-6 row-span-1 flex flex-col justify-between gap-5 p-7 sm:col-span-3 sm:row-span-2 sm:p-8"
             >
               <div>
-                <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-linear-to-br from-[hsl(var(--accent))]/20 to-[hsl(var(--accent))]/5 ring-1 ring-[hsl(var(--accent))]/10">
-                  <Lock className="h-6 w-6 text-[hsl(var(--accent))]" />
+                <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-xl bg-linear-to-br from-[hsl(var(--accent))]/20 to-[hsl(var(--accent))]/5 ring-1 ring-[hsl(var(--accent))]/10">
+                  <Lock className="h-7 w-7 text-[hsl(var(--accent))]" />
                 </div>
                 <Tooltip content="No account, email, or phone needed" side="right">
-                  <h3 className="inline-block cursor-help border-b border-dashed border-[hsl(var(--accent))]/30 text-2xl font-bold text-[hsl(var(--foreground))] sm:text-3xl">
+                  <h3 className="inline-block cursor-help border-b border-dashed border-[hsl(var(--accent))]/30 text-2xl font-black text-[hsl(var(--foreground))] sm:text-3xl">
                     100% Anonymous
                   </h3>
                 </Tooltip>
-                <p className="mt-3 text-sm leading-relaxed text-[hsl(var(--muted-foreground))] sm:text-base">
+                <p className="mt-4 text-base leading-relaxed text-[hsl(var(--muted-foreground))]">
                   Zero sign-up. No identity needed. Your confession is untraceable from the moment you hit send.
                 </p>
               </div>
-              <div className="flex flex-wrap items-center gap-3">
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-[hsl(var(--accent))]/10 px-3 py-1 text-xs font-semibold text-[hsl(var(--accent))]">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="badge badge-accent">
                   <CheckCircle2 className="h-3.5 w-3.5" />
                   No account required
                 </span>
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-[hsl(var(--accent))]/10 px-3 py-1 text-xs font-semibold text-[hsl(var(--accent))]">
+                <span className="badge badge-accent">
                   <CheckCircle2 className="h-3.5 w-3.5" />
                   Untraceable
                 </span>
@@ -264,57 +254,57 @@ export default function Home() {
 
             {/* Card 2 — Human Reviewed: columns 4-6, row 1 */}
             <motion.div
-              whileHover={{ y: -3 }}
+              whileHover={{ y: -4 }}
               transition={{ type: "spring", stiffness: 300, damping: 25 }}
-              className="col-span-6 overflow-hidden rounded-2xl border border-[hsl(var(--border))]/40 bg-linear-to-br from-[hsl(var(--card))]/90 to-[hsl(var(--card))]/50 p-5 backdrop-blur-md transition-all duration-300 hover:border-[hsl(var(--accent))]/30 hover:shadow-lg sm:col-span-3 sm:row-span-1"
+              className="card-glass col-span-6 p-6 sm:col-span-3 sm:row-span-1"
             >
-              <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-linear-to-br from-[hsl(var(--accent))]/20 to-[hsl(var(--accent))]/5">
-                <ShieldCheck className="h-5 w-5 text-[hsl(var(--accent))]" />
+              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-linear-to-br from-[hsl(var(--accent))]/20 to-[hsl(var(--accent))]/5">
+                <ShieldCheck className="h-6 w-6 text-[hsl(var(--accent))]" />
               </div>
               <Tooltip content="Every post is read before going live">
-                <h3 className="inline-block cursor-help border-b border-dashed border-[hsl(var(--accent))]/30 text-base font-bold text-[hsl(var(--foreground))] sm:text-lg">
+                <h3 className="inline-block cursor-help border-b border-dashed border-[hsl(var(--accent))]/30 text-lg font-black text-[hsl(var(--foreground))]">
                   Human Reviewed
                 </h3>
               </Tooltip>
-              <p className="mt-1.5 text-xs leading-relaxed text-[hsl(var(--muted-foreground))] sm:text-sm">
+              <p className="mt-3 text-sm leading-relaxed text-[hsl(var(--muted-foreground))]">
                 Real moderators read every confession. No bots. No automation.
               </p>
             </motion.div>
 
             {/* Card 3 — Lightning Fast: columns 4-5, row 2 */}
             <motion.div
-              whileHover={{ y: -3 }}
+              whileHover={{ y: -4 }}
               transition={{ type: "spring", stiffness: 300, damping: 25 }}
-              className="col-span-6 overflow-hidden rounded-2xl border border-[hsl(var(--border))]/40 bg-linear-to-br from-[hsl(var(--card))]/90 to-[hsl(var(--card))]/50 p-5 backdrop-blur-md transition-all duration-300 hover:border-[hsl(var(--accent))]/30 hover:shadow-lg sm:col-span-2 sm:row-span-1"
+              className="card-glass col-span-6 p-6 sm:col-span-2 sm:row-span-1"
             >
-              <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-linear-to-br from-[hsl(var(--accent))]/20 to-[hsl(var(--accent))]/5">
-                <Zap className="h-5 w-5 text-[hsl(var(--accent))]" />
+              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-linear-to-br from-[hsl(var(--accent))]/20 to-[hsl(var(--accent))]/5">
+                <Zap className="h-6 w-6 text-[hsl(var(--accent))]" />
               </div>
               <Tooltip content="Submit in under 60 seconds">
-                <h3 className="inline-block cursor-help border-b border-dashed border-[hsl(var(--accent))]/30 text-base font-bold text-[hsl(var(--foreground))]">
+                <h3 className="inline-block cursor-help border-b border-dashed border-[hsl(var(--accent))]/30 text-base font-black text-[hsl(var(--foreground))]">
                   Instant Submit
                 </h3>
               </Tooltip>
-              <p className="mt-1.5 text-xs leading-relaxed text-[hsl(var(--muted-foreground))]">
+              <p className="mt-3 text-sm leading-relaxed text-[hsl(var(--muted-foreground))]">
                 Write and send in under a minute
               </p>
             </motion.div>
 
             {/* Card 4 — Safe Space: column 6, row 2 */}
             <motion.div
-              whileHover={{ y: -3 }}
+              whileHover={{ y: -4 }}
               transition={{ type: "spring", stiffness: 300, damping: 25 }}
-              className="col-span-6 overflow-hidden rounded-2xl border border-[hsl(var(--border))]/40 bg-linear-to-br from-[hsl(var(--card))]/90 to-[hsl(var(--card))]/50 p-5 backdrop-blur-md transition-all duration-300 hover:border-[hsl(var(--accent))]/30 hover:shadow-lg sm:col-span-1 sm:row-span-1"
+              className="card-glass col-span-6 p-6 sm:col-span-1 sm:row-span-1"
             >
-              <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-linear-to-br from-[hsl(var(--accent))]/20 to-[hsl(var(--accent))]/5">
-                <Heart className="h-5 w-5 text-[hsl(var(--accent))]" />
+              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-linear-to-br from-[hsl(var(--accent))]/20 to-[hsl(var(--accent))]/5">
+                <Heart className="h-6 w-6 text-[hsl(var(--accent))]" />
               </div>
               <Tooltip content="Moderated around the clock">
-                <h3 className="inline-block cursor-help border-b border-dashed border-[hsl(var(--accent))]/30 text-base font-bold text-[hsl(var(--foreground))]">
+                <h3 className="inline-block cursor-help border-b border-dashed border-[hsl(var(--accent))]/30 text-base font-black text-[hsl(var(--foreground))]">
                   Safe Space
                 </h3>
               </Tooltip>
-              <p className="mt-1.5 text-xs leading-relaxed text-[hsl(var(--muted-foreground))]">
+              <p className="mt-3 text-sm leading-relaxed text-[hsl(var(--muted-foreground))]">
                 Moderated 24/7
               </p>
             </motion.div>
@@ -347,7 +337,7 @@ export default function Home() {
           </motion.section>
 
           {/* Steps Grid */}
-          <div className="grid gap-4 sm:grid-cols-3 sm:gap-5 md:gap-6">
+          <div className="grid gap-5 sm:grid-cols-3 md:gap-6">
             {howItWorksSteps.map((item, index) => {
               const Icon = item.icon;
               return (
@@ -359,7 +349,7 @@ export default function Home() {
                   transition={{ delay: index * 0.1, duration: 0.6 }}
                   viewport={{ once: true }}
                   whileHover={{ y: -6 }}
-                  className="group relative overflow-hidden rounded-2xl border border-[hsl(var(--border))]/40 bg-linear-to-br from-[hsl(var(--card))]/80 to-[hsl(var(--card))]/40 p-6 backdrop-blur-md transition-all duration-300 hover:border-[hsl(var(--accent))]/30 hover:shadow-lg sm:p-7 md:p-8"
+                  className="card-glass group relative p-7 md:p-8"
                 >
                   <div className="absolute inset-0 bg-linear-to-br from-[hsl(var(--accent))]/5 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
@@ -374,14 +364,14 @@ export default function Home() {
                   <div className="relative z-10">
                     <motion.div
                       whileHover={{ rotate: 12 }}
-                      className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-linear-to-br from-[hsl(var(--accent))]/20 to-[hsl(var(--accent))]/5 transition-colors duration-300 group-hover:from-[hsl(var(--accent))]/30 group-hover:to-[hsl(var(--accent))]/10"
+                      className="mb-5 flex h-14 w-14 items-center justify-center rounded-xl bg-linear-to-br from-[hsl(var(--accent))]/20 to-[hsl(var(--accent))]/5 transition-colors duration-300 group-hover:from-[hsl(var(--accent))]/30 group-hover:to-[hsl(var(--accent))]/10"
                     >
-                      <Icon className="h-6 w-6 text-[hsl(var(--accent))]" />
+                      <Icon className="h-7 w-7 text-[hsl(var(--accent))]" />
                     </motion.div>
-                    <h3 className="text-lg font-bold text-[hsl(var(--foreground))] sm:text-xl">
+                    <h3 className="text-xl font-black text-[hsl(var(--foreground))]">
                       {item.title}
                     </h3>
-                    <p className="mt-2 text-sm leading-relaxed text-[hsl(var(--muted-foreground))]">
+                    <p className="mt-3 text-sm leading-relaxed text-[hsl(var(--muted-foreground))]">
                       {item.desc}
                     </p>
                   </div>
@@ -397,7 +387,7 @@ export default function Home() {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7 }}
             viewport={{ once: true }}
-            className="relative mt-16 overflow-hidden rounded-2xl border border-[hsl(var(--border))]/40 bg-linear-to-br from-[hsl(var(--card))]/80 via-[hsl(var(--card))]/60 to-[hsl(var(--card))]/40 p-10 backdrop-blur-md sm:mt-24 sm:p-14 md:p-16"
+            className="card-glass relative mt-20 p-12 sm:mt-28 sm:p-16 md:p-20"
           >
             <div className="absolute inset-0 bg-linear-to-br from-[hsl(var(--accent))]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
@@ -425,20 +415,10 @@ export default function Home() {
               >
                 <Link
                   href="/submit"
-                  className="group relative inline-flex items-center gap-2 rounded-lg bg-[hsl(var(--accent))] px-8 py-4 text-sm font-semibold text-white transition-all duration-300 hover:shadow-lg hover:shadow-[hsl(var(--accent))]/30 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--accent))] focus-visible:ring-offset-2 focus-visible:ring-offset-[hsl(var(--background))] sm:px-10 sm:py-4.5 sm:text-base overflow-hidden"
+                  className="btn-primary btn-lg"
                 >
-                  <motion.span
-                    className="absolute inset-0 bg-linear-to-r from-white/0 via-white/20 to-white/0"
-                    initial={{ x: "-100%" }}
-                    animate={{ x: "100%" }}
-                    transition={{
-                      repeat: Infinity,
-                      duration: 2,
-                      ease: "linear",
-                    }}
-                  />
                   <PenLine className="h-5 w-5" />
-                  <span className="relative">Write your confession</span>
+                  <span>Write your confession</span>
                 </Link>
               </motion.div>
             </div>

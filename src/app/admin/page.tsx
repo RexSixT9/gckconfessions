@@ -43,13 +43,13 @@ export default async function AdminPage() {
         {/*  Page header  */}
         <div className="mb-8 flex items-start justify-between gap-4">
           <div>
-            <span className="mb-2 inline-flex items-center gap-1.5 rounded-full border border-[hsl(var(--accent))]/20 bg-[hsl(var(--accent))]/8 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-widest text-[hsl(var(--accent))]">
+            <span className="badge badge-accent mb-3 inline-flex uppercase tracking-wider">
               Admin Panel
             </span>
-            <h1 className="text-2xl font-black tracking-tight text-[hsl(var(--foreground))] sm:text-3xl">
+            <h1 className="text-3xl font-black tracking-tight text-[hsl(var(--foreground))] sm:text-4xl">
               Confession Review
             </h1>
-            <p className="mt-1 text-sm text-[hsl(var(--muted-foreground))]">
+            <p className="mt-2 text-sm text-[hsl(var(--muted-foreground))]">
               Review, approve, reject, and manage submissions.
             </p>
           </div>
@@ -58,7 +58,7 @@ export default async function AdminPage() {
 
         {/*  Stats bar  */}
         {stats && (
-          <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
+          <div className="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
             {[
               { label: "Total", value: stats.total, cls: "text-[hsl(var(--foreground))]", dot: "bg-[hsl(var(--muted-foreground))]" },
               { label: "Pending", value: stats.pending, cls: "text-amber-600 dark:text-amber-400", dot: "bg-amber-500" },
@@ -67,20 +67,20 @@ export default async function AdminPage() {
             ].map(({ label, value, cls, dot }) => (
               <div
                 key={label}
-                className="flex flex-col gap-1 rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-5 py-4"
+                className="card flex flex-col gap-2 px-6 py-5"
               >
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-2">
                   <span className={`h-2 w-2 rounded-full ${dot}`} />
-                  <span className="text-xs font-medium text-[hsl(var(--muted-foreground))]">{label}</span>
+                  <span className="text-xs font-semibold text-[hsl(var(--muted-foreground))]">{label}</span>
                 </div>
-                <span className={`text-2xl font-black tabular-nums ${cls}`}>{value}</span>
+                <span className={`text-3xl font-black tabular-nums ${cls}`}>{value}</span>
               </div>
             ))}
           </div>
         )}
 
         {/*  Main list  */}
-        <div className="rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-4 sm:p-6">
+        <div className="card p-6 sm:p-8">
           <AdminList />
         </div>
 
