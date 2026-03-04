@@ -10,19 +10,31 @@ import {
   MessageSquare,
   ArrowLeft,
 } from "lucide-react";
-import { useRef, useMemo } from "react";
+import { useMemo } from "react";
 import Link from "next/link";
-import { useStaggerEntrance } from "@/lib/gsapClient";
+import { motion } from "framer-motion";
 import TiltCard from "@/components/TiltCard";
+import CursorGlowCard from "@/components/CursorGlowCard";
 
 export default function GuidelinesClient() {
-  const contentRef = useRef<HTMLDivElement | null>(null);
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.08,
+      },
+    },
+  };
 
-  useStaggerEntrance(contentRef, {
-    from: { opacity: 0, y: 32 },
-    duration: 0.6,
-    stagger: 0.08,
-  });
+  const itemVariants = {
+    hidden: { opacity: 0, y: 32 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.6 },
+    },
+  };
 
   /* --------------------------- MEMOIZED CONTENT --------------------------- */
 
@@ -92,12 +104,14 @@ export default function GuidelinesClient() {
   /* ----------------------------------------------------------------------- */
 
   return (
-    <main
-      ref={contentRef}
+    <motion.main
       className="mx-auto w-full max-w-3xl px-4 sm:px-6"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
     >
       {/* ================= Back Button ================= */}
-      <div className="pt-8">
+      <motion.div variants={itemVariants} className="pt-8">
         <Link
           href="/"
           aria-label="Back to home"
@@ -106,10 +120,10 @@ export default function GuidelinesClient() {
           <ArrowLeft className="h-4 w-4" />
           Home
         </Link>
-      </div>
+      </motion.div>
 
       {/* ================= Header ================= */}
-      <header className="pb-10 pt-8">
+      <motion.header variants={itemVariants} className="pb-10 pt-8">
         <span className="badge badge-accent">
           <BookOpen className="h-3.5 w-3.5" />
           Privacy & Guidelines
@@ -123,12 +137,16 @@ export default function GuidelinesClient() {
           GCK Confessions is built on anonymity, care, and trust. Please review
           our privacy practices and community standards before posting.
         </p>
-      </header>
+      </motion.header>
 
       {/* ================= Privacy Section ================= */}
-      <section className="card mb-12">
+      <CursorGlowCard
+        variants={itemVariants}
+        className="card border-shine mb-12"
+        glowType="both"
+      >
         <div className="flex items-center gap-4 border-b px-6 py-5">
-          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[hsl(var(--accent))]/15">
+          <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-[hsl(var(--accent))]/15">
             <Lock className="h-5 w-5 text-[hsl(var(--accent))]" />
           </div>
           <h2 className="text-lg font-black">Privacy Policy</h2>
@@ -138,9 +156,9 @@ export default function GuidelinesClient() {
           {privacyPoints.map(({ icon: Icon, title, body }) => (
             <TiltCard
               key={title}
-              className="card-glass p-5"
+              className="card-glass border-shine p-5"
             >
-              <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-secondary">
+              <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-secondary">
                 <Icon className="h-5 w-5 text-muted-foreground" />
               </div>
               <h3 className="text-sm font-bold">{title}</h3>
@@ -150,12 +168,16 @@ export default function GuidelinesClient() {
             </TiltCard>
           ))}
         </div>
-      </section>
+      </CursorGlowCard>
 
       {/* ================= Community Guidelines ================= */}
-      <section className="card mb-12">
+      <CursorGlowCard
+        variants={itemVariants}
+        className="card border-shine mb-12"
+        glowType="both"
+      >
         <div className="flex items-center gap-4 border-b px-6 py-5">
-          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[hsl(var(--accent))]/15">
+          <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-[hsl(var(--accent))]/15">
             <Heart className="h-5 w-5 text-[hsl(var(--accent))]" />
           </div>
           <h2 className="text-lg font-black">Community Guidelines</h2>
@@ -170,8 +192,8 @@ export default function GuidelinesClient() {
                 <div
                   className={`mb-4 inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-bold uppercase tracking-wider ${
                     isAccept
-                      ? "border border-emerald-500/30 bg-emerald-500/10 text-emerald-600"
-                      : "border border-red-500/30 bg-red-500/10 text-red-600"
+                      ? "border border-[hsl(var(--success))]/30 bg-[hsl(var(--success))]/10 text-[hsl(var(--success))]"
+                      : "border border-[hsl(var(--destructive))]/30 bg-[hsl(var(--destructive))]/10 text-[hsl(var(--destructive))]"
                   }`}
                 >
                   {isAccept ? (
@@ -187,7 +209,7 @@ export default function GuidelinesClient() {
                     <li key={item} className="flex gap-3">
                       <span
                         className={`mt-2 h-1.5 w-1.5 rounded-full ${
-                          isAccept ? "bg-emerald-500" : "bg-red-500"
+                          isAccept ? "bg-[hsl(var(--success))]" : "bg-[hsl(var(--destructive))]"
                         }`}
                       />
                       {item}
@@ -198,12 +220,16 @@ export default function GuidelinesClient() {
             );
           })}
         </div>
-      </section>
+      </CursorGlowCard>
 
       {/* ================= Enforcement ================= */}
-      <section className="card-glass mb-16 p-6">
+      <CursorGlowCard
+        variants={itemVariants}
+        className="card-glass border-shine mb-16 p-6"
+        glowType="both"
+      >
         <div className="flex gap-4">
-          <AlertTriangle className="mt-0.5 h-6 w-6 shrink-0 text-amber-500" />
+          <AlertTriangle className="mt-0.5 h-6 w-6 shrink-0 text-[hsl(var(--warning))]" />
           <div>
             <h3 className="text-base font-bold">Enforcement</h3>
             <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
@@ -214,11 +240,11 @@ export default function GuidelinesClient() {
             </p>
           </div>
         </div>
-      </section>
+      </CursorGlowCard>
 
       <p className="mb-14 text-center text-xs text-muted-foreground">
         Last reviewed February 2026.
       </p>
-    </main>
+    </motion.main>
   );
 }

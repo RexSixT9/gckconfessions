@@ -2,16 +2,14 @@
 
 import { useRouter } from 'next/navigation';
 import { Home, ArrowLeft, Search } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
-import { useFadeIn } from '@/lib/gsapClient';
+import { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
 
 
 export default function NotFound() {
   const router = useRouter();
   const [countdown, setCountdown] = useState(10);
   const [autoRedirect, setAutoRedirect] = useState(true);
-  const pageRef = useRef<HTMLDivElement>(null);
-  useFadeIn(pageRef);
 
   useEffect(() => {
     if (!autoRedirect) return;
@@ -44,7 +42,12 @@ export default function NotFound() {
   };
 
   return (
-    <div ref={pageRef} className="flex flex-1 flex-col items-center justify-center">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.6 }}
+      className="flex flex-1 flex-col items-center justify-center"
+    >
       {/* 404 Section */}
       <section className="mx-auto w-full max-w-2xl px-4 py-8 sm:px-6 sm:py-16">
         <div className="flex flex-col items-center text-center">
@@ -121,6 +124,6 @@ export default function NotFound() {
           </div>
         </div>
       </section>
-    </div>
+    </motion.div>
   );
 }

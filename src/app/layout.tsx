@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import HeaderNav from "@/components/HeaderNav";
 import Footer from "@/components/Footer";
+import { CursorEffects } from "@/components/CursorEffects";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -79,6 +80,9 @@ export default function RootLayout({
           disableTransitionOnChange
           storageKey="theme"
         >
+          {/* ── Cursor Effects ── */}
+          <CursorEffects />
+          
           {/* ── Header ── */}
           <HeaderNav />
 

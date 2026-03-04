@@ -67,7 +67,7 @@ export default async function AdminPage() {
             ].map(({ label, value, cls, dot }) => (
               <div
                 key={label}
-                className="card flex flex-col gap-2 px-6 py-5"
+                className="card border-shine flex flex-col gap-2 px-6 py-5"
               >
                 <div className="flex items-center gap-2">
                   <span className={`h-2 w-2 rounded-full ${dot}`} />
@@ -80,7 +80,7 @@ export default async function AdminPage() {
         )}
 
         {/*  Main list  */}
-        <div className="card p-6 sm:p-8">
+        <div className="card border-shine p-6 sm:p-8">
           <AdminList />
         </div>
 

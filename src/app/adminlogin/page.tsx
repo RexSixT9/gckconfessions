@@ -1,9 +1,9 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { AlertCircle, CheckCircle2, Loader, ShieldCheck, Mail, Eye, EyeOff, KeyRound } from "lucide-react";
-import { useScaleEntrance } from "@/lib/gsapClient";
+import { motion, AnimatePresence } from "framer-motion";
 
 
 type Notice = { type: "error" | "success"; message: string } | null;
@@ -79,12 +79,6 @@ export default function AdminLoginPage() {
     }
   };
 
-  // Refs for GSAP animations (hooks must be called unconditionally).
-  // Pass isChecking as a dep so the animation fires once it resolves
-  // and the card is actually in the DOM.
-  const cardContainerRef = useRef<HTMLDivElement>(null);
-  useScaleEntrance(cardContainerRef, { duration: 0.45, delay: 0.05, deps: [isChecking] });
-
   if (isChecking) {
     return (
       <div className="flex flex-1 items-center justify-center">
@@ -94,30 +88,55 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div className="flex flex-1 items-center justify-center px-4 py-8 sm:py-12">
-      <div ref={cardContainerRef} className="w-full max-w-sm">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.4 }}
+      className="flex flex-1 items-center justify-center px-4 py-8 sm:py-12"
+    >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.1, ease: "easeOut" }}
+        className="w-full max-w-sm"
+      >
 
         {/* Header */}
-        <div className="mb-8 text-center">
-          <span className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))]">
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2, duration: 0.5 }}
+          className="mb-8 text-center"
+        >
+          <motion.span
+            initial={{ scale: 0.8 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: 0.3, duration: 0.4, type: "spring", stiffness: 200 }}
+            className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--card))]"
+          >
             <ShieldCheck className="h-7 w-7 text-[hsl(var(--foreground))]" />
-          </span>
+          </motion.span>
           <h1 className="text-2xl font-black tracking-tight text-[hsl(var(--foreground))]">Admin sign in</h1>
           <p className="mt-2 text-sm text-[hsl(var(--muted-foreground))]">Access moderation tools</p>
-        </div>
+        </motion.div>
 
         {/* Card */}
-        <div className="card p-8 shadow-lg">
+        <div className="card border-shine p-8">
           {/* Notice */}
-          {notice && (
-            <div className={`mb-6 flex items-start gap-3 rounded-xl border p-4 text-sm ${notice.type === 'error'
-                ? 'border-red-200 bg-red-50 text-red-700 dark:border-red-900/40 dark:bg-red-950/20 dark:text-red-400'
-                : 'border-green-200 bg-green-50 text-green-700 dark:border-green-900/40 dark:bg-green-950/20 dark:text-green-400'
-              }`}>
-              {notice.type === 'error' ? <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" /> : <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0" />}
-              <p>{notice.message}</p>
-            </div>
-          )}
+          <AnimatePresence mode="wait">
+            {notice && (
+              <motion.div
+                initial={{ opacity: 0, y: -10, height: 0 }}
+                animate={{ opacity: 1, y: 0, height: "auto" }}
+                exit={{ opacity: 0, y: -10, height: 0 }}
+                transition={{ duration: 0.3 }}
+                className={`notice mb-6 ${notice.type === 'error' ? 'notice-error' : 'notice-success'}`}
+              >
+                {notice.type === 'error' ? <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" /> : <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0" />}
+                <p>{notice.message}</p>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           <form className="space-y-6" onSubmit={handleSubmit}>
             {/* Email */}
@@ -174,8 +193,15 @@ export default function AdminLoginPage() {
           </form>
         </div>
 
-        <p className="mt-4 text-center text-xs text-[hsl(var(--muted-foreground))]">GCK Confessions · Admin</p>
-      </div>
-    </div>
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5, duration: 0.5 }}
+          className="mt-4 text-center text-xs text-[hsl(var(--muted-foreground))]"
+        >
+          GCK Confessions · Admin
+        </motion.p>
+      </motion.div>
+    </motion.div>
   );
 }

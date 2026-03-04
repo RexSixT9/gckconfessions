@@ -1,9 +1,10 @@
 ﻿"use client";
 
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { Heart, ShieldCheck, AlertCircle, CheckCircle2, ArrowLeft, Lock, Music2, Sparkles } from "lucide-react";
-import { useStaggerEntrance } from "@/lib/gsapClient";
+import { motion } from "framer-motion";
+import CursorGlowCard from "@/components/CursorGlowCard";
 
 type Notice = { type: "error" | "success"; message: string } | null;
 
@@ -137,16 +138,37 @@ export default function SubmitPage() {
 
   const charCount = message.length;
 
-  const pageRef = useRef<HTMLDivElement>(null);
-  useStaggerEntrance(pageRef, { selector: "[data-animate]", stagger: 0.08, duration: 0.5 });
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.08,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.5 },
+    },
+  };
 
   return (
-    <div ref={pageRef} className="flex flex-1 flex-col">
+    <motion.div
+      className="flex flex-1 flex-col"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+    >
       <main className="flex-1">
         <div className="mx-auto w-full max-w-xl px-4 py-5 sm:px-6 sm:py-10">
 
           {/* Page header */}
-          <div data-animate className="mb-6">
+          <motion.div variants={itemVariants} className="mb-6">
             <Link
               href="/"
               className="btn-ghost"
@@ -160,10 +182,14 @@ export default function SubmitPage() {
             <p className="mt-2 text-sm text-[hsl(var(--muted-foreground))]">
               100% anonymous — reviewed by a human before it goes live
             </p>
-          </div>
+          </motion.div>
 
           {/* Form card */}
-          <div data-animate className="card p-6 sm:p-8">
+          <CursorGlowCard
+            variants={itemVariants}
+            className="card border-shine p-6 sm:p-8"
+            glowType="both"
+          >
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Honeypot */}
               <input
@@ -220,7 +246,7 @@ export default function SubmitPage() {
               </div>
 
               {/* Draft toggle row */}
-              <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] px-5 py-4">
+              <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] px-5 py-4">
                 <div className="min-w-0">
                   <p className="text-sm font-bold text-[hsl(var(--foreground))]">Save draft locally</p>
                   <p className="mt-1 truncate text-xs text-[hsl(var(--muted-foreground))]">
@@ -252,13 +278,13 @@ export default function SubmitPage() {
 
               {/* Notices */}
               {notice?.type === "success" && (
-                <div className="flex items-start gap-3 rounded-xl border border-green-200 bg-green-50 p-4 text-sm text-green-700 dark:border-green-900/40 dark:bg-green-950/20 dark:text-green-400">
+                <div className="notice notice-success">
                   <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0" />
                   <p>{notice.message}</p>
                 </div>
               )}
               {notice?.type === "error" && (
-                <div className="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-900/40 dark:bg-red-950/20 dark:text-red-400">
+                <div className="notice notice-error">
                   <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" />
                   <p>{notice.message}</p>
                 </div>
@@ -268,7 +294,7 @@ export default function SubmitPage() {
               <div className="relative">
                 {/* Pulse ring while submitting */}
                 {loading && (
-                  <span className="absolute inset-0 animate-ping rounded-xl bg-[hsl(var(--accent))]/20 duration-1000" />
+                  <span className="absolute inset-0 animate-ping rounded-lg bg-[hsl(var(--accent))]/20 duration-1000" />
                 )}
                 <button
                   type="submit"
@@ -289,13 +315,17 @@ export default function SubmitPage() {
                 </button>
               </div>
             </form>
-          </div>
+          </CursorGlowCard>
 
           {/* Moderation notice — redesigned */}
-          <div data-animate className="card mt-6 overflow-hidden">
+          <CursorGlowCard
+            variants={itemVariants}
+            className="card border-shine mt-6 overflow-hidden"
+            glowType="both"
+          >
             {/* Top row */}
             <div className="flex items-start gap-4 p-6">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[hsl(var(--accent))]/10">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[hsl(var(--accent))]/10">
                 <ShieldCheck className="h-5 w-5 text-[hsl(var(--accent))]" />
               </span>
               <div className="min-w-0 flex-1">
@@ -321,10 +351,10 @@ export default function SubmitPage() {
                 </div>
               ))}
             </div>
-          </div>
+          </CursorGlowCard>
 
         </div>
       </main>
-    </div>
+    </motion.div>
   );
 }

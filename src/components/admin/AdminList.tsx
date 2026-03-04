@@ -1,8 +1,9 @@
 ﻿"use client";
 
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import gsap from "@/lib/gsap";
+import { motion, AnimatePresence } from "framer-motion";
+import CursorGlowCard from "@/components/CursorGlowCard";
 import {
   Search,
   AlertCircle,
@@ -37,7 +38,7 @@ function StatusBadge({ status }: { status?: string }) {
     pending: {
       icon: <Clock className="h-3 w-3" />,
       label: "Pending",
-      cls: "border-orange-500/30 bg-orange-500/10 text-orange-600 dark:border-orange-400/30 dark:bg-orange-400/10 dark:text-orange-400",
+      cls: "badge-warning",
     },
   };
   const s = status ?? "pending";
@@ -75,7 +76,7 @@ function ActionBtn({
     publish:
       "border-[hsl(var(--action-publish))]/30 bg-[hsl(var(--action-publish))]/10 text-[hsl(var(--action-publish))] hover:bg-[hsl(var(--action-publish))]/20",
     danger:
-      "border-red-300/30 bg-transparent text-red-500 hover:bg-red-50 dark:border-red-800/30 dark:text-red-400 dark:hover:bg-red-950/30",
+      "border-[hsl(var(--destructive))]/30 bg-transparent text-[hsl(var(--destructive))] hover:bg-[hsl(var(--destructive))]/10",
   };
   return (
     <button
@@ -121,22 +122,6 @@ export default function AdminList() {
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
   const router = useRouter();
-
-  const listRef = useRef<HTMLDivElement>(null);
-  const skipAnimation = useRef(false);
-  useEffect(() => {
-    if (loading || !listRef.current) return;
-    if (skipAnimation.current) {
-      skipAnimation.current = false;
-      return;
-    }
-    const cards = listRef.current.querySelectorAll<HTMLElement>("[data-card]");
-    if (!cards.length) return;
-    const ctx = gsap.context(() => {
-      gsap.from(cards, { opacity: 0, y: 14, duration: 0.35, stagger: 0.04, ease: "power2.out", clearProps: "all" });
-    }, listRef);
-    return () => ctx.revert();
-  }, [loading, items]);
 
   useEffect(() => { setPage(1); }, [filter, statusFilter, query]);
 
@@ -202,7 +187,6 @@ export default function AdminList() {
       let snapshot: ConfessionItem[] = [];
       let removedCount = 0;
 
-      skipAnimation.current = true;
       setItems((prev) => {
         snapshot = prev;
         const updated = prev.map((i) => (i._id === id ? updater(i) : i));
@@ -231,7 +215,6 @@ export default function AdminList() {
         router.refresh();
       } catch (err) {
         // Rollback optimistic update
-        skipAnimation.current = true;
         setItems(snapshot);
         if (removedCount > 0) {
           setTotalCount((c) => {
@@ -257,7 +240,6 @@ export default function AdminList() {
 
       let snapshot: ConfessionItem[] = [];
 
-      skipAnimation.current = true;
       setItems((prev) => {
         snapshot = prev;
         return prev.filter((i) => i._id !== id);
@@ -278,7 +260,6 @@ export default function AdminList() {
         setTimeout(() => setNotice(null), 3000);
         router.refresh();
       } catch (err) {
-        skipAnimation.current = true;
         setItems(snapshot);
         setTotalCount((c) => {
           const next = c + 1;
@@ -387,14 +368,11 @@ export default function AdminList() {
 
       {/* ── Notice ────────────────────────────────────── */}
       {notice && (
-        <div className={`flex items-center gap-2.5 rounded-lg border px-3.5 py-2.5 ${notice.type === "error"
-          ? "border-red-200 bg-red-50 text-red-700 dark:border-red-900/30 dark:bg-red-950/20 dark:text-red-300"
-          : "border-green-200 bg-green-50 text-green-700 dark:border-green-900/30 dark:bg-green-950/20 dark:text-green-300"
-          }`}>
+        <div className={`notice ${notice.type === "error" ? "notice-error" : "notice-success"}`}>
           {notice.type === "error"
             ? <AlertCircle className="h-4 w-4 shrink-0" />
             : <CheckCircle2 className="h-4 w-4 shrink-0" />}
-          <p className="flex-1 text-xs font-medium">{notice.message}</p>
+          <p className="flex-1 font-medium">{notice.message}</p>
           <button type="button" onClick={() => setNotice(null)}>
             <X className="h-3.5 w-3.5 opacity-50 hover:opacity-100" />
           </button>
@@ -438,13 +416,21 @@ export default function AdminList() {
 
       {/* ── Confession cards ──────────────────────────── */}
       {!loading && items.length > 0 && (
-        <div ref={listRef} className="flex flex-col gap-3">
-          {items.map((item) => {
+        <div className="flex flex-col gap-3">
+          {items.map((item, idx) => {
             const busy = processingId === item._id;
             const msgId = `msg-${item._id}`;
             const musId = `music-${item._id}`;
             return (
-              <div key={item._id} data-card className="overflow-hidden rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] transition-shadow hover:shadow-sm">
+              <CursorGlowCard
+                key={item._id}
+                initial={{ opacity: 0, y: 14 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.35, delay: idx * 0.04 }}
+                className="overflow-hidden rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] transition-shadow hover:shadow-sm"
+                glowType="border"
+              >
 
                 {/* Card header */}
                 <div className="flex items-center justify-between gap-2 px-3 pt-3 pb-2 sm:gap-3 sm:px-5 sm:pt-4 sm:pb-3">
@@ -581,17 +567,17 @@ export default function AdminList() {
 
                   {/* Delete confirmation dialog */}
                   {deleteConfirmId === item._id && (
-                    <div className="mt-2 flex w-full flex-col gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2.5 dark:border-red-900/40 dark:bg-red-950/30 sm:flex-row sm:items-center">
+                    <div className="mt-2 flex w-full flex-col gap-2 rounded-lg border border-[hsl(var(--destructive))]/30 bg-[hsl(var(--destructive))]/5 px-3 py-2.5 dark:border-[hsl(var(--destructive))]/25 dark:bg-[hsl(var(--destructive))]/8 sm:flex-row sm:items-center">
                       <div className="flex items-center gap-2">
-                        <AlertCircle className="h-4 w-4 shrink-0 text-red-500" />
-                        <p className="flex-1 text-xs font-medium text-red-700 dark:text-red-300">
+                        <AlertCircle className="h-4 w-4 shrink-0 text-[hsl(var(--destructive))]" />
+                        <p className="flex-1 text-xs font-medium text-[hsl(var(--destructive))]">
                           Delete this confession?
                         </p>
                       </div>
                       <div className="flex items-center gap-2 sm:ml-auto sm:shrink-0">
                         <button
                           type="button"
-                          className="flex-1 rounded-md border border-red-300 bg-red-100 px-2.5 py-1.5 text-xs font-semibold text-red-700 transition hover:bg-red-200 dark:border-red-800 dark:bg-red-900/50 dark:text-red-300 dark:hover:bg-red-900 sm:flex-none sm:py-1"
+                          className="flex-1 rounded-md border border-[hsl(var(--destructive))]/40 bg-[hsl(var(--destructive))]/15 px-2.5 py-1.5 text-xs font-semibold text-[hsl(var(--destructive))] transition hover:bg-[hsl(var(--destructive))]/25 sm:flex-none sm:py-1"
                           disabled={busy}
                           onClick={() => void handleDeleteConfirm(item._id)}
                         >
@@ -609,7 +595,7 @@ export default function AdminList() {
                   )}
                 </div>
 
-              </div>
+              </CursorGlowCard>
             );
           })}
         </div>
