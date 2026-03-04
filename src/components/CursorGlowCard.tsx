@@ -1,39 +1,41 @@
 "use client";
 
 import { motion, MotionProps } from "framer-motion";
-import { useCursorGlow } from "@/hooks/useCursorGlow";
 import { ReactNode } from "react";
+import { GlowingEffect } from "@/components/ui/glowing-effect";
 
 interface CursorGlowCardProps extends Omit<MotionProps, "ref"> {
   children: ReactNode;
   className?: string;
-  glowType?: "border" | "background" | "both";
+  /** Override GlowingEffect spread (px). Default 360. */
+  glowSpread?: number;
+  /** Override proximity distance (px). Default 80. */
+  glowProximity?: number;
 }
 
 /**
- * Card component with cursor-following glow effect
- * Uses CSS custom properties and mouse tracking for modern interaction
+ * Motion card with the Cursor-style proximity border glow.
+ *
+ * The card must have `position: relative` for the absolutely-positioned glow
+ * layers to size correctly — all the card* CSS helpers already do this.
  */
 export default function CursorGlowCard({
   children,
   className = "",
-  glowType = "both",
+  glowSpread = 360,
+  glowProximity = 80,
   ...motionProps
 }: CursorGlowCardProps) {
-  const cardRef = useCursorGlow();
-
-  const glowClasses = {
-    border: "cursor-border-glow",
-    background: "cursor-glow",
-    both: "cursor-glow cursor-border-glow",
-  };
-
   return (
-    <motion.div
-      ref={cardRef}
-      className={`${glowClasses[glowType]} ${className}`}
-      {...motionProps}
-    >
+    <motion.div className={`relative ${className}`} {...motionProps}>
+      {/* Proximity-aware border glow — positioned relative to this element */}
+      <GlowingEffect
+        spread={glowSpread}
+        glow={false}
+        proximity={glowProximity}
+        inactiveZone={0.03}
+        maxOpacity={0.85}
+      />
       {children}
     </motion.div>
   );

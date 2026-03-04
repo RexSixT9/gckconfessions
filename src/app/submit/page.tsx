@@ -188,7 +188,6 @@ export default function SubmitPage() {
           <CursorGlowCard
             variants={itemVariants}
             className="card border-shine p-6 sm:p-8"
-            glowType="both"
           >
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Honeypot */}
@@ -321,7 +320,6 @@ export default function SubmitPage() {
           <CursorGlowCard
             variants={itemVariants}
             className="card border-shine mt-6 overflow-hidden"
-            glowType="both"
           >
             {/* Top row */}
             <div className="flex items-start gap-4 p-6">

@@ -256,7 +256,6 @@ export default function Home() {
               }}
               whileHover={{ y: -6, transition: { duration: 0.2 } }}
               className="card-glass border-shine col-span-1 flex flex-col justify-between gap-5 p-6 sm:col-span-2 sm:p-8 lg:row-span-2"
-              glowType="both"
             >
               <div>
                 <motion.div
@@ -295,7 +294,6 @@ export default function Home() {
               }}
               whileHover={{ y: -6, transition: { duration: 0.2 } }}
               className="card-glass border-shine col-span-1 p-6 lg:col-span-2"
-              glowType="both"
             >
               <motion.div
                 whileHover={{ scale: 1.05, rotate: 5 }}
@@ -322,7 +320,6 @@ export default function Home() {
               }}
               whileHover={{ y: -6, transition: { duration: 0.2 } }}
               className="card-glass border-shine col-span-1 p-6"
-              glowType="both"
             >
               <motion.div
                 whileHover={{ scale: 1.05, rotate: 5 }}
@@ -349,7 +346,6 @@ export default function Home() {
               }}
               whileHover={{ y: -6, transition: { duration: 0.2 } }}
               className="card-glass border-shine col-span-1 p-6"
-              glowType="both"
             >
               <motion.div
                 whileHover={{ scale: 1.05, rotate: 5 }}
@@ -411,7 +407,6 @@ export default function Home() {
                   viewport={{ once: true, margin: "-30px", amount: 0.3 }}
                   whileHover={{ y: -8, transition: { duration: 0.3, ease: "easeOut" } }}
                   className="card-glass border-shine group relative overflow-hidden p-6 sm:p-7 md:p-8"
-                  glowType="both"
                 >
                   <div className="absolute inset-0 rounded-[inherit] bg-linear-to-br from-[hsl(var(--accent))]/5 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
 

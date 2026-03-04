@@ -429,7 +429,6 @@ export default function AdminList() {
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.35, delay: idx * 0.04 }}
                 className="overflow-hidden rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] transition-shadow hover:shadow-sm"
-                glowType="border"
               >
 
                 {/* Card header */}

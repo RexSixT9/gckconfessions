@@ -143,7 +143,6 @@ export default function GuidelinesClient() {
       <CursorGlowCard
         variants={itemVariants}
         className="card border-shine mb-12"
-        glowType="both"
       >
         <div className="flex items-center gap-4 border-b px-6 py-5">
           <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-[hsl(var(--accent))]/15">
@@ -174,7 +173,6 @@ export default function GuidelinesClient() {
       <CursorGlowCard
         variants={itemVariants}
         className="card border-shine mb-12"
-        glowType="both"
       >
         <div className="flex items-center gap-4 border-b px-6 py-5">
           <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-[hsl(var(--accent))]/15">
@@ -226,7 +224,6 @@ export default function GuidelinesClient() {
       <CursorGlowCard
         variants={itemVariants}
         className="card-glass border-shine mb-16 p-6"
-        glowType="both"
       >
         <div className="flex gap-4">
           <AlertTriangle className="mt-0.5 h-6 w-6 shrink-0 text-[hsl(var(--warning))]" />

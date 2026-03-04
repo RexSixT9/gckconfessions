@@ -91,26 +91,6 @@
   }
 }
 
-@keyframes gradient-pulse {
-  0%, 100% {
-    opacity: 1;
-    filter: blur(80px);
-  }
-  50% {
-    opacity: 0.8;
-    filter: blur(100px);
-  }
-}
-
-@keyframes gradient-rotate {
-  0% {
-    transform: translate(-50%, -50%) rotate(0deg);
-  }
-  100% {
-    transform: translate(-50%, -50%) rotate(360deg);
-  }
-}
-
 @keyframes cursor-pulse {
   0% {
     width: 0;
@@ -149,15 +129,6 @@
   50% {
     opacity: 0.7;
     filter: blur(60px);
-  }
-}
-
-@keyframes hero-shimmer {
-  0% {
-    background-position: -200% center;
-  }
-  100% {
-    background-position: 200% center;
   }
 }
 
@@ -277,30 +248,6 @@
       opacity: 1;
       animation: border-shine 1.5s linear infinite;
     }
-  }
-}
-
-/* ─────────────────────────────────────────
-   Bento utilities - Next.js Modern Style
-───────────────────────────────────────── */
-.bento-grid {
-  display: grid;
-  gap: 1rem;
-}
-
-/* Shared bento cell appearance - Modern unified design */
-.bento-cell {
-  border-radius: 1rem;
-  border: 1px solid hsl(var(--border));
-  background: hsl(var(--card));
-  transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* Hover lift only on pointer-capable devices (no mobile tap flash) */
-@media (hover: hover) and (pointer: fine) {
-  .bento-cell:hover {
-    border-color: hsl(var(--foreground) / 0.15);
-    transform: translateY(-1px);
   }
 }
 
@@ -519,87 +466,6 @@
 
   .card-glass:hover {
     border-color: hsl(var(--foreground) / 0.15);
-  }
-
-  /* Cursor glow effect - Modern border spotlight */
-  .cursor-glow {
-    --mouse-x: -9999px;
-    --mouse-y: -9999px;
-    position: relative;
-  }
-
-  .cursor-glow::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    background: radial-gradient(
-      600px circle at var(--mouse-x) var(--mouse-y),
-      hsl(var(--accent) / 0.15),
-      transparent 40%
-    );
-    opacity: 0;
-    transition: opacity 300ms ease;
-    pointer-events: none;
-    z-index: 1;
-  }
-
-  .cursor-glow::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    background: radial-gradient(
-      400px circle at var(--mouse-x) var(--mouse-y),
-      hsl(var(--accent) / 0.08),
-      transparent 50%
-    );
-    opacity: 0;
-    transition: opacity 300ms ease;
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  @media (hover: hover) and (pointer: fine) {
-    .cursor-glow:hover::before,
-    .cursor-glow:hover::after {
-      opacity: 1;
-    }
-  }
-
-  /* Cursor border glow - Floating border effect */
-  .cursor-border-glow {
-    --mouse-x: -9999px;
-    --mouse-y: -9999px;
-    position: relative;
-  }
-
-  .cursor-border-glow::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    padding: 1px;
-    background: radial-gradient(
-      500px circle at var(--mouse-x) var(--mouse-y),
-      hsl(var(--accent) / 0.6),
-      hsl(var(--accent) / 0.2) 30%,
-      transparent 60%
-    );
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    mask-composite: exclude;
-    opacity: 0;
-    transition: opacity 400ms ease;
-    pointer-events: none;
-    z-index: 2;
-  }
-
-  @media (hover: hover) and (pointer: fine) {
-    .cursor-border-glow:hover::before {
-      opacity: 1;
-    }
   }
 
   /* Notice components - using semantic colors */
@@ -852,15 +718,5 @@ body {
   animation: beam-pulse 6s ease-in-out infinite;
 }
 
-/* Tooltip overflow protection */
-.tooltip-container {
-  position: absolute;
-  z-index: 50;
-  max-width: min(calc(100vw - 2rem), 280px);
-}
 
-.tooltip-container span {
-  white-space: normal;
-  word-wrap: break-word;
-}
 
