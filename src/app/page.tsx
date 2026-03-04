@@ -285,7 +285,7 @@ export default function Home() {
               </div>
             </CursorGlowCard>
 
-            {/* Card 2 — Human Reviewed: columns 4-6, row 1 */
+            {/* Card 2 — Human Reviewed: columns 4-6, row 1 */}
             <CursorGlowCard
               variants={{
                 hidden: { opacity: 0, y: 30 },
@@ -312,7 +312,7 @@ export default function Home() {
               </p>
             </CursorGlowCard>
 
-            {/* Card 3 — Lightning Fast: columns 4-5, row 2 */
+            {/* Card 3 — Lightning Fast: columns 4-5, row 2 */}
             <CursorGlowCard
               variants={{
                 hidden: { opacity: 0, y: 30 },
@@ -339,7 +339,7 @@ export default function Home() {
               </p>
             </CursorGlowCard>
 
-            {/* Card 4 — Safe Space: column 6, row 2 */
+            {/* Card 4 — Safe Space: column 6, row 2 */}
             <CursorGlowCard
               variants={{
                 hidden: { opacity: 0, y: 30 },

@@ -463,7 +463,6 @@
 
   .card:hover {
     border-color: hsl(var(--foreground) / 0.15);
-    transform: translateY(-1px);
   }
 
   /* Glass Card - Modern glassmorphism */
@@ -483,7 +482,6 @@
 
   .card-glass:hover {
     border-color: hsl(var(--foreground) / 0.15);
-    transform: translateY(-2px);
   }
 
   /* Cursor glow effect - Modern border spotlight */
@@ -491,13 +489,12 @@
     --mouse-x: -9999px;
     --mouse-y: -9999px;
     position: relative;
-    overflow: hidden;
   }
 
   .cursor-glow::before {
     content: '';
     position: absolute;
-    inset: -2px;
+    inset: 0;
     border-radius: inherit;
     background: radial-gradient(
       600px circle at var(--mouse-x) var(--mouse-y),
@@ -543,7 +540,7 @@
   .cursor-border-glow::before {
     content: '';
     position: absolute;
-    inset: -1px;
+    inset: 0;
     border-radius: inherit;
     padding: 1px;
     background: radial-gradient(
@@ -699,23 +696,13 @@ select {
 
 /* Ensure minimum touch target size on mobile (44x44px WCAG) */
 @media (max-width: 640px) {
-  button,
-  a,
-  [role="button"],
-  [type="button"],
-  [type="submit"],
-  input[type="checkbox"],
-  input[type="radio"] {
-    min-height: 44px;
-  }
-
   /* Better mobile spacing for forms */
   .input-base {
     padding: 0.75rem 1rem;
     font-size: 1rem; /* Prevents zoom on iOS */
   }
 
-  /* Optimize button sizes for mobile */
+  /* Optimize standalone button classes for mobile */
   .btn-primary,
   .btn-secondary {
     padding: 0.875rem 1.5rem;
@@ -729,30 +716,20 @@ select {
     min-height: 44px;
   }
 
-  /* Better mobile card padding */
-  .card {
-    padding: 1rem;
-  }
-
-  /* Improve mobile tap highlights */
+  /* Improve mobile tap highlight for interactive elements */
   button,
-  a,
-  [role="button"] {
+  [role="button"],
+  .btn-primary,
+  .btn-secondary,
+  .btn-ghost {
     -webkit-tap-highlight-color: hsl(var(--accent) / 0.1);
-  }
-}
-
-/* Tablet optimizations */
-@media (min-width: 641px) and (max-width: 1024px) {
-  .card {
-    padding: 1.25rem;
   }
 }
 
 /* Desktop-specific enhancements */
 @media (min-width: 1025px) {
-  /* Smoother hover states on desktop only */
-  .card:hover {
+  /* Subtle shadow lift on desktop hover (only for non-framer-motion cards) */
+  .card:not([data-framer-motion]):hover {
     box-shadow: 0 10px 40px -15px hsl(var(--foreground) / 0.1);
   }
 }

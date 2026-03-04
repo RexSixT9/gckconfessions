@@ -34,7 +34,7 @@ export default function CursorGlowCard({
       className={`${glowClasses[glowType]} ${className}`}
       {...motionProps}
     >
-      <div className="relative z-10 h-full">{children}</div>
+      {children}
     </motion.div>
   );
 }
