@@ -39,11 +39,11 @@ export default function ThemeToggle() {
       <button
         type="button"
         onClick={handleThemeToggle}
-        className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[hsl(var(--border))]/70 bg-[hsl(var(--card))]/80 text-[hsl(var(--foreground))] shadow-sm transition hover:border-[hsl(var(--accent))]/40 hover:bg-[hsl(var(--secondary))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--accent))]/40"
+        className="inline-flex h-9 w-9 sm:h-9 sm:w-9 min-h-11 min-w-11 sm:min-h-0 sm:min-w-0 items-center justify-center rounded-full border border-[hsl(var(--border))]/70 bg-[hsl(var(--card))]/80 text-[hsl(var(--foreground))] shadow-sm transition hover:border-[hsl(var(--accent))]/40 hover:bg-[hsl(var(--secondary))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--accent))]/40"
         aria-label="Toggle theme"
         title={`Switch to ${isDark ? 'light' : 'dark'} mode`}
       >
-        {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+        {isDark ? <Sun className="h-4 w-4 sm:h-4 sm:w-4" /> : <Moon className="h-4 w-4 sm:h-4 sm:w-4" />}
       </button>
 
       {/* Theme Preference Notification */}

@@ -22,7 +22,7 @@ export function CursorEffects() {
   const trailIdRef = useRef(0);
   const pulseIdRef = useRef(0);
   const lastMoveTimeRef = useRef(0);
-  const rafIdRef = useRef<number>();
+  const rafIdRef = useRef<number | undefined>(undefined);
 
   useEffect(() => {
     // Check for reduced motion preference
@@ -104,7 +104,7 @@ export function CursorEffects() {
       {trails.map((trail, index) => (
         <div
           key={trail.id}
-          className="pointer-events-none fixed z-[9999] h-2 w-2 rounded-full bg-[hsl(var(--accent))] mix-blend-screen"
+          className="pointer-events-none fixed z-9999 h-2 w-2 rounded-full bg-[hsl(var(--accent))] mix-blend-screen"
           style={{
             left: trail.x,
             top: trail.y,
@@ -119,7 +119,7 @@ export function CursorEffects() {
       {pulses.map((pulse) => (
         <div
           key={pulse.id}
-          className="pointer-events-none fixed z-[9998] animate-cursor-pulse rounded-full border-2 border-[hsl(var(--accent))]"
+          className="pointer-events-none fixed z-9998 animate-cursor-pulse rounded-full border-2 border-[hsl(var(--accent))]"
           style={{
             left: pulse.x,
             top: pulse.y,

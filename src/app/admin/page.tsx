@@ -61,7 +61,7 @@ export default async function AdminPage() {
           <div className="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
             {[
               { label: "Total", value: stats.total, cls: "text-[hsl(var(--foreground))]", dot: "bg-[hsl(var(--muted-foreground))]" },
-              { label: "Pending", value: stats.pending, cls: "text-amber-600 dark:text-amber-400", dot: "bg-amber-500" },
+              { label: "Pending", value: stats.pending, cls: "text-[hsl(var(--warning))]", dot: "bg-[hsl(var(--warning))]" },
               { label: "Approved", value: stats.approved, cls: "text-[hsl(var(--action-accept))]", dot: "bg-[hsl(var(--action-accept))]" },
               { label: "Rejected", value: stats.rejected, cls: "text-[hsl(var(--muted-foreground))]", dot: "bg-[hsl(var(--muted-foreground))]/40" },
             ].map(({ label, value, cls, dot }) => (

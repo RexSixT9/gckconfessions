@@ -692,3 +692,92 @@ select {
     transition-duration: 0ms !important;
   }
 }
+
+/* ─────────────────────────────────────────
+   Mobile & Responsive Optimizations
+───────────────────────────────────────── */
+
+/* Ensure minimum touch target size on mobile (44x44px WCAG) */
+@media (max-width: 640px) {
+  button,
+  a,
+  [role="button"],
+  [type="button"],
+  [type="submit"],
+  input[type="checkbox"],
+  input[type="radio"] {
+    min-height: 44px;
+  }
+
+  /* Better mobile spacing for forms */
+  .input-base {
+    padding: 0.75rem 1rem;
+    font-size: 1rem; /* Prevents zoom on iOS */
+  }
+
+  /* Optimize button sizes for mobile */
+  .btn-primary,
+  .btn-secondary {
+    padding: 0.875rem 1.5rem;
+    font-size: 0.9375rem;
+    min-height: 44px;
+  }
+
+  .btn-sm {
+    padding: 0.625rem 1.125rem;
+    font-size: 0.875rem;
+    min-height: 44px;
+  }
+
+  /* Better mobile card padding */
+  .card {
+    padding: 1rem;
+  }
+
+  /* Improve mobile tap highlights */
+  button,
+  a,
+  [role="button"] {
+    -webkit-tap-highlight-color: hsl(var(--accent) / 0.1);
+  }
+}
+
+/* Tablet optimizations */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .card {
+    padding: 1.25rem;
+  }
+}
+
+/* Desktop-specific enhancements */
+@media (min-width: 1025px) {
+  /* Smoother hover states on desktop only */
+  .card:hover {
+    box-shadow: 0 10px 40px -15px hsl(var(--foreground) / 0.1);
+  }
+}
+
+/* Better text readability on all devices */
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Prevent text overflow on small screens */
+.truncate-mobile {
+  @media (max-width: 640px) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+/* Safe area insets for notched devices */
+@supports (padding: env(safe-area-inset-left)) {
+  body {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+}
+
