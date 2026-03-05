@@ -121,7 +121,7 @@ export default function AdminLoginPage() {
         </motion.div>
 
         {/* Card */}
-        <div className="card border-shine p-8">
+        <div className="card border-shine p-6 sm:p-8">
           {/* Notice */}
           <AnimatePresence mode="wait">
             {notice && (

@@ -337,7 +337,7 @@ export default function SubmitPage() {
               </span>
             </div>
             {/* Stats strip */}
-            <div className="flex flex-wrap divide-x divide-[hsl(var(--border))] border-t border-[hsl(var(--border))]">
+            <div className="grid grid-cols-3 divide-x divide-[hsl(var(--border))] border-t border-[hsl(var(--border))]">
               {[
                 { icon: Lock, label: "Anonymous" },
                 { icon: Heart, label: "No account" },
