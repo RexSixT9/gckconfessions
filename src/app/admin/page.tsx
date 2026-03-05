@@ -60,14 +60,14 @@ export default async function AdminPage() {
         {stats && (
           <div className="mb-8 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
             {[
-              { label: "Total", value: stats.total, cls: "text-[hsl(var(--foreground))]", dot: "bg-[hsl(var(--muted-foreground))]" },
-              { label: "Pending", value: stats.pending, cls: "text-[hsl(var(--warning))]", dot: "bg-[hsl(var(--warning))]" },
-              { label: "Approved", value: stats.approved, cls: "text-[hsl(var(--action-accept))]", dot: "bg-[hsl(var(--action-accept))]" },
-              { label: "Rejected", value: stats.rejected, cls: "text-[hsl(var(--muted-foreground))]", dot: "bg-[hsl(var(--muted-foreground))]/40" },
-            ].map(({ label, value, cls, dot }) => (
+              { label: "Total",    value: stats.total,    cls: "text-[hsl(var(--foreground))]",        dot: "bg-[hsl(var(--muted-foreground))]",    accent: "border-l-[hsl(var(--muted-foreground))]/40" },
+              { label: "Pending",  value: stats.pending,  cls: "text-[hsl(var(--warning))]",           dot: "bg-[hsl(var(--warning))]",             accent: "border-l-[hsl(var(--warning))]/60" },
+              { label: "Approved", value: stats.approved, cls: "text-[hsl(var(--action-accept))]",     dot: "bg-[hsl(var(--action-accept))]",       accent: "border-l-[hsl(var(--action-accept))]/60" },
+              { label: "Rejected", value: stats.rejected, cls: "text-[hsl(var(--muted-foreground))]", dot: "bg-[hsl(var(--muted-foreground))]/40",  accent: "border-l-[hsl(var(--muted-foreground))]/30" },
+            ].map(({ label, value, cls, dot, accent }) => (
               <div
                 key={label}
-                className="card border-shine flex flex-col gap-2 px-6 py-5"
+                className={`card border-shine flex flex-col gap-2 border-l-2 px-6 py-5 ${accent}`}
               >
                 <div className="flex items-center gap-2">
                   <span className={`h-2 w-2 rounded-full ${dot}`} />

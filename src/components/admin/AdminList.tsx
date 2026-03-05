@@ -65,7 +65,7 @@ function ActionBtn({
   className?: string;
 }) {
   const base =
-    "inline-flex items-center justify-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition active:scale-95 disabled:cursor-not-allowed disabled:opacity-40";
+    "inline-flex items-center justify-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-medium transition active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]/40";
   const variants: Record<string, string> = {
     ghost:
       "border-[hsl(var(--border))] bg-transparent text-[hsl(var(--foreground))] hover:border-[hsl(var(--accent))]/40 hover:text-[hsl(var(--accent))]",
@@ -311,7 +311,7 @@ export default function AdminList() {
           type="button"
           onClick={fetchItems}
           disabled={loading}
-          className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-[hsl(var(--border))] bg-transparent px-3 py-2 text-xs font-medium text-[hsl(var(--muted-foreground))] transition hover:border-[hsl(var(--accent))]/40 hover:text-[hsl(var(--accent))] disabled:opacity-50"
+          className="btn-ghost btn-sm shrink-0 border border-[hsl(var(--border))] hover:border-[hsl(var(--accent))]/40"
         >
           <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
           <span className="sm:hidden">Reload</span>
@@ -606,12 +606,12 @@ export default function AdminList() {
           <span className="text-xs tabular-nums text-[hsl(var(--muted-foreground))]">
             Page {page} / {totalPages}
           </span>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1.5">
             <button
               type="button"
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page <= 1 || loading}
-              className="inline-flex items-center gap-1 rounded-lg border border-[hsl(var(--border))] px-3 py-1.5 text-xs font-medium transition hover:border-[hsl(var(--accent))]/40 hover:text-[hsl(var(--accent))] disabled:opacity-40"
+              className="btn-ghost btn-sm border border-[hsl(var(--border))] hover:border-[hsl(var(--accent))]/40"
             >
               <ChevronLeft className="h-3 w-3" />
               Prev
@@ -620,7 +620,7 @@ export default function AdminList() {
               type="button"
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page >= totalPages || loading}
-              className="inline-flex items-center gap-1 rounded-lg border border-[hsl(var(--border))] px-3 py-1.5 text-xs font-medium transition hover:border-[hsl(var(--accent))]/40 hover:text-[hsl(var(--accent))] disabled:opacity-40"
+              className="btn-ghost btn-sm border border-[hsl(var(--border))] hover:border-[hsl(var(--accent))]/40"
             >
               Next
               <ChevronRight className="h-3 w-3" />

@@ -186,7 +186,7 @@ export default function AdminLoginPage() {
             <button
               type="submit"
               disabled={loading || !email || !password}
-              className="btn-primary mt-6 w-full bg-[hsl(var(--foreground))] text-[hsl(var(--background))] hover:bg-[hsl(var(--foreground))]/90"
+              className="btn-primary mt-6 w-full"
             >
               {loading ? <><Loader className="h-5 w-5 animate-spin" /> Signing in…</> : 'Sign in'}
             </button>
