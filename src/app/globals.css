@@ -1,5 +1,13 @@
 @import "tailwindcss";
 
+/* ─────────────────────────────────────────
+   Custom breakpoints
+───────────────────────────────────────── */
+@theme {
+  /* xs breakpoint — used for narrow landscape phones (≥480px) */
+  --breakpoint-xs: 480px;
+}
+
 :root {
   /* Light Mode - Dark Pink + White */
   --header-height: 3.5rem;
@@ -426,6 +434,7 @@
   .btn-lg {
     padding: 0.875rem 2rem;
     font-size: 0.9375rem;
+    min-height: 48px;
   }
 
   /* Badge System */
@@ -676,6 +685,9 @@ html {
   scroll-behavior: smooth;
   /* Offset for sticky header when navigating to anchors */
   scroll-padding-top: calc(var(--header-height, 3.5rem) + var(--announcement-height, 0px) + 2rem);
+  /* Contain scroll bounce to the page — prevents the background from
+     showing behind content on iOS rubber-band overscroll */
+  overscroll-behavior-y: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -704,10 +716,22 @@ body {
 }
 
 a,
-button {
+button,
+[role="button"] {
   transition: color 150ms ease, background-color 150ms ease,
     border-color 150ms ease, box-shadow 150ms ease, transform 150ms ease,
     opacity 150ms ease;
+  /* Removes the 300ms tap delay on mobile without disabling pinch-zoom */
+  touch-action: manipulation;
+  /* Prevent text selection on rapid taps / double-taps */
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Re-enable selection where content should be selectable */
+p, span, h1, h2, h3, h4, h5, h6, li, label, textarea, input {
+  -webkit-user-select: text;
+  user-select: text;
 }
 
 a:active,
@@ -734,18 +758,23 @@ select {
 
 /* Ensure minimum touch target size on mobile (44x44px WCAG) */
 @media (max-width: 640px) {
-  /* Better mobile spacing for forms */
+  /* Better mobile spacing for forms — font-size ≥16px prevents iOS zoom */
   .input-base {
     padding: 0.75rem 1rem;
-    font-size: 1rem; /* Prevents zoom on iOS */
+    font-size: 1rem;
   }
 
-  /* Optimize standalone button classes for mobile */
+  /* Ensure WCAG 2.5.5 minimum 44×44px touch targets */
   .btn-primary,
   .btn-secondary {
     padding: 0.875rem 1.5rem;
     font-size: 0.9375rem;
     min-height: 44px;
+  }
+
+  .btn-ghost {
+    min-height: 44px;
+    padding: 0.625rem 0.875rem;
   }
 
   .btn-sm {
@@ -782,13 +811,7 @@ body {
   }
 }
 
-/* Safe area insets for notched devices */
-@supports (padding: env(safe-area-inset-left)) {
-  body {
-    padding-left: env(safe-area-inset-left);
-    padding-right: env(safe-area-inset-right);
-  }
-}
+/* Safe-area padding already applied directly on body above */
 
 /* ─────────────────────────────────────────
    Hero beam & gradient utilities

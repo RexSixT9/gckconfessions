@@ -105,10 +105,10 @@ export default function NotFound() {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-center sm:gap-3">
+          <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center sm:justify-center sm:gap-3">
             <button
               onClick={handleGoHome}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[hsl(var(--accent))] px-5 py-2.5 text-sm font-semibold text-[hsl(var(--accent-foreground))] shadow-sm transition-all duration-200 hover:opacity-90 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--accent))] focus-visible:ring-offset-2 focus-visible:ring-offset-[hsl(var(--background))] sm:w-auto sm:px-7 sm:py-3"
+              className="btn-primary btn-lg w-full sm:w-auto"
             >
               <Home className="h-4 w-4" />
               Home
@@ -116,7 +116,7 @@ export default function NotFound() {
 
             <button
               onClick={handleGoBack}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-[hsl(var(--border))] px-5 py-2.5 text-sm font-semibold text-[hsl(var(--foreground))] transition-all duration-200 hover:border-[hsl(var(--accent))]/40 hover:text-[hsl(var(--accent))] active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--accent))]/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[hsl(var(--background))] sm:w-auto sm:px-7 sm:py-3"
+              className="btn-secondary btn-lg w-full sm:w-auto"
             >
               <ArrowLeft className="h-4 w-4" />
               Go back

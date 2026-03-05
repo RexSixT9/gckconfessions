@@ -246,7 +246,7 @@ export default function Home() {
                 },
               },
             }}
-            className="grid auto-rows-fr grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4 lg:grid-rows-2"
+            className="grid auto-rows-auto grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:auto-rows-fr lg:grid-cols-4 lg:grid-rows-2"
           >
             {/* Card 1 — Large hero card: spans 2 cols on sm+, 2 cols + 2 rows on lg */}
             <CursorGlowCard
