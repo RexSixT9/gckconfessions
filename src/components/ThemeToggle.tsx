@@ -50,7 +50,7 @@ export default function ThemeToggle() {
       {showNotification && (
         <div className="absolute right-0 top-12 z-50 animate-slide-down whitespace-nowrap rounded-2xl border border-[hsl(var(--border))]/70 bg-[hsl(var(--card))] px-4 py-2.5 shadow-lg backdrop-blur-sm">
           <p className="text-xs font-medium text-[hsl(var(--foreground))]">
-            {notificationIsDark ? '🌙 Dark mode' : '☀️ Light mode'} saved
+            {notificationIsDark ? '\uD83C\uDF19 Dark mode' : '\u2600\uFE0F Light mode'} saved
           </p>
         </div>
       )}

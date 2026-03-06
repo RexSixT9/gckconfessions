@@ -85,7 +85,7 @@ export default function TypewriterText({
   }, []); // eslint-disable-line react-hooks/exhaustive-deps — intentionally runs once
 
   return (
-    <span className={className}>
+    <span className={`inline-block min-h-[1.2em] ${className}`}>
       {displayed}
       {/* Blinking cursor — pure CSS, zero JS overhead */}
       <span

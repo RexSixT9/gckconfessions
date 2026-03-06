@@ -875,5 +875,22 @@ body {
   contain: layout style;
 }
 
+/* Reduce gradient orb intensity on mobile to improve perf and clarity */
+@media (max-width: 640px) {
+  .hero-gradient {
+    filter: blur(60px);
+    opacity: 0.7;
+  }
 
+  .hero-beam::before,
+  .hero-beam::after {
+    display: none;
+  }
+}
 
+/* Ensure bento grid cards on sm don't have awkward height on card 4 */
+@media (min-width: 640px) and (max-width: 1023px) {
+  .bento-card-4 {
+    grid-column: span 2;
+  }
+}

@@ -12,6 +12,7 @@ import {
   ArrowRight,
   CheckCircle2,
   Heart,
+  ChevronDown,
 } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -23,27 +24,6 @@ export default function Home() {
   const contentRef = useRef<HTMLDivElement | null>(null);
 
   /* ----------------------------- MEMOIZED DATA ---------------------------- */
-
-  const featureHighlights = useMemo(
-    () => [
-      {
-        icon: Lock,
-        title: "100% Anonymous",
-        desc: "Zero sign-up. No identity needed. Your confession is completely anonymous and untraceable.",
-      },
-      {
-        icon: ShieldCheck,
-        title: "Human Reviewed",
-        desc: "Real moderators check every submission before it appears.",
-      },
-      {
-        icon: Zap,
-        title: "Lightning Fast",
-        desc: "Submit in under 60 seconds. No friction. Just write and send.",
-      },
-    ],
-    []
-  );
 
   const howItWorksSteps = useMemo(
     () => [
@@ -144,7 +124,7 @@ export default function Home() {
 
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* ============================= HERO SECTION ============================= */}
-        <section className="flex min-h-[calc(100svh-var(--header-height)-var(--announcement-height,0px))] flex-col justify-center gap-14 py-16 sm:gap-16 sm:py-20 md:gap-20 md:py-28">
+        <section className="flex min-h-[calc(100svh-var(--header-height)-var(--announcement-height,0px))] flex-col justify-center gap-10 py-12 xs:gap-12 xs:py-14 sm:gap-16 sm:py-20 md:gap-20 md:py-28">
           {/* Main Headline with Framer Motion */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -157,13 +137,13 @@ export default function Home() {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.1, duration: 0.5 }}
-              className="inline-flex items-center gap-2 rounded-full border border-[hsl(var(--accent))]/20 bg-[hsl(var(--accent))]/5 px-4 py-1.5 backdrop-blur-sm"
+              className="inline-flex items-center gap-1.5 rounded-full border border-[hsl(var(--accent))]/20 bg-[hsl(var(--accent))]/5 px-3 py-1 xs:gap-2 xs:px-4 xs:py-1.5 backdrop-blur-sm"
             >
-              <span className="relative flex h-2 w-2">
+              <span className="relative flex h-1.5 w-1.5 xs:h-2 xs:w-2">
                 <span className="absolute inline-flex h-full w-full animate-pulse rounded-full bg-[hsl(var(--accent))]" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-[hsl(var(--accent))]" />
+                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[hsl(var(--accent))] xs:h-2 xs:w-2" />
               </span>
-              <span className="text-xs font-semibold text-[hsl(var(--accent))]">
+              <span className="text-[10px] font-semibold text-[hsl(var(--accent))] xs:text-xs">
                 Thousands sharing anonymously
               </span>
             </motion.div>
@@ -175,7 +155,7 @@ export default function Home() {
               transition={{ delay: 0.2, duration: 0.6 }}
               className="flex max-w-4xl flex-col gap-4"
             >
-              <h1 className="text-4xl font-black leading-[1.1] tracking-tight text-[hsl(var(--foreground))] sm:text-5xl md:text-6xl lg:text-7xl">
+              <h1 className="text-[1.8rem] font-black leading-[1.1] tracking-tight text-[hsl(var(--foreground))] xs:text-4xl sm:text-5xl md:text-6xl lg:text-7xl">
                 <span className="block">Say what you can&apos;t.</span>
                 <span className="block bg-linear-to-r from-[hsl(var(--accent))] via-[hsl(var(--accent))]/80 to-[hsl(var(--accent))]/60 bg-clip-text text-transparent">
                   <TypewriterText
@@ -198,7 +178,7 @@ export default function Home() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.5, duration: 0.6 }}
-                className="mx-auto max-w-2xl text-base leading-relaxed text-[hsl(var(--muted-foreground))] sm:text-lg md:text-xl"
+                className="mx-auto max-w-2xl text-sm leading-relaxed text-[hsl(var(--muted-foreground))] xs:text-base sm:text-lg md:text-xl"
               >
                 A place for things you can't say out loud. Fully anonymous, human-moderated, and judgment-free. No account. No trace. Just honesty.
               </motion.p>
@@ -209,11 +189,11 @@ export default function Home() {
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6, duration: 0.6 }}
-              className="flex w-full flex-col items-center gap-3 sm:w-auto sm:flex-row sm:gap-4"
+              className="flex w-full flex-col items-center gap-3 xs:w-auto xs:flex-row sm:gap-4"
             >
               <Link
                 href="/submit"
-                className="btn-primary btn-lg w-full sm:w-auto"
+                className="btn-primary btn-lg w-full xs:w-auto"
               >
                 <PenLine className="h-5 w-5 shrink-0" />
                 <span>Start writing</span>
@@ -222,12 +202,30 @@ export default function Home() {
               <Tooltip content="See how it works" side="bottom">
                 <a
                   href="#how-it-works"
-                  className="btn-secondary btn-lg group w-full sm:w-auto"
+                  className="btn-secondary btn-lg group w-full xs:w-auto"
                 >
                   Learn more
                   <ArrowRight className="h-5 w-5 shrink-0 transition-transform duration-300 group-hover:translate-x-1" />
                 </a>
               </Tooltip>
+            </motion.div>
+
+            {/* Mobile scroll hint — fades in after 1.2s, only on touch devices */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1.8, duration: 0.8 }}
+              className="flex items-center justify-center sm:hidden"
+              aria-hidden
+            >
+              <motion.div
+                animate={{ y: [0, 5, 0] }}
+                transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+                className="flex flex-col items-center gap-1 text-[hsl(var(--muted-foreground))]/50"
+              >
+                <span className="text-[10px] font-medium uppercase tracking-widest">Scroll</span>
+                <ChevronDown className="h-3.5 w-3.5" />
+              </motion.div>
             </motion.div>
           </motion.div>
 
@@ -255,22 +253,22 @@ export default function Home() {
                 visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
               }}
               whileHover={{ y: -6, transition: { duration: 0.2 } }}
-              className="card-glass border-shine col-span-1 flex flex-col justify-between gap-5 p-6 sm:col-span-2 sm:p-8 lg:row-span-2"
+              className="card-glass border-shine col-span-1 flex flex-col justify-between gap-5 p-5 sm:col-span-2 sm:p-8 lg:row-span-2"
             >
               <div>
                 <motion.div
                   whileHover={{ scale: 1.05, rotate: 5 }}
                   transition={{ type: "spring", stiffness: 400, damping: 20 }}
-                  className="mb-5 flex h-12 w-12 items-center justify-center rounded-lg bg-linear-to-br from-[hsl(var(--accent))]/20 to-[hsl(var(--accent))]/5 ring-1 ring-[hsl(var(--accent))]/10 sm:h-14 sm:w-14"
+                  className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-linear-to-br from-[hsl(var(--accent))]/20 to-[hsl(var(--accent))]/5 ring-1 ring-[hsl(var(--accent))]/10 sm:mb-5 sm:h-14 sm:w-14"
                 >
-                  <Lock className="h-6 w-6 text-[hsl(var(--accent))] sm:h-7 sm:w-7" />
+                  <Lock className="h-5 w-5 text-[hsl(var(--accent))] sm:h-7 sm:w-7" />
                 </motion.div>
                 <Tooltip content="No account, email, or phone needed" side="right">
-                  <h3 className="inline-block cursor-help border-b border-dashed border-[hsl(var(--accent))]/30 text-xl font-black text-[hsl(var(--foreground))] sm:text-2xl md:text-3xl">
+                  <h3 className="inline-block cursor-help border-b border-dashed border-[hsl(var(--accent))]/30 text-lg font-black text-[hsl(var(--foreground))] xs:text-xl sm:text-2xl md:text-3xl">
                     100% Anonymous
                   </h3>
                 </Tooltip>
-                <p className="mt-3 text-sm leading-relaxed text-[hsl(var(--muted-foreground))] sm:mt-4 sm:text-base">
+                <p className="mt-2 text-[13px] leading-relaxed text-[hsl(var(--muted-foreground))] xs:text-sm sm:mt-4 sm:text-base">
                   No email. No name. No trace. Your words exist completely on their own — untraceable from the moment you hit send.
                 </p>
               </div>
@@ -293,21 +291,21 @@ export default function Home() {
                 visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
               }}
               whileHover={{ y: -6, transition: { duration: 0.2 } }}
-              className="card-glass border-shine col-span-1 p-6 lg:col-span-2"
+              className="card-glass border-shine col-span-1 p-5 sm:p-6 lg:col-span-2"
             >
               <motion.div
                 whileHover={{ scale: 1.05, rotate: 5 }}
                 transition={{ type: "spring", stiffness: 400, damping: 20 }}
-                className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-linear-to-br from-[hsl(var(--accent))]/20 to-[hsl(var(--accent))]/5 sm:h-12 sm:w-12"
+                className="mb-3.5 flex h-10 w-10 items-center justify-center rounded-lg bg-linear-to-br from-[hsl(var(--accent))]/20 to-[hsl(var(--accent))]/5 sm:mb-4 sm:h-12 sm:w-12"
               >
                 <ShieldCheck className="h-5 w-5 text-[hsl(var(--accent))] sm:h-6 sm:w-6" />
               </motion.div>
               <Tooltip content="Every post is read before going live">
-                <h3 className="inline-block cursor-help border-b border-dashed border-[hsl(var(--accent))]/30 text-base font-black text-[hsl(var(--foreground))] sm:text-lg">
+                <h3 className="inline-block cursor-help border-b border-dashed border-[hsl(var(--accent))]/30 text-[15px] font-black text-[hsl(var(--foreground))] sm:text-lg">
                   Human Reviewed
                 </h3>
               </Tooltip>
-              <p className="mt-2.5 text-sm leading-relaxed text-[hsl(var(--muted-foreground))] sm:mt-3">
+              <p className="mt-2 text-[13px] leading-relaxed text-[hsl(var(--muted-foreground))] xs:text-sm sm:mt-3">
                 Every submission is read by a real person before it reaches the community. Nothing automated. Nothing missed.
               </p>
             </CursorGlowCard>
@@ -319,21 +317,21 @@ export default function Home() {
                 visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
               }}
               whileHover={{ y: -6, transition: { duration: 0.2 } }}
-              className="card-glass border-shine col-span-1 p-6"
+              className="card-glass border-shine col-span-1 p-5 sm:p-6"
             >
               <motion.div
                 whileHover={{ scale: 1.05, rotate: 5 }}
                 transition={{ type: "spring", stiffness: 400, damping: 20 }}
-                className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-linear-to-br from-[hsl(var(--accent))]/20 to-[hsl(var(--accent))]/5 sm:h-12 sm:w-12"
+                className="mb-3.5 flex h-10 w-10 items-center justify-center rounded-lg bg-linear-to-br from-[hsl(var(--accent))]/20 to-[hsl(var(--accent))]/5 sm:mb-4 sm:h-12 sm:w-12"
               >
                 <Zap className="h-5 w-5 text-[hsl(var(--accent))] sm:h-6 sm:w-6" />
               </motion.div>
               <Tooltip content="Submit in under 60 seconds">
-                <h3 className="inline-block cursor-help border-b border-dashed border-[hsl(var(--accent))]/30 text-base font-black text-[hsl(var(--foreground))] sm:text-lg">
+                <h3 className="inline-block cursor-help border-b border-dashed border-[hsl(var(--accent))]/30 text-[15px] font-black text-[hsl(var(--foreground))] sm:text-lg">
                   Instant Submit
                 </h3>
               </Tooltip>
-              <p className="mt-2.5 text-sm leading-relaxed text-[hsl(var(--muted-foreground))] sm:mt-3">
+              <p className="mt-2 text-[13px] leading-relaxed text-[hsl(var(--muted-foreground))] xs:text-sm sm:mt-3">
                 Open the page, type, hit send. The whole thing takes under 60 seconds with zero friction.
               </p>
             </CursorGlowCard>
@@ -345,21 +343,21 @@ export default function Home() {
                 visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
               }}
               whileHover={{ y: -6, transition: { duration: 0.2 } }}
-              className="card-glass border-shine col-span-1 p-6"
+              className="card-glass border-shine col-span-1 p-5 sm:col-span-2 sm:p-6 lg:col-span-1"
             >
               <motion.div
                 whileHover={{ scale: 1.05, rotate: 5 }}
                 transition={{ type: "spring", stiffness: 400, damping: 20 }}
-                className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-linear-to-br from-[hsl(var(--accent))]/20 to-[hsl(var(--accent))]/5 sm:h-12 sm:w-12"
+                className="mb-3.5 flex h-10 w-10 items-center justify-center rounded-lg bg-linear-to-br from-[hsl(var(--accent))]/20 to-[hsl(var(--accent))]/5 sm:mb-4 sm:h-12 sm:w-12"
               >
                 <Heart className="h-5 w-5 text-[hsl(var(--accent))] sm:h-6 sm:w-6" />
               </motion.div>
               <Tooltip content="Moderated around the clock">
-                <h3 className="inline-block cursor-help border-b border-dashed border-[hsl(var(--accent))]/30 text-base font-black text-[hsl(var(--foreground))] sm:text-lg">
+                <h3 className="inline-block cursor-help border-b border-dashed border-[hsl(var(--accent))]/30 text-[15px] font-black text-[hsl(var(--foreground))] sm:text-lg">
                   Safe Space
                 </h3>
               </Tooltip>
-              <p className="mt-2.5 text-sm leading-relaxed text-[hsl(var(--muted-foreground))] sm:mt-3">
+              <p className="mt-2 text-[13px] leading-relaxed text-[hsl(var(--muted-foreground))] xs:text-sm sm:mt-3">
                 Real humans keep this space kind and safe around the clock — because a community is only as good as its people.
               </p>
             </CursorGlowCard>
@@ -373,22 +371,22 @@ export default function Home() {
           whileInView="visible"
           viewport={{ once: true, margin: "-60px", amount: 0.15 }}
           variants={containerVariants}
-          className="py-16 sm:py-24 md:py-28"
+          className="py-12 xs:py-16 sm:py-24 md:py-28"
         >
           {/* Section Header */}
           <motion.section
             variants={itemVariants}
             id="how-it-works"
-            className="mb-12 sm:mb-16 md:mb-20"
+            className="mb-10 xs:mb-12 sm:mb-16 md:mb-20"
           >
             <div className="max-w-3xl">
-              <span className="inline-block text-xs font-semibold uppercase tracking-widest text-[hsl(var(--accent))] sm:text-sm">
+              <span className="inline-block text-[10px] font-semibold uppercase tracking-widest text-[hsl(var(--accent))] xs:text-xs sm:text-sm">
                 How it works
               </span>
-              <h2 className="mt-3 text-3xl font-black text-[hsl(var(--foreground))] sm:text-4xl md:text-5xl">
+              <h2 className="mt-2 text-2xl font-black text-[hsl(var(--foreground))] xs:text-3xl sm:text-4xl md:text-5xl">
                 Done in three steps
               </h2>
-              <p className="mt-4 text-base leading-relaxed text-[hsl(var(--muted-foreground))] sm:text-lg">
+              <p className="mt-3 text-sm leading-relaxed text-[hsl(var(--muted-foreground))] xs:text-base sm:text-lg">
                 No account. No email. No verification. Just say what&apos;s on your mind.
               </p>
             </div>
@@ -406,13 +404,13 @@ export default function Home() {
                   transition={{ delay: index * 0.12, duration: 0.6, ease: "easeOut" }}
                   viewport={{ once: true, margin: "-30px", amount: 0.3 }}
                   whileHover={{ y: -8, transition: { duration: 0.3, ease: "easeOut" } }}
-                  className="card-glass border-shine group relative overflow-hidden p-6 sm:p-7 md:p-8"
+                  className="card-glass border-shine group relative overflow-hidden p-5 sm:p-7 md:p-8"
                 >
                   <div className="absolute inset-0 rounded-[inherit] bg-linear-to-br from-[hsl(var(--accent))]/5 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
 
                   {/* Number badge */}
                   <motion.div
-                    className="absolute right-2 top-2 flex h-14 w-14 items-center justify-center rounded-full bg-linear-to-br from-[hsl(var(--accent))]/10 to-transparent text-xl font-black text-[hsl(var(--accent))]/15 transition-all duration-500 group-hover:scale-110 group-hover:text-[hsl(var(--accent))]/30 sm:right-3 sm:top-3 sm:h-16 sm:w-16 sm:text-2xl"
+                    className="absolute right-2 top-2 flex h-11 w-11 items-center justify-center rounded-full bg-linear-to-br from-[hsl(var(--accent))]/10 to-transparent text-lg font-black text-[hsl(var(--accent))]/15 transition-all duration-500 group-hover:scale-110 group-hover:text-[hsl(var(--accent))]/30 xs:h-14 xs:w-14 xs:text-xl sm:right-3 sm:top-3 sm:h-16 sm:w-16 sm:text-2xl"
                     initial={{ scale: 0, rotate: -180 }}
                     whileInView={{ scale: 1, rotate: 0 }}
                     transition={{ delay: index * 0.12 + 0.3, duration: 0.6, ease: "backOut" }}
@@ -425,14 +423,14 @@ export default function Home() {
                     <motion.div
                       whileHover={{ scale: 1.1, rotate: 12 }}
                       transition={{ type: "spring", stiffness: 400, damping: 15 }}
-                      className="mb-5 flex h-12 w-12 items-center justify-center rounded-lg bg-linear-to-br from-[hsl(var(--accent))]/20 to-[hsl(var(--accent))]/5 transition-all duration-500 group-hover:from-[hsl(var(--accent))]/30 group-hover:to-[hsl(var(--accent))]/10 group-hover:shadow-lg group-hover:shadow-[hsl(var(--accent))]/20 sm:h-14 sm:w-14"
+                      className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-linear-to-br from-[hsl(var(--accent))]/20 to-[hsl(var(--accent))]/5 transition-all duration-500 group-hover:from-[hsl(var(--accent))]/30 group-hover:to-[hsl(var(--accent))]/10 group-hover:shadow-lg group-hover:shadow-[hsl(var(--accent))]/20 xs:mb-5 xs:h-12 xs:w-12 sm:h-14 sm:w-14"
                     >
-                      <Icon className="h-6 w-6 text-[hsl(var(--accent))] sm:h-7 sm:w-7" />
+                      <Icon className="h-5 w-5 text-[hsl(var(--accent))] xs:h-6 xs:w-6 sm:h-7 sm:w-7" />
                     </motion.div>
-                    <h3 className="text-lg font-black text-[hsl(var(--foreground))] sm:text-xl">
+                    <h3 className="text-[15px] font-black text-[hsl(var(--foreground))] xs:text-base sm:text-xl">
                       {item.title}
                     </h3>
-                    <p className="mt-2.5 text-sm leading-relaxed text-[hsl(var(--muted-foreground))] sm:mt-3">
+                    <p className="mt-2 text-[13px] leading-relaxed text-[hsl(var(--muted-foreground))] xs:text-sm sm:mt-3">
                       {item.desc}
                     </p>
                   </div>
@@ -447,7 +445,7 @@ export default function Home() {
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: "-50px", amount: 0.4 }}
-            className="card-glass border-shine group relative mt-16 overflow-hidden p-10 sm:mt-20 sm:p-14 md:mt-24 md:p-20"
+            className="card-glass border-shine group relative mt-12 overflow-hidden p-6 xs:p-8 sm:mt-16 sm:p-12 md:mt-20 md:p-16 lg:mt-24 lg:p-20"
           >
             <motion.div
               className="absolute inset-0 bg-linear-to-br from-[hsl(var(--accent))]/8 via-[hsl(var(--accent))]/4 to-transparent opacity-0 transition-opacity duration-700"
@@ -463,7 +461,7 @@ export default function Home() {
                 transition={{ delay: 0.2, duration: 0.7, ease: "easeOut" }}
                 viewport={{ once: true }}
               >
-                <h3 className="text-2xl font-black text-[hsl(var(--foreground))] sm:text-3xl md:text-4xl lg:text-5xl">
+                <h3 className="text-xl font-black text-[hsl(var(--foreground))] xs:text-2xl sm:text-3xl md:text-4xl lg:text-5xl">
                   Your secret is safe here.
                 </h3>
               </motion.div>
@@ -473,7 +471,7 @@ export default function Home() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3, duration: 0.6 }}
                 viewport={{ once: true }}
-                className="max-w-2xl text-sm text-[hsl(var(--muted-foreground))] sm:text-base md:text-lg"
+                className="max-w-xl text-[13px] text-[hsl(var(--muted-foreground))] xs:text-sm xs:max-w-2xl sm:text-base md:text-lg"
               >
                 Thousands of people have already shared what they couldn't say out loud. Whatever it is — big, small, silly, or serious — it deserves to be heard.
               </motion.p>

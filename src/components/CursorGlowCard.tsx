@@ -28,7 +28,7 @@ export default function CursorGlowCard({
 }: CursorGlowCardProps) {
   return (
     <motion.div className={`relative ${className}`} {...motionProps}>
-      {/* Proximity-aware border glow — positioned relative to this element */}
+      {/* Proximity glow — pointer device only */}
       <GlowingEffect
         spread={glowSpread}
         glow={false}
