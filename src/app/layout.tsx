@@ -4,6 +4,7 @@ import { ThemeProvider } from "next-themes";
 import HeaderNav from "@/components/HeaderNav";
 import Footer from "@/components/Footer";
 import { CursorEffects } from "@/components/CursorEffects";
+import { SonnerToaster } from "@/components/SonnerToaster";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -82,6 +83,9 @@ export default function RootLayout({
         >
           {/* ── Cursor Effects ── */}
           <CursorEffects />
+
+          {/* ── Toast notifications ── */}
+          <SonnerToaster />
           
           {/* ── Header ── */}
           <HeaderNav />

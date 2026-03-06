@@ -2,11 +2,11 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
-import { Heart, ShieldCheck, AlertCircle, CheckCircle2, ArrowLeft, Lock, Music2, Sparkles } from "lucide-react";
+import { Heart, ShieldCheck, ArrowLeft, Lock, Music2, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
+import TextareaAutosize from "react-textarea-autosize";
+import { toast } from "sonner";
 import CursorGlowCard from "@/components/CursorGlowCard";
-
-type Notice = { type: "error" | "success"; message: string } | null;
 
 const CHAR_LIMIT = 1000;
 
@@ -15,7 +15,6 @@ export default function SubmitPage() {
   const [music, setMusic] = useState("");
   const [website, setWebsite] = useState("");
   const [saveDraft, setSaveDraft] = useState(true);
-  const [notice, setNotice] = useState<Notice>(null);
   const [loading, setLoading] = useState(false);
   const [hasDraft, setHasDraft] = useState(false);
   const [draftError, setDraftError] = useState(false);
@@ -84,10 +83,21 @@ export default function SubmitPage() {
     setMusic(event.currentTarget.value);
   }, []);
 
+  // Fire confetti on success (dynamically imported for bundle efficiency)
+  const fireConfetti = useCallback(async () => {
+    const { default: confetti } = await import("canvas-confetti");
+    confetti({
+      particleCount: 130,
+      spread: 75,
+      origin: { y: 0.65 },
+      colors: ["#c02051", "#e84d84", "#f9a8c9", "#ffffff"],
+      disableForReducedMotion: true,
+    });
+  }, []);
+
   const handleSubmit = useCallback(async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (loading) return; // Prevent double submission
-    setNotice(null);
 
     setLoading(true);
 
@@ -118,23 +128,24 @@ export default function SubmitPage() {
       } catch (error) {
         console.error("Draft clear error:", error);
       }
-      setNotice({ type: "success", message: "Confession submitted successfully!" });
+      toast.success("Confession submitted!", {
+        description: "It\'s in the queue — a human will review it before it goes live.",
+      });
+      void fireConfetti();
     } catch (error) {
       if (error instanceof Error && error.name === "AbortError") {
-        setNotice({
-          type: "error",
-          message: "Request timeout. Please try again.",
+        toast.error("Request timed out", {
+          description: "Please check your connection and try again.",
         });
       } else {
-        setNotice({
-          type: "error",
-          message: error instanceof Error ? error.message : "Unknown error.",
+        toast.error("Submission failed", {
+          description: error instanceof Error ? error.message : "Unknown error — please try again.",
         });
       }
     } finally {
       setLoading(false);
     }
-  }, [message, music, website, loading]);
+  }, [message, music, website, loading, fireConfetti]);
 
   const charCount = message.length;
 
@@ -213,12 +224,13 @@ export default function SubmitPage() {
                     {charCount} / {CHAR_LIMIT}
                   </span>
                 </div>
-                <textarea
+                <TextareaAutosize
                   id="confession"
                   name="confession"
-                  placeholder="What's been on your mind? Write it here — no one will know it's you…"
+                  placeholder="What\'s been on your mind? Write it here — no one will know it\'s you…"
                   maxLength={CHAR_LIMIT}
-                  rows={5}
+                  minRows={5}
+                  maxRows={16}
                   value={message}
                   onChange={handleMessageChange}
                   className="input-base w-full resize-none"
@@ -274,20 +286,6 @@ export default function SubmitPage() {
                   )}
                 </div>
               </div>
-
-              {/* Notices */}
-              {notice?.type === "success" && (
-                <div className="notice notice-success">
-                  <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0" />
-                  <p>{notice.message}</p>
-                </div>
-              )}
-              {notice?.type === "error" && (
-                <div className="notice notice-error">
-                  <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" />
-                  <p>{notice.message}</p>
-                </div>
-              )}
 
               {/* Submit */}
               <div className="relative">
