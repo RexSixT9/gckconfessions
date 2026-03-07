@@ -41,7 +41,7 @@ export default async function AdminPage() {
       <div className="mx-auto w-full max-w-5xl px-4 pb-16 pt-6 sm:px-6 sm:pt-10">
 
         {/*  Page header  */}
-        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="mb-8 flex animate-slide-down flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <span className="badge badge-accent mb-3 inline-flex uppercase tracking-wider">
               Admin Panel
@@ -60,14 +60,14 @@ export default async function AdminPage() {
         {stats && (
           <div className="mb-8 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
             {[
-              { label: "Total",    value: stats.total,    cls: "text-[hsl(var(--foreground))]",       dot: "bg-[hsl(var(--muted-foreground))]" },
-              { label: "Pending",  value: stats.pending,  cls: "text-[hsl(var(--warning))]",          dot: "bg-[hsl(var(--warning))]" },
-              { label: "Approved", value: stats.approved, cls: "text-[hsl(var(--action-accept))]",    dot: "bg-[hsl(var(--action-accept))]" },
-              { label: "Rejected", value: stats.rejected, cls: "text-[hsl(var(--muted-foreground))]", dot: "bg-[hsl(var(--muted-foreground))]/40" },
-            ].map(({ label, value, cls, dot }) => (
+              { label: "Total",    value: stats.total,    cls: "text-[hsl(var(--foreground))]",       dot: "bg-[hsl(var(--muted-foreground))]",      delay: "" },
+              { label: "Pending",  value: stats.pending,  cls: "text-[hsl(var(--warning))]",          dot: "bg-[hsl(var(--warning))]",              delay: "animation-delay-100" },
+              { label: "Approved", value: stats.approved, cls: "text-[hsl(var(--action-accept))]",    dot: "bg-[hsl(var(--action-accept))]",        delay: "animation-delay-200" },
+              { label: "Rejected", value: stats.rejected, cls: "text-[hsl(var(--muted-foreground))]", dot: "bg-[hsl(var(--muted-foreground))]/40",  delay: "animation-delay-300" },
+            ].map(({ label, value, cls, dot, delay }) => (
               <div
                 key={label}
-                className="card border-shine flex flex-col gap-2 px-4 py-4 sm:px-6 sm:py-5"
+                className={`card border-shine animate-slide-up flex flex-col gap-2 px-4 py-4 sm:px-6 sm:py-5 ${delay}`}
               >
                 <div className="flex items-center gap-2">
                   <span className={`h-2 w-2 rounded-full ${dot}`} />
@@ -80,7 +80,7 @@ export default async function AdminPage() {
         )}
 
         {/*  Main list  */}
-        <div className="card border-shine p-6 sm:p-8">
+        <div className="card animate-blur-in border-shine animation-delay-400 p-6 sm:p-8">
           <AdminList />
         </div>
 

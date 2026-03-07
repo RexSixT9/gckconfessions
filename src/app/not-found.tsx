@@ -86,7 +86,7 @@ export default function NotFound() {
 
             {/* Auto-redirect notification */}
             {autoRedirect && countdown > 0 && (
-              <div className="mx-auto mt-6 max-w-md rounded-2xl border border-[hsl(var(--border))]/70 bg-[hsl(var(--card))] p-4">
+              <div className="card mx-auto mt-6 max-w-md p-4">
                 <p className="text-sm text-[hsl(var(--muted-foreground))]">
                   Redirecting to home in{' '}
                   <span className="font-bold text-[hsl(var(--accent))]">
@@ -96,7 +96,7 @@ export default function NotFound() {
                 </p>
                 <button
                   onClick={handleCancelRedirect}
-                  className="mt-2 text-xs text-[hsl(var(--muted-foreground))] underline transition hover:text-[hsl(var(--foreground))]"
+                  className="mt-2 text-xs text-[hsl(var(--muted-foreground))] underline transition hover:text-[hsl(var(--foreground))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]/30"
                 >
                   Cancel redirect
                 </button>

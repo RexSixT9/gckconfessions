@@ -269,7 +269,7 @@ export default function SubmitPage() {
                     type="button"
                     onClick={() => setSaveDraft((p) => !p)}
                     disabled={draftError}
-                    className={`relative inline-flex h-5 w-9 items-center rounded-full border transition disabled:cursor-not-allowed disabled:opacity-50 ${saveDraft ? 'border-[hsl(var(--accent))] bg-[hsl(var(--accent))]' : 'border-[hsl(var(--border))] bg-[hsl(var(--background))]'}`}
+                    className={`relative inline-flex h-5 w-9 items-center rounded-full border transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]/30 disabled:cursor-not-allowed disabled:opacity-50 ${saveDraft ? 'border-[hsl(var(--accent))] bg-[hsl(var(--accent))]' : 'border-[hsl(var(--border))] bg-[hsl(var(--background))]'}`}
                     aria-pressed={saveDraft}
                     aria-label="Toggle save draft"
                   >
@@ -279,7 +279,7 @@ export default function SubmitPage() {
                     <button
                       type="button"
                       onClick={clearDraft}
-                      className="text-xs text-[hsl(var(--muted-foreground))] transition hover:text-[hsl(var(--destructive))]"
+                      className="rounded px-1 text-xs text-[hsl(var(--muted-foreground))] transition hover:bg-[hsl(var(--secondary))] hover:text-[hsl(var(--destructive))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]/30"
                     >
                       Clear
                     </button>

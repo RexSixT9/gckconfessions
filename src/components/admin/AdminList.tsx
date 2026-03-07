@@ -65,7 +65,7 @@ function ActionBtn({
   className?: string;
 }) {
   const base =
-    "inline-flex items-center justify-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-medium transition active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]/40";
+    "inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-medium transition-all active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]/40";
   const variants: Record<string, string> = {
     ghost:
       "border-[hsl(var(--border))] bg-transparent text-[hsl(var(--foreground))] hover:border-[hsl(var(--accent))]/40 hover:text-[hsl(var(--accent))]",
@@ -373,8 +373,8 @@ export default function AdminList() {
             ? <AlertCircle className="h-4 w-4 shrink-0" />
             : <CheckCircle2 className="h-4 w-4 shrink-0" />}
           <p className="flex-1 font-medium">{notice.message}</p>
-          <button type="button" onClick={() => setNotice(null)}>
-            <X className="h-3.5 w-3.5 opacity-50 hover:opacity-100" />
+          <button type="button" onClick={() => setNotice(null)} className="rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]/40">
+            <X className="h-3.5 w-3.5 opacity-50 transition hover:opacity-100" />
           </button>
         </div>
       )}
@@ -383,17 +383,17 @@ export default function AdminList() {
       {loading && (
         <div className="flex flex-col gap-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="overflow-hidden rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--background))]">
+            <div key={i} className="card overflow-hidden">
               <div className="px-5 py-4">
                 <div className="mb-3 flex items-center gap-2">
-                  <div className="h-5 w-16 animate-pulse rounded-md bg-[hsl(var(--secondary))]" />
-                  <div className="h-5 w-12 animate-pulse rounded-md bg-[hsl(var(--secondary))]" />
-                  <div className="ml-auto h-4 w-24 animate-pulse rounded-md bg-[hsl(var(--secondary))]" />
+                  <div className="skeleton h-5 w-16" />
+                  <div className="skeleton h-5 w-12" />
+                  <div className="skeleton ml-auto h-4 w-24" />
                 </div>
-                <div className="h-16 animate-pulse rounded-xl bg-[hsl(var(--secondary))]" />
+                <div className="skeleton h-16 rounded-xl" />
                 <div className="mt-3 flex gap-2">
-                  <div className="h-7 w-28 animate-pulse rounded-lg bg-[hsl(var(--secondary))]" />
-                  <div className="h-7 w-16 animate-pulse rounded-lg bg-[hsl(var(--secondary))]" />
+                  <div className="skeleton h-7 w-28 rounded-lg" />
+                  <div className="skeleton h-7 w-16 rounded-lg" />
                 </div>
               </div>
             </div>
@@ -428,7 +428,7 @@ export default function AdminList() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.35, delay: idx * 0.04 }}
-                className="overflow-hidden rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] transition-shadow hover:shadow-sm"
+                className="card overflow-hidden"
               >
 
                 {/* Card header */}
@@ -464,7 +464,7 @@ export default function AdminList() {
                       type="button"
                       onClick={() => handleCopy(item.message, msgId)}
                       title="Copy message"
-                      className="absolute right-2 top-2 rounded-md border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-1 text-[hsl(var(--muted-foreground))] opacity-100 transition hover:text-[hsl(var(--accent))] sm:opacity-0 sm:group-hover:opacity-100"
+                      className="absolute right-2 top-2 rounded-md border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-1 text-[hsl(var(--muted-foreground))] opacity-100 transition hover:text-[hsl(var(--accent))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]/40 sm:opacity-0 sm:group-hover:opacity-100"
                     >
                       {copiedId === msgId
                         ? <Check className="h-3 w-3 text-[hsl(var(--action-accept))]" />
@@ -482,7 +482,7 @@ export default function AdminList() {
                           type="button"
                           onClick={() => handleCopy(item.music!, musId)}
                           title="Copy song"
-                          className="shrink-0 text-[hsl(var(--muted-foreground))] opacity-100 transition hover:text-[hsl(var(--accent))] sm:opacity-0 sm:group-hover/mus:opacity-100"
+                          className="shrink-0 rounded-md p-0.5 text-[hsl(var(--muted-foreground))] opacity-100 transition hover:text-[hsl(var(--accent))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]/40 sm:opacity-0 sm:group-hover/mus:opacity-100"
                         >
                           {copiedId === musId
                             ? <Check className="h-3 w-3 text-[hsl(var(--action-accept))]" />
@@ -576,7 +576,7 @@ export default function AdminList() {
                       <div className="flex items-center gap-2 sm:ml-auto sm:shrink-0">
                         <button
                           type="button"
-                          className="flex-1 rounded-md border border-[hsl(var(--destructive))]/40 bg-[hsl(var(--destructive))]/15 px-2.5 py-1.5 text-xs font-semibold text-[hsl(var(--destructive))] transition hover:bg-[hsl(var(--destructive))]/25 sm:flex-none sm:py-1"
+                          className="flex-1 rounded-md border border-[hsl(var(--destructive))]/40 bg-[hsl(var(--destructive))]/15 px-2.5 py-1.5 text-xs font-semibold text-[hsl(var(--destructive))] transition hover:bg-[hsl(var(--destructive))]/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--destructive))]/40 active:scale-95 sm:flex-none sm:py-1"
                           disabled={busy}
                           onClick={() => void handleDeleteConfirm(item._id)}
                         >
@@ -584,7 +584,7 @@ export default function AdminList() {
                         </button>
                         <button
                           type="button"
-                          className="flex-1 rounded-md border border-[hsl(var(--border))] px-2.5 py-1.5 text-xs font-medium text-[hsl(var(--muted-foreground))] transition hover:text-[hsl(var(--foreground))] sm:flex-none sm:py-1"
+                          className="flex-1 rounded-md border border-[hsl(var(--border))] px-2.5 py-1.5 text-xs font-medium text-[hsl(var(--muted-foreground))] transition hover:bg-[hsl(var(--secondary))] hover:text-[hsl(var(--foreground))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]/30 active:scale-95 sm:flex-none sm:py-1"
                           onClick={() => setDeleteConfirmId(null)}
                         >
                           Cancel
