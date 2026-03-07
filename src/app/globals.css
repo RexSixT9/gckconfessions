@@ -929,6 +929,35 @@ a:focus-visible {
 /* ─────────────────────────────────────────
    Hero beam & gradient utilities
 ───────────────────────────────────────── */
+
+/* Reverse-direction sweep for extra beam layers */
+@keyframes beam-sweep-reverse {
+  0% {
+    transform: translateX(250%) skewX(15deg);
+    opacity: 0;
+  }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% {
+    transform: translateX(-120%) skewX(15deg);
+    opacity: 0;
+  }
+}
+
+/* Slow wide sweep — subtle depth layer */
+@keyframes beam-slow {
+  0% {
+    transform: translateX(-130%) skewX(-10deg);
+    opacity: 0;
+  }
+  8%  { opacity: 1; }
+  92% { opacity: 1; }
+  100% {
+    transform: translateX(280%) skewX(-10deg);
+    opacity: 0;
+  }
+}
+
 .hero-beam {
   position: absolute;
   inset: 0;
@@ -941,14 +970,14 @@ a:focus-visible {
   position: absolute;
   top: -50%;
   left: 0;
-  width: 20%;
+  width: 22%;
   height: 200%;
   background: linear-gradient(
     90deg,
     transparent,
-    hsl(338 78% 52% / 0.08) 25%,
-    hsl(338 78% 52% / 0.18) 50%,
-    hsl(338 78% 52% / 0.08) 75%,
+    hsl(338 78% 52% / 0.09) 25%,
+    hsl(338 78% 52% / 0.20) 50%,
+    hsl(338 78% 52% / 0.09) 75%,
     transparent
   );
   animation: beam-sweep 8s ease-in-out infinite;
@@ -960,18 +989,64 @@ a:focus-visible {
   position: absolute;
   top: -50%;
   left: 0;
-  width: 12%;
+  width: 13%;
   height: 200%;
   background: linear-gradient(
     90deg,
     transparent,
-    hsl(350 80% 60% / 0.05) 30%,
-    hsl(350 80% 60% / 0.12) 50%,
-    hsl(350 80% 60% / 0.05) 70%,
+    hsl(350 80% 60% / 0.06) 30%,
+    hsl(350 80% 60% / 0.14) 50%,
+    hsl(350 80% 60% / 0.06) 70%,
     transparent
   );
-  animation: beam-sweep 12s ease-in-out infinite;
-  animation-delay: 5s;
+  animation: beam-sweep 14s ease-in-out infinite;
+  animation-delay: 6s;
+}
+
+/* Extra beams — reverse direction sweeps for richness */
+.hero-beam-extra {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.hero-beam-extra::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: 0;
+  width: 18%;
+  height: 200%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    hsl(338 78% 52% / 0.06) 20%,
+    hsl(338 78% 52% / 0.13) 50%,
+    hsl(338 78% 52% / 0.06) 80%,
+    transparent
+  );
+  animation: beam-sweep-reverse 19s ease-in-out infinite;
+  animation-delay: 9s;
+}
+
+.hero-beam-extra::after {
+  content: '';
+  position: absolute;
+  top: 15%;
+  left: 0;
+  width: 28%;
+  height: 170%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    hsl(350 70% 55% / 0.04) 20%,
+    hsl(350 70% 55% / 0.09) 50%,
+    hsl(350 70% 55% / 0.04) 80%,
+    transparent
+  );
+  animation: beam-slow 32s ease-in-out infinite;
+  animation-delay: 4s;
 }
 
 .hero-gradient {
@@ -991,7 +1066,9 @@ a:focus-visible {
   }
 
   .hero-beam::before,
-  .hero-beam::after {
+  .hero-beam::after,
+  .hero-beam-extra::before,
+  .hero-beam-extra::after {
     display: none;
   }
 }

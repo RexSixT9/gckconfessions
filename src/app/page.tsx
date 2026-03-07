@@ -108,8 +108,17 @@ export default function Home() {
             animationDelay: '-10s',
           }}
         />
-        {/* Animated beam of light sweeping across */}
+        {/* Animated beams of light sweeping across */}
         <div className="hero-beam" />
+        <div className="hero-beam-extra" />
+        {/* Fourth orb — mid-page anchor so bento section glows too */}
+        <div
+          className="hero-gradient absolute top-[60%] left-[25%] h-125 w-125 bg-[radial-gradient(circle,hsl(338_78%_52%/0.07)_0%,hsl(350_70%_55%/0.03)_50%,transparent_70%)]"
+          style={{
+            animation: 'gradient-shift 28s ease-in-out infinite reverse, beam-pulse 11s ease-in-out infinite',
+            animationDelay: '-18s',
+          }}
+        />
         {/* Radial gradient overlay for depth */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,hsl(338_78%_52%/0.08),transparent_60%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,transparent_0%,hsl(var(--background))_100%)]" />
@@ -229,138 +238,219 @@ export default function Home() {
             </motion.div>
           </motion.div>
 
-          {/* ─── BENTO GRID ─── Responsive: 1→2→4 columns ─── */}
+          {/* ─── BENTO GRID ─── mobile 1-col · tablet 2×2 · desktop 12-col asymmetric ─── */}
           <motion.div
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, margin: "-50px", amount: 0.2 }}
+            viewport={{ once: true, margin: "-50px", amount: 0.1 }}
             variants={{
               hidden: { opacity: 0 },
-              visible: {
-                opacity: 1,
-                transition: {
-                  staggerChildren: 0.1,
-                  delayChildren: 0.1,
-                },
-              },
+              visible: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 0.05 } },
             }}
-            className="grid auto-rows-auto grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:auto-rows-fr lg:grid-cols-4 lg:grid-rows-2"
+            className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-4 lg:grid-cols-12 lg:gap-4 lg:[grid-template-rows:minmax(14rem,1fr)_minmax(14rem,1fr)]"
           >
-            {/* Card 1 — Large hero card: spans 2 cols on sm+, 2 cols + 2 rows on lg */}
+
+            {/* ── Card 1 ── Anonymous · tall featured (mob: 1col · sm: 2col · lg: 5col 2rows) */}
             <CursorGlowCard
               variants={{
-                hidden: { opacity: 0, y: 30 },
-                visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
+                hidden: { opacity: 0, y: 32, scale: 0.97 },
+                visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.65, ease: "easeOut" } },
               }}
-              whileHover={{ y: -6, transition: { duration: 0.2 } }}
-              className="card-glass border-shine col-span-1 flex flex-col justify-between gap-5 p-5 sm:col-span-2 sm:p-8 lg:row-span-2"
+              whileHover={{ y: -5, transition: { duration: 0.25 } }}
+              className="card-glass border-shine group relative overflow-hidden sm:col-span-2 lg:col-span-5 lg:row-span-2"
             >
-              <div>
+              {/* Oversized watermark icon */}
+              <div className="pointer-events-none absolute -bottom-10 -right-10 select-none opacity-[0.035] transition-opacity duration-700 group-hover:opacity-[0.07]">
+                <Lock className="h-56 w-56 text-[hsl(var(--foreground))]" />
+              </div>
+              {/* Hover accent wash */}
+              <div className="absolute inset-0 rounded-[inherit] bg-linear-to-br from-[hsl(var(--accent))]/8 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+
+              <div className="relative z-10 flex h-full flex-col justify-between gap-6 p-5 sm:p-7 lg:p-8">
+                <div>
+                  <motion.div
+                    whileHover={{ scale: 1.08, rotate: 6 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 18 }}
+                    className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-linear-to-br from-[hsl(var(--accent))]/20 to-[hsl(var(--accent))]/5 ring-1 ring-[hsl(var(--accent))]/15 sm:h-14 sm:w-14"
+                  >
+                    <Lock className="h-6 w-6 text-[hsl(var(--accent))] sm:h-7 sm:w-7" />
+                  </motion.div>
+
+                  <Tooltip content="No account, email, or phone needed" side="right">
+                    <h3 className="inline-block cursor-help border-b border-dashed border-[hsl(var(--accent))]/30 text-xl font-black text-[hsl(var(--foreground))] sm:text-2xl lg:text-3xl">
+                      100% Anonymous
+                    </h3>
+                  </Tooltip>
+
+                  <p className="mt-3 text-sm leading-relaxed text-[hsl(var(--muted-foreground))] sm:text-base">
+                    No email. No name. No trace. Your words exist on their own — untraceable from the moment you hit send.
+                  </p>
+
+                  {/* Trust checklist */}
+                  <ul className="mt-5 space-y-2.5">
+                    {[
+                      "No email or account needed",
+                      "No IP address logged",
+                      "No tracking cookies",
+                    ].map((point) => (
+                      <li key={point} className="flex items-center gap-2.5 text-xs font-medium text-[hsl(var(--muted-foreground))] sm:text-sm">
+                        <CheckCircle2 className="h-4 w-4 shrink-0 text-[hsl(var(--accent))]" />
+                        {point}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                  <span className="badge badge-accent">
+                    <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
+                    No account
+                  </span>
+                  <span className="badge badge-accent">
+                    <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
+                    Untraceable
+                  </span>
+                </div>
+              </div>
+            </CursorGlowCard>
+
+            {/* ── Card 2 ── Human Reviewed · wide with stat (sm: 1col · lg: 7col row-1) */}
+            <CursorGlowCard
+              variants={{
+                hidden: { opacity: 0, y: 32, scale: 0.97 },
+                visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.65, delay: 0.1, ease: "easeOut" } },
+              }}
+              whileHover={{ y: -5, transition: { duration: 0.25 } }}
+              className="card-glass border-shine group relative overflow-hidden sm:col-span-1 lg:col-span-7"
+            >
+              <div className="absolute inset-0 rounded-[inherit] bg-linear-to-br from-[hsl(var(--accent))]/5 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+              <div className="relative z-10 flex h-full flex-col gap-5 p-5 sm:p-7 lg:flex-row lg:items-center lg:gap-8">
+                {/* Left: icon + text */}
+                <div className="flex-1">
+                  <motion.div
+                    whileHover={{ scale: 1.08, rotate: -6 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 18 }}
+                    className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-linear-to-br from-[hsl(var(--accent))]/20 to-[hsl(var(--accent))]/5 sm:h-12 sm:w-12"
+                  >
+                    <ShieldCheck className="h-5 w-5 text-[hsl(var(--accent))] sm:h-6 sm:w-6" />
+                  </motion.div>
+                  <Tooltip content="Every post is read before going live">
+                    <h3 className="inline-block cursor-help border-b border-dashed border-[hsl(var(--accent))]/30 text-base font-black text-[hsl(var(--foreground))] sm:text-xl">
+                      Human Reviewed
+                    </h3>
+                  </Tooltip>
+                  <p className="mt-2 text-sm leading-relaxed text-[hsl(var(--muted-foreground))]">
+                    Every submission is read by a real person before it reaches the community. Nothing automated. Nothing missed.
+                  </p>
+                </div>
+
+                {/* Right: big stat pill */}
+                <div className="flex shrink-0 flex-col items-center justify-center gap-1 rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--secondary))]/60 px-6 py-4 text-center lg:min-w-[8.5rem]">
+                  <motion.span
+                    className="text-4xl font-black tabular-nums leading-none text-[hsl(var(--accent))] lg:text-5xl"
+                    initial={{ scale: 0.75, opacity: 0 }}
+                    whileInView={{ scale: 1, opacity: 1 }}
+                    transition={{ delay: 0.35, duration: 0.55, ease: "backOut" }}
+                    viewport={{ once: true }}
+                  >
+                    100%
+                  </motion.span>
+                  <span className="mt-1 text-[10px] font-semibold uppercase tracking-wider text-[hsl(var(--muted-foreground))]">
+                    posts reviewed
+                  </span>
+                </div>
+              </div>
+            </CursorGlowCard>
+
+            {/* ── Card 3 ── Instant Submit · stat card (sm: 1col · lg: 3col row-2) */}
+            <CursorGlowCard
+              variants={{
+                hidden: { opacity: 0, y: 32, scale: 0.97 },
+                visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.65, delay: 0.2, ease: "easeOut" } },
+              }}
+              whileHover={{ y: -5, transition: { duration: 0.25 } }}
+              className="card-glass border-shine group relative overflow-hidden sm:col-span-1 lg:col-span-3"
+            >
+              {/* Subtle radial glow behind stat */}
+              <div className="pointer-events-none absolute inset-0 rounded-[inherit] bg-[radial-gradient(circle_at_50%_55%,hsl(var(--accent)/0.08),transparent_65%)] opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+              <div className="relative z-10 flex h-full flex-col items-center justify-center gap-1 p-5 text-center sm:p-7">
                 <motion.div
-                  whileHover={{ scale: 1.05, rotate: 5 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 20 }}
-                  className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-linear-to-br from-[hsl(var(--accent))]/20 to-[hsl(var(--accent))]/5 ring-1 ring-[hsl(var(--accent))]/10 sm:mb-5 sm:h-14 sm:w-14"
+                  whileHover={{ scale: 1.12, rotate: -10 }}
+                  transition={{ type: "spring", stiffness: 450, damping: 15 }}
+                  className="mb-2 flex h-10 w-10 items-center justify-center rounded-xl bg-linear-to-br from-[hsl(var(--accent))]/20 to-[hsl(var(--accent))]/5"
                 >
-                  <Lock className="h-5 w-5 text-[hsl(var(--accent))] sm:h-7 sm:w-7" />
+                  <Zap className="h-5 w-5 text-[hsl(var(--accent))]" />
                 </motion.div>
-                <Tooltip content="No account, email, or phone needed" side="right">
-                  <h3 className="inline-block cursor-help border-b border-dashed border-[hsl(var(--accent))]/30 text-lg font-black text-[hsl(var(--foreground))] xs:text-xl sm:text-2xl md:text-3xl">
-                    100% Anonymous
+
+                <div className="flex items-baseline gap-0.5">
+                  <span className="text-lg font-bold text-[hsl(var(--muted-foreground))]/60">&lt;</span>
+                  <motion.span
+                    className="text-6xl font-black tabular-nums leading-none text-[hsl(var(--foreground))] sm:text-7xl"
+                    initial={{ scale: 0.7, opacity: 0 }}
+                    whileInView={{ scale: 1, opacity: 1 }}
+                    transition={{ delay: 0.3, duration: 0.55, ease: "backOut" }}
+                    viewport={{ once: true }}
+                  >
+                    60
+                  </motion.span>
+                  <span className="text-3xl font-black text-[hsl(var(--foreground))]">s</span>
+                </div>
+
+                <p className="mt-0.5 text-xs font-semibold text-[hsl(var(--muted-foreground))]">
+                  to write &amp; submit
+                </p>
+                <span className="badge badge-accent mt-2">
+                  <Zap className="h-3 w-3" />
+                  Instant
+                </span>
+              </div>
+            </CursorGlowCard>
+
+            {/* ── Card 4 ── Safe Space · mini list (sm: 1col · lg: 4col row-2) */}
+            <CursorGlowCard
+              variants={{
+                hidden: { opacity: 0, y: 32, scale: 0.97 },
+                visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.65, delay: 0.3, ease: "easeOut" } },
+              }}
+              whileHover={{ y: -5, transition: { duration: 0.25 } }}
+              className="card-glass border-shine group relative overflow-hidden sm:col-span-1 lg:col-span-4"
+            >
+              <div className="absolute inset-0 rounded-[inherit] bg-linear-to-br from-[hsl(var(--accent))]/5 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+              <div className="relative z-10 flex h-full flex-col p-5 sm:p-7">
+                <motion.div
+                  whileHover={{ scale: 1.08, rotate: 6 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 18 }}
+                  className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-linear-to-br from-[hsl(var(--accent))]/20 to-[hsl(var(--accent))]/5 sm:h-12 sm:w-12"
+                >
+                  <Heart className="h-5 w-5 text-[hsl(var(--accent))] sm:h-6 sm:w-6" />
+                </motion.div>
+
+                <Tooltip content="Moderated around the clock">
+                  <h3 className="inline-block cursor-help border-b border-dashed border-[hsl(var(--accent))]/30 text-base font-black text-[hsl(var(--foreground))] sm:text-xl">
+                    Safe Space
                   </h3>
                 </Tooltip>
-                <p className="mt-2 text-[13px] leading-relaxed text-[hsl(var(--muted-foreground))] xs:text-sm sm:mt-4 sm:text-base">
-                  No email. No name. No trace. Your words exist completely on their own — untraceable from the moment you hit send.
+
+                <p className="mt-2 text-sm leading-relaxed text-[hsl(var(--muted-foreground))]">
+                  Real humans keep this space kind and safe around the clock — community first, always.
                 </p>
+
+                {/* Mini trust list */}
+                <ul className="mt-4 space-y-2.5">
+                  {[
+                    "Human moderators only",
+                    "Harmful content never published",
+                    "Always 100% anonymous",
+                  ].map((point) => (
+                    <li key={point} className="flex items-center gap-2.5 text-xs font-medium text-[hsl(var(--muted-foreground))] sm:text-sm">
+                      <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[hsl(var(--accent))]" />
+                      {point}
+                    </li>
+                  ))}
+                </ul>
               </div>
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="badge badge-accent">
-                  <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
-                  No account required
-                </span>
-                <span className="badge badge-accent">
-                  <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
-                  Untraceable
-                </span>
-              </div>
             </CursorGlowCard>
 
-            {/* Card 2 — Human Reviewed: 1 col on mobile, 1 col on sm, spans 2 cols on lg */}
-            <CursorGlowCard
-              variants={{
-                hidden: { opacity: 0, y: 30 },
-                visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
-              }}
-              whileHover={{ y: -6, transition: { duration: 0.2 } }}
-              className="card-glass border-shine col-span-1 p-5 sm:p-6 lg:col-span-2"
-            >
-              <motion.div
-                whileHover={{ scale: 1.05, rotate: 5 }}
-                transition={{ type: "spring", stiffness: 400, damping: 20 }}
-                className="mb-3.5 flex h-10 w-10 items-center justify-center rounded-lg bg-linear-to-br from-[hsl(var(--accent))]/20 to-[hsl(var(--accent))]/5 sm:mb-4 sm:h-12 sm:w-12"
-              >
-                <ShieldCheck className="h-5 w-5 text-[hsl(var(--accent))] sm:h-6 sm:w-6" />
-              </motion.div>
-              <Tooltip content="Every post is read before going live">
-                <h3 className="inline-block cursor-help border-b border-dashed border-[hsl(var(--accent))]/30 text-[15px] font-black text-[hsl(var(--foreground))] sm:text-lg">
-                  Human Reviewed
-                </h3>
-              </Tooltip>
-              <p className="mt-2 text-[13px] leading-relaxed text-[hsl(var(--muted-foreground))] xs:text-sm sm:mt-3">
-                Every submission is read by a real person before it reaches the community. Nothing automated. Nothing missed.
-              </p>
-            </CursorGlowCard>
-
-            {/* Card 3 — Lightning Fast */}
-            <CursorGlowCard
-              variants={{
-                hidden: { opacity: 0, y: 30 },
-                visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
-              }}
-              whileHover={{ y: -6, transition: { duration: 0.2 } }}
-              className="card-glass border-shine col-span-1 p-5 sm:p-6"
-            >
-              <motion.div
-                whileHover={{ scale: 1.05, rotate: 5 }}
-                transition={{ type: "spring", stiffness: 400, damping: 20 }}
-                className="mb-3.5 flex h-10 w-10 items-center justify-center rounded-lg bg-linear-to-br from-[hsl(var(--accent))]/20 to-[hsl(var(--accent))]/5 sm:mb-4 sm:h-12 sm:w-12"
-              >
-                <Zap className="h-5 w-5 text-[hsl(var(--accent))] sm:h-6 sm:w-6" />
-              </motion.div>
-              <Tooltip content="Submit in under 60 seconds">
-                <h3 className="inline-block cursor-help border-b border-dashed border-[hsl(var(--accent))]/30 text-[15px] font-black text-[hsl(var(--foreground))] sm:text-lg">
-                  Instant Submit
-                </h3>
-              </Tooltip>
-              <p className="mt-2 text-[13px] leading-relaxed text-[hsl(var(--muted-foreground))] xs:text-sm sm:mt-3">
-                Open the page, type, hit send. The whole thing takes under 60 seconds with zero friction.
-              </p>
-            </CursorGlowCard>
-
-            {/* Card 4 — Safe Space */}
-            <CursorGlowCard
-              variants={{
-                hidden: { opacity: 0, y: 30 },
-                visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
-              }}
-              whileHover={{ y: -6, transition: { duration: 0.2 } }}
-              className="card-glass border-shine col-span-1 p-5 sm:col-span-2 sm:p-6 lg:col-span-1"
-            >
-              <motion.div
-                whileHover={{ scale: 1.05, rotate: 5 }}
-                transition={{ type: "spring", stiffness: 400, damping: 20 }}
-                className="mb-3.5 flex h-10 w-10 items-center justify-center rounded-lg bg-linear-to-br from-[hsl(var(--accent))]/20 to-[hsl(var(--accent))]/5 sm:mb-4 sm:h-12 sm:w-12"
-              >
-                <Heart className="h-5 w-5 text-[hsl(var(--accent))] sm:h-6 sm:w-6" />
-              </motion.div>
-              <Tooltip content="Moderated around the clock">
-                <h3 className="inline-block cursor-help border-b border-dashed border-[hsl(var(--accent))]/30 text-[15px] font-black text-[hsl(var(--foreground))] sm:text-lg">
-                  Safe Space
-                </h3>
-              </Tooltip>
-              <p className="mt-2 text-[13px] leading-relaxed text-[hsl(var(--muted-foreground))] xs:text-sm sm:mt-3">
-                Real humans keep this space kind and safe around the clock — because a community is only as good as its people.
-              </p>
-            </CursorGlowCard>
           </motion.div>
         </section>
 
