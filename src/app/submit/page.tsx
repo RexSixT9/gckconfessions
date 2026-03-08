@@ -257,7 +257,7 @@ export default function SubmitPage() {
               </div>
 
               {/* Draft toggle row */}
-              <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] px-5 py-4">
+              <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] px-5 py-4">
                 <div className="min-w-0">
                   <p className="text-sm font-bold text-[hsl(var(--foreground))]">Save draft locally</p>
                   <p className="mt-1 truncate text-xs text-[hsl(var(--muted-foreground))]">

@@ -457,25 +457,39 @@
     display: inline-flex;
     align-items: center;
     gap: 0.375rem;
-    border-radius: 0.375rem;
-    padding: 0.25rem 0.625rem;
+    border-radius: 9999px;
+    padding: 0.2rem 0.625rem;
     font-size: 0.6875rem;
     font-weight: 600;
-    letter-spacing: 0.025em;
+    letter-spacing: 0.03em;
     text-transform: uppercase;
-    transition: opacity 150ms ease, transform 150ms ease;
+    transition: opacity 150ms ease, transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 150ms ease;
+    cursor: default;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .badge:hover {
+      transform: translateY(-1px) scale(1.04);
+    }
   }
 
   .badge-accent {
     background: hsl(var(--accent) / 0.1);
     color: hsl(var(--accent));
-    border: 1px solid hsl(var(--accent) / 0.2);
+    border: 1px solid hsl(var(--accent) / 0.25);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .badge-accent:hover {
+      background: hsl(var(--accent) / 0.16);
+      box-shadow: 0 2px 8px -2px hsl(var(--accent) / 0.25);
+    }
   }
 
   .badge-success {
     background: hsl(var(--success) / 0.1);
     color: hsl(var(--success));
-    border: 1px solid hsl(var(--success) / 0.2);
+    border: 1px solid hsl(var(--success) / 0.25);
   }
 
   .badge-neutral {
@@ -491,7 +505,7 @@
 @layer components {
   .input-base {
     width: 100%;
-    border-radius: 0.5rem;
+    border-radius: 0.75rem;
     border: 1px solid hsl(var(--border));
     background: hsl(var(--background));
     padding: 0.625rem 0.875rem;
@@ -500,7 +514,7 @@
     letter-spacing: -0.01em;
     color: hsl(var(--foreground));
     outline: none;
-    transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 180ms cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .input-base::placeholder {
@@ -643,7 +657,7 @@
     display: flex;
     align-items: flex-start;
     gap: 0.625rem;
-    border-radius: 0.625rem;
+    border-radius: 0.75rem;
     border: 1px solid;
     padding: 0.75rem 0.875rem;
     font-size: 0.8125rem;
@@ -691,13 +705,16 @@
     display: inline-flex;
     align-items: center;
     gap: 0.25rem;
-    border-radius: 0.375rem;
+    border-radius: 9999px;
     border: 1px solid hsl(var(--warning) / 0.3);
     background: hsl(var(--warning) / 0.1);
-    padding: 0.125rem 0.375rem;
+    padding: 0.2rem 0.625rem;
     font-size: 0.6875rem;
     font-weight: 600;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
     color: hsl(var(--warning));
+    transition: opacity 150ms ease, transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
   .dark .badge-warning {

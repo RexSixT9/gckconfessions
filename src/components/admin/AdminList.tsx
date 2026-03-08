@@ -44,7 +44,7 @@ function StatusBadge({ status }: { status?: string }) {
   const s = status ?? "pending";
   const { icon, label, cls } = map[s] ?? map.pending;
   return (
-    <span className={`inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[11px] font-semibold ${cls}`}>
+    <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-semibold ${cls}`}>
       {icon}
       {label}
     </span>
@@ -373,7 +373,7 @@ export default function AdminList() {
             ? <AlertCircle className="h-4 w-4 shrink-0" />
             : <CheckCircle2 className="h-4 w-4 shrink-0" />}
           <p className="flex-1 font-medium">{notice.message}</p>
-          <button type="button" onClick={() => setNotice(null)} className="rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]/40">
+          <button type="button" onClick={() => setNotice(null)} className="rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]/40">
             <X className="h-3.5 w-3.5 opacity-50 transition hover:opacity-100" />
           </button>
         </div>
@@ -436,7 +436,7 @@ export default function AdminList() {
                   <div className="flex flex-wrap items-center gap-1.5">
                     <StatusBadge status={item.status} />
                     {item.posted && (
-                      <span className="inline-flex items-center gap-1 rounded-md border border-[hsl(var(--action-publish))]/30 bg-[hsl(var(--action-publish))]/10 px-1.5 py-0.5 text-[11px] font-semibold text-[hsl(var(--action-publish))]">
+                      <span className="inline-flex items-center gap-1 rounded-full border border-[hsl(var(--action-publish))]/30 bg-[hsl(var(--action-publish))]/10 px-2 py-0.5 text-[11px] font-semibold text-[hsl(var(--action-publish))]">
                         <Share2 className="h-3 w-3" />
                         Shared
                       </span>
@@ -464,7 +464,7 @@ export default function AdminList() {
                       type="button"
                       onClick={() => handleCopy(item.message, msgId)}
                       title="Copy message"
-                      className="absolute right-2 top-2 rounded-md border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-1 text-[hsl(var(--muted-foreground))] opacity-100 transition hover:text-[hsl(var(--accent))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]/40 sm:opacity-0 sm:group-hover:opacity-100"
+                      className="absolute right-2 top-2 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-1 text-[hsl(var(--muted-foreground))] opacity-100 transition hover:text-[hsl(var(--accent))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]/40 sm:opacity-0 sm:group-hover:opacity-100"
                     >
                       {copiedId === msgId
                         ? <Check className="h-3 w-3 text-[hsl(var(--action-accept))]" />
@@ -482,7 +482,7 @@ export default function AdminList() {
                           type="button"
                           onClick={() => handleCopy(item.music!, musId)}
                           title="Copy song"
-                          className="shrink-0 rounded-md p-0.5 text-[hsl(var(--muted-foreground))] opacity-100 transition hover:text-[hsl(var(--accent))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]/40 sm:opacity-0 sm:group-hover/mus:opacity-100"
+                          className="shrink-0 rounded-lg p-0.5 text-[hsl(var(--muted-foreground))] opacity-100 transition hover:text-[hsl(var(--accent))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]/40 sm:opacity-0 sm:group-hover/mus:opacity-100"
                         >
                           {copiedId === musId
                             ? <Check className="h-3 w-3 text-[hsl(var(--action-accept))]" />
@@ -576,7 +576,7 @@ export default function AdminList() {
                       <div className="flex items-center gap-2 sm:ml-auto sm:shrink-0">
                         <button
                           type="button"
-                          className="flex-1 rounded-md border border-[hsl(var(--destructive))]/40 bg-[hsl(var(--destructive))]/15 px-2.5 py-1.5 text-xs font-semibold text-[hsl(var(--destructive))] transition hover:bg-[hsl(var(--destructive))]/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--destructive))]/40 active:scale-95 sm:flex-none sm:py-1"
+                          className="flex-1 rounded-lg border border-[hsl(var(--destructive))]/40 bg-[hsl(var(--destructive))]/15 px-2.5 py-1.5 text-xs font-semibold text-[hsl(var(--destructive))] transition hover:bg-[hsl(var(--destructive))]/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--destructive))]/40 active:scale-95 sm:flex-none sm:py-1"
                           disabled={busy}
                           onClick={() => void handleDeleteConfirm(item._id)}
                         >
@@ -584,7 +584,7 @@ export default function AdminList() {
                         </button>
                         <button
                           type="button"
-                          className="flex-1 rounded-md border border-[hsl(var(--border))] px-2.5 py-1.5 text-xs font-medium text-[hsl(var(--muted-foreground))] transition hover:bg-[hsl(var(--secondary))] hover:text-[hsl(var(--foreground))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]/30 active:scale-95 sm:flex-none sm:py-1"
+                          className="flex-1 rounded-lg border border-[hsl(var(--border))] px-2.5 py-1.5 text-xs font-medium text-[hsl(var(--muted-foreground))] transition hover:bg-[hsl(var(--secondary))] hover:text-[hsl(var(--foreground))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]/30 active:scale-95 sm:flex-none sm:py-1"
                           onClick={() => setDeleteConfirmId(null)}
                         >
                           Cancel
