@@ -2,20 +2,14 @@
 
 import Link from "next/link";
 import { Heart } from "lucide-react";
-import { useRef } from "react";
 import ThemeToggle from "@/components/ThemeToggle";
 import AnnouncementBanner from "@/components/AnnouncementBanner";
-import { useFadeIn } from "@/lib/gsapClient";
 
 
 export default function HeaderNav() {
-  const ref = useRef<HTMLElement>(null);
-  useFadeIn(ref, { y: -8, duration: 0.45 });
-
   return (
     <header
-      ref={ref}
-      className="sticky top-0 z-50 border-b border-[hsl(var(--border))]/80 bg-[hsl(var(--background))]/95 backdrop-blur-md supports-backdrop-filter:bg-[hsl(var(--background))]/80"
+      className="sticky top-0 z-50 border-b border-[hsl(var(--border))]/80 bg-[hsl(var(--background))]/95 backdrop-blur-md supports-backdrop-filter:bg-[hsl(var(--background))]/80 animate-fade-in"
     >
       <AnnouncementBanner />
       <div className="mx-auto flex h-14 w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">

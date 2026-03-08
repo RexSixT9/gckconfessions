@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useCallback } from "react";
+import { prefersReducedMotion, isTouchDevice } from "@/lib/motionConfig";
 
 interface GlowingEffectProps {
   /** Size of the radial gradient in px — how far the glow fans out from the cursor */
@@ -141,9 +142,9 @@ export function GlowingEffect({
     if (disabled) return;
 
     // Check OS-level reduced-motion
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (prefersReducedMotion()) return;
     // Skip on touch-only devices (no hover cursor)
-    if ("ontouchstart" in window && navigator.maxTouchPoints > 0) return;
+    if (isTouchDevice()) return;
 
     let isMounted = true;
 

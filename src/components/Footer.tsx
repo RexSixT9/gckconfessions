@@ -1,16 +1,12 @@
 'use client';
 
-import { memo, useRef } from 'react';
+import { memo } from 'react';
 import Link from 'next/link';
-import { useFadeIn } from '@/lib/gsapClient';
 
 
 const Footer = memo(function Footer() {
-  const ref = useRef<HTMLElement>(null);
-  useFadeIn(ref, { y: 8, duration: 0.4, delay: 0.1 });
-
   return (
-    <footer ref={ref} className="border-t border-[hsl(var(--border))]/80 bg-[hsl(var(--background))]">
+    <footer className="border-t border-[hsl(var(--border))]/80 bg-[hsl(var(--background))] animate-fade-in">
       <div className="mx-auto flex w-full max-w-7xl flex-col items-center gap-2 px-4 py-4 sm:flex-row sm:justify-between sm:gap-0 sm:px-6 lg:px-8">
         <p className="text-center text-[11px] text-[hsl(var(--muted-foreground))] sm:text-left sm:text-xs">
           © {new Date().getFullYear()} GCK Confessions — With love, Batman

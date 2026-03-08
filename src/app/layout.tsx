@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "next-themes";
+import { MotionProvider } from "@/components/MotionProvider";
 import HeaderNav from "@/components/HeaderNav";
 import Footer from "@/components/Footer";
 import { CursorEffects } from "@/components/CursorEffects";
@@ -81,19 +82,21 @@ export default function RootLayout({
           disableTransitionOnChange
           storageKey="theme"
         >
-          {/* ── Cursor Effects ── */}
-          <CursorEffects />
+          <MotionProvider>
+            {/* ── Cursor Effects ── */}
+            <CursorEffects />
 
-          {/* ── Toast notifications ── */}
-          <SonnerToaster />
-          
-          {/* ── Header ── */}
-          <HeaderNav />
+            {/* ── Toast notifications ── */}
+            <SonnerToaster />
+            
+            {/* ── Header ── */}
+            <HeaderNav />
 
-          <div className="flex min-h-[calc(100svh-var(--header-height)-var(--announcement-height,0px))] flex-col">
-            {children}
-            <Footer />
-          </div>
+            <div className="flex min-h-[calc(100svh-var(--header-height)-var(--announcement-height,0px))] flex-col">
+              {children}
+              <Footer />
+            </div>
+          </MotionProvider>
         </ThemeProvider>
       </body>
     </html>

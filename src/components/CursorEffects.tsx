@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState, useCallback } from 'react';
+import { prefersReducedMotion, isTouchDevice } from '@/lib/motionConfig';
 
 interface TrailDot {
   id: number;
@@ -47,12 +48,9 @@ export function CursorEffects() {
 
   useEffect(() => {
     // Check for reduced motion preference
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (prefersReducedMotion) return;
-
+    if (prefersReducedMotion()) return;
     // Check if touch device
-    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-    if (isTouchDevice) return;
+    if (isTouchDevice()) return;
 
     const handleMouseMove = (e: MouseEvent) => {
       const now = Date.now();

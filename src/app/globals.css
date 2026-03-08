@@ -1075,11 +1075,13 @@ a:focus-visible {
   contain: layout style;
 }
 
-/* Reduce gradient orb intensity on mobile to improve perf and clarity */
+/* Reduce gradient orb intensity and disable animations on mobile to improve perf and clarity */
 @media (max-width: 640px) {
   .hero-gradient {
     filter: blur(60px);
-    opacity: 0.7;
+    opacity: 0.5;
+    /* Disable animations on mobile */
+    animation: none !important;
   }
 
   .hero-beam::before,
@@ -1087,6 +1089,15 @@ a:focus-visible {
   .hero-beam-extra::before,
   .hero-beam-extra::after {
     display: none;
+  }
+}
+
+/* Further optimization: disable blur animations on low-end connections (< 4G) */
+@media (max-width: 1024px) {
+  .hero-gradient {
+    /* Reduce blur intensity for better perf on mid-range devices */
+    filter: blur(70px);
+    opacity: 0.6;
   }
 }
 
