@@ -196,3 +196,6 @@ export function useHoverLift() {
 
   return { y: -6, transition: { duration: getDuration(0.28), ease: eases.standard } };
 }
+
+// Re-export utility functions from motionConfig for convenience
+export { getDuration, eases, prefersReducedMotion } from "@/lib/motionConfig";

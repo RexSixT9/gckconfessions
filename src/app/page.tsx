@@ -1,3 +1,5 @@
+"use client";
+
 /**
  * PERFORMANCE OPTIMIZATIONS:
  * 
@@ -21,7 +23,6 @@
  * 
  * 5. Stagger container uses reduced delays on mobile
  */
-
 
 import { useRef, useMemo } from "react";
 import Link from "next/link";
@@ -83,8 +84,26 @@ export default function Home() {
     []
   );
 
-  // DEPRECATED: use useStaggerContainerVariants and useBentoCardVariants instead
-  // Keeping for reference - removed from usage below
+  // Animation variants for "How It Works" section
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.08,
+        delayChildren: 0.1,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.5, ease: "easeOut" },
+    },
+  };
 
   /* ------------------------------ RENDER ------------------------------ */
 
@@ -355,7 +374,7 @@ export default function Home() {
                 </div>
 
                 {/* Right: big stat pill */}
-                <div className="flex shrink-0 flex-col items-center justify-center gap-1 rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--secondary))]/60 px-6 py-4 text-center lg:min-w-[8.5rem]">
+                <div className="flex shrink-0 flex-col items-center justify-center gap-1 rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--secondary))]/60 px-6 py-4 text-center lg:min-w-34">
                   <motion.span
                     className="text-4xl font-black tabular-nums leading-none text-[hsl(var(--accent))] lg:text-5xl"
                     initial={{ scale: 0.75, opacity: 0 }}
