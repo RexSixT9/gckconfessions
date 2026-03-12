@@ -66,7 +66,9 @@ export default function HeaderNav() {
         )}
       >
         <div className="relative px-3 pb-1.5 pt-2 sm:px-4">
-          <div className="mx-auto flex max-w-5xl items-center justify-between rounded-2xl border border-border/50 bg-background/85 px-3.5 py-2.5 shadow-sm backdrop-blur-xl sm:px-5">
+          <div className="pointer-events-none absolute inset-x-8 top-1 h-14 rounded-full bg-accent/15 blur-3xl" />
+          <div className="relative mx-auto flex max-w-5xl items-center justify-between overflow-hidden rounded-2xl border border-accent/20 bg-linear-to-r from-background/95 via-background/88 to-accent/10 px-3.5 py-2.5 shadow-[0_18px_55px_-30px_hsl(var(--accent)/0.55)] backdrop-blur-xl sm:px-5">
+            <div className="pointer-events-none absolute inset-x-10 top-0 h-px bg-linear-to-r from-transparent via-accent/80 to-transparent" />
 
             {/* Logo */}
             <Link
@@ -77,7 +79,7 @@ export default function HeaderNav() {
               <motion.span
                 whileTap={{ scale: 0.88 }}
                 transition={{ duration: 0.12 }}
-                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-accent shadow-sm transition-shadow duration-200 group-hover:shadow-accent/30 group-hover:shadow-md"
+                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-linear-to-br from-accent via-pink-500 to-rose-500 shadow-sm transition-shadow duration-200 group-hover:shadow-accent/30 group-hover:shadow-md"
               >
                 <Heart className="h-3.5 w-3.5 text-accent-foreground" strokeWidth={2.5} />
               </motion.span>

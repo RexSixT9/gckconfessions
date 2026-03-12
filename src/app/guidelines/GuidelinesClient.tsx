@@ -10,6 +10,7 @@ import {
   Heart,
   Lock,
   MessageSquare,
+  Send,
   ShieldCheck,
 } from "lucide-react";
 
@@ -60,9 +61,30 @@ const disallowed = [
   "Violent, sexual, illegal, or spam content.",
 ];
 
+const moderationFlow = [
+  {
+    title: "Write anonymously",
+    body: "No login wall, no profile, and no public author identity attached to a submission.",
+  },
+  {
+    title: "Safety review",
+    body: "Automated filters and a human moderator review submissions before anything is published.",
+  },
+  {
+    title: "Publish selectively",
+    body: "Only confessions that fit the community rules make it onto the public feed.",
+  },
+];
+
+const privacyNotes = [
+  "Local draft saving stays on your device when enabled.",
+  "We keep moderation metadata private and separate from public posts.",
+  "Submission protections exist to reduce spam and abuse, not to identify authors.",
+];
+
 export default function GuidelinesClient() {
   return (
-    <main className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6 sm:py-12">
+    <main className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
       <PageReveal>
       <Button
         variant="ghost"
@@ -77,41 +99,84 @@ export default function GuidelinesClient() {
       </Button>
 
       <ScrollReveal>
-        <Card className="border-border/70">
-          <CardHeader>
-            <Badge className="w-fit gap-1 bg-accent/10 text-accent hover:bg-accent/10">
-              <BookOpen className="h-3.5 w-3.5" />
-              Privacy and Guidelines
-            </Badge>
-            <CardTitle className="text-2xl font-black tracking-tight sm:text-3xl">
-              How this community stays safe
-            </CardTitle>
-            <CardDescription>
-              GCK Confessions is designed for anonymous expression with clear moderation rules.
-            </CardDescription>
+        <Card className="relative overflow-hidden border-accent/20 bg-linear-to-br from-background via-background to-accent/10 shadow-[0_24px_90px_-45px_hsl(var(--accent)/0.45)]">
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-accent/70 to-transparent" />
+          <div className="pointer-events-none absolute -right-12 top-10 h-40 w-40 rounded-full bg-accent/12 blur-3xl" />
+          <CardHeader className="relative gap-6 pb-8 sm:flex-row sm:items-end sm:justify-between">
+            <div className="space-y-4">
+              <Badge className="w-fit gap-1 bg-accent/10 text-accent hover:bg-accent/10">
+                <BookOpen className="h-3.5 w-3.5" />
+                Privacy and Guidelines
+              </Badge>
+              <div className="space-y-3">
+                <CardTitle className="max-w-2xl text-3xl font-black tracking-tight sm:text-4xl">
+                  Anonymous by design, moderated with clear limits.
+                </CardTitle>
+                <CardDescription className="max-w-2xl text-sm leading-6 text-muted-foreground sm:text-base">
+                  This space is built for honest expression, but not at the cost of safety. These rules explain what we store, what we reject, and how moderation works.
+                </CardDescription>
+              </div>
+            </div>
+
+            <div className="grid gap-3 sm:min-w-72">
+              {[
+                { label: "No accounts required", icon: Lock },
+                { label: "Human-reviewed submissions", icon: ShieldCheck },
+                { label: "Clear content boundaries", icon: AlertTriangle },
+              ].map(({ label, icon: Icon }) => (
+                <div key={label} className="flex items-center gap-3 rounded-xl border border-border/70 bg-background/85 px-4 py-3 backdrop-blur">
+                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-accent/12 text-accent">
+                    <Icon className="h-4 w-4" />
+                  </span>
+                  <span className="text-sm font-medium text-foreground">{label}</span>
+                </div>
+              ))}
+            </div>
           </CardHeader>
         </Card>
       </ScrollReveal>
 
-      <section className="mt-6 grid gap-4 sm:grid-cols-2">
+      <section className="mt-6 grid gap-4 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
         {privacyPoints.map(({ icon: Icon, title, body }, index) => (
           <ScrollReveal key={title} delay={index * 0.06}>
-            <Card className="h-full border-border/70">
-              <CardHeader>
+            <Card className="h-full border-border/70 bg-card/90 shadow-none">
+              <CardHeader className="gap-3">
                 <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent/10 text-accent">
                   <Icon className="h-4 w-4" />
                 </span>
                 <CardTitle className="text-base font-bold">{title}</CardTitle>
-                <CardDescription>{body}</CardDescription>
+                <CardDescription className="leading-6">{body}</CardDescription>
               </CardHeader>
             </Card>
           </ScrollReveal>
         ))}
+
+        <ScrollReveal delay={0.18}>
+          <Card className="border-accent/20 bg-linear-to-br from-accent/8 via-background to-background shadow-none">
+            <CardHeader>
+              <Badge variant="outline" className="w-fit border-accent/25 text-accent">
+                Privacy Notes
+              </Badge>
+              <CardTitle className="text-xl font-black tracking-tight">What privacy means here</CardTitle>
+              <CardDescription className="leading-6">
+                Anonymous posting is only credible if the platform limits what it collects and keeps the review process narrow.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {privacyNotes.map((item) => (
+                <div key={item} className="flex items-start gap-3 rounded-xl border border-border/70 bg-background/80 px-4 py-3">
+                  <Heart className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
+                  <p className="text-sm leading-6 text-muted-foreground">{item}</p>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        </ScrollReveal>
       </section>
 
       <section className="mt-8 grid gap-4 md:grid-cols-2">
         <ScrollReveal>
-          <Card className="border-success/40">
+          <Card className="border-success/40 bg-linear-to-br from-success/6 via-background to-background shadow-none">
           <CardHeader>
             <Badge variant="outline" className="w-fit border-success/50 text-success">
               <ShieldCheck className="mr-1 h-3.5 w-3.5" />
@@ -131,7 +196,7 @@ export default function GuidelinesClient() {
         </ScrollReveal>
 
         <ScrollReveal delay={0.06}>
-          <Card className="border-destructive/40">
+          <Card className="border-destructive/40 bg-linear-to-br from-destructive/6 via-background to-background shadow-none">
           <CardHeader>
             <Badge variant="outline" className="w-fit border-destructive/50 text-destructive">
               <AlertTriangle className="mr-1 h-3.5 w-3.5" />
@@ -152,7 +217,39 @@ export default function GuidelinesClient() {
       </section>
 
       <ScrollReveal delay={0.08}>
-        <Card className="mt-8 border-border/70">
+        <Card className="mt-8 border-border/70 shadow-none">
+          <CardHeader className="gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div className="space-y-2">
+              <CardTitle className="text-base font-bold">How moderation works</CardTitle>
+              <CardDescription>
+                Every confession is screened in the same order so moderation stays predictable and fair.
+              </CardDescription>
+            </div>
+            <Button size="sm" render={<Link href="/submit" />} className="w-full sm:w-auto">
+              <>
+                <Send className="h-4 w-4" />
+                Write a confession
+              </>
+            </Button>
+          </CardHeader>
+          <CardContent className="grid gap-4 md:grid-cols-3">
+            {moderationFlow.map((step, index) => (
+              <div key={step.title} className="rounded-2xl border border-border/70 bg-background/85 p-4">
+                <div className="mb-3 flex items-center gap-3">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-accent/12 text-xs font-semibold text-accent">
+                    0{index + 1}
+                  </span>
+                  <p className="text-sm font-semibold text-foreground">{step.title}</p>
+                </div>
+                <p className="text-sm leading-6 text-muted-foreground">{step.body}</p>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      </ScrollReveal>
+
+      <ScrollReveal delay={0.1}>
+        <Card className="mt-6 border-border/70 shadow-none">
           <CardHeader>
             <CardTitle className="text-base font-bold">Enforcement</CardTitle>
             <CardDescription>

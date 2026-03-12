@@ -18,9 +18,9 @@ export default function ScrollProgressBar() {
       }}
       aria-hidden
     >
-      <div className="h-0.5 bg-border/40 sm:h-px">
+      <div className="h-1 bg-accent/10 backdrop-blur-sm">
         <motion.div
-          className="h-full origin-left bg-linear-to-r from-accent/55 via-accent to-accent/85"
+          className="h-full origin-left bg-linear-to-r from-pink-400 via-accent to-rose-500 shadow-[0_0_20px_hsl(var(--accent)/0.55)]"
           style={{ scaleX }}
         />
       </div>

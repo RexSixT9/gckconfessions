@@ -309,6 +309,27 @@ export default function SubmitPage() {
 
   const checksPassed = safetyChecks.every((check) => check.ok);
   const canSubmit = Boolean(message.trim()) && checksPassed && toneLevel !== "high" && !loading;
+  const finalReviewItems = [
+    {
+      ok: charCount >= 30,
+      label: "Enough context for moderation",
+      detail:
+        charCount >= 30 ? "Your message gives moderators enough to understand." : "Add a little more detail before sending.",
+    },
+    {
+      ok: checksPassed,
+      label: "No direct identifiers detected",
+      detail: "Phone numbers, personal emails, and external links should stay out.",
+    },
+    {
+      ok: toneLevel !== "high",
+      label: "Tone is within review limits",
+      detail:
+        toneLevel === "medium"
+          ? "A few words may read harsh. Softening them can help."
+          : "Respectful wording moves through review faster.",
+    },
+  ];
 
   const toneStyle =
     toneLevel === "high"
@@ -438,7 +459,54 @@ export default function SubmitPage() {
                   </div>
                 </div>
 
-                <div className="space-y-4 rounded-lg border border-border/70 bg-muted/20 p-4">
+                <div className="rounded-2xl border border-accent/20 bg-linear-to-br from-accent/10 via-background to-background p-4 shadow-[0_18px_50px_-30px_hsl(var(--accent)/0.45)] sm:p-5">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="space-y-1">
+                      <p className="text-sm font-semibold text-foreground">Final check before submit</p>
+                      <p className="text-xs text-muted-foreground">
+                        This is the last pass before your confession enters the moderation queue.
+                      </p>
+                    </div>
+                    <span
+                      className={cn(
+                        "inline-flex w-fit items-center rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.2em]",
+                        canSubmit
+                          ? "bg-success/12 text-success"
+                          : "bg-muted text-muted-foreground"
+                      )}
+                    >
+                      {canSubmit ? "Ready" : "Needs review"}
+                    </span>
+                  </div>
+
+                  <div className="mt-4 grid gap-3 md:grid-cols-3">
+                    {finalReviewItems.map((item) => (
+                      <div
+                        key={item.label}
+                        className={cn(
+                          "rounded-xl border px-3.5 py-3",
+                          item.ok
+                            ? "border-success/30 bg-success/5"
+                            : "border-border/70 bg-background/80"
+                        )}
+                      >
+                        <div className="flex items-start gap-2.5">
+                          {item.ok ? (
+                            <CircleCheck className="mt-0.5 h-4 w-4 shrink-0 text-success" />
+                          ) : (
+                            <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0 text-warning" />
+                          )}
+                          <div className="space-y-1">
+                            <p className="text-sm font-medium text-foreground">{item.label}</p>
+                            <p className="text-xs leading-5 text-muted-foreground">{item.detail}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-4 rounded-2xl border border-border/70 bg-muted/20 p-4 shadow-none">
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div>
                       <p className="text-sm font-medium">Draft and submit</p>
@@ -536,24 +604,28 @@ export default function SubmitPage() {
             <ScrollReveal delay={0.1}>
               <Card className="border-border/70 shadow-none">
               <CardHeader>
-                <CardTitle className="text-base font-medium">Checks</CardTitle>
-                <CardDescription>These simple checks help keep the queue safe and readable.</CardDescription>
+                <CardTitle className="text-base font-medium">What happens next</CardTitle>
+                <CardDescription>Your confession moves through a short moderation flow before it can appear publicly.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Tone risk</span>
-                  <span className={cn("text-xs font-semibold uppercase", toneStyle)}>{toneLevel}</span>
+                <div className="rounded-xl border border-border/70 bg-background/70 p-3">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Current tone signal</span>
+                    <span className={cn("text-xs font-semibold uppercase", toneStyle)}>{toneLevel}</span>
+                  </div>
                 </div>
                 <Separator />
-                <div className="space-y-2">
-                  {safetyChecks.map((check) => (
-                    <div key={check.label} className="flex items-center gap-2 text-sm">
-                      {check.ok ? (
-                        <CircleCheck className="h-4 w-4 text-success" />
-                      ) : (
-                        <TriangleAlert className="h-4 w-4 text-destructive" />
-                      )}
-                      <span className={check.ok ? "text-foreground" : "text-destructive"}>{check.label}</span>
+                <div className="space-y-3">
+                  {[
+                    "Automated filters block obvious identifiers and spam.",
+                    "A human moderator checks context, tone, and publishability.",
+                    "Approved confessions are posted without author details.",
+                  ].map((step, index) => (
+                    <div key={step} className="flex items-start gap-3 text-sm">
+                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent/12 text-[11px] font-semibold text-accent">
+                        0{index + 1}
+                      </span>
+                      <p className="leading-6 text-muted-foreground">{step}</p>
                     </div>
                   ))}
                 </div>
