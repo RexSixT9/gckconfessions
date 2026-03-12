@@ -98,10 +98,10 @@ const steps = [
 ];
 
 const heroTypingPhrases = [
-  "Your secret is safe here.",
-  "Speak without fear.",
-  "Every confession is heard.",
-  "No identity. Just truth.",
+  "Speak the truth.",
+  "Share your story.",
+  "Be heard.",
+  "You are not alone.",
 ];
 
 const mockConfessions = [
@@ -169,9 +169,9 @@ function FloatingConfessionCard() {
   return (
     <TiltCard3D className="relative w-full max-w-sm cursor-default select-none">
       <motion.div
-        animate={{ y: [0, -10, 0] }}
+        animate={{ y: [0, -12, 0] }}
         transition={{ duration: 5.5, repeat: Infinity, ease: "easeInOut" }}
-        className="relative overflow-hidden rounded-2xl border border-accent/25 bg-background/85 p-6 shadow-[0_20px_60px_-10px_hsl(var(--accent)/0.25)] backdrop-blur-xl"
+        className="relative overflow-hidden rounded-2xl border border-accent/25 bg-background/85 p-6 shadow-[0_24px_70px_-10px_hsl(var(--accent)/0.28)] backdrop-blur-xl"
         style={{ transform: "translateZ(20px)" }}
       >
         {/* Top shimmer line */}
@@ -229,6 +229,34 @@ function FloatingConfessionCard() {
         className="pointer-events-none absolute inset-x-4 bottom-0 h-12 rounded-full bg-accent/20 blur-xl"
       />
     </TiltCard3D>
+  );
+}
+
+/* ─── Floating stat chip ─────────────────────────────────────────── */
+function StatChip({
+  icon: Icon,
+  label,
+  delay = 0,
+  offsetY = [0, -8, 0],
+}: {
+  icon: React.ElementType;
+  label: string;
+  delay?: number;
+  offsetY?: number[];
+}) {
+  return (
+    <motion.div
+      animate={{ y: offsetY }}
+      transition={{ duration: 4 + delay, repeat: Infinity, ease: "easeInOut", delay }}
+      className="pointer-events-none select-none"
+    >
+      <div className="flex items-center gap-2 rounded-xl border border-border/60 bg-card/90 px-3 py-2 shadow-lg shadow-black/10 backdrop-blur-lg">
+        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-accent/15">
+          <Icon className="h-3 w-3 text-accent" />
+        </span>
+        <span className="text-[11px] font-semibold text-foreground/80">{label}</span>
+      </div>
+    </motion.div>
   );
 }
 
@@ -294,10 +322,17 @@ export default function HomePage() {
       >
         {/* Mesh gradient orbs */}
         <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
-          <div className="absolute -right-32 -top-48 h-160 w-160 rounded-full bg-accent/8 blur-[130px] animate-float" />
-          <div className="absolute -bottom-32 -left-32 h-130 w-130 rounded-full bg-accent/8 blur-[110px] animate-float animation-delay-500" />
-          <div className="absolute left-1/3 top-1/2 h-95 w-95 -translate-y-1/2 rounded-full bg-violet-500/4 blur-[90px] animate-float animation-delay-300" />
-          {/* Subtle grid lines */}
+          {/* Primary large orb — top-right */}
+          <div className="absolute -right-24 -top-36 h-130 w-130 rounded-full bg-accent/9 blur-[140px] animate-float" />
+          {/* Secondary — bottom-left */}
+          <div className="absolute -bottom-24 -left-24 h-110 w-110 rounded-full bg-violet-500/8 blur-[120px] animate-float animation-delay-500" />
+          {/* Tertiary — center */}
+          <div className="absolute left-1/3 top-1/2 h-85 w-85 -translate-y-1/2 rounded-full bg-accent/5 blur-[100px] animate-float animation-delay-300" />
+          {/* Accent blue — far right */}
+          <div className="absolute right-1/4 top-[60%] h-65 w-65 rounded-full bg-sky-500/5 blur-[90px] animate-float animation-delay-700" />
+          {/* Subtle grid */}
+          <div className="absolute inset-0 bg-[linear-gradient(rgba(var(--accent-rgb,220,40,120),0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(var(--accent-rgb,220,40,120),0.04)_1px,transparent_1px)] bg-size-[56px_56px] mask-[radial-gradient(ellipse_80%_60%_at_50%_40%,black,transparent)]" />
+        </div>
           <div className="absolute inset-0 bg-[linear-gradient(rgba(var(--accent-rgb,220,40,120),0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(var(--accent-rgb,220,40,120),0.04)_1px,transparent_1px)] bg-size-[56px_56px] mask-[radial-gradient(ellipse_80%_60%_at_50%_40%,black,transparent)]" />
         </div>
 
@@ -318,34 +353,31 @@ export default function HomePage() {
               </Badge>
             </motion.div>
 
-            {/* Headline */}
+            {/* Headline with typewriter second line */}
             <motion.div variants={fadeUp} className="mt-5">
-              <h1 className="text-4xl font-black leading-[1.05] tracking-tight sm:text-6xl lg:text-[4.5rem]">
-                <span className="block">Drop the mask.</span>
-                <span className="grad-text-accent block">Speak the truth.</span>
+              <h1 className="text-4xl font-black leading-[1.08] tracking-tight sm:text-6xl lg:text-[4.5rem]">
+                <span className="block text-foreground">Drop the mask.</span>
+                <span className="block text-accent">
+                  <TypewriterText
+                    phrases={heroTypingPhrases}
+                    typingSpeed={55}
+                    deletingSpeed={28}
+                    pauseAfterType={2600}
+                    startDelay={900}
+                    cursorClassName="bg-accent"
+                  />
+                </span>
               </h1>
-            </motion.div>
-
-            {/* Typewriter sub-heading */}
-            <motion.div
-              variants={fadeUp}
-              className="mt-5 h-7 text-base text-muted-foreground sm:text-lg"
-            >
-              <TypewriterText
-                phrases={heroTypingPhrases}
-                className="text-muted-foreground"
-                startDelay={700}
-              />
             </motion.div>
 
             {/* Description */}
             <motion.p
               variants={fadeUp}
-              className="mt-4 max-w-lg text-sm leading-relaxed text-muted-foreground sm:text-base"
+              className="mt-5 max-w-lg text-sm leading-relaxed text-muted-foreground sm:text-base"
             >
               GCK Confessions is a private wall for honest thoughts. Write what
-              you cannot say out loud, submit anonymously, and let your words
-              reach people who truly understand.
+              you feel, submit anonymously, and let your words reach people who
+              truly understand.
             </motion.p>
 
             {/* Pill tags */}
@@ -402,14 +434,45 @@ export default function HomePage() {
             </motion.div>
           </motion.div>
 
-          {/* ── Right: 3D floating card (desktop) ── */}
+          {/* ── Right: 3D floating scene (desktop) ── */}
           <motion.div
             initial={{ opacity: 0, x: 36, scale: 0.95 }}
             animate={{ opacity: 1, x: 0, scale: 1 }}
             transition={{ duration: 0.75, delay: 0.45, ease: [0.16, 1, 0.3, 1] }}
-            className="hidden lg:flex lg:items-center lg:justify-center"
-            style={{ perspective: "1000px" }}
+            className="relative hidden lg:flex lg:items-center lg:justify-center"
+            style={{ perspective: "1200px" }}
           >
+            {/* Decorative orbiting ring behind card */}
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
+              aria-hidden
+              className="absolute h-85 w-85 rounded-full border border-accent/10"
+              style={{ borderStyle: "dashed" }}
+            />
+            <motion.div
+              animate={{ rotate: -360 }}
+              transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+              aria-hidden
+              className="absolute h-70 w-70 rounded-full border border-accent/8"
+            />
+
+            {/* Stat chip — top left */}
+            <div className="absolute -left-14 top-12 z-10">
+              <StatChip icon={Lock} label="100% Anonymous" delay={0} offsetY={[0, -8, 0]} />
+            </div>
+
+            {/* Stat chip — bottom right */}
+            <div className="absolute -right-14 bottom-12 z-10">
+              <StatChip icon={ShieldCheck} label="Human Reviewed" delay={1} offsetY={[-6, 2, -6]} />
+            </div>
+
+            {/* Stat chip — top right */}
+            <div className="absolute -right-8 top-4 z-10">
+              <StatChip icon={Zap} label="&lt;60s Review" delay={0.5} offsetY={[0, -6, 0]} />
+            </div>
+
+            {/* Main confession card */}
             <FloatingConfessionCard />
           </motion.div>
         </div>

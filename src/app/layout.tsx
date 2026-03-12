@@ -8,6 +8,7 @@ import { CursorEffects } from "@/components/CursorEffects";
 import { SonnerToaster } from "@/components/SonnerToaster";
 import PageTransition from "@/components/PageTransition";
 import PWARegister from "@/components/PWARegister";
+import AppPreloader from "@/components/AppPreloader";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -88,6 +89,7 @@ export default function RootLayout({
           storageKey="theme"
         >
           <MotionProvider>
+            <AppPreloader />
             <PWARegister />
 
             {/* ── Cursor Effects ── */}

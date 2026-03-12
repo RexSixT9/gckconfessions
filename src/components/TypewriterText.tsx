@@ -6,6 +6,8 @@ interface TypewriterTextProps {
   /** Phrases to cycle through */
   phrases: string[];
   className?: string;
+  /** Custom className for the blinking cursor (default: bg-current) */
+  cursorClassName?: string;
   /** ms per character while typing */
   typingSpeed?: number;
   /** ms per character while deleting */
@@ -21,6 +23,7 @@ interface TypewriterTextProps {
 export default function TypewriterText({
   phrases,
   className = "",
+  cursorClassName,
   typingSpeed = 60,
   deletingSpeed = 30,
   pauseAfterType = 2000,
@@ -96,7 +99,7 @@ export default function TypewriterText({
       {/* Blinking cursor — pure CSS, zero JS overhead */}
       <span
         aria-hidden
-        className="animate-cursor-blink ml-px inline-block h-[0.85em] w-[2.5px] translate-y-[0.05em] rounded-[1px] bg-current align-middle"
+        className={`animate-cursor-blink ml-px inline-block h-[0.85em] w-[2.5px] translate-y-[0.05em] rounded-[1px] align-middle ${cursorClassName ?? "bg-current"}`}
       />
     </span>
   );

@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { Heart } from "lucide-react";
 import { motion } from "framer-motion";
@@ -7,10 +8,23 @@ import ThemeToggle from "@/components/ThemeToggle";
 import AnnouncementBanner from "@/components/AnnouncementBanner";
 
 export default function HeaderNav() {
+  const headerRef = useRef<HTMLElement>(null);
+
+  // Keep --header-height CSS variable accurate at all times
+  useEffect(() => {
+    const el = headerRef.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const update = () =>
+      document.documentElement.style.setProperty("--header-height", `${el.offsetHeight}px`);
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
 
   return (
     <>
-      <header className="sticky top-0 z-50 animate-fade-in">
+      <header ref={headerRef} className="sticky top-0 z-50 animate-fade-in">
         <AnnouncementBanner />
 
         {/* Floating pill wrapper */}

@@ -125,6 +125,11 @@ export default function AdminList() {
 
   useEffect(() => { setPage(1); }, [filter, statusFilter, query]);
 
+  // If current page is out of range after deletions, snap back
+  useEffect(() => {
+    if (page > totalPages && totalPages > 0) setPage(totalPages);
+  }, [page, totalPages]);
+
   const fetchItems = useCallback(async () => {
     setLoading(true);
     setNotice(null);
@@ -143,7 +148,6 @@ export default function AdminList() {
       setItems(data.confessions ?? []);
       setTotalCount(data.total ?? 0);
       setTotalPages(data.totalPages ?? 1);
-      router.refresh();
     } catch (error) {
       setNotice({ type: "error", message: error instanceof Error ? error.message : "Load failed." });
       setItems([]);
@@ -213,6 +217,7 @@ export default function AdminList() {
         setNotice({ type: "success", message: successMsg });
         setTimeout(() => setNotice(null), 3000);
         router.refresh();
+        void fetchItems();
       } catch (err) {
         // Rollback optimistic update
         setItems(snapshot);
@@ -228,7 +233,7 @@ export default function AdminList() {
         setProcessingId(null);
       }
     },
-    [filter, statusFilter, router],
+    [filter, statusFilter, router, fetchItems],
   );
 
   /** Optimistic delete: remove item instantly, call API, rollback on failure. */
@@ -259,6 +264,7 @@ export default function AdminList() {
         setNotice({ type: "success", message: "Deleted." });
         setTimeout(() => setNotice(null), 3000);
         router.refresh();
+        void fetchItems();
       } catch (err) {
         setItems(snapshot);
         setTotalCount((c) => {
@@ -271,7 +277,7 @@ export default function AdminList() {
         setProcessingId(null);
       }
     },
-    [router],
+    [router, fetchItems],
   );
 
   const handleSearch = useCallback(
