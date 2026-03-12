@@ -64,10 +64,17 @@ export default function AppPreloader() {
             />
             <motion.div
               animate={{ scale: [1, 1, 1.05, 1] }}
-              transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+              transition={{
+                duration: 2.5,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
               className="relative flex h-20 w-20 items-center justify-center rounded-3xl bg-accent shadow-2xl shadow-accent/40"
             >
-              <Heart className="h-10 w-10 text-accent-foreground" strokeWidth={2} />
+              <Heart
+                className="h-10 w-10 text-accent-foreground"
+                strokeWidth={2}
+              />
             </motion.div>
           </motion.div>
 
@@ -78,8 +85,12 @@ export default function AppPreloader() {
             transition={{ duration: 0.45, delay: 0.22 }}
             className="text-center"
           >
-            <p className="text-xl font-black tracking-tight text-foreground">GCK Confessions</p>
-            <p className="mt-1 text-sm text-muted-foreground">Your anonymous space</p>
+            <p className="text-xl font-black tracking-tight text-foreground">
+              GCK Confessions
+            </p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Your anonymous space
+            </p>
           </motion.div>
 
           {/* Bouncing dots */}

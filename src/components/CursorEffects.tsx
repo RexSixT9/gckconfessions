@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { prefersReducedMotion, isTouchDevice } from '@/lib/motionConfig';
 
 interface TrailDot {
@@ -26,33 +26,33 @@ export function CursorEffects() {
   const rafIdRef = useRef<number | undefined>(undefined);
   const isActiveRef = useRef(false);
 
-  const fadeTrails = useCallback(() => {
-    let shouldContinue = false;
-    setTrails((prev) => {
-      const next = prev
-        .map((trail) => ({
-          ...trail,
-          opacity: trail.opacity - 0.04,
-        }))
-        .filter((trail) => trail.opacity > 0);
-
-      shouldContinue = next.length > 0;
-      return next;
-    });
-
-    if (shouldContinue) {
-      rafIdRef.current = requestAnimationFrame(fadeTrails);
-      return;
-    }
-
-    isActiveRef.current = false;
-  }, []);
-
   useEffect(() => {
     // Check for reduced motion preference
     if (prefersReducedMotion()) return;
     // Check if touch device
     if (isTouchDevice()) return;
+
+    function fadeTrails() {
+      let shouldContinue = false;
+      setTrails((prev) => {
+        const next = prev
+          .map((trail) => ({
+            ...trail,
+            opacity: trail.opacity - 0.04,
+          }))
+          .filter((trail) => trail.opacity > 0);
+
+        shouldContinue = next.length > 0;
+        return next;
+      });
+
+      if (shouldContinue) {
+        rafIdRef.current = requestAnimationFrame(fadeTrails);
+        return;
+      }
+
+      isActiveRef.current = false;
+    }
 
     const handleMouseMove = (e: MouseEvent) => {
       const now = Date.now();
@@ -100,7 +100,7 @@ export function CursorEffects() {
         cancelAnimationFrame(rafIdRef.current);
       }
     };
-  }, [fadeTrails]);
+  }, []);
 
   return (
     <>

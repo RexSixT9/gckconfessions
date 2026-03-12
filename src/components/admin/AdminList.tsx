@@ -154,7 +154,7 @@ export default function AdminList() {
     } finally {
       setLoading(false);
     }
-  }, [filter, statusFilter, query, page, router]);
+  }, [filter, statusFilter, query, page]);
 
   useEffect(() => { fetchItems(); }, [fetchItems]);
 

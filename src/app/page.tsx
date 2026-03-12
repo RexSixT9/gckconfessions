@@ -333,12 +333,10 @@ export default function HomePage() {
           {/* Subtle grid */}
           <div className="absolute inset-0 bg-[linear-gradient(rgba(var(--accent-rgb,220,40,120),0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(var(--accent-rgb,220,40,120),0.04)_1px,transparent_1px)] bg-size-[56px_56px] mask-[radial-gradient(ellipse_80%_60%_at_50%_40%,black,transparent)]" />
         </div>
-          <div className="absolute inset-0 bg-[linear-gradient(rgba(var(--accent-rgb,220,40,120),0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(var(--accent-rgb,220,40,120),0.04)_1px,transparent_1px)] bg-size-[56px_56px] mask-[radial-gradient(ellipse_80%_60%_at_50%_40%,black,transparent)]" />
-        </div>
 
         {/* Content — grows to fill remaining space */}
         <div className="flex flex-1 items-center">
-        <div className="mx-auto grid w-full max-w-7xl grid-cols-1 items-center gap-10 px-4 py-14 sm:px-6 sm:py-20 lg:grid-cols-2 lg:gap-20 lg:px-8 lg:py-28">
+          <div className="mx-auto grid w-full max-w-7xl grid-cols-1 items-center gap-10 px-4 py-14 sm:px-6 sm:py-20 lg:grid-cols-2 lg:gap-20 lg:px-8 lg:py-28">
           {/* ── Left: text ── */}
           <motion.div
             variants={staggerContainer}
@@ -475,7 +473,7 @@ export default function HomePage() {
             {/* Main confession card */}
             <FloatingConfessionCard />
           </motion.div>
-        </div>
+          </div>
         </div>
 
         {/* ── Scroll hint ── */}
