@@ -18,6 +18,8 @@ interface TypewriterTextProps {
   pauseAfterDelete?: number;
   /** Initial delay before first character appears */
   startDelay?: number;
+  /** If true, animate even when prefers-reduced-motion is enabled. */
+  forceAnimate?: boolean;
 }
 
 export default function TypewriterText({
@@ -29,6 +31,7 @@ export default function TypewriterText({
   pauseAfterType = 2000,
   pauseAfterDelete = 350,
   startDelay = 600,
+  forceAnimate = false,
 }: TypewriterTextProps) {
   const [displayed, setDisplayed] = useState("");
 
@@ -41,11 +44,20 @@ export default function TypewriterText({
   const phrasesRef = useRef(phrases);
   useEffect(() => {
     phrasesRef.current = phrases;
+    phraseIdx.current = 0;
+    charCount.current = 0;
+    isDeleting.current = false;
+    setDisplayed("");
   }, [phrases]);
 
   useEffect(() => {
+    if (!phrasesRef.current.length) {
+      setDisplayed("");
+      return;
+    }
+
     // Respect reduced-motion: show first phrase with a deferred state update.
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    if (!forceAnimate && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       timerRef.current = setTimeout(() => {
         setDisplayed(phrasesRef.current[0] ?? "");
       }, 0);
@@ -78,7 +90,7 @@ export default function TypewriterText({
           // Fully deleted → pause, advance phrase, start typing again
           timerRef.current = setTimeout(() => {
             isDeleting.current = false;
-            phraseIdx.current = (phraseIdx.current + 1) % phrasesRef.current.length;
+            phraseIdx.current = (phraseIdx.current + 1) % Math.max(1, phrasesRef.current.length);
             tick();
           }, pauseAfterDelete);
         } else {
@@ -91,7 +103,7 @@ export default function TypewriterText({
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, [deletingSpeed, pauseAfterDelete, pauseAfterType, startDelay, typingSpeed]);
+  }, [deletingSpeed, forceAnimate, pauseAfterDelete, pauseAfterType, startDelay, typingSpeed]);
 
   return (
     <span className={`inline-block min-h-[1.2em] ${className}`}>

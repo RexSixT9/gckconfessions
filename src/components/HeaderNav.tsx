@@ -5,7 +5,6 @@ import Link from "next/link";
 import { Heart } from "lucide-react";
 import { motion } from "framer-motion";
 import ThemeToggle from "@/components/ThemeToggle";
-import AnnouncementBanner from "@/components/AnnouncementBanner";
 import { cn } from "@/lib/cn";
 
 export default function HeaderNav() {
@@ -66,9 +65,6 @@ export default function HeaderNav() {
           isHidden && "-translate-y-full"
         )}
       >
-        <AnnouncementBanner />
-
-        {/* Floating pill wrapper */}
         <div className="relative px-3 pb-1.5 pt-2 sm:px-4">
           <div className="mx-auto flex max-w-5xl items-center justify-between rounded-2xl border border-border/50 bg-background/85 px-3.5 py-2.5 shadow-sm backdrop-blur-xl sm:px-5">
 

@@ -19,7 +19,10 @@ export default function ScrollProgressBar() {
       aria-hidden
     >
       <div className="h-0.5 bg-border/40 sm:h-px">
-        <motion.div className="h-full origin-left bg-foreground/85" style={{ scaleX }} />
+        <motion.div
+          className="h-full origin-left bg-linear-to-r from-primary/60 via-primary to-primary/80"
+          style={{ scaleX }}
+        />
       </div>
     </motion.div>
   );

@@ -306,7 +306,7 @@ export default function HomePage() {
       {/* ── Hero ──────────────────────────────────────────────────────── */}
       <section
         className="relative flex flex-col overflow-hidden"
-        style={{ minHeight: "calc(100dvh - var(--header-height) - var(--announcement-height))" }}
+        style={{ minHeight: "calc(100dvh - var(--header-height))" }}
       >
         {/* Mesh gradient orbs */}
         <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
@@ -350,6 +350,7 @@ export default function HomePage() {
                     deletingSpeed={28}
                     pauseAfterType={2600}
                     startDelay={900}
+                    forceAnimate
                     cursorClassName="bg-accent"
                   />
                 </span>

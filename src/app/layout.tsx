@@ -103,7 +103,7 @@ export default function RootLayout({
             {/* ── Header ── */}
             <HeaderNav />
 
-            <div className="flex min-h-[calc(100svh-var(--header-height)-var(--announcement-height,0px))] flex-col">
+            <div className="flex min-h-[calc(100svh-var(--header-height))] flex-col">
               <PageTransition>{children}</PageTransition>
               <Footer />
             </div>
