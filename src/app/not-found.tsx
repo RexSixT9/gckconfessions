@@ -14,6 +14,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { PageReveal } from "@/components/Reveal";
 
 export default function NotFoundPage() {
   const router = useRouter();
@@ -39,12 +40,7 @@ export default function NotFoundPage() {
 
   return (
     <main className="flex flex-1 items-center justify-center bg-background px-4 py-8 sm:px-6">
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.35 }}
-        className="w-full max-w-lg"
-      >
+      <PageReveal className="w-full max-w-lg" y={12} duration={0.35}>
         <Card className="border-border/70 text-center">
           <CardHeader className="items-center">
             <Badge className="gap-1 bg-accent/10 text-accent hover:bg-accent/10">
@@ -91,7 +87,7 @@ export default function NotFoundPage() {
             </div>
           </CardContent>
         </Card>
-      </motion.div>
+      </PageReveal>
     </main>
   );
 }

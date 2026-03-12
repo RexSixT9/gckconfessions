@@ -9,6 +9,7 @@ import { SonnerToaster } from "@/components/SonnerToaster";
 import PageTransition from "@/components/PageTransition";
 import PWARegister from "@/components/PWARegister";
 import AppPreloader from "@/components/AppPreloader";
+import ScrollProgressBar from "@/components/ScrollProgressBar";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -91,6 +92,7 @@ export default function RootLayout({
           <MotionProvider>
             <AppPreloader />
             <PWARegister />
+            <ScrollProgressBar />
 
             {/* ── Cursor Effects ── */}
             <CursorEffects />

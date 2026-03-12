@@ -3,14 +3,23 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Heart } from "lucide-react";
+import { useMotionRuntime } from "@/components/MotionProvider";
 
 export default function AppPreloader() {
   const [visible, setVisible] = useState(true);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const hasStartedExitRef = useRef(false);
+  const { setAppReady } = useMotionRuntime();
 
   useEffect(() => {
+    const beginHide = () => {
+      if (hasStartedExitRef.current) return;
+      hasStartedExitRef.current = true;
+      setVisible(false);
+    };
+
     const hide = () => {
-      timerRef.current = setTimeout(() => setVisible(false), 500);
+      timerRef.current = setTimeout(beginHide, 500);
     };
 
     if (document.readyState === "complete") {
@@ -30,7 +39,7 @@ export default function AppPreloader() {
   }, []);
 
   return (
-    <AnimatePresence>
+    <AnimatePresence onExitComplete={() => setAppReady(true)}>
       {visible && (
         <motion.div
           initial={{ opacity: 1 }}

@@ -7,7 +7,6 @@ import {
   useMotionValue,
   useTransform,
   useSpring,
-  useScroll,
   AnimatePresence,
 } from "framer-motion";
 import {
@@ -33,6 +32,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import TypewriterText from "@/components/TypewriterText";
+import { useMotionRuntime } from "@/components/MotionProvider";
 
 /* ─── Animation variants ─────────────────────────────────────────── */
 const staggerContainer = {
@@ -260,19 +260,6 @@ function StatChip({
   );
 }
 
-/* ─── Scroll progress bar ────────────────────────────────────────── */
-function ScrollProgress() {
-  const { scrollYProgress } = useScroll();
-  const scaleX = useSpring(scrollYProgress, { stiffness: 400, damping: 40 });
-  return (
-    <motion.div
-      className="fixed left-0 right-0 top-0 z-200 h-0.5 origin-left bg-accent"
-      style={{ scaleX }}
-      aria-hidden
-    />
-  );
-}
-
 /* ─── Magnetic hover wrapper ─────────────────────────────────────── */
 function Magnetic({
   children,
@@ -311,10 +298,11 @@ function Magnetic({
 }
 
 export default function HomePage() {
+  const { isAppReady, shouldReduceMotion } = useMotionRuntime();
+  const canStartMotion = isAppReady || shouldReduceMotion;
+
   return (
     <main className="flex-1 bg-background">
-      <ScrollProgress />
-
       {/* ── Hero ──────────────────────────────────────────────────────── */}
       <section
         className="relative flex flex-col overflow-hidden"
@@ -341,7 +329,7 @@ export default function HomePage() {
           <motion.div
             variants={staggerContainer}
             initial="hidden"
-            animate="show"
+            animate={canStartMotion ? "show" : "hidden"}
           >
             {/* Eyebrow */}
             <motion.div variants={fadeUp}>
@@ -435,7 +423,7 @@ export default function HomePage() {
           {/* ── Right: 3D floating scene (desktop) ── */}
           <motion.div
             initial={{ opacity: 0, x: 36, scale: 0.95 }}
-            animate={{ opacity: 1, x: 0, scale: 1 }}
+            animate={canStartMotion ? { opacity: 1, x: 0, scale: 1 } : { opacity: 0, x: 36, scale: 0.95 }}
             transition={{ duration: 0.75, delay: 0.45, ease: [0.16, 1, 0.3, 1] }}
             className="relative hidden lg:flex lg:items-center lg:justify-center"
             style={{ perspective: "1200px" }}
@@ -479,7 +467,7 @@ export default function HomePage() {
         {/* ── Scroll hint ── */}
         <motion.div
           initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
+          animate={canStartMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 8 }}
           transition={{ duration: 0.6, delay: 1.1, ease: "easeOut" }}
           className="flex justify-center pb-7 pt-2"
           aria-hidden

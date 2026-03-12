@@ -29,6 +29,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { Toggle } from "@/components/ui/toggle";
+import { PageReveal, ScrollReveal } from "@/components/Reveal";
 import { cn } from "@/lib/cn";
 
 const CHAR_LIMIT = 1000;
@@ -285,12 +286,7 @@ export default function SubmitPage() {
 
   return (
     <main className="flex-1 bg-background">
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-        className="mx-auto w-full max-w-5xl px-4 pb-16 pt-8 sm:px-6 sm:pt-12"
-      >
+      <PageReveal className="mx-auto w-full max-w-5xl px-4 pb-16 pt-8 sm:px-6 sm:pt-12">
         <Button
           variant="ghost"
           size="sm"
@@ -304,7 +300,8 @@ export default function SubmitPage() {
         </Button>
 
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-start">
-          <Card className={cn("border-border/70 shadow-none", focusMode && "border-accent/25")}>
+          <ScrollReveal>
+            <Card className={cn("border-border/70 shadow-none", focusMode && "border-accent/25")}>
             <CardHeader className="gap-4 border-b border-border/70 pb-5">
               <div className="space-y-2">
                 <CardTitle className="text-2xl font-semibold tracking-tight sm:text-3xl">
@@ -464,11 +461,13 @@ export default function SubmitPage() {
                 </div>
               </form>
             </CardContent>
-          </Card>
+            </Card>
+          </ScrollReveal>
 
           <div className="space-y-4">
             {firstVisit && (
-              <Card className="border-border/70 shadow-none">
+              <ScrollReveal delay={0.05}>
+                <Card className="border-border/70 shadow-none">
                 <CardHeader>
                   <CardTitle className="text-base font-medium">Before you submit</CardTitle>
                   <CardDescription>
@@ -496,10 +495,12 @@ export default function SubmitPage() {
                     Dismiss
                   </Button>
                 </CardContent>
-              </Card>
+                </Card>
+              </ScrollReveal>
             )}
 
-            <Card className="border-border/70 shadow-none">
+            <ScrollReveal delay={0.1}>
+              <Card className="border-border/70 shadow-none">
               <CardHeader>
                 <CardTitle className="text-base font-medium">Checks</CardTitle>
                 <CardDescription>These simple checks help keep the queue safe and readable.</CardDescription>
@@ -523,10 +524,11 @@ export default function SubmitPage() {
                   ))}
                 </div>
               </CardContent>
-            </Card>
+              </Card>
+            </ScrollReveal>
           </div>
         </div>
-      </motion.div>
+      </PageReveal>
     </main>
   );
 }

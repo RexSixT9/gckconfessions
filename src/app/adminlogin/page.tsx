@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { PageReveal } from "@/components/Reveal";
 
 
 type Notice = { type: "error" | "success"; message: string } | null;
@@ -96,12 +97,7 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.4 }}
-      className="flex flex-1 items-center justify-center px-4 py-8 sm:py-12"
-    >
+    <PageReveal className="flex flex-1 items-center justify-center px-4 py-8 sm:py-12" y={8} duration={0.4}>
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -250,6 +246,6 @@ export default function AdminLoginPage() {
           GCK Confessions · Admin
         </motion.p>
       </motion.div>
-    </motion.div>
+    </PageReveal>
   );
 }

@@ -1,7 +1,22 @@
 "use client";
 
-import { ReactNode } from "react";
+import {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { LazyMotion, domAnimation } from "framer-motion";
+
+type MotionRuntimeValue = {
+  isAppReady: boolean;
+  setAppReady: (ready: boolean) => void;
+  shouldReduceMotion: boolean;
+};
+
+const MotionRuntimeContext = createContext<MotionRuntimeValue | null>(null);
 
 /**
  * MotionProvider wraps the app with Framer Motion's LazyMotion
@@ -13,9 +28,41 @@ import { LazyMotion, domAnimation } from "framer-motion";
  * - Significantly reduced JS bundle size
  */
 export function MotionProvider({ children }: { children: ReactNode }) {
+  const [isAppReady, setAppReady] = useState(false);
+  const [shouldReduceMotion, setShouldReduceMotion] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const updatePreference = () => setShouldReduceMotion(mediaQuery.matches);
+
+    updatePreference();
+    mediaQuery.addEventListener("change", updatePreference);
+
+    return () => mediaQuery.removeEventListener("change", updatePreference);
+  }, []);
+
+  const value = useMemo(
+    () => ({ isAppReady, setAppReady, shouldReduceMotion }),
+    [isAppReady, shouldReduceMotion]
+  );
+
   return (
     <LazyMotion features={domAnimation}>
-      {children}
+      <MotionRuntimeContext.Provider value={value}>
+        {children}
+      </MotionRuntimeContext.Provider>
     </LazyMotion>
   );
+}
+
+export function useMotionRuntime() {
+  const value = useContext(MotionRuntimeContext);
+
+  if (!value) {
+    throw new Error("useMotionRuntime must be used within MotionProvider.");
+  }
+
+  return value;
 }
