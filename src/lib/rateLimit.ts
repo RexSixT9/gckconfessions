@@ -51,6 +51,15 @@ const submissionLimiter = new RateLimiterMemory({
 });
 
 /**
+ * Burst limiter catches rapid-fire spikes (e.g. scripted flooding).
+ */
+const burstSubmissionLimiter = new RateLimiterMemory({
+  points: process.env.NODE_ENV === "production" ? 4 : 20,
+  duration: 60,
+  blockDuration: process.env.NODE_ENV === "production" ? 10 * 60 : 0,
+});
+
+/**
  * Admin login: uses MAX_LOGIN_ATTEMPTS constant.
  * 5 attempts per 15 min in prod; blocks for 15 min on exhaustion.
  */
@@ -111,6 +120,19 @@ async function consume(limiter: RateLimiterMemory, key: string): Promise<RateLim
 
 export function checkSubmissionLimit(key: string) {
   return consume(submissionLimiter, key);
+}
+
+export function checkSubmissionBurstLimit(key: string) {
+  return consume(burstSubmissionLimiter, key);
+}
+
+/**
+ * Adaptive cooldown policy by risk score.
+ */
+export function getAdaptiveRetryAfterSeconds(risk: "low" | "medium" | "high") {
+  if (risk === "high") return 15 * 60;
+  if (risk === "medium") return 5 * 60;
+  return 60;
 }
 
 export function checkLoginLimit(key: string) {

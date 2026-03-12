@@ -6,6 +6,8 @@ import HeaderNav from "@/components/HeaderNav";
 import Footer from "@/components/Footer";
 import { CursorEffects } from "@/components/CursorEffects";
 import { SonnerToaster } from "@/components/SonnerToaster";
+import PageTransition from "@/components/PageTransition";
+import PWARegister from "@/components/PWARegister";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -41,6 +43,7 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
   },
+  manifest: "/manifest.webmanifest",
 };
 
 export const viewport: Viewport = {
@@ -59,8 +62,10 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const campaignVariant = process.env.NEXT_PUBLIC_CAMPAIGN_VARIANT || "default";
+
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning data-campaign={campaignVariant}>
       <head>
         {/* Preconnect to speed up external resource loading */}
         <link rel="dns-prefetch" href="//fonts.googleapis.com" />
@@ -83,6 +88,8 @@ export default function RootLayout({
           storageKey="theme"
         >
           <MotionProvider>
+            <PWARegister />
+
             {/* ── Cursor Effects ── */}
             <CursorEffects />
 
@@ -93,7 +100,7 @@ export default function RootLayout({
             <HeaderNav />
 
             <div className="flex min-h-[calc(100svh-var(--header-height)-var(--announcement-height,0px))] flex-col">
-              {children}
+              <PageTransition>{children}</PageTransition>
               <Footer />
             </div>
           </MotionProvider>

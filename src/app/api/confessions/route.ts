@@ -7,9 +7,11 @@ import { isbot } from "isbot";
 import { verifyAdminToken } from "@/lib/auth";
 import { COOKIE_NAME } from "@/lib/constants";
 import { filterProfanity, sanitizeText } from "@/lib/moderation";
-import { isSameOrigin } from "@/lib/requestUtils";
+import { getRequestFingerprint, isSameOrigin } from "@/lib/requestUtils";
 import {
+  checkSubmissionBurstLimit,
   checkSubmissionLimit,
+  getAdaptiveRetryAfterSeconds,
   getBlockedIps,
   getClientIp,
 } from "@/lib/rateLimit";
@@ -174,13 +176,30 @@ export async function POST(request: Request) {
       );
     }
 
-    const rateKey = `submit:${ip}:${userAgent.slice(0, 32)}`;
+    const fingerprint = getRequestFingerprint(request, ip);
+    const rateKey = `submit:${ip}:${fingerprint}`;
     const rate = await checkSubmissionLimit(rateKey);
+    const burst = await checkSubmissionBurstLimit(`submit-burst:${fingerprint}`);
 
-    if (!rate.allowed) {
+    const risk: "low" | "medium" | "high" =
+      ip === "unknown" || isbot(userAgent)
+        ? "high"
+        : userAgent.length < 18
+          ? "medium"
+          : "low";
+    const adaptiveCooldown = getAdaptiveRetryAfterSeconds(risk);
+
+    if (!rate.allowed || !burst.allowed) {
       return NextResponse.json(
         { error: "Too many submissions. Please try again later." },
-        { status: 429, headers: { "Retry-After": String(rate.retryAfterSeconds) } }
+        {
+          status: 429,
+          headers: {
+            "Retry-After": String(
+              Math.max(rate.retryAfterSeconds, burst.retryAfterSeconds, adaptiveCooldown)
+            ),
+          },
+        }
       );
     }
 

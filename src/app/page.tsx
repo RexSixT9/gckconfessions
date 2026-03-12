@@ -288,7 +288,10 @@ export default function HomePage() {
       <ScrollProgress />
 
       {/* ── Hero ──────────────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden">
+      <section
+        className="relative flex flex-col overflow-hidden"
+        style={{ minHeight: "calc(100dvh - var(--header-height) - var(--announcement-height))" }}
+      >
         {/* Mesh gradient orbs */}
         <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
           <div className="absolute -right-32 -top-48 h-160 w-160 rounded-full bg-accent/8 blur-[130px] animate-float" />
@@ -298,7 +301,9 @@ export default function HomePage() {
           <div className="absolute inset-0 bg-[linear-gradient(rgba(var(--accent-rgb,220,40,120),0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(var(--accent-rgb,220,40,120),0.04)_1px,transparent_1px)] bg-size-[56px_56px] mask-[radial-gradient(ellipse_80%_60%_at_50%_40%,black,transparent)]" />
         </div>
 
-        <div className="mx-auto grid w-full max-w-7xl grid-cols-1 items-center gap-10 px-4 pb-16 pt-14 sm:px-6 sm:pb-20 sm:pt-20 lg:grid-cols-2 lg:gap-20 lg:px-8 lg:pb-28 lg:pt-28">
+        {/* Content — grows to fill remaining space */}
+        <div className="flex flex-1 items-center">
+        <div className="mx-auto grid w-full max-w-7xl grid-cols-1 items-center gap-10 px-4 py-14 sm:px-6 sm:py-20 lg:grid-cols-2 lg:gap-20 lg:px-8 lg:py-28">
           {/* ── Left: text ── */}
           <motion.div
             variants={staggerContainer}
@@ -427,10 +432,32 @@ export default function HomePage() {
             <FloatingConfessionCard />
           </motion.div>
         </div>
+        </div>
+
+        {/* ── Scroll hint ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 1.1, ease: "easeOut" }}
+          className="flex justify-center pb-7 pt-2"
+          aria-hidden
+        >
+          <a
+            href="#highlights"
+            className="group flex flex-col items-center gap-2 text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground/50 transition-colors hover:text-muted-foreground/80"
+          >
+            <span>scroll</span>
+            <motion.div
+              animate={{ scaleY: [0.6, 1, 0.6], opacity: [0.4, 1, 0.4] }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+              className="h-9 w-px origin-top rounded-full bg-linear-to-b from-muted-foreground/60 to-transparent"
+            />
+          </a>
+        </motion.div>
       </section>
 
       {/* ── Highlights ──────────────────────────────────────────────── */}
-      <section className="mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
+      <section id="highlights" className="mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
         <div className="grid gap-4 sm:grid-cols-3">
           {highlights.map(({ title, description, icon: Icon, iconBg, iconColor }, index) => (
             <motion.div

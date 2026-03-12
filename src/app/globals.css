@@ -1182,6 +1182,92 @@ a:focus-visible {
 }
 
 /* ─────────────────────────────────────────
+   V2 Design System Layer
+───────────────────────────────────────── */
+:root {
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+
+  --motion-fast: 150ms;
+  --motion-base: 280ms;
+  --motion-slow: 420ms;
+  --ease-standard: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@layer utilities {
+  .motion-page {
+    will-change: opacity, transform, filter;
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  .keyboard-safe-bottom {
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 0.75rem);
+  }
+
+  .skeleton {
+    position: relative;
+    overflow: hidden;
+    background: hsl(var(--muted));
+  }
+
+  .skeleton::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      hsl(var(--background) / 0.45),
+      transparent
+    );
+    transform: translateX(-100%);
+    animation: skeleton-shimmer 1.35s infinite;
+  }
+}
+
+@keyframes skeleton-shimmer {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+/* Campaign/event visual variants without changing core theme tokens */
+html[data-campaign="awareness"] {
+  --accent: 12 82% 52%;
+}
+
+html[data-campaign="exam-season"] {
+  --accent: 220 78% 54%;
+}
+
+html[data-campaign="kindness-week"] {
+  --accent: 156 56% 44%;
+}
+
+/* ─────────────────────────────────────────
    Sonner Toast — minimal theme-aware styles
 ───────────────────────────────────────── */
 [data-sonner-toaster] {

@@ -22,6 +22,8 @@ const DeletedConfessionSchema = new Schema(
 
 DeletedConfessionSchema.index({ deletedAt: -1 });
 DeletedConfessionSchema.index({ status: 1, deletedAt: -1 });
+// Retain deleted backups for 180 days, then auto-purge
+DeletedConfessionSchema.index({ deletedAt: 1 }, { expireAfterSeconds: 15552000 });
 
 export default mongoose.models.DeletedConfession ||
   mongoose.model("DeletedConfession", DeletedConfessionSchema);

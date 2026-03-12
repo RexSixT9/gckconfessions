@@ -1,4 +1,5 @@
 import { timingSafeEqual } from "crypto";
+import { createHash } from "crypto";
 
 /**
  * Shared request-level utilities used across API routes.
@@ -54,4 +55,19 @@ export function isValidEmail(email: string): boolean {
   if (!local || !domain || !domain.includes(".")) return false;
   // No obvious invalid chars
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+/**
+ * Lightweight request fingerprint used for abuse controls.
+ * Avoids storing raw identifying values while still offering rate-limit stability.
+ */
+export function getRequestFingerprint(request: Request, ip: string): string {
+  const ua = request.headers.get("user-agent") ?? "unknown";
+  const lang = request.headers.get("accept-language") ?? "unknown";
+  const encoding = request.headers.get("accept-encoding") ?? "unknown";
+
+  return createHash("sha256")
+    .update(`${ip}|${ua.slice(0, 80)}|${lang.slice(0, 32)}|${encoding.slice(0, 16)}`)
+    .digest("hex")
+    .slice(0, 24);
 }
