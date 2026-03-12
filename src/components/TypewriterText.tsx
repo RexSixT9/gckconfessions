@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 
 interface TypewriterTextProps {
   /** Phrases to cycle through */
@@ -20,6 +20,21 @@ interface TypewriterTextProps {
   startDelay?: number;
   /** If true, animate even when prefers-reduced-motion is enabled. */
   forceAnimate?: boolean;
+  /** Optional responsive character limits used to fit phrases on smaller screens. */
+  responsiveMaxChars?: {
+    mobile?: number;
+    tablet?: number;
+    desktop?: number;
+  };
+}
+
+function fitPhrase(phrase: string, maxChars: number) {
+  if (phrase.length <= maxChars) return phrase;
+  const safeLimit = Math.max(4, maxChars - 1);
+  const clipped = phrase.slice(0, safeLimit);
+  const lastWordBoundary = clipped.lastIndexOf(" ");
+  const base = lastWordBoundary > 5 ? clipped.slice(0, lastWordBoundary) : clipped;
+  return `${base}\u2026`;
 }
 
 export default function TypewriterText({
@@ -32,8 +47,28 @@ export default function TypewriterText({
   pauseAfterDelete = 350,
   startDelay = 600,
   forceAnimate = false,
+  responsiveMaxChars,
 }: TypewriterTextProps) {
   const [displayed, setDisplayed] = useState("");
+  const [viewportWidth, setViewportWidth] = useState(1024);
+
+  useEffect(() => {
+    const updateViewport = () => setViewportWidth(window.innerWidth || 1024);
+    updateViewport();
+    window.addEventListener("resize", updateViewport, { passive: true });
+    return () => window.removeEventListener("resize", updateViewport);
+  }, []);
+
+  const maxChars = useMemo(() => {
+    if (viewportWidth < 640) return responsiveMaxChars?.mobile ?? 16;
+    if (viewportWidth < 1024) return responsiveMaxChars?.tablet ?? 24;
+    return responsiveMaxChars?.desktop ?? 40;
+  }, [responsiveMaxChars?.desktop, responsiveMaxChars?.mobile, responsiveMaxChars?.tablet, viewportWidth]);
+
+  const preparedPhrases = useMemo(
+    () => phrases.map((phrase) => fitPhrase(phrase, maxChars)),
+    [phrases, maxChars]
+  );
 
   // All mutable loop state lives in refs — no stale-closure issues
   const phraseIdx = useRef(0);
@@ -41,14 +76,14 @@ export default function TypewriterText({
   const isDeleting = useRef(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   // Keep a stable ref to the latest phrases array
-  const phrasesRef = useRef(phrases);
+  const phrasesRef = useRef(preparedPhrases);
   useEffect(() => {
-    phrasesRef.current = phrases;
+    phrasesRef.current = preparedPhrases;
     phraseIdx.current = 0;
     charCount.current = 0;
     isDeleting.current = false;
     setDisplayed("");
-  }, [phrases]);
+  }, [preparedPhrases]);
 
   useEffect(() => {
     if (!phrasesRef.current.length) {
@@ -79,7 +114,11 @@ export default function TypewriterText({
             tick();
           }, pauseAfterType);
         } else {
-          timerRef.current = setTimeout(tick, typingSpeed);
+          const effectiveTypingSpeed = Math.max(
+            22,
+            Math.round(typingSpeed * Math.min(1, 16 / Math.max(phrase.length, 1)))
+          );
+          timerRef.current = setTimeout(tick, effectiveTypingSpeed);
         }
       } else {
         // --- DELETING ---
@@ -94,7 +133,11 @@ export default function TypewriterText({
             tick();
           }, pauseAfterDelete);
         } else {
-          timerRef.current = setTimeout(tick, deletingSpeed);
+          const effectiveDeletingSpeed = Math.max(
+            16,
+            Math.round(deletingSpeed * Math.min(1, 16 / Math.max(phrase.length, 1)))
+          );
+          timerRef.current = setTimeout(tick, effectiveDeletingSpeed);
         }
       }
     };
@@ -106,7 +149,7 @@ export default function TypewriterText({
   }, [deletingSpeed, forceAnimate, pauseAfterDelete, pauseAfterType, startDelay, typingSpeed]);
 
   return (
-    <span className={`inline-block min-h-[1.2em] ${className}`}>
+    <span className={`inline-block max-w-full min-h-[1.2em] whitespace-normal wrap-anywhere ${className}`}>
       {displayed}
       {/* Blinking cursor — pure CSS, zero JS overhead */}
       <span
