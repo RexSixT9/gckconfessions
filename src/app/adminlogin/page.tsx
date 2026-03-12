@@ -12,7 +12,7 @@ import { PageReveal } from "@/components/Reveal";
 
 
 type Notice = { type: "error" | "success"; message: string } | null;
-const MIN_PASSWORD_LENGTH = 8;
+const MIN_PASSWORD_LENGTH = 12;
 
 function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);

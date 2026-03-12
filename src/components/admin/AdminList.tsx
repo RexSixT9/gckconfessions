@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import CursorGlowCard from "@/components/CursorGlowCard";
@@ -92,6 +92,7 @@ function ActionBtn({
 
 // --- constants ---------------------------------------------------
 const PAGE_SIZE = 10;
+const REALTIME_POLL_MS = 12000;
 
 // --- types -------------------------------------------------------
 type Notice = { type: "error" | "success"; message: string } | null;
@@ -111,6 +112,7 @@ export default function AdminList() {
   const [items, setItems] = useState<ConfessionItem[]>([]);
   const [notice, setNotice] = useState<Notice>(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [filter, setFilter] = useState<"all" | "shared" | "not-shared">("all");
   const [statusFilter, setStatusFilter] = useState<"all" | "pending" | "approved" | "rejected">("all");
   const [searchInput, setSearchInput] = useState("");
@@ -121,6 +123,8 @@ export default function AdminList() {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const etagRef = useRef<string | null>(null);
+  const inFlightRef = useRef(false);
 
   const router = useRouter();
 
@@ -131,9 +135,20 @@ export default function AdminList() {
     if (page > totalPages && totalPages > 0) setPage(totalPages);
   }, [page, totalPages]);
 
-  const fetchItems = useCallback(async () => {
-    setLoading(true);
-    setNotice(null);
+  const fetchItems = useCallback(async (options?: { silent?: boolean; revalidate?: boolean }) => {
+    if (inFlightRef.current) return;
+    inFlightRef.current = true;
+
+    const silent = Boolean(options?.silent);
+    const revalidate = Boolean(options?.revalidate);
+
+    if (silent) {
+      setRefreshing(true);
+    } else {
+      setLoading(true);
+      setNotice(null);
+    }
+
     try {
       const params = new URLSearchParams();
       if (filter === "shared") params.set("posted", "true");
@@ -143,26 +158,70 @@ export default function AdminList() {
       params.set("page", String(page));
       params.set("limit", String(PAGE_SIZE));
 
-      const response = await fetch(`/api/confessions?${params.toString()}`);
+      const headers: HeadersInit = {};
+      if (revalidate && etagRef.current) {
+        headers["If-None-Match"] = etagRef.current;
+      }
+
+      const response = await fetch(`/api/confessions?${params.toString()}`, {
+        method: "GET",
+        cache: "no-store",
+        credentials: "same-origin",
+        headers,
+      });
+
       if (response.status === 401) {
         router.replace("/adminlogin");
         return;
       }
 
+      if (response.status === 304) {
+        return;
+      }
+
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Failed to load.");
+
+      etagRef.current = response.headers.get("etag");
       setItems(data.confessions ?? []);
       setTotalCount(data.total ?? 0);
       setTotalPages(data.totalPages ?? 1);
     } catch (error) {
-      setNotice({ type: "error", message: error instanceof Error ? error.message : "Load failed." });
-      setItems([]);
+      if (!silent) {
+        setNotice({ type: "error", message: error instanceof Error ? error.message : "Load failed." });
+        setItems([]);
+      }
     } finally {
       setLoading(false);
+      setRefreshing(false);
+      inFlightRef.current = false;
     }
   }, [filter, statusFilter, query, page, router]);
 
-  useEffect(() => { fetchItems(); }, [fetchItems]);
+  useEffect(() => {
+    void fetchItems();
+  }, [fetchItems]);
+
+  useEffect(() => {
+    const onVisibilityOrFocus = () => {
+      if (document.visibilityState !== "visible") return;
+      void fetchItems({ silent: true, revalidate: true });
+    };
+
+    const interval = window.setInterval(() => {
+      if (document.visibilityState !== "visible") return;
+      void fetchItems({ silent: true, revalidate: true });
+    }, REALTIME_POLL_MS);
+
+    window.addEventListener("focus", onVisibilityOrFocus);
+    document.addEventListener("visibilitychange", onVisibilityOrFocus);
+
+    return () => {
+      window.clearInterval(interval);
+      window.removeEventListener("focus", onVisibilityOrFocus);
+      document.removeEventListener("visibilitychange", onVisibilityOrFocus);
+    };
+  }, [fetchItems]);
 
   const handleCopy = useCallback((text: string, id: string) => {
     navigator.clipboard.writeText(text).catch(() => console.warn("Clipboard write failed"));
@@ -228,8 +287,8 @@ export default function AdminList() {
         await action();
         setNotice({ type: "success", message: successMsg });
         setTimeout(() => setNotice(null), 3000);
-        router.refresh();
-        void fetchItems();
+        window.dispatchEvent(new Event("admin-data-updated"));
+        void fetchItems({ silent: true });
       } catch (err) {
         // Rollback optimistic update
         setItems(snapshot);
@@ -245,7 +304,7 @@ export default function AdminList() {
         setProcessingId(null);
       }
     },
-    [filter, statusFilter, router, fetchItems],
+    [filter, statusFilter, fetchItems],
   );
 
   /** Optimistic delete: remove item instantly, call API, rollback on failure. */
@@ -280,8 +339,8 @@ export default function AdminList() {
         }
         setNotice({ type: "success", message: "Deleted." });
         setTimeout(() => setNotice(null), 3000);
-        router.refresh();
-        void fetchItems();
+        window.dispatchEvent(new Event("admin-data-updated"));
+        void fetchItems({ silent: true });
       } catch (err) {
         setItems(snapshot);
         setTotalCount((c) => {
@@ -294,7 +353,7 @@ export default function AdminList() {
         setProcessingId(null);
       }
     },
-    [router, fetchItems],
+    [fetchItems],
   );
 
   const handleSearch = useCallback(
@@ -306,7 +365,12 @@ export default function AdminList() {
     <div className="space-y-5">
 
       {/* -- Toolbar ------------------------------------- */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+        className="flex flex-col gap-3 sm:flex-row sm:items-center"
+      >
         {/* Search */}
         <form onSubmit={handleSearch} className="relative flex-1">
           <span className="pointer-events-none absolute inset-y-0 left-0 flex w-8 items-center justify-center text-muted-foreground">
@@ -332,17 +396,22 @@ export default function AdminList() {
         {/* Reload */}
         <button
           type="button"
-          onClick={fetchItems}
+          onClick={() => void fetchItems({ silent: items.length > 0 })}
           disabled={loading}
           className="btn-ghost btn-sm shrink-0 border border-border hover:border-accent/40"
         >
           <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
           <span className="sm:hidden">Reload</span>
         </button>
-      </div>
+      </motion.div>
 
       {/* -- Filters ------------------------------------- */}
-      <div className="flex flex-col gap-3 border-b border-border pb-4 sm:flex-row sm:flex-wrap sm:items-center">
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.05, ease: [0.16, 1, 0.3, 1] }}
+        className="flex flex-col gap-3 border-b border-border pb-4 sm:flex-row sm:flex-wrap sm:items-center"
+      >
         {/* Share filter */}
         <div className="-mx-1 overflow-x-auto px-1 sm:mx-0 sm:px-0">
           <div className="inline-flex items-center gap-0.5 rounded-lg border border-border bg-secondary p-0.5">
@@ -387,7 +456,13 @@ export default function AdminList() {
         <span className="text-xs tabular-nums text-muted-foreground sm:ml-auto">
           {totalCount} result{totalCount !== 1 ? "s" : ""}
         </span>
-      </div>
+        {refreshing && !loading && (
+          <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground sm:ml-2">
+            <Loader className="h-3 w-3 animate-spin" />
+            Updating
+          </span>
+        )}
+      </motion.div>
 
       {/* -- Notice -------------------------------------- */}
       {notice && (
@@ -439,8 +514,9 @@ export default function AdminList() {
 
       {/* -- Confession cards ---------------------------- */}
       {!loading && items.length > 0 && (
-        <div className="flex flex-col gap-3">
-          {items.map((item, idx) => {
+        <AnimatePresence mode="popLayout" initial={false}>
+          <motion.div className="flex flex-col gap-3">
+            {items.map((item, idx) => {
             const busy = processingId === item._id;
             const msgId = `msg-${item._id}`;
             const musId = `music-${item._id}`;
@@ -619,8 +695,9 @@ export default function AdminList() {
 
               </CursorGlowCard>
             );
-          })}
-        </div>
+            })}
+          </motion.div>
+        </AnimatePresence>
       )}
 
       {/* -- Pagination ---------------------------------- */}

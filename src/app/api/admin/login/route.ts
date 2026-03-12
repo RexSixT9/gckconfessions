@@ -4,13 +4,10 @@ import { connectToDatabase } from "@/lib/mongodb";
 import { aj } from "@/lib/arcjet";
 import { signAdminToken } from "@/lib/auth";
 import { checkLoginLimit, getBlockedIps, getClientIp } from "@/lib/rateLimit";
-import { COOKIE_NAME, COOKIE_OPTIONS, COOKIE_MAX_AGE } from "@/lib/constants";
+import { COOKIE_NAME, COOKIE_OPTIONS, COOKIE_MAX_AGE, MIN_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH } from "@/lib/constants";
 import { isSameOrigin, isValidEmail } from "@/lib/requestUtils";
 import Admin from "@/models/Admin";
 import AuditLog from "@/models/AuditLog";
-
-const MIN_PASSWORD_LENGTH = 8;
-const MAX_PASSWORD_LENGTH = 128;
 const DUMMY_PASSWORD_HASH = "$2a$10$CwTycUXWue0Thq9StjUM0uJ8n9f5M5w7x1YgnSUQoqBYwygJyI072";
 
 export async function POST(request: Request) {

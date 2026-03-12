@@ -1,19 +1,32 @@
+"use client";
+
+import { motion } from "framer-motion";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function AdminLoading() {
   return (
     <main className="flex-1 bg-background">
       <div className="mx-auto w-full max-w-5xl px-4 pb-16 pt-6 sm:px-6 sm:pt-10">
-      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+          className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between"
+        >
           <div className="space-y-3">
             <Skeleton className="h-5 w-24 rounded-full" />
             <Skeleton className="h-10 w-56 rounded-xl" />
             <Skeleton className="h-4 w-[min(72vw,20rem)] rounded-lg" />
           </div>
           <Skeleton className="h-9 w-28 rounded-lg" />
-        </div>
+        </motion.div>
 
-        <div className="mb-8 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.04, ease: [0.16, 1, 0.3, 1] }}
+          className="mb-8 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4"
+        >
           {[1, 2, 3, 4].map((i) => (
             <div
               key={i}
@@ -23,9 +36,14 @@ export default function AdminLoading() {
               <Skeleton className="h-9 w-14 rounded-lg" />
             </div>
           ))}
-        </div>
+        </motion.div>
 
-        <div className="overflow-hidden rounded-2xl border border-border/70 bg-card p-6 sm:p-8">
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.32, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
+          className="overflow-hidden rounded-2xl border border-border/70 bg-card p-6 sm:p-8"
+        >
           <div className="mb-5 flex flex-col gap-3 sm:flex-row">
             <Skeleton className="h-9 flex-1 rounded-xl" />
             <Skeleton className="h-9 w-24 rounded-xl" />
@@ -56,7 +74,7 @@ export default function AdminLoading() {
               </div>
             ))}
           </div>
-        </div>
+        </motion.div>
       </div>
     </main>
   );

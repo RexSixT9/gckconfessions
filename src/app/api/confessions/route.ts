@@ -123,7 +123,7 @@ export async function GET(request: Request) {
     const [total, data] = await Promise.all([
       Confession.countDocuments(filter),
       Confession.find(filter)
-        .select({ message: 1, music: 1, status: 1, posted: 1, createdAt: 1 })
+        .select({ message: 1, music: 1, status: 1, posted: 1, createdAt: 1, updatedAt: 1 })
         .sort({ createdAt: -1 })
         .skip((page - 1) * limit)
         .limit(limit)
@@ -140,6 +140,33 @@ export async function GET(request: Request) {
 
     const confessions = data.map(serializeConfession);
 
+    const listFingerprint = createHash("sha1")
+      .update(
+        JSON.stringify({
+          page,
+          limit,
+          total,
+          status,
+          posted,
+          query,
+          ids: confessions.map((item) => item._id),
+          stamps: confessions.map((item) => item.updatedAt || item.createdAt || ""),
+        })
+      )
+      .digest("hex");
+    const etag = `W/\"${listFingerprint}\"`;
+
+    const ifNoneMatch = request.headers.get("if-none-match");
+    if (ifNoneMatch && ifNoneMatch === etag) {
+      return new NextResponse(null, {
+        status: 304,
+        headers: {
+          ETag: etag,
+          "Cache-Control": "no-store",
+        },
+      });
+    }
+
     return NextResponse.json(
       {
         confessions,
@@ -147,7 +174,12 @@ export async function GET(request: Request) {
         total,
         totalPages: Math.max(1, Math.ceil(total / limit)),
       },
-      { headers: { "Cache-Control": "no-store" } }
+      {
+        headers: {
+          "Cache-Control": "no-store",
+          ETag: etag,
+        },
+      }
     );
   } catch (error) {
     console.error("Confession list error:", error);

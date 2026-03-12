@@ -6,6 +6,7 @@ import { aj } from "@/lib/arcjet";
 import { verifyAdminToken } from "@/lib/auth";
 import { COOKIE_NAME } from "@/lib/constants";
 import { getClientIp } from "@/lib/rateLimit";
+import { isSameOrigin } from "@/lib/requestUtils";
 import Confession from "@/models/Confession";
 import DeletedConfession from "@/models/DeletedConfession";
 import AuditLog from "@/models/AuditLog";
@@ -48,6 +49,15 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    if (!isSameOrigin(request)) {
+      return NextResponse.json({ error: "Invalid origin." }, { status: 403 });
+    }
+
+    const contentType = request.headers.get("content-type") ?? "";
+    if (!contentType.includes("application/json")) {
+      return NextResponse.json({ error: "Unsupported content type." }, { status: 415 });
+    }
+
     let arcjetDecision;
     try {
       arcjetDecision = await aj.protect(request);
@@ -82,9 +92,20 @@ export async function PATCH(
       return NextResponse.json({ error: "Invalid confession id." }, { status: 400 });
     }
 
-    const body = await request.json();
-    const posted = typeof body.posted === "boolean" ? body.posted : undefined;
-    const status = typeof body.status === "string" && body.status !== "" ? body.status : undefined;
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json({ error: "Invalid JSON payload." }, { status: 400 });
+    }
+
+    if (!body || typeof body !== "object") {
+      return NextResponse.json({ error: "Invalid request payload." }, { status: 400 });
+    }
+
+    const payload = body as Record<string, unknown>;
+    const posted = typeof payload.posted === "boolean" ? payload.posted : undefined;
+    const status = typeof payload.status === "string" && payload.status !== "" ? payload.status : undefined;
 
     if (posted === undefined && status === undefined) {
       return NextResponse.json(
@@ -181,6 +202,10 @@ export async function DELETE(
   let backupId: string | null = null;
 
   try {
+    if (!isSameOrigin(request)) {
+      return NextResponse.json({ error: "Invalid origin." }, { status: 403 });
+    }
+
     let arcjetDecision;
     try {
       arcjetDecision = await aj.protect(request);
