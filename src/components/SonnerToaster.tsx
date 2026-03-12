@@ -47,9 +47,12 @@ export function SonnerToaster() {
       duration={4000}
       gap={8}
       toastOptions={{
-        className:
-          "rounded-xl border border-border/70 bg-background text-foreground shadow-md",
-        descriptionClassName: "text-muted-foreground",
+        classNames: {
+          toast: "sonner-toast",
+          title: "sonner-title",
+          description: "sonner-description",
+          actionButton: "sonner-action",
+        },
       }}
     />
   );

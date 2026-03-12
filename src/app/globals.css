@@ -1273,7 +1273,9 @@ html[data-campaign="kindness-week"] {
 }
 
 /* ─────────────────────────────────────────
-   Sonner Toast — minimal theme-aware styles
+   Sonner Toast — project theme-aware styles
+   All colours use HSL CSS vars so they
+   auto-switch between :root and .dark.
 ───────────────────────────────────────── */
 [data-sonner-toaster] {
   --offset: 20px;
@@ -1286,80 +1288,84 @@ html[data-campaign="kindness-week"] {
 }
 
 @keyframes toast-in {
-  from {
-    opacity: 0;
-    transform: translateY(8px) scale(0.985);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
+  from { opacity: 0; transform: translateY(6px) scale(0.982); }
+  to   { opacity: 1; transform: translateY(0)   scale(1);     }
 }
 
+/* ── Base toast shell ── */
 .sonner-toast {
-  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-family: var(--font-geist-sans), system-ui, sans-serif !important;
   font-size: 0.8125rem !important;
-  line-height: 1.4 !important;
-  border-radius: 12px !important;
-  padding: 10px 12px !important;
-  gap: 8px !important;
+  line-height: 1.45 !important;
+  border-radius: 0.75rem !important;
+  padding: 11px 14px !important;
+  gap: 10px !important;
   min-width: 0 !important;
   max-width: 340px !important;
-  width: min(calc(100vw - 1rem), 340px) !important;
-  border-width: 1px !important;
-  border-style: solid !important;
-  box-shadow: 0 8px 28px -14px rgba(0, 0, 0, 0.22),
-              0 2px 8px -4px rgba(0, 0, 0, 0.14) !important;
-  animation: toast-in 160ms cubic-bezier(0.16, 1, 0.3, 1) both;
-
-  /* Light mode */
-  background: hsl(var(--background)) !important;
-  border-color: hsl(var(--border)) !important;
-  color: hsl(var(--foreground)) !important;
+  width: min(calc(100vw - 1.5rem), 340px) !important;
+  border: 1px solid hsl(var(--border)) !important;
+  background: hsl(var(--card)) !important;
+  color: hsl(var(--card-foreground)) !important;
+  box-shadow:
+    0 1px 2px hsl(var(--foreground) / 0.04),
+    0 4px 16px -4px hsl(var(--foreground) / 0.10),
+    0 12px 32px -8px hsl(var(--foreground) / 0.07) !important;
+  animation: toast-in 180ms cubic-bezier(0.16, 1, 0.3, 1) both !important;
 }
 
-.dark .sonner-toast {
-  box-shadow: 0 10px 30px -14px rgba(0, 0, 0, 0.65),
-              0 2px 8px -4px rgba(0, 0, 0, 0.45),
-              inset 0 1px 0 rgba(255, 255, 255, 0.03) !important;
-}
-
+/* ── Title ── */
 .sonner-title {
   font-size: 0.8125rem !important;
   font-weight: 600 !important;
   letter-spacing: -0.01em !important;
+  line-height: 1.3 !important;
   color: hsl(var(--foreground)) !important;
 }
 
+/* ── Description ── */
 .sonner-description {
   font-size: 0.75rem !important;
+  line-height: 1.45 !important;
   color: hsl(var(--muted-foreground)) !important;
-  margin-top: 2px !important;
+  margin-top: 1px !important;
 }
 
-.sonner-toast [data-icon] {
-  color: hsl(var(--foreground) / 0.72) !important;
+/* ── Icon — inherits semantic colour from type overrides below ── */
+.sonner-toast [data-icon] svg {
+  width: 15px !important;
+  height: 15px !important;
 }
 
-/* Close button */
-.sonner-close {
-  border-radius: 6px !important;
-  width: 18px !important;
-  height: 18px !important;
-  background: hsl(var(--muted)) !important;
-  border-color: hsl(var(--border)) !important;
-  color: hsl(var(--muted-foreground)) !important;
-  top: 10px !important;
-  right: 10px !important;
-  transition: background 0.15s, color 0.15s !important;
+/* ── Type-specific left border accent + icon colour ── */
+[data-type="success"].sonner-toast {
+  border-left: 3px solid hsl(var(--success)) !important;
 }
-.sonner-close:hover {
-  background: hsl(var(--secondary)) !important;
-  color: hsl(var(--foreground)) !important;
-  border-color: hsl(var(--border)) !important;
+[data-type="success"].sonner-toast [data-icon] {
+  color: hsl(var(--success)) !important;
 }
 
-/* Action button */
+[data-type="error"].sonner-toast {
+  border-left: 3px solid hsl(var(--destructive)) !important;
+}
+[data-type="error"].sonner-toast [data-icon] {
+  color: hsl(var(--destructive)) !important;
+}
+
+[data-type="warning"].sonner-toast {
+  border-left: 3px solid hsl(var(--warning)) !important;
+}
+[data-type="warning"].sonner-toast [data-icon] {
+  color: hsl(var(--warning)) !important;
+}
+
+[data-type="info"].sonner-toast {
+  border-left: 3px solid hsl(var(--accent)) !important;
+}
+[data-type="info"].sonner-toast [data-icon] {
+  color: hsl(var(--accent)) !important;
+}
+
+/* ── Action button ── */
 .sonner-action {
   border-radius: 6px !important;
   font-size: 0.75rem !important;
@@ -1368,5 +1374,9 @@ html[data-campaign="kindness-week"] {
   height: auto !important;
   background: hsl(var(--foreground)) !important;
   color: hsl(var(--background)) !important;
-  border: 1px solid hsl(var(--foreground) / 0.1) !important;
+  border: 1px solid hsl(var(--border)) !important;
+  transition: opacity 0.15s !important;
+}
+.sonner-action:hover {
+  opacity: 0.88 !important;
 }
