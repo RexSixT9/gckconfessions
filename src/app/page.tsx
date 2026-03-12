@@ -457,7 +457,7 @@ export default function HomePage() {
                 <Button
                   size="lg"
                   variant="brand"
-                  className="group h-auto w-full rounded-full px-8 py-4 text-sm font-semibold shadow-none sm:w-auto"
+                  className="group h-auto w-full gap-2 rounded-full px-8 py-4 text-sm font-semibold shadow-none sm:w-auto"
                   render={<Link href="/submit" />}
                 >
                   <>
@@ -471,7 +471,7 @@ export default function HomePage() {
                 <Button
                   size="lg"
                   variant="outline"
-                  className="h-auto w-full rounded-full border-border/60 px-8 py-4 text-sm backdrop-blur-sm transition-all hover:border-accent/40 hover:bg-accent/5 sm:w-auto"
+                  className="h-auto w-full gap-2 rounded-full border-border/60 px-8 py-4 text-sm backdrop-blur-sm transition-all hover:border-accent/40 hover:bg-accent/5 sm:w-auto"
                   render={<a href="#how-it-works" />}
                 >
                   <>
@@ -649,7 +649,8 @@ export default function HomePage() {
           transition={{ duration: 0.4 }}
           className="mb-10 text-center"
         >
-          <Badge variant="outline" className="mb-3 text-accent">
+          <Badge variant="outline" className="mb-3 gap-1.5 border-accent/30 bg-accent/5 text-accent">
+            <Sparkles className="h-3.5 w-3.5" />
             Workflow
           </Badge>
           <h2 className="text-2xl font-black tracking-tight sm:text-3xl">
@@ -674,18 +675,18 @@ export default function HomePage() {
               y={16}
               duration={0.4}
             >
-              <Card className="group relative h-full overflow-hidden border-border/50 transition-all duration-300 hover:-translate-y-1 hover:border-accent/30 hover:shadow-lg hover:shadow-accent/5">
-                <CardHeader>
+              <Card className="group relative h-full overflow-hidden border-border/60 bg-card/80 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-accent/40 hover:shadow-lg hover:shadow-accent/5">
+                <CardHeader className="space-y-3">
                   <div className="flex items-center gap-3">
-                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent/10 text-accent transition-all duration-300 group-hover:bg-accent group-hover:text-accent-foreground group-hover:shadow-[0_0_16px_hsl(var(--accent)/0.4)]">
-                      <Icon className="h-4 w-4" />
+                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent/10 text-accent ring-1 ring-accent/20 transition-all duration-300 group-hover:bg-accent group-hover:text-accent-foreground group-hover:shadow-[0_0_20px_hsl(var(--accent)/0.4)] group-hover:ring-accent/40">
+                      <Icon className="h-5 w-5" />
                     </span>
-                    <span className="text-3xl font-black tabular-nums text-border/60 transition-colors duration-300 group-hover:text-accent/30">
+                    <span className="text-3xl font-black tabular-nums text-border transition-colors duration-300 group-hover:text-accent/40">
                       {step}
                     </span>
                   </div>
-                  <CardTitle className="text-base font-bold">{title}</CardTitle>
-                  <CardDescription>{description}</CardDescription>
+                  <CardTitle className="text-base font-bold tracking-tight">{title}</CardTitle>
+                  <CardDescription className="text-sm leading-relaxed">{description}</CardDescription>
                 </CardHeader>
               </Card>
             </ScrollReveal>
@@ -725,9 +726,9 @@ export default function HomePage() {
             <motion.span
               animate={{ y: [0, -5, 0] }}
               transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-              className="mb-8 inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-accent"
+              className="mb-8 inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-accent backdrop-blur-sm"
             >
-              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-accent" />
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-accent shadow-[0_0_6px_currentColor]" />
               Join the community
             </motion.span>
 
@@ -764,7 +765,7 @@ export default function HomePage() {
               <Magnetic strength={0.3}>
                 <Button
                   size="lg"
-                  className="group relative h-auto w-full overflow-hidden rounded-full bg-accent px-8 py-4 text-sm font-semibold text-accent-foreground shadow-2xl shadow-accent/30 transition-all hover:bg-accent/90 hover:shadow-accent/50 sm:w-auto"
+                  className="group relative h-auto w-full gap-2 overflow-hidden rounded-full bg-accent px-8 py-4 text-sm font-semibold text-accent-foreground shadow-2xl shadow-accent/30 transition-all hover:bg-accent/90 hover:shadow-accent/50 sm:w-auto"
                   render={<Link href="/submit" />}
                 >
                   <>
@@ -782,11 +783,11 @@ export default function HomePage() {
                 <Button
                   size="lg"
                   variant="outline"
-                  className="h-auto w-full rounded-full border-white/20 bg-white/5 px-8 py-4 text-sm font-semibold text-white backdrop-blur-sm transition-all hover:border-white/35 hover:bg-white/10 sm:w-auto"
+                  className="h-auto w-full gap-2 rounded-full border-white/20 bg-white/5 px-8 py-4 text-sm font-semibold text-white backdrop-blur-sm transition-all hover:border-white/35 hover:bg-white/10 sm:w-auto"
                   render={<Link href="/guidelines" />}
                 >
                   <>
-                    <CheckCircle2 className="h-4 w-4" />
+                    <ShieldCheck className="h-4 w-4" />
                     Read guidelines
                   </>
                 </Button>

@@ -1293,28 +1293,20 @@ html[data-campaign="kindness-week"] {
 }
 
 /* ── Base toast shell ── */
-.sonner-toast {
+[data-sonner-toast] {
   font-family: var(--font-geist-sans), system-ui, sans-serif !important;
   font-size: 0.8125rem !important;
   line-height: 1.45 !important;
-  border-radius: 0.75rem !important;
   padding: 11px 14px !important;
   gap: 10px !important;
   min-width: 0 !important;
   max-width: 340px !important;
   width: min(calc(100vw - 1.5rem), 340px) !important;
-  border: 1px solid hsl(var(--border)) !important;
-  background: hsl(var(--card)) !important;
-  color: hsl(var(--card-foreground)) !important;
-  box-shadow:
-    0 1px 2px hsl(var(--foreground) / 0.04),
-    0 4px 16px -4px hsl(var(--foreground) / 0.10),
-    0 12px 32px -8px hsl(var(--foreground) / 0.07) !important;
   animation: toast-in 180ms cubic-bezier(0.16, 1, 0.3, 1) both !important;
 }
 
 /* ── Title ── */
-.sonner-title {
+[data-sonner-toast] [data-title] {
   font-size: 0.8125rem !important;
   font-weight: 600 !important;
   letter-spacing: -0.01em !important;
@@ -1323,60 +1315,59 @@ html[data-campaign="kindness-week"] {
 }
 
 /* ── Description ── */
-.sonner-description {
+[data-sonner-toast] [data-description] {
   font-size: 0.75rem !important;
   line-height: 1.45 !important;
-  color: hsl(var(--muted-foreground)) !important;
   margin-top: 1px !important;
 }
 
 /* ── Icon — inherits semantic colour from type overrides below ── */
-.sonner-toast [data-icon] svg {
+[data-sonner-toast] [data-icon] svg {
   width: 15px !important;
   height: 15px !important;
 }
 
 /* ── Type-specific left border accent + icon colour ── */
-[data-type="success"].sonner-toast {
+[data-type="success"][data-sonner-toast] {
   border-left: 3px solid hsl(var(--success)) !important;
 }
-[data-type="success"].sonner-toast [data-icon] {
+[data-type="success"][data-sonner-toast] [data-icon] {
   color: hsl(var(--success)) !important;
 }
 
-[data-type="error"].sonner-toast {
+[data-type="error"][data-sonner-toast] {
   border-left: 3px solid hsl(var(--destructive)) !important;
 }
-[data-type="error"].sonner-toast [data-icon] {
+[data-type="error"][data-sonner-toast] [data-icon] {
   color: hsl(var(--destructive)) !important;
 }
 
-[data-type="warning"].sonner-toast {
+[data-type="warning"][data-sonner-toast] {
   border-left: 3px solid hsl(var(--warning)) !important;
 }
-[data-type="warning"].sonner-toast [data-icon] {
+[data-type="warning"][data-sonner-toast] [data-icon] {
   color: hsl(var(--warning)) !important;
 }
 
-[data-type="info"].sonner-toast {
+[data-type="info"][data-sonner-toast] {
   border-left: 3px solid hsl(var(--accent)) !important;
 }
-[data-type="info"].sonner-toast [data-icon] {
+[data-type="info"][data-sonner-toast] [data-icon] {
   color: hsl(var(--accent)) !important;
 }
 
 /* ── Action button ── */
-.sonner-action {
-  border-radius: 6px !important;
+[data-sonner-toast] [data-button] {
+  border-radius: 8px !important;
   font-size: 0.75rem !important;
   font-weight: 600 !important;
-  padding: 3px 10px !important;
+  padding: 4px 12px !important;
   height: auto !important;
-  background: hsl(var(--foreground)) !important;
-  color: hsl(var(--background)) !important;
-  border: 1px solid hsl(var(--border)) !important;
-  transition: opacity 0.15s !important;
+  background: hsl(var(--accent)) !important;
+  color: hsl(var(--accent-foreground)) !important;
+  border: 1px solid hsl(var(--accent) / 0.3) !important;
+  transition: all 0.15s !important;
 }
-.sonner-action:hover {
-  opacity: 0.88 !important;
+[data-sonner-toast] [data-button]:hover {
+  background: hsl(var(--accent) / 0.9) !important;
 }

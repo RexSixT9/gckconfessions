@@ -239,10 +239,10 @@ export default function SubmitPage() {
           variant="ghost"
           size="sm"
           render={<Link href="/" />}
-          className="mb-6 shrink-0 gap-1.5 rounded-lg"
+          className="group mb-6 gap-2 rounded-xl border border-border/50 bg-background/50 px-4 py-2 backdrop-blur-sm transition-all hover:border-accent/40 hover:bg-accent/5"
         >
           <>
-            <ArrowLeft className="h-4 w-4" />
+            <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-0.5" />
             Back to home
           </>
         </Button>
@@ -344,7 +344,7 @@ export default function SubmitPage() {
                 <Separator />
 
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <Button type="submit" size="lg" className="h-10 w-full px-5 sm:w-auto" disabled={!canSubmit}>
+                  <Button type="submit" size="lg" className="h-auto w-full gap-2 rounded-xl px-6 py-3 text-sm font-semibold sm:w-auto" disabled={!canSubmit}>
                     {loading ? (
                       <>
                         <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground/40 border-t-primary-foreground" />

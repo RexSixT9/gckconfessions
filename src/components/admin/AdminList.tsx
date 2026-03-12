@@ -273,8 +273,7 @@ export default function AdminList() {
 
       try {
         await action();
-        setNotice({ type: "success", message: successMsg });
-        setTimeout(() => setNotice(null), 3000);
+        toast.success(successMsg);
         window.dispatchEvent(new Event("admin-data-updated"));
         void fetchItems({ silent: true });
       } catch (err) {
@@ -287,7 +286,7 @@ export default function AdminList() {
             return next;
           });
         }
-        setNotice({ type: "error", message: err instanceof Error ? err.message : "Action failed." });
+        toast.error(err instanceof Error ? err.message : "Action failed");
       } finally {
         setProcessingId(null);
       }
@@ -592,7 +591,7 @@ export default function AdminList() {
                           item._id,
                           (i) => ({ ...i, status: "approved" as const }),
                           () => patch(item._id, { status: "approved" }),
-                          "Approved.",
+                          "Confession approved",
                         )}
                         disabled={busy}
                       >
@@ -605,7 +604,7 @@ export default function AdminList() {
                           item._id,
                           (i) => ({ ...i, status: "rejected" as const, posted: false }),
                           () => patch(item._id, { status: "rejected" }),
-                          "Rejected.",
+                          "Confession rejected",
                         )}
                         disabled={busy}
                       >
@@ -622,7 +621,7 @@ export default function AdminList() {
                         item._id,
                         (i) => ({ ...i, posted: !i.posted }),
                         () => patch(item._id, { posted: !item.posted }),
-                        item.posted ? "Unshared." : "Shared to Instagram.",
+                        item.posted ? "Removed from public feed" : "Shared successfully",
                       )}
                       disabled={busy}
                     >

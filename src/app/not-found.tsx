@@ -48,23 +48,23 @@ export default function NotFoundPage() {
 
           <div className="mt-6 space-y-5">
             {autoRedirect && countdown > 0 && (
-              <div className="rounded-lg bg-muted/25 p-3 text-sm text-muted-foreground">
+              <div className="rounded-xl border border-border/60 bg-muted/25 p-3.5 text-sm text-muted-foreground">
                 Redirecting to home in <span className="font-semibold text-accent">{countdown}</span> second
                 {countdown !== 1 ? "s" : ""}.
                 <button
                   type="button"
                   onClick={() => setAutoRedirect(false)}
-                  className="ml-2 underline underline-offset-2 hover:text-foreground"
+                  className="ml-2 font-medium underline underline-offset-2 transition-colors hover:text-foreground"
                 >
                   Cancel
                 </button>
               </div>
             )}
 
-            <div className="flex flex-col gap-2.5 sm:flex-row sm:justify-center">
+            <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
               <Button
                 onClick={() => router.push("/")}
-                className="h-auto w-full rounded-full px-7 py-3.5 text-sm font-semibold sm:w-auto"
+                className="group h-auto w-full gap-2 rounded-xl px-6 py-3 text-sm font-semibold sm:w-auto"
               >
                 <Home className="h-4 w-4" />
                 Go home
@@ -72,9 +72,9 @@ export default function NotFoundPage() {
               <Button
                 variant="outline"
                 onClick={() => router.back()}
-                className="h-auto w-full rounded-lg border-border/70 bg-background px-7 py-3.5 text-sm hover:bg-background sm:w-auto"
+                className="group h-auto w-full gap-2 rounded-xl border-border/70 bg-background px-6 py-3 text-sm hover:border-accent/40 hover:bg-accent/5 sm:w-auto"
               >
-                <ArrowLeft className="h-4 w-4" />
+                <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-0.5" />
                 Go back
               </Button>
             </div>
