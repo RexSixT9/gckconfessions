@@ -17,12 +17,6 @@ const Footer = memo(function Footer() {
           >
             Privacy &amp; Guidelines
           </Link>
-          <Link
-            href="/what-happens-next"
-            className="rounded-sm text-muted-foreground transition-colors duration-200 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-          >
-            What Happens Next
-          </Link>
         </nav>
       </div>
     </footer>

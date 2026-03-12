@@ -18,7 +18,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { PageReveal } from "@/components/Reveal";
 
 const privacyPoints = [
@@ -38,12 +37,6 @@ const disallowed = [
   "Hate speech, slurs, and harassment.",
   "Doxxing, threats, and exposure of private details.",
   "Violent, sexual, illegal, or spam content.",
-];
-
-const moderationFlow = [
-  "Write and submit anonymously.",
-  "Automated checks scan for obvious abuse and personal identifiers.",
-  "A human moderator reviews and decides to publish or reject.",
 ];
 
 const privacyNotes = [
@@ -146,26 +139,6 @@ export default function GuidelinesClient() {
           </Card>
       </section>
 
-      <Card className="mt-6 border-border/70 shadow-none">
-        <CardHeader>
-          <CardTitle className="text-base">What happens next</CardTitle>
-          <CardDescription>Moderation flow after submission.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-3 text-sm text-muted-foreground">
-          {moderationFlow.map((step, index) => (
-            <p key={step}>
-              {index + 1}. {step}
-            </p>
-          ))}
-          <Separator />
-          <div className="flex flex-wrap gap-2">
-            <Button size="sm" render={<Link href="/submit" />}>Write a confession</Button>
-            <Button size="sm" variant="outline" render={<Link href="/what-happens-next" />}>
-              Open full flow
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
       </PageReveal>
     </main>
   );

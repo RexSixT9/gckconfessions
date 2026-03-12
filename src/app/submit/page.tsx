@@ -439,9 +439,6 @@ export default function SubmitPage() {
                       </>
                     )}
                   </Button>
-                  <Button variant="outline" render={<Link href="/what-happens-next" />}>
-                    What happens next
-                  </Button>
                 </div>
               </form>
             </CardContent>
