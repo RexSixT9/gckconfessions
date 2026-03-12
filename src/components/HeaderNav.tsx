@@ -1,101 +1,178 @@
 "use client";
 
+import { useState, useCallback } from "react";
 import Link from "next/link";
-import { Heart, Menu, PenLine, BookOpen } from "lucide-react";
+import { Heart, PenLine, BookOpen } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import ThemeToggle from "@/components/ThemeToggle";
 import AnnouncementBanner from "@/components/AnnouncementBanner";
-import { Button, buttonVariants } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-  SheetClose,
-} from "@/components/ui/sheet";
+import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/cn";
 
 const navLinks = [
   { href: "/guidelines", label: "Guidelines", icon: BookOpen },
 ];
 
-export default function HeaderNav() {
+/** Animated three-line hamburger that morphs into an × */
+function HamburgerIcon({ isOpen }: { isOpen: boolean }) {
   return (
-    <header className="sticky top-0 z-50 border-b border-border/60 bg-background/95 backdrop-blur-md supports-backdrop-filter:bg-background/80 animate-fade-in">
-      <AnnouncementBanner />
-      <div className="mx-auto flex h-14 w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+    <div className="relative flex h-3.25 w-4.5 flex-col justify-between" aria-hidden>
+      <motion.span
+        className="block h-[1.5px] w-full origin-center rounded-full bg-current"
+        animate={isOpen ? { rotate: 45, y: 6 } : { rotate: 0, y: 0 }}
+        transition={{ duration: 0.22, ease: [0.4, 0, 0.2, 1] }}
+      />
+      <motion.span
+        className="block h-[1.5px] rounded-full bg-current"
+        style={{ width: "70%" }}
+        animate={isOpen ? { opacity: 0, scaleX: 0 } : { opacity: 1, scaleX: 1 }}
+        transition={{ duration: 0.15, ease: "easeInOut" }}
+      />
+      <motion.span
+        className="block h-[1.5px] w-full origin-center rounded-full bg-current"
+        animate={isOpen ? { rotate: -45, y: -6 } : { rotate: 0, y: 0 }}
+        transition={{ duration: 0.22, ease: [0.4, 0, 0.2, 1] }}
+      />
+    </div>
+  );
+}
 
-        {/* Logo */}
-        <Link
-          href="/"
-          className="group flex items-center gap-2 rounded-lg px-1 py-1 text-foreground transition-all duration-200 hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-          aria-label="GCK Confessions Home"
-        >
-          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-accent shadow-sm">
-            <Heart className="h-3.5 w-3.5 text-accent-foreground" strokeWidth={2.5} />
-          </span>
-          <span className="text-sm font-semibold tracking-tight">
-            GCK Confessions
-          </span>
-        </Link>
+export default function HeaderNav() {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const closeMenu = useCallback(() => setMenuOpen(false), []);
 
-        {/* Desktop nav */}
-        <nav className="hidden items-center gap-1 sm:flex" aria-label="Main navigation">
-          {navLinks.map(({ href, label }) => (
+  return (
+    <>
+      <header className="sticky top-0 z-50 animate-fade-in">
+        <AnnouncementBanner />
+
+        {/* Floating pill wrapper */}
+        <div className="relative px-3 pb-1.5 pt-2 sm:px-4">
+          <div className="mx-auto flex max-w-5xl items-center justify-between rounded-2xl border border-border/50 bg-background/85 px-3.5 py-2.5 shadow-sm backdrop-blur-xl sm:px-5">
+
+            {/* Logo */}
             <Link
-              key={href}
-              href={href}
-              className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}
+              href="/"
+              className="group flex items-center gap-2 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+              aria-label="GCK Confessions Home"
             >
-              {label}
+              <motion.span
+                whileTap={{ scale: 0.88 }}
+                transition={{ duration: 0.12 }}
+                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-accent shadow-sm transition-shadow duration-200 group-hover:shadow-accent/30 group-hover:shadow-md"
+              >
+                <Heart className="h-3.5 w-3.5 text-accent-foreground" strokeWidth={2.5} />
+              </motion.span>
+              <span className="text-sm font-semibold tracking-tight">GCK Confessions</span>
             </Link>
-          ))}
-        </nav>
 
-        {/* Desktop actions */}
-        <div className="hidden items-center gap-2 sm:flex">
-          <Link href="/submit" className={cn(buttonVariants({ size: "sm" }), "rounded-full font-semibold")}>
-            <PenLine className="h-3.5 w-3.5" />
-            Write
-          </Link>
-          <ThemeToggle />
-        </div>
+            {/* Desktop nav */}
+            <nav className="hidden items-center gap-1 sm:flex" aria-label="Main navigation">
+              {navLinks.map(({ href, label }) => (
+                <Link
+                  key={href}
+                  href={href}
+                  className={cn(
+                    buttonVariants({ variant: "ghost", size: "sm" }),
+                    "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  {label}
+                </Link>
+              ))}
+            </nav>
 
-        {/* Mobile actions */}
-        <div className="flex items-center gap-1 sm:hidden">
-          <ThemeToggle />
-          <Sheet>
-            <SheetTrigger render={<button aria-label="Open navigation menu" />} className={cn(buttonVariants({ variant: "ghost", size: "icon" }))}>
-              <Menu className="h-4 w-4" />
-            </SheetTrigger>
-            <SheetContent side="right" className="w-72 p-0">
-              <SheetHeader className="p-5 pb-4">
-                <SheetTitle className="flex items-center gap-2 text-left">
-                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-accent">
-                    <Heart className="h-3.5 w-3.5 text-accent-foreground" strokeWidth={2.5} />
-                  </span>
-                  GCK Confessions
-                </SheetTitle>
-              </SheetHeader>
-              <Separator />
-              <nav className="flex flex-col gap-1 p-4" aria-label="Mobile navigation">
-                <SheetClose render={<Link href="/submit" />} className={cn(buttonVariants({ size: "default" }), "w-full justify-start rounded-lg font-semibold")}>
-                  <PenLine className="h-4 w-4" />
-                  Write a Confession
-                </SheetClose>
-                {navLinks.map(({ href, label, icon: Icon }) => (
-                  <SheetClose key={href} render={<Link href={href} />} className={cn(buttonVariants({ variant: "ghost" }), "w-full justify-start rounded-lg")}>
-                    <Icon className="h-4 w-4" />
-                    {label}
-                  </SheetClose>
+            {/* Desktop actions */}
+            <div className="hidden items-center gap-2 sm:flex">
+              <Link
+                href="/submit"
+                className={cn(buttonVariants({ size: "sm" }), "rounded-full gap-1.5 font-semibold")}
+              >
+                <PenLine className="h-3.5 w-3.5" />
+                Write
+              </Link>
+              <ThemeToggle />
+            </div>
+
+            {/* Mobile toggle */}
+            <div className="flex items-center gap-1 sm:hidden">
+              <ThemeToggle />
+              <button
+                aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"}
+                aria-expanded={menuOpen}
+                onClick={() => setMenuOpen((v) => !v)}
+                className={cn(buttonVariants({ variant: "ghost", size: "icon" }), "shrink-0")}
+              >
+                <HamburgerIcon isOpen={menuOpen} />
+              </button>
+            </div>
+          </div>
+
+          {/* Mobile dropdown — absolutely positioned below pill */}
+          <AnimatePresence>
+            {menuOpen && (
+              <motion.nav
+                key="mobile-nav"
+                role="navigation"
+                aria-label="Mobile navigation"
+                initial={{ opacity: 0, y: -8, scale: 0.97 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -8, scale: 0.97 }}
+                transition={{ duration: 0.18, ease: [0.4, 0, 0.2, 1] }}
+                className="absolute inset-x-3 top-full z-50 mt-1.5 overflow-hidden rounded-2xl border border-border/50 bg-background/97 p-2 shadow-xl backdrop-blur-xl sm:hidden"
+              >
+                {[
+                  { href: "/submit", label: "Write a Confession", icon: PenLine, primary: true },
+                  ...navLinks.map(({ href, label, icon }) => ({
+                    href,
+                    label,
+                    icon,
+                    primary: false,
+                  })),
+                ].map(({ href, label, icon: Icon, primary }, i) => (
+                  <motion.div
+                    key={href}
+                    initial={{ opacity: 0, x: -6 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.14, delay: i * 0.05 }}
+                  >
+                    <Link
+                      href={href}
+                      onClick={closeMenu}
+                      className={cn(
+                        buttonVariants({
+                          variant: primary ? "default" : "ghost",
+                          size: "default",
+                        }),
+                        "mb-1 w-full justify-start rounded-xl"
+                      )}
+                    >
+                      <Icon className="h-4 w-4" />
+                      {label}
+                    </Link>
+                  </motion.div>
                 ))}
-              </nav>
-            </SheetContent>
-          </Sheet>
+              </motion.nav>
+            )}
+          </AnimatePresence>
         </div>
+      </header>
 
-      </div>
-    </header>
+      {/* Click-away backdrop */}
+      <AnimatePresence>
+        {menuOpen && (
+          <motion.div
+            key="nav-backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            className="fixed inset-0 z-40 sm:hidden"
+            onClick={closeMenu}
+            aria-hidden
+          />
+        )}
+      </AnimatePresence>
+    </>
   );
 }
