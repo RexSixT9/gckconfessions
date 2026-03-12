@@ -1,18 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
 import { toast } from "sonner";
 import {
   ArrowLeft,
   CircleCheck,
-  Eye,
-  EyeOff,
-  Lock,
-  Music2,
   Send,
-  ShieldCheck,
   TriangleAlert,
 } from "lucide-react";
 
@@ -28,13 +22,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
-import { Toggle } from "@/components/ui/toggle";
-import { PageReveal, ScrollReveal } from "@/components/Reveal";
+import { PageReveal } from "@/components/Reveal";
 import { cn } from "@/lib/cn";
 
 const CHAR_LIMIT = 1000;
 const DRAFT_KEY = "gckconfessions:draft";
-const FIRST_VISIT_KEY = "gckconfessions:submit:first-visit";
 const OFFLINE_QUEUE_KEY = "gckconfessions:offline-queue";
 
 type DraftPayload = {
@@ -50,7 +42,6 @@ type SafetyCheck = {
 type ToneLevel = "low" | "medium" | "high";
 
 export default function SubmitPage() {
-  const confessionRef = useRef<HTMLTextAreaElement>(null);
   const [message, setMessage] = useState("");
   const [music, setMusic] = useState("");
   const [website, setWebsite] = useState("");
@@ -58,8 +49,6 @@ export default function SubmitPage() {
   const [hasDraft, setHasDraft] = useState(false);
   const [draftError, setDraftError] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [firstVisit, setFirstVisit] = useState(false);
-  const [focusMode, setFocusMode] = useState(false);
 
   const queueOfflineSubmission = useCallback((payload: DraftPayload) => {
     try {
@@ -159,16 +148,6 @@ export default function SubmitPage() {
   }, [saveDraft]);
 
   useEffect(() => {
-    try {
-      if (!localStorage.getItem(FIRST_VISIT_KEY)) {
-        setFirstVisit(true);
-      }
-    } catch {
-      setFirstVisit(false);
-    }
-  }, []);
-
-  useEffect(() => {
     const handleOnline = () => {
       void syncOfflineQueue();
     };
@@ -178,11 +157,6 @@ export default function SubmitPage() {
 
     return () => window.removeEventListener("online", handleOnline);
   }, [syncOfflineQueue]);
-
-  useEffect(() => {
-    if (!focusMode) return;
-    confessionRef.current?.focus({ preventScroll: true });
-  }, [focusMode]);
 
   const clearDraft = useCallback(() => {
     try {
@@ -302,34 +276,13 @@ export default function SubmitPage() {
   );
 
   const guidanceText = useMemo(() => {
-    if (charCount < 30) return "Add a bit more context so moderators understand your story.";
-    if (charCount > CHAR_LIMIT * 0.9) return "You are close to the character limit. Keep only essentials.";
-    return "Balanced length. Clear confessions are reviewed faster.";
+    if (charCount < 30) return "Add a bit more context for faster review.";
+    if (charCount > CHAR_LIMIT * 0.9) return "You are near the limit. Keep only what matters.";
+    return "Looks good. Keep it clear and anonymous.";
   }, [charCount]);
 
   const checksPassed = safetyChecks.every((check) => check.ok);
   const canSubmit = Boolean(message.trim()) && checksPassed && toneLevel !== "high" && !loading;
-  const finalReviewItems = [
-    {
-      ok: charCount >= 30,
-      label: "Enough context for moderation",
-      detail:
-        charCount >= 30 ? "Your message gives moderators enough to understand." : "Add a little more detail before sending.",
-    },
-    {
-      ok: checksPassed,
-      label: "No direct identifiers detected",
-      detail: "Phone numbers, personal emails, and external links should stay out.",
-    },
-    {
-      ok: toneLevel !== "high",
-      label: "Tone is within review limits",
-      detail:
-        toneLevel === "medium"
-          ? "A few words may read harsh. Softening them can help."
-          : "Respectful wording moves through review faster.",
-    },
-  ];
 
   const toneStyle =
     toneLevel === "high"
@@ -340,7 +293,7 @@ export default function SubmitPage() {
 
   return (
     <main className="flex-1 bg-background">
-      <PageReveal className="mx-auto w-full max-w-5xl px-4 pb-16 pt-8 sm:px-6 sm:pt-12">
+      <PageReveal className="mx-auto w-full max-w-3xl px-4 pb-16 pt-8 sm:px-6 sm:pt-12">
         <Button
           variant="ghost"
           size="sm"
@@ -353,37 +306,15 @@ export default function SubmitPage() {
           </>
         </Button>
 
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-start">
-          <ScrollReveal>
-            <Card className={cn("border-border/70 shadow-none", focusMode && "border-accent/25")}>
-            <CardHeader className="gap-4 border-b border-border/70 pb-5">
-              <div className="space-y-2">
-                <CardTitle className="text-2xl font-semibold tracking-tight sm:text-3xl">
-                  Share your confession
-                </CardTitle>
-                <CardDescription className="max-w-2xl">
-                  A quiet, anonymous form. Write clearly, avoid personal details, and a moderator will review it before anything is published.
-                </CardDescription>
-              </div>
-
-              <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                <span className="inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5">
-                  <Lock className="h-3.5 w-3.5" />
-                  Anonymous by default
-                </span>
-                <span className="inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5">
-                  <ShieldCheck className="h-3.5 w-3.5" />
-                  Human reviewed
-                </span>
-                <span className="inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5">
-                  <Music2 className="h-3.5 w-3.5" />
-                  Music tag optional
-                </span>
-              </div>
-            </CardHeader>
-
-            <CardContent className="pt-6">
-              <form onSubmit={onSubmit} className="space-y-6">
+        <Card className="border-border/70 shadow-none">
+          <CardHeader>
+            <CardTitle className="text-2xl font-semibold tracking-tight">Share your confession</CardTitle>
+            <CardDescription>
+              Keep it anonymous and clear. A moderator reviews every submission before publishing.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={onSubmit} className="space-y-6">
                 <input
                   type="text"
                   name="website"
@@ -395,7 +326,7 @@ export default function SubmitPage() {
                   aria-hidden="true"
                 />
 
-                <div className="space-y-2.5">
+                <div className="space-y-2">
                   <div className="flex items-center justify-between gap-3">
                     <Label htmlFor="confession" className="text-sm font-medium">
                       Your confession
@@ -410,24 +341,19 @@ export default function SubmitPage() {
                     </span>
                   </div>
                   <Textarea
-                    ref={confessionRef}
                     id="confession"
                     name="confession"
                     value={message}
                     onChange={(event) => setMessage(event.target.value)}
                     maxLength={CHAR_LIMIT}
-                    rows={focusMode ? 14 : 10}
-                    className={cn(
-                      "min-h-56 resize-none border-border/70 bg-background text-sm leading-6 shadow-none",
-                      focusMode && "border-accent/30"
-                    )}
+                    rows={10}
+                    className="min-h-52 resize-none border-border/70 bg-background text-sm leading-6 shadow-none"
                     placeholder="What has been on your mind?"
                   />
                   <p className="text-xs text-muted-foreground">{guidanceText}</p>
                 </div>
 
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="space-y-2.5">
+                <div className="space-y-2">
                     <Label htmlFor="music" className="text-sm font-medium">
                       Song for this confession
                     </Label>
@@ -440,85 +366,44 @@ export default function SubmitPage() {
                       placeholder="Artist - Song"
                       className="h-10 border-border/70 bg-background shadow-none"
                     />
-                    <p className="text-xs text-muted-foreground">Optional. Keep it short and recognizable.</p>
-                  </div>
-
-                  <div className="space-y-2.5">
-                    <Label className="text-sm font-medium">Writing view</Label>
-                    <Toggle
-                      pressed={focusMode}
-                      onPressedChange={setFocusMode}
-                      variant="outline"
-                      size="lg"
-                      className="h-10 w-full justify-start gap-2 border-border/70 px-3 text-sm font-medium hover:bg-background"
-                    >
-                      {focusMode ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                      {focusMode ? "Focused editor enabled" : "Focused editor disabled"}
-                    </Toggle>
-                    <p className="text-xs text-muted-foreground">A calmer layout with fewer visual distractions.</p>
-                  </div>
+                    <p className="text-xs text-muted-foreground">Optional.</p>
                 </div>
 
-                <div className="rounded-2xl border border-accent/20 bg-linear-to-br from-accent/10 via-background to-background p-4 shadow-[0_18px_50px_-30px_hsl(var(--accent)/0.45)] sm:p-5">
-                  <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                    <div className="space-y-1">
-                      <p className="text-sm font-semibold text-foreground">Final check before submit</p>
-                      <p className="text-xs text-muted-foreground">
-                        This is the last pass before your confession enters the moderation queue.
-                      </p>
-                    </div>
-                    <span
-                      className={cn(
-                        "inline-flex w-fit items-center rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.2em]",
-                        canSubmit
-                          ? "bg-success/12 text-success"
-                          : "bg-muted text-muted-foreground"
-                      )}
-                    >
-                      {canSubmit ? "Ready" : "Needs review"}
-                    </span>
-                  </div>
-
-                  <div className="mt-4 grid gap-3 md:grid-cols-3">
-                    {finalReviewItems.map((item) => (
-                      <div
-                        key={item.label}
-                        className={cn(
-                          "rounded-xl border px-3.5 py-3",
-                          item.ok
-                            ? "border-success/30 bg-success/5"
-                            : "border-border/70 bg-background/80"
+                <Card className="border-border/70 shadow-none">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-base">Before submit</CardTitle>
+                    <CardDescription>Quick checks for safer publishing.</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    {safetyChecks.map((check) => (
+                      <div key={check.label} className="flex items-center gap-2 text-sm">
+                        {check.ok ? (
+                          <CircleCheck className="h-4 w-4 text-success" />
+                        ) : (
+                          <TriangleAlert className="h-4 w-4 text-destructive" />
                         )}
-                      >
-                        <div className="flex items-start gap-2.5">
-                          {item.ok ? (
-                            <CircleCheck className="mt-0.5 h-4 w-4 shrink-0 text-success" />
-                          ) : (
-                            <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0 text-warning" />
-                          )}
-                          <div className="space-y-1">
-                            <p className="text-sm font-medium text-foreground">{item.label}</p>
-                            <p className="text-xs leading-5 text-muted-foreground">{item.detail}</p>
-                          </div>
-                        </div>
+                        <span className={check.ok ? "text-foreground" : "text-destructive"}>{check.label}</span>
                       </div>
                     ))}
-                  </div>
-                </div>
+                    <div className="flex items-center justify-between pt-1 text-sm">
+                      <span className="text-muted-foreground">Tone signal</span>
+                      <span className={cn("text-xs font-semibold uppercase", toneStyle)}>{toneLevel}</span>
+                    </div>
+                  </CardContent>
+                </Card>
 
-                <div className="space-y-4 rounded-2xl border border-border/70 bg-muted/20 p-4 shadow-none">
+                <div className="rounded-lg border border-border/70 p-4">
                   <div className="flex flex-wrap items-center justify-between gap-3">
-                    <div>
-                      <p className="text-sm font-medium">Draft and submit</p>
+                    <div className="space-y-1">
+                      <p className="text-sm font-medium">Draft</p>
                       <p className="text-xs text-muted-foreground">
                         {draftError
                           ? "Local storage is unavailable on this device."
                           : hasDraft && saveDraft
-                            ? "Your draft is stored locally on this device."
-                            : "Auto-save is available while you write."}
+                            ? "Draft saved on this device."
+                            : "Auto-save available while you write."}
                       </p>
                     </div>
-
                     <div className="flex items-center gap-2">
                       <Button
                         type="button"
@@ -536,104 +421,31 @@ export default function SubmitPage() {
                       )}
                     </div>
                   </div>
+                </div>
 
-                  <Separator />
+                <Separator />
 
-                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="space-y-1">
-                      <p className="text-sm font-medium">Ready for review</p>
-                      <p className="text-xs text-muted-foreground">
-                        Only clear, non-identifying confessions move through moderation quickly.
-                      </p>
-                    </div>
-                    <Button type="submit" size="lg" className="h-10 px-5" disabled={!canSubmit}>
-                      {loading ? (
-                        <>
-                          <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground/40 border-t-primary-foreground" />
-                          Sending...
-                        </>
-                      ) : (
-                        <>
-                          <Send className="h-4 w-4" />
-                          Submit confession
-                        </>
-                      )}
-                    </Button>
-                  </div>
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <Button type="submit" size="lg" className="h-10 px-5" disabled={!canSubmit}>
+                    {loading ? (
+                      <>
+                        <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground/40 border-t-primary-foreground" />
+                        Sending...
+                      </>
+                    ) : (
+                      <>
+                        <Send className="h-4 w-4" />
+                        Submit confession
+                      </>
+                    )}
+                  </Button>
+                  <Button variant="outline" render={<Link href="/what-happens-next" />}>
+                    What happens next
+                  </Button>
                 </div>
               </form>
             </CardContent>
-            </Card>
-          </ScrollReveal>
-
-          <div className="space-y-4">
-            {firstVisit && (
-              <ScrollReveal delay={0.05}>
-                <Card className="border-border/70 shadow-none">
-                <CardHeader>
-                  <CardTitle className="text-base font-medium">Before you submit</CardTitle>
-                  <CardDescription>
-                    We do not ask for your name or account. Drafts stay on your device.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-3 text-sm text-muted-foreground">
-                  <div className="flex items-center gap-2">
-                    <CircleCheck className="h-4 w-4 text-success" />
-                    <span>Every post is reviewed by a human moderator.</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <CircleCheck className="h-4 w-4 text-success" />
-                    <span>Avoid names, phone numbers, links, and personal email addresses.</span>
-                  </div>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      localStorage.setItem(FIRST_VISIT_KEY, "seen");
-                      setFirstVisit(false);
-                    }}
-                  >
-                    Dismiss
-                  </Button>
-                </CardContent>
-                </Card>
-              </ScrollReveal>
-            )}
-
-            <ScrollReveal delay={0.1}>
-              <Card className="border-border/70 shadow-none">
-              <CardHeader>
-                <CardTitle className="text-base font-medium">What happens next</CardTitle>
-                <CardDescription>Your confession moves through a short moderation flow before it can appear publicly.</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="rounded-xl border border-border/70 bg-background/70 p-3">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Current tone signal</span>
-                    <span className={cn("text-xs font-semibold uppercase", toneStyle)}>{toneLevel}</span>
-                  </div>
-                </div>
-                <Separator />
-                <div className="space-y-3">
-                  {[
-                    "Automated filters block obvious identifiers and spam.",
-                    "A human moderator checks context, tone, and publishability.",
-                    "Approved confessions are posted without author details.",
-                  ].map((step, index) => (
-                    <div key={step} className="flex items-start gap-3 text-sm">
-                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent/12 text-[11px] font-semibold text-accent">
-                        0{index + 1}
-                      </span>
-                      <p className="leading-6 text-muted-foreground">{step}</p>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-              </Card>
-            </ScrollReveal>
-          </div>
-        </div>
+        </Card>
       </PageReveal>
     </main>
   );
