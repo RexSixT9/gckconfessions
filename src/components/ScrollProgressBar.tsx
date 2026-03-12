@@ -1,13 +1,15 @@
 "use client";
 
-import { motion, useScroll, useSpring } from "framer-motion";
+import { motion, useReducedMotion, useScroll, useSpring } from "framer-motion";
 
 export default function ScrollProgressBar() {
   const { scrollYProgress } = useScroll();
+  const prefersReducedMotion = useReducedMotion();
   const scaleX = useSpring(scrollYProgress, {
-    stiffness: 220,
-    damping: 34,
-    mass: 0.16,
+    stiffness: prefersReducedMotion ? 1000 : 190,
+    damping: prefersReducedMotion ? 100 : 30,
+    mass: prefersReducedMotion ? 0.3 : 0.18,
+    restDelta: 0.001,
   });
 
   return (
@@ -18,9 +20,9 @@ export default function ScrollProgressBar() {
       }}
       aria-hidden
     >
-      <div className="h-1 bg-accent/10 backdrop-blur-sm">
+      <div className="h-0.5 bg-border/40">
         <motion.div
-          className="h-full origin-left bg-linear-to-r from-pink-400 via-accent to-rose-500 shadow-[0_0_20px_hsl(var(--accent)/0.55)]"
+          className="h-full origin-left transform-gpu bg-foreground/85 will-change-transform"
           style={{ scaleX }}
         />
       </div>

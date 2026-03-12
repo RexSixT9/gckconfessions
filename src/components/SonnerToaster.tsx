@@ -33,10 +33,6 @@ export function SonnerToaster() {
           description: "sonner-description",
           closeButton: "sonner-close",
           actionButton: "sonner-action",
-          success: "sonner-success",
-          error: "sonner-error",
-          warning: "sonner-warning",
-          info: "sonner-info",
         },
       }}
     />

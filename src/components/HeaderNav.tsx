@@ -67,8 +67,6 @@ export default function HeaderNav() {
       >
         <div className="relative px-3 pb-1.5 pt-2 sm:px-4">
           <div className="relative mx-auto flex max-w-5xl items-center justify-between overflow-hidden rounded-2xl border border-border/60 bg-background/90 px-3.5 py-2.5 shadow-sm backdrop-blur-xl sm:px-5">
-            <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-accent/70" />
-
             {/* Logo */}
             <Link
               href="/"

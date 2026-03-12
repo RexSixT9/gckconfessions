@@ -28,11 +28,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
+  CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import TypewriterText from "@/components/TypewriterText";
+import { ScrollReveal } from "@/components/Reveal";
 import { useMotionRuntime } from "@/components/MotionProvider";
 import { cn } from "@/lib/cn";
 
@@ -97,6 +99,31 @@ const mockConfessions = [
   "Sometimes I reread our old messages just to feel close to you again.",
   "I got the scholarship but never told anyone — I was afraid of expectations.",
   "I cry in the shower so nobody hears how much I'm struggling.",
+];
+
+const principles = [
+  {
+    title: "Private By Default",
+    description: "No signup flow, no public profile, no social exposure.",
+    icon: Lock,
+  },
+  {
+    title: "Moderation With Care",
+    description: "Posts are reviewed to protect the community from harm.",
+    icon: ShieldCheck,
+  },
+  {
+    title: "Built For Clarity",
+    description: "Minimal UI, fast interactions, and focus on your words.",
+    icon: Sparkles,
+  },
+];
+
+const quickFacts = [
+  { label: "No account needed", value: "Always" },
+  { label: "Submission speed", value: "< 60s" },
+  { label: "Review model", value: "Human" },
+  { label: "Visibility", value: "Anonymous" },
 ];
 
 /* ─── 3D tilt card wrapper ───────────────────────────────────────── */
@@ -344,10 +371,7 @@ export default function HomePage() {
   return (
     <main className="flex-1 bg-background">
       {/* ── Hero ──────────────────────────────────────────────────────── */}
-      <section
-        className="relative flex flex-col overflow-hidden"
-        style={{ minHeight: "calc(100dvh - var(--header-height))" }}
-      >
+      <section className="relative flex min-h-[calc(100svh-var(--header-height))] flex-col overflow-hidden sm:min-h-[calc(100dvh-var(--header-height))]">
         {/* Mesh gradient orbs */}
         <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
           {/* Primary large orb — top-right */}
@@ -541,12 +565,11 @@ export default function HomePage() {
       <section id="highlights" className="mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
         <div className="grid gap-4 sm:grid-cols-3">
           {highlights.map(({ title, description, icon: Icon, iconBg, iconColor }, index) => (
-            <motion.div
+            <ScrollReveal
               key={title}
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-80px" }}
-              transition={{ duration: 0.48, delay: index * 0.1, ease: [0.16, 1, 0.3, 1] }}
+              delay={index * 0.06}
+              y={16}
+              duration={0.4}
             >
               <Card className="group h-full border-border/50 bg-card/50 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-accent/30 hover:shadow-lg hover:shadow-accent/5">
                 <CardHeader>
@@ -557,8 +580,60 @@ export default function HomePage() {
                   <CardDescription>{description}</CardDescription>
                 </CardHeader>
               </Card>
-            </motion.div>
+            </ScrollReveal>
           ))}
+        </div>
+      </section>
+
+      {/* ── Principles + Quick Facts ───────────────────────────────── */}
+      <section className="mx-auto w-full max-w-7xl px-4 py-4 sm:px-6 sm:py-6 lg:px-8">
+        <div className="grid gap-4 lg:grid-cols-2">
+          <div className="grid gap-4">
+            {principles.map(({ title, description, icon: Icon }, index) => (
+              <ScrollReveal key={title} delay={index * 0.05} y={14} duration={0.36}>
+                <Card className="border-border/60 bg-card/70 backdrop-blur-sm">
+                  <CardHeader className="flex flex-row items-start gap-3 space-y-0">
+                    <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-secondary text-foreground/80">
+                      <Icon className="h-4 w-4" />
+                    </span>
+                    <div>
+                      <CardTitle className="text-sm font-semibold sm:text-base">{title}</CardTitle>
+                      <CardDescription className="mt-1 text-xs sm:text-sm">{description}</CardDescription>
+                    </div>
+                  </CardHeader>
+                </Card>
+              </ScrollReveal>
+            ))}
+          </div>
+
+          <ScrollReveal y={14} duration={0.38}>
+            <Card className="h-full border-border/60 bg-card/70 backdrop-blur-sm">
+              <CardHeader>
+                <Badge variant="outline" className="w-fit">Quick facts</Badge>
+                <CardTitle className="text-lg font-bold tracking-tight">Simple, clear, and safe.</CardTitle>
+                <CardDescription>
+                  Everything is designed to keep the experience quiet, fast, and anonymous.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 gap-3">
+                  {quickFacts.map((fact) => (
+                    <div
+                      key={fact.label}
+                      className="rounded-xl border border-border/70 bg-background/70 p-3"
+                    >
+                      <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                        {fact.label}
+                      </p>
+                      <p className="mt-1 text-base font-semibold tracking-tight text-foreground">
+                        {fact.value}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </ScrollReveal>
         </div>
       </section>
 
@@ -593,12 +668,11 @@ export default function HomePage() {
           />
 
           {steps.map(({ step, title, description, icon: Icon }, index) => (
-            <motion.div
+            <ScrollReveal
               key={step}
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-60px" }}
-              transition={{ duration: 0.48, delay: index * 0.12, ease: [0.16, 1, 0.3, 1] }}
+              delay={index * 0.08}
+              y={16}
+              duration={0.4}
             >
               <Card className="group relative h-full overflow-hidden border-border/50 transition-all duration-300 hover:-translate-y-1 hover:border-accent/30 hover:shadow-lg hover:shadow-accent/5">
                 <CardHeader>
@@ -614,7 +688,7 @@ export default function HomePage() {
                   <CardDescription>{description}</CardDescription>
                 </CardHeader>
               </Card>
-            </motion.div>
+            </ScrollReveal>
           ))}
         </div>
       </section>

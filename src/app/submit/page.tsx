@@ -5,9 +5,7 @@ import Link from "next/link";
 import { toast } from "sonner";
 import {
   ArrowLeft,
-  CircleCheck,
   Send,
-  TriangleAlert,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -33,13 +31,6 @@ type DraftPayload = {
   message?: string;
   music?: string;
 };
-
-type SafetyCheck = {
-  ok: boolean;
-  label: string;
-};
-
-type ToneLevel = "low" | "medium" | "high";
 
 export default function SubmitPage() {
   const [message, setMessage] = useState("");
@@ -186,30 +177,6 @@ export default function SubmitPage() {
       event.preventDefault();
       if (loading) return;
 
-      const pendingSafety = [
-        /\b\d{10,}\b/.test(message),
-        /@\w+\.\w+/.test(message),
-        /(https?:\/\/|www\.)/i.test(message),
-      ].some(Boolean);
-
-      if (pendingSafety) {
-        toast.error("Safety check failed", {
-          description: "Please remove phone numbers, links, or personal identifiers.",
-        });
-        return;
-      }
-
-      const lower = message.toLowerCase();
-      const strongWords = ["hate", "kill", "worthless", "stupid", "die"];
-      const toneHits = strongWords.filter((word) => lower.includes(word)).length;
-
-      if (toneHits >= 2) {
-        toast.error("Tone risk too high", {
-          description: "Please soften hostile wording before submitting.",
-        });
-        return;
-      }
-
       setLoading(true);
       try {
         if (!navigator.onLine) {
@@ -257,39 +224,13 @@ export default function SubmitPage() {
 
   const charCount = useMemo(() => message.length, [message]);
 
-  const toneLevel: ToneLevel = useMemo(() => {
-    const lower = message.toLowerCase();
-    const strongWords = ["hate", "kill", "worthless", "stupid", "die"];
-    const hits = strongWords.filter((w) => lower.includes(w)).length;
-    if (hits >= 2) return "high";
-    if (hits === 1) return "medium";
-    return "low";
-  }, [message]);
-
-  const safetyChecks: SafetyCheck[] = useMemo(
-    () => [
-      { ok: !/\b\d{10,}\b/.test(message), label: "No phone numbers" },
-      { ok: !/@\w+\.\w+/.test(message), label: "No personal email" },
-      { ok: !/(https?:\/\/|www\.)/i.test(message), label: "No external links" },
-    ],
-    [message]
-  );
-
   const guidanceText = useMemo(() => {
     if (charCount < 30) return "Add a bit more context for faster review.";
     if (charCount > CHAR_LIMIT * 0.9) return "You are near the limit. Keep only what matters.";
     return "Looks good. Keep it clear and anonymous.";
   }, [charCount]);
 
-  const checksPassed = safetyChecks.every((check) => check.ok);
-  const canSubmit = Boolean(message.trim()) && checksPassed && toneLevel !== "high" && !loading;
-
-  const toneStyle =
-    toneLevel === "high"
-      ? "text-destructive"
-      : toneLevel === "medium"
-        ? "text-warning"
-        : "text-success";
+  const canSubmit = Boolean(message.trim()) && !loading;
 
   return (
     <main className="flex-1 bg-background">
@@ -368,29 +309,6 @@ export default function SubmitPage() {
                     />
                     <p className="text-xs text-muted-foreground">Optional.</p>
                 </div>
-
-                <Card className="border-border/70 shadow-none">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-base">Before submit</CardTitle>
-                    <CardDescription>Quick checks for safer publishing.</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-2">
-                    {safetyChecks.map((check) => (
-                      <div key={check.label} className="flex items-center gap-2 text-sm">
-                        {check.ok ? (
-                          <CircleCheck className="h-4 w-4 text-success" />
-                        ) : (
-                          <TriangleAlert className="h-4 w-4 text-destructive" />
-                        )}
-                        <span className={check.ok ? "text-foreground" : "text-destructive"}>{check.label}</span>
-                      </div>
-                    ))}
-                    <div className="flex items-center justify-between pt-1 text-sm">
-                      <span className="text-muted-foreground">Tone signal</span>
-                      <span className={cn("text-xs font-semibold uppercase", toneStyle)}>{toneLevel}</span>
-                    </div>
-                  </CardContent>
-                </Card>
 
                 <div className="rounded-lg border border-border/70 p-4">
                   <div className="flex flex-wrap items-center justify-between gap-3">

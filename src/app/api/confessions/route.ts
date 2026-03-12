@@ -7,7 +7,7 @@ import { writeAuditLog } from "@/lib/audit";
 import { isbot } from "isbot";
 import { verifyAdminToken } from "@/lib/auth";
 import { COOKIE_NAME } from "@/lib/constants";
-import { filterProfanity, sanitizeText } from "@/lib/moderation";
+import { filterProfanity, sanitizeText, validateConfessionSubmission } from "@/lib/moderation";
 import { getRequestFingerprint, isSameOrigin } from "@/lib/requestUtils";
 import {
   checkSubmissionBurstLimit,
@@ -293,9 +293,10 @@ export async function POST(request: Request) {
     const music = sanitizeText(rawMusic, MAX_MUSIC_LENGTH);
     const moderated = filterProfanity(message);
 
-    if (!message) {
+    const validation = validateConfessionSubmission(message);
+    if (!validation.valid) {
       return NextResponse.json(
-        { error: "Confession message is required." },
+        { error: validation.error ?? "Submission rejected." },
         { status: 400 }
       );
     }

@@ -28,3 +28,36 @@ export function validatePasswordPolicy(password: string) {
 
   return minLength && hasUpper && hasLower && hasNumber && hasSpecial;
 }
+
+type SubmissionValidationResult = {
+  valid: boolean;
+  error?: string;
+};
+
+const STRONG_TONE_WORDS = ["hate", "kill", "worthless", "stupid", "die"];
+
+export function validateConfessionSubmission(rawMessage: string): SubmissionValidationResult {
+  const message = String(rawMessage ?? "");
+
+  if (!message.trim()) {
+    return { valid: false, error: "Confession message is required." };
+  }
+
+  if (/\b\d{10,}\b/.test(message) || /@\w+\.\w+/.test(message) || /(https?:\/\/|www\.)/i.test(message)) {
+    return {
+      valid: false,
+      error: "Please remove phone numbers, links, or personal identifiers.",
+    };
+  }
+
+  const lower = message.toLowerCase();
+  const toneHits = STRONG_TONE_WORDS.filter((word) => lower.includes(word)).length;
+  if (toneHits >= 2) {
+    return {
+      valid: false,
+      error: "Please soften hostile wording before submitting.",
+    };
+  }
+
+  return { valid: true };
+}
