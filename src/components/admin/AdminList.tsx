@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "sonner";
 import CursorGlowCard from "@/components/CursorGlowCard";
 import {
   Search,
@@ -123,7 +124,6 @@ export default function AdminList() {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
-  const etagRef = useRef<string | null>(null);
   const inFlightRef = useRef(false);
 
   const router = useRouter();
@@ -135,12 +135,11 @@ export default function AdminList() {
     if (page > totalPages && totalPages > 0) setPage(totalPages);
   }, [page, totalPages]);
 
-  const fetchItems = useCallback(async (options?: { silent?: boolean; revalidate?: boolean }) => {
+  const fetchItems = useCallback(async (options?: { silent?: boolean }) => {
     if (inFlightRef.current) return;
     inFlightRef.current = true;
 
     const silent = Boolean(options?.silent);
-    const revalidate = Boolean(options?.revalidate);
 
     if (silent) {
       setRefreshing(true);
@@ -158,16 +157,10 @@ export default function AdminList() {
       params.set("page", String(page));
       params.set("limit", String(PAGE_SIZE));
 
-      const headers: HeadersInit = {};
-      if (revalidate && etagRef.current) {
-        headers["If-None-Match"] = etagRef.current;
-      }
-
       const response = await fetch(`/api/confessions?${params.toString()}`, {
         method: "GET",
         cache: "no-store",
         credentials: "same-origin",
-        headers,
       });
 
       if (response.status === 401) {
@@ -175,14 +168,9 @@ export default function AdminList() {
         return;
       }
 
-      if (response.status === 304) {
-        return;
-      }
-
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Failed to load.");
 
-      etagRef.current = response.headers.get("etag");
       setItems(data.confessions ?? []);
       setTotalCount(data.total ?? 0);
       setTotalPages(data.totalPages ?? 1);
@@ -205,12 +193,12 @@ export default function AdminList() {
   useEffect(() => {
     const onVisibilityOrFocus = () => {
       if (document.visibilityState !== "visible") return;
-      void fetchItems({ silent: true, revalidate: true });
+      void fetchItems({ silent: true });
     };
 
     const interval = window.setInterval(() => {
       if (document.visibilityState !== "visible") return;
-      void fetchItems({ silent: true, revalidate: true });
+      void fetchItems({ silent: true });
     }, REALTIME_POLL_MS);
 
     window.addEventListener("focus", onVisibilityOrFocus);
@@ -337,8 +325,7 @@ export default function AdminList() {
           const d = (await res.json().catch(() => ({}))) as { error?: string };
           throw new Error(d.error ?? "Delete failed.");
         }
-        setNotice({ type: "success", message: "Deleted." });
-        setTimeout(() => setNotice(null), 3000);
+        toast.success("Deleted successfully");
         window.dispatchEvent(new Event("admin-data-updated"));
         void fetchItems({ silent: true });
       } catch (err) {

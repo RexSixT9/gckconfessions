@@ -2,16 +2,15 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { AlertCircle, ArrowRight, CheckCircle2, Loader, ShieldCheck, Mail, Eye, EyeOff, KeyRound } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { ArrowRight, Loader, ShieldCheck, Mail, Eye, EyeOff, KeyRound } from "lucide-react";
+import { motion } from "framer-motion";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { PageReveal } from "@/components/Reveal";
 
-
-type Notice = { type: "error" | "success"; message: string } | null;
 const MIN_PASSWORD_LENGTH = 12;
 
 function isValidEmail(email: string): boolean {
@@ -23,7 +22,6 @@ export default function AdminLoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [notice, setNotice] = useState<Notice>(null);
   const [loading, setLoading] = useState(false);
   const [isChecking, setIsChecking] = useState(true);
 
@@ -58,17 +56,19 @@ export default function AdminLoginPage() {
     event.preventDefault();
     if (loading) return;
 
-    setNotice(null);
-
     const normalizedEmail = email.trim().toLowerCase();
 
     if (!isValidEmail(normalizedEmail)) {
-      setNotice({ type: "error", message: "Enter a valid admin email address." });
+      toast.error("Sign-in failed", {
+        description: "Enter a valid admin email address.",
+      });
       return;
     }
 
     if (password.length < MIN_PASSWORD_LENGTH) {
-      setNotice({ type: "error", message: `Password must be at least ${MIN_PASSWORD_LENGTH} characters.` });
+      toast.error("Sign-in failed", {
+        description: `Password must be at least ${MIN_PASSWORD_LENGTH} characters.`,
+      });
       return;
     }
 
@@ -91,17 +91,18 @@ export default function AdminLoginPage() {
       // Clear sensitive data from memory
       setPassword("");
 
-      setNotice({ type: "success", message: "Signed in. Redirecting..." });
+      toast.success("Signed in", {
+        description: "Redirecting to admin dashboard...",
+      });
       setTimeout(() => {
         router.push("/admin");
-      }, 1000);
+      }, 300);
     } catch (error) {
       // Clear password on error for security
       setPassword("");
 
-      setNotice({
-        type: "error",
-        message: error instanceof Error ? error.message : "Sign-in failed. Try again.",
+      toast.error("Sign-in failed", {
+        description: error instanceof Error ? error.message : "Sign-in failed. Try again.",
       });
     } finally {
       setLoading(false);
@@ -146,30 +147,6 @@ export default function AdminLoginPage() {
         {/* Card */}
         <Card className="border-shine border shadow-sm">
           <CardContent className="p-6 sm:p-8">
-            {/* Notice */}
-            <AnimatePresence mode="wait">
-              {notice && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10, height: 0 }}
-                  animate={{ opacity: 1, y: 0, height: "auto" }}
-                  exit={{ opacity: 0, y: -10, height: 0 }}
-                  transition={{ duration: 0.3 }}
-                  className={`mb-5 flex items-start gap-3 rounded-lg border px-4 py-3 text-sm ${
-                    notice.type === "error"
-                      ? "border-destructive/30 bg-destructive/8 text-destructive"
-                      : "border-green-500/30 bg-green-500/8 text-green-700 dark:text-green-400"
-                  }`}
-                >
-                  {notice.type === "error" ? (
-                    <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
-                  ) : (
-                    <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
-                  )}
-                  <p>{notice.message}</p>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
             <form className="space-y-5" onSubmit={handleSubmit}>
               {/* Email */}
               <div className="space-y-2">

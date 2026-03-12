@@ -142,33 +142,6 @@ export async function GET(request: Request) {
 
     const confessions = data.map(serializeConfession);
 
-    const listFingerprint = createHash("sha1")
-      .update(
-        JSON.stringify({
-          page,
-          limit,
-          total,
-          status,
-          posted,
-          query,
-          ids: confessions.map((item) => item._id),
-          stamps: confessions.map((item) => item.updatedAt || item.createdAt || ""),
-        })
-      )
-      .digest("hex");
-    const etag = `W/\"${listFingerprint}\"`;
-
-    const ifNoneMatch = request.headers.get("if-none-match");
-    if (ifNoneMatch && ifNoneMatch === etag) {
-      return new NextResponse(null, {
-        status: 304,
-        headers: {
-          ETag: etag,
-          "Cache-Control": "no-store",
-        },
-      });
-    }
-
     return NextResponse.json(
       {
         confessions,
@@ -179,7 +152,6 @@ export async function GET(request: Request) {
       {
         headers: {
           "Cache-Control": "no-store",
-          ETag: etag,
         },
       }
     );
