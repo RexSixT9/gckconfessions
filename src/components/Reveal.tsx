@@ -1,9 +1,10 @@
 "use client";
 
-import { ReactNode, useRef } from "react";
+import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { motion, useInView } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useMotionRuntime } from "@/components/MotionProvider";
+import { isLowEndDevice } from "@/lib/motionConfig";
 
 type RevealProps = {
   children: ReactNode;
@@ -21,6 +22,19 @@ export function PageReveal({
   duration = 0.45,
 }: RevealProps) {
   const { isAppReady, shouldReduceMotion } = useMotionRuntime();
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const media = window.matchMedia("(max-width: 640px)");
+    const onChange = (event: MediaQueryListEvent) => setIsMobile(event.matches);
+
+    setIsMobile(media.matches);
+    media.addEventListener("change", onChange);
+    return () => media.removeEventListener("change", onChange);
+  }, []);
+
+  const effectiveY = shouldReduceMotion ? 0 : isMobile ? Math.min(y, 10) : y;
+  const effectiveDuration = shouldReduceMotion ? 0.01 : isMobile ? Math.min(duration, 0.35) : duration;
 
   if (shouldReduceMotion) {
     return <div className={className}>{children}</div>;
@@ -28,9 +42,9 @@ export function PageReveal({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y }}
-      animate={isAppReady ? { opacity: 1, y: 0 } : { opacity: 0, y }}
-      transition={{ duration, delay, ease: [0.16, 1, 0.3, 1] }}
+      initial={{ opacity: 0, y: effectiveY }}
+      animate={isAppReady ? { opacity: 1, y: 0 } : { opacity: 0, y: effectiveY }}
+      transition={{ duration: effectiveDuration, delay, ease: [0.16, 1, 0.3, 1] }}
       className={cn(className)}
     >
       {children}
@@ -47,10 +61,32 @@ export function ScrollReveal({
 }: RevealProps) {
   const ref = useRef<HTMLDivElement | null>(null);
   const { isAppReady, shouldReduceMotion } = useMotionRuntime();
+  const [isMobile, setIsMobile] = useState(false);
+  const [isLowEnd, setIsLowEnd] = useState(false);
+
+  useEffect(() => {
+    const media = window.matchMedia("(max-width: 640px)");
+    const onChange = (event: MediaQueryListEvent) => setIsMobile(event.matches);
+
+    setIsMobile(media.matches);
+    setIsLowEnd(isLowEndDevice());
+    media.addEventListener("change", onChange);
+    return () => media.removeEventListener("change", onChange);
+  }, []);
+
+  const inViewOptions = useMemo(
+    () => ({
+      once: true,
+      margin: isMobile || isLowEnd ? "0px 0px -40px 0px" : "0px 0px -80px 0px",
+      amount: isMobile || isLowEnd ? 0.08 : 0.2,
+    }),
+    [isLowEnd, isMobile]
+  );
+
   const inView = useInView(ref, {
-    once: true,
-    margin: "0px 0px -80px 0px",
-    amount: 0.2,
+    once: inViewOptions.once,
+    margin: inViewOptions.margin,
+    amount: inViewOptions.amount,
   });
 
   if (shouldReduceMotion) {
@@ -62,13 +98,15 @@ export function ScrollReveal({
   }
 
   const visible = isAppReady && inView;
+  const effectiveY = isMobile || isLowEnd ? Math.min(y, 12) : y;
+  const effectiveDuration = isMobile || isLowEnd ? Math.min(duration, 0.35) : duration;
 
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y }}
-      animate={visible ? { opacity: 1, y: 0 } : { opacity: 0, y }}
-      transition={{ duration, delay, ease: [0.16, 1, 0.3, 1] }}
+      initial={{ opacity: 0, y: effectiveY }}
+      animate={visible ? { opacity: 1, y: 0 } : { opacity: 0, y: effectiveY }}
+      transition={{ duration: effectiveDuration, delay, ease: [0.16, 1, 0.3, 1] }}
       className={cn(className)}
     >
       {children}

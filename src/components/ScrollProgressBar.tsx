@@ -20,7 +20,7 @@ export default function ScrollProgressBar() {
     >
       <div className="h-0.5 bg-border/40 sm:h-px">
         <motion.div
-          className="h-full origin-left bg-linear-to-r from-primary/60 via-primary to-primary/80"
+          className="h-full origin-left bg-linear-to-r from-accent/55 via-accent to-accent/85"
           style={{ scaleX }}
         />
       </div>

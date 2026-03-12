@@ -7,13 +7,6 @@ import { motion } from "framer-motion";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { PageReveal } from "@/components/Reveal";
 
 export default function NotFoundPage() {
@@ -41,21 +34,21 @@ export default function NotFoundPage() {
   return (
     <main className="flex flex-1 items-center justify-center bg-background px-4 py-8 sm:px-6">
       <PageReveal className="w-full max-w-lg" y={12} duration={0.35}>
-        <Card className="border-border/70 text-center">
-          <CardHeader className="items-center">
+        <section className="text-center">
+          <div className="space-y-3">
             <Badge className="gap-1 bg-accent/10 text-accent hover:bg-accent/10">
               <Search className="h-3.5 w-3.5" />
               Not Found
             </Badge>
-            <CardTitle className="text-5xl font-black tracking-tight">404</CardTitle>
-            <CardDescription className="text-sm sm:text-base">
+            <h1 className="text-5xl font-black tracking-tight">404</h1>
+            <p className="text-sm text-muted-foreground sm:text-base">
               The page you requested does not exist.
-            </CardDescription>
-          </CardHeader>
+            </p>
+          </div>
 
-          <CardContent className="space-y-5">
+          <div className="mt-6 space-y-5">
             {autoRedirect && countdown > 0 && (
-              <div className="rounded-lg border border-border/70 bg-muted/30 p-3 text-sm text-muted-foreground">
+              <div className="rounded-lg bg-muted/25 p-3 text-sm text-muted-foreground">
                 Redirecting to home in <span className="font-semibold text-accent">{countdown}</span> second
                 {countdown !== 1 ? "s" : ""}.
                 <button
@@ -85,8 +78,8 @@ export default function NotFoundPage() {
                 Go back
               </Button>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </section>
       </PageReveal>
     </main>
   );
