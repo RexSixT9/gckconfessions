@@ -6,6 +6,9 @@ import { cn } from "@/lib/utils";
 import { useMotionRuntime } from "@/components/MotionProvider";
 import { isLowEndDevice } from "@/lib/motionConfig";
 
+type InViewOptions = NonNullable<Parameters<typeof useInView>[1]>;
+type InViewMargin = Exclude<InViewOptions["margin"], undefined>;
+
 type RevealProps = {
   children: ReactNode;
   className?: string;
@@ -74,14 +77,14 @@ export function ScrollReveal({
     return () => media.removeEventListener("change", onChange);
   }, []);
 
-  const inViewOptions = useMemo(
-    () => ({
+  const inViewOptions = useMemo(() => {
+    const margin: InViewMargin = isMobile || isLowEnd ? "0px 0px -24px 0px" : "0px 0px -56px 0px";
+    return {
       once: true,
-      margin: (isMobile || isLowEnd ? "0px 0px -24px 0px" : "0px 0px -56px 0px") as const,
+      margin,
       amount: isMobile || isLowEnd ? 0.03 : 0.08,
-    }),
-    [isLowEnd, isMobile]
-  );
+    };
+  }, [isLowEnd, isMobile]);
 
   const inView = useInView(ref, {
     once: inViewOptions.once,
