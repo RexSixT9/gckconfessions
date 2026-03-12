@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect, useLayoutEffect, useRef } from "react";
 import { X, Megaphone } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const BANNER_STORAGE_KEY = "gck_announcement_dismissed";
 const BANNER_RESET_DAYS = 3; // Reset banner every 3 days
@@ -84,36 +85,38 @@ export default function AnnouncementBanner() {
   return (
     <div
       ref={bannerRef}
-      className="w-full border-b border-[hsl(var(--border))]/70 bg-[hsl(var(--card))]/90 text-[hsl(var(--foreground))] animate-slide-down backdrop-blur-sm"
+      className="w-full border-b border-border/70 bg-card/90 text-foreground animate-slide-down backdrop-blur-sm"
     >
       <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-2 px-3 py-2 sm:gap-3 sm:px-6">
         <div className="flex min-w-0 flex-1 items-center justify-center gap-2 sm:gap-2.5">
           {/* Event type pill */}
-          <span className="hidden shrink-0 items-center gap-1 rounded-full bg-[hsl(var(--accent))]/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-[hsl(var(--accent))] sm:inline-flex">
+          <span className="hidden shrink-0 items-center gap-1 rounded-full bg-accent/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-accent sm:inline-flex">
             <Megaphone className="h-2.5 w-2.5" />
             Event
           </span>
           <p className="min-w-0 text-center text-[11px] font-medium leading-snug sm:text-sm">
-            <span className="font-semibold text-[hsl(var(--foreground))]">Confessions are open</span>
-            <span className="hidden text-[hsl(var(--muted-foreground))] xs:inline"> — share yours anonymously today.</span>
-            <span className="text-[hsl(var(--muted-foreground))]">&nbsp;</span>
+            <span className="font-semibold text-foreground">Confessions are open</span>
+            <span className="hidden text-muted-foreground xs:inline"> — share yours anonymously today.</span>
+            <span className="text-muted-foreground">&nbsp;</span>
             <a
               href="/submit"
-              className="font-semibold text-[hsl(var(--accent))] underline underline-offset-2 transition hover:opacity-75"
+              className="font-semibold text-accent underline underline-offset-2 transition hover:opacity-75"
             >
               Submit now
             </a>
           </p>
         </div>
-        <button
+        <Button
           type="button"
+          variant="ghost"
+          size="icon"
           onClick={handleDismiss}
-          className="ml-0.5 inline-flex h-9 w-9 min-h-11 min-w-11 shrink-0 items-center justify-center rounded-full text-[hsl(var(--muted-foreground))] transition hover:bg-[hsl(var(--secondary))] hover:text-[hsl(var(--foreground))] active:scale-95 sm:ml-1 sm:h-7 sm:w-7 sm:min-h-0 sm:min-w-0"
+          className="ml-0.5 h-7 w-7 shrink-0 rounded-full sm:ml-1"
           aria-label="Close announcement"
         >
           <X className="h-3.5 w-3.5" />
           <span className="sr-only">Close announcement</span>
-        </button>
+        </Button>
       </div>
     </div>
   );

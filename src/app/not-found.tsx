@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { Home, ArrowLeft, Search } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
+import { Button } from '@/components/ui/button';
 
 
 export default function NotFound() {
@@ -87,16 +88,16 @@ export default function NotFound() {
             {/* Auto-redirect notification */}
             {autoRedirect && countdown > 0 && (
               <div className="card mx-auto mt-6 max-w-md p-4">
-                <p className="text-sm text-[hsl(var(--muted-foreground))]">
+                <p className="text-sm text-muted-foreground">
                   Redirecting to home in{' '}
-                  <span className="font-bold text-[hsl(var(--accent))]">
+                  <span className="font-bold text-accent">
                     {countdown}
                   </span>{' '}
                   second{countdown !== 1 ? 's' : ''}...
                 </p>
                 <button
                   onClick={handleCancelRedirect}
-                  className="mt-2 text-xs text-[hsl(var(--muted-foreground))] underline transition hover:text-[hsl(var(--foreground))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]/30"
+                  className="mt-2 text-xs text-muted-foreground underline transition hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/30"
                 >
                   Cancel redirect
                 </button>
@@ -106,21 +107,24 @@ export default function NotFound() {
 
           {/* Action Buttons */}
           <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center sm:justify-center sm:gap-3">
-            <button
+            <Button
               onClick={handleGoHome}
-              className="btn-primary btn-lg w-full sm:w-auto"
+              size="lg"
+              className="rounded-full font-semibold w-full sm:w-auto"
             >
               <Home className="h-4 w-4" />
               Home
-            </button>
+            </Button>
 
-            <button
+            <Button
+              variant="outline"
+              size="lg"
               onClick={handleGoBack}
-              className="btn-secondary btn-lg w-full sm:w-auto"
+              className="rounded-full font-semibold w-full sm:w-auto"
             >
               <ArrowLeft className="h-4 w-4" />
               Go back
-            </button>
+            </Button>
           </div>
         </div>
       </section>

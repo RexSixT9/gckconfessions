@@ -1,11 +1,17 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
 /* ─────────────────────────────────────────
-   Custom breakpoints
+   Custom breakpoints & radius scale
 ───────────────────────────────────────── */
 @theme {
   /* xs breakpoint — used for narrow landscape phones (≥480px) */
   --breakpoint-xs: 480px;
+  /* Radius scale used by shadcn components */
+  --radius-sm: 0.5rem;
+  --radius-md: 0.625rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
 }
 
 :root {
@@ -77,6 +83,33 @@
   --action-publish-foreground: 0 0% 100%;
   --action-reject: 0 80% 55%;
   --action-reject-foreground: 0 0% 100%;
+}
+
+/* ─────────────────────────────────────────
+   Tailwind v4 → shadcn color token bridge
+   Maps CSS custom props to Tailwind utilities
+   so shadcn classes like bg-primary work.
+───────────────────────────────────────── */
+@theme inline {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
 }
 
 /* ─────────────────────────────────────────

@@ -43,6 +43,8 @@ import { m as motion } from "framer-motion";
 import Tooltip from "@/components/Tooltip";
 import TypewriterText from "@/components/TypewriterText";
 import CursorGlowCard from "@/components/CursorGlowCard";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   useBentoCardVariants,
   useHowItWorksCardVariants,
@@ -175,15 +177,14 @@ export default function Home() {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.1, duration: 0.5 }}
-              className="inline-flex items-center gap-1.5 rounded-full border border-[hsl(var(--accent))]/20 bg-[hsl(var(--accent))]/5 px-3 py-1 xs:gap-2 xs:px-4 xs:py-1.5 backdrop-blur-sm"
             >
-              <span className="relative flex h-1.5 w-1.5 xs:h-2 xs:w-2">
-                <span className="absolute inline-flex h-full w-full animate-pulse rounded-full bg-[hsl(var(--accent))]" />
-                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[hsl(var(--accent))] xs:h-2 xs:w-2" />
-              </span>
-              <span className="text-[10px] font-semibold text-[hsl(var(--accent))] xs:text-xs">
+              <Badge variant="outline" className="gap-2 rounded-full border-accent/25 bg-accent/8 px-3 py-1 text-accent backdrop-blur-sm">
+                <span className="relative flex h-1.5 w-1.5">
+                  <span className="absolute inline-flex h-full w-full animate-pulse rounded-full bg-accent" />
+                  <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-accent" />
+                </span>
                 Thousands sharing anonymously
-              </span>
+              </Badge>
             </motion.div>
 
             {/* Main headline */}
@@ -229,22 +230,16 @@ export default function Home() {
               transition={{ delay: 0.6, duration: 0.6 }}
               className="flex w-full flex-col items-center gap-3 xs:w-auto xs:flex-row sm:gap-4"
             >
-              <Link
-                href="/submit"
-                className="btn-primary btn-lg w-full xs:w-auto"
-              >
+              <Button size="lg" render={<Link href="/submit" />} className="rounded-full font-semibold w-full xs:w-auto">
                 <PenLine className="h-5 w-5 shrink-0" />
-                <span>Start writing</span>
-              </Link>
+                Start writing
+              </Button>
 
               <Tooltip content="See how it works" side="bottom">
-                <a
-                  href="#how-it-works"
-                  className="btn-secondary btn-lg group w-full xs:w-auto"
-                >
+                <Button variant="outline" size="lg" render={<a href="#how-it-works" />} className="rounded-full group font-semibold w-full xs:w-auto">
                   Learn more
                   <ArrowRight className="h-5 w-5 shrink-0 transition-transform duration-300 group-hover:translate-x-1" />
-                </a>
+                </Button>
               </Tooltip>
             </motion.div>
 
@@ -424,16 +419,18 @@ export default function Home() {
                 <p className="mt-0.5 text-xs font-semibold text-[hsl(var(--muted-foreground))]">
                   to write &amp; submit
                 </p>
-                <motion.span
-                  className="badge badge-accent mt-2"
+                <motion.div
                   variants={useBadgePopVariants(0)}
                   initial="hidden"
                   whileInView="visible"
                   viewport={{ once: true }}
+                  className="mt-2"
                 >
-                  <Zap className="h-3 w-3" />
-                  Instant
-                </motion.span>
+                  <Badge variant="outline" className="gap-1 border-accent/30 bg-accent/10 text-accent">
+                    <Zap className="h-3 w-3" />
+                    Instant
+                  </Badge>
+                </motion.div>
               </div>
             </CursorGlowCard>
 
@@ -598,13 +595,10 @@ export default function Home() {
                 transition={{ delay: 0.4, duration: 0.6 }}
                 viewport={{ once: true }}
               >
-                <Link
-                  href="/submit"
-                  className="btn-primary btn-lg"
-                >
+                <Button size="lg" render={<Link href="/submit" />} className="rounded-full font-semibold">
                   <PenLine className="h-5 w-5 shrink-0" />
-                  <span>Write your confession</span>
-                </Link>
+                  Write your confession
+                </Button>
               </motion.div>
             </div>
           </motion.section>

@@ -3,6 +3,7 @@
 import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 import { LogOut, Loader } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export default function SignOutButton() {
   const router = useRouter();
@@ -34,16 +35,17 @@ export default function SignOutButton() {
   }, [loading, router]);
 
   return (
-    <button
+    <Button
       type="button"
+      variant="ghost"
       onClick={handleSignOut}
       disabled={loading}
       title="Sign out"
-      className="btn-ghost shrink-0"
       aria-label="Sign out"
+      className="shrink-0 rounded-lg"
     >
       {loading ? <Loader className="h-4 w-4 animate-spin" /> : <LogOut className="h-4 w-4" />}
       <span className="hidden sm:inline">Sign out</span>
-    </button>
+    </Button>
   );
 }

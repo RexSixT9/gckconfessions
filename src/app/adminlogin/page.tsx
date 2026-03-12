@@ -4,6 +4,10 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { AlertCircle, CheckCircle2, Loader, ShieldCheck, Mail, Eye, EyeOff, KeyRound } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
 
 type Notice = { type: "error" | "success"; message: string } | null;
@@ -82,7 +86,7 @@ export default function AdminLoginPage() {
   if (isChecking) {
     return (
       <div className="flex flex-1 items-center justify-center">
-        <Loader className="h-5 w-5 animate-spin text-[hsl(var(--accent))]" />
+        <Loader className="h-5 w-5 animate-spin text-accent" />
       </div>
     );
   }
@@ -100,104 +104,144 @@ export default function AdminLoginPage() {
         transition={{ duration: 0.5, delay: 0.1, ease: "easeOut" }}
         className="w-full max-w-sm"
       >
-
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2, duration: 0.5 }}
-          className="mb-8 text-center"
+          className="mb-6 text-center"
         >
           <motion.span
             initial={{ scale: 0.8 }}
             animate={{ scale: 1 }}
             transition={{ delay: 0.3, duration: 0.4, type: "spring", stiffness: 200 }}
-            className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--card))]"
+            className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl border border-border bg-card"
           >
-            <ShieldCheck className="h-7 w-7 text-[hsl(var(--foreground))]" />
+            <ShieldCheck className="h-6 w-6 text-foreground" />
           </motion.span>
-          <h1 className="text-2xl font-black tracking-tight text-[hsl(var(--foreground))]">Admin sign in</h1>
-          <p className="mt-2 text-sm text-[hsl(var(--muted-foreground))]">Access moderation tools</p>
+          <h1 className="text-2xl font-black tracking-tight text-foreground">Admin sign in</h1>
+          <p className="mt-1.5 text-sm text-muted-foreground">Access moderation tools</p>
         </motion.div>
 
         {/* Card */}
-        <div className="card border-shine p-6 sm:p-8">
-          {/* Notice */}
-          <AnimatePresence mode="wait">
-            {notice && (
-              <motion.div
-                initial={{ opacity: 0, y: -10, height: 0 }}
-                animate={{ opacity: 1, y: 0, height: "auto" }}
-                exit={{ opacity: 0, y: -10, height: 0 }}
-                transition={{ duration: 0.3 }}
-                className={`notice mb-6 ${notice.type === 'error' ? 'notice-error' : 'notice-success'}`}
-              >
-                {notice.type === 'error' ? <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" /> : <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0" />}
-                <p>{notice.message}</p>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            {/* Email */}
-            <div>
-              <label htmlFor="email" className="mb-3 block text-xs font-bold uppercase tracking-wider text-[hsl(var(--muted-foreground))]">Email</label>
-              <div className="relative">
-                <span className="pointer-events-none absolute inset-y-0 left-0 flex w-9 items-center justify-center text-[hsl(var(--muted-foreground))]">
-                  <Mail className="h-4 w-4" />
-                </span>
-                <input
-                  id="email" name="email" type="email"
-                  value={email} onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@example.com"
-                  autoComplete="email" autoCapitalize="off" autoCorrect="off" spellCheck="false"
-                  maxLength={254} required disabled={loading}
-                  className="input-base w-full pl-10"
-                />
-              </div>
-            </div>
-
-            {/* Password */}
-            <div>
-              <label htmlFor="password" className="mb-3 block text-xs font-bold uppercase tracking-wider text-[hsl(var(--muted-foreground))]">Password</label>
-              <div className="relative">
-                <span className="pointer-events-none absolute inset-y-0 left-0 flex w-9 items-center justify-center text-[hsl(var(--muted-foreground))]">
-                  <KeyRound className="h-4 w-4" />
-                </span>
-                <input
-                  id="password" name="password" type={showPassword ? 'text' : 'password'}
-                  value={password} onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  autoComplete="current-password" autoCapitalize="off" autoCorrect="off" spellCheck="false"
-                  maxLength={128} required disabled={loading}
-                  className="input-base w-full pl-10 pr-10"
-                />
-                <button
-                  type="button" onClick={() => setShowPassword(!showPassword)} disabled={loading}
-                  className="absolute inset-y-0 right-0 flex w-10 items-center justify-center rounded-r-[calc(var(--radius)*0.85)] text-[hsl(var(--muted-foreground))] transition-colors hover:text-[hsl(var(--foreground))] disabled:opacity-50"
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+        <Card className="border-shine border shadow-sm">
+          <CardContent className="p-6 sm:p-8">
+            {/* Notice */}
+            <AnimatePresence mode="wait">
+              {notice && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10, height: 0 }}
+                  animate={{ opacity: 1, y: 0, height: "auto" }}
+                  exit={{ opacity: 0, y: -10, height: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className={`mb-5 flex items-start gap-3 rounded-lg border px-4 py-3 text-sm ${
+                    notice.type === "error"
+                      ? "border-destructive/30 bg-destructive/8 text-destructive"
+                      : "border-green-500/30 bg-green-500/8 text-green-700 dark:text-green-400"
+                  }`}
                 >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
-              </div>
-            </div>
+                  {notice.type === "error" ? (
+                    <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                  ) : (
+                    <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
+                  )}
+                  <p>{notice.message}</p>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
-            {/* Submit */}
-            <button
-              type="submit"
-              disabled={loading || !email || !password}
-              className="btn-primary mt-6 w-full"
-            >
-              {loading ? <><Loader className="h-5 w-5 animate-spin" /> Signing in…</> : 'Sign in'}
-            </button>
-          </form>
-        </div>
+            <form className="space-y-5" onSubmit={handleSubmit}>
+              {/* Email */}
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  Email
+                </Label>
+                <div className="relative">
+                  <span className="pointer-events-none absolute inset-y-0 left-0 flex w-9 items-center justify-center text-muted-foreground">
+                    <Mail className="h-4 w-4" />
+                  </span>
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="admin@example.com"
+                    autoComplete="email"
+                    autoCapitalize="off"
+                    autoCorrect="off"
+                    spellCheck={false}
+                    maxLength={254}
+                    required
+                    disabled={loading}
+                    className="h-10 pl-9"
+                  />
+                </div>
+              </div>
+
+              {/* Password */}
+              <div className="space-y-2">
+                <Label htmlFor="password" className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  Password
+                </Label>
+                <div className="relative">
+                  <span className="pointer-events-none absolute inset-y-0 left-0 flex w-9 items-center justify-center text-muted-foreground">
+                    <KeyRound className="h-4 w-4" />
+                  </span>
+                  <Input
+                    id="password"
+                    name="password"
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    autoComplete="current-password"
+                    autoCapitalize="off"
+                    autoCorrect="off"
+                    spellCheck={false}
+                    maxLength={128}
+                    required
+                    disabled={loading}
+                    className="h-10 pl-9 pr-10"
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setShowPassword(!showPassword)}
+                    disabled={loading}
+                    className="absolute inset-y-0 right-0 h-full w-10 rounded-l-none"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </Button>
+                </div>
+              </div>
+
+              {/* Submit */}
+              <Button
+                type="submit"
+                disabled={loading || !email || !password}
+                className="mt-2 w-full rounded-lg font-semibold"
+              >
+                {loading ? (
+                  <>
+                    <Loader className="h-4 w-4 animate-spin" />
+                    Signing in…
+                  </>
+                ) : (
+                  "Sign in"
+                )}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
 
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5, duration: 0.5 }}
-          className="mt-4 text-center text-xs text-[hsl(var(--muted-foreground))]"
+          className="mt-4 text-center text-xs text-muted-foreground"
         >
           GCK Confessions · Admin
         </motion.p>
