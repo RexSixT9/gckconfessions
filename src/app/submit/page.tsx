@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { ArrowLeft, Heart, Lock, Music2, Send, ShieldCheck } from "lucide-react";
 
@@ -139,17 +140,23 @@ export default function SubmitPage() {
 
   return (
     <main className="flex-1 bg-background">
-      <div className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 sm:py-12">
-        <Button variant="ghost" size="sm" render={<Link href="/" />} className="mb-4 -ml-2 rounded-full px-3 py-2">
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+        className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 sm:py-12"
+      >
+        <Button variant="ghost" size="sm" render={<Link href="/" />} className="mb-6 -ml-2 gap-1.5 rounded-full px-3 py-2 text-muted-foreground hover:text-foreground">
           <>
             <ArrowLeft className="h-4 w-4" />
-            Home
+            Back to home
           </>
         </Button>
 
-        <Card className="border-border/70">
+        <Card className="border-border/60 shadow-sm">
           <CardHeader className="gap-3">
-            <Badge className="w-fit bg-accent/10 text-accent hover:bg-accent/10">
+            <Badge className="w-fit gap-1.5 bg-accent/10 text-accent hover:bg-accent/10">
+              <Heart className="h-3 w-3" />
               Anonymous Submission
             </Badge>
             <CardTitle className="text-2xl font-black tracking-tight sm:text-3xl">
@@ -294,7 +301,7 @@ export default function SubmitPage() {
             </div>
           </CardContent>
         </Card>
-      </div>
+      </motion.div>
     </main>
   );
 }
