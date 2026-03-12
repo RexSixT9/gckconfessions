@@ -293,7 +293,7 @@ export default function SubmitPage() {
 
   return (
     <main className="flex-1 bg-background">
-      <PageReveal className="mx-auto w-full max-w-3xl px-4 pb-16 pt-8 sm:px-6 sm:pt-12">
+      <PageReveal className="mx-auto w-full max-w-3xl px-4 pb-14 pt-6 sm:px-6 sm:pb-16 sm:pt-10">
         <Button
           variant="ghost"
           size="sm"
@@ -426,7 +426,7 @@ export default function SubmitPage() {
                 <Separator />
 
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <Button type="submit" size="lg" className="h-10 px-5" disabled={!canSubmit}>
+                  <Button type="submit" size="lg" className="h-10 w-full px-5 sm:w-auto" disabled={!canSubmit}>
                     {loading ? (
                       <>
                         <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground/40 border-t-primary-foreground" />

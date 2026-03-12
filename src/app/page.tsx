@@ -34,6 +34,7 @@ import {
 } from "@/components/ui/card";
 import TypewriterText from "@/components/TypewriterText";
 import { useMotionRuntime } from "@/components/MotionProvider";
+import { cn } from "@/lib/cn";
 
 /* ─── Animation variants ─────────────────────────────────────────── */
 const EASE_OUT: [number, number, number, number] = [0.16, 1, 0.3, 1];
@@ -288,6 +289,7 @@ export default function HomePage() {
   const { isAppReady, shouldReduceMotion } = useMotionRuntime();
   const canStartMotion = isAppReady || shouldReduceMotion;
   const [isDesktop, setIsDesktop] = useState(false);
+  const [isCompactHeight, setIsCompactHeight] = useState(false);
 
   useEffect(() => {
     const media = window.matchMedia("(min-width: 1024px)");
@@ -296,6 +298,14 @@ export default function HomePage() {
     setIsDesktop(media.matches);
     media.addEventListener("change", onChange);
     return () => media.removeEventListener("change", onChange);
+  }, []);
+
+  useEffect(() => {
+    const compactMedia = window.matchMedia("(max-height: 760px)");
+    const onCompactChange = (event: MediaQueryListEvent) => setIsCompactHeight(event.matches);
+    setIsCompactHeight(compactMedia.matches);
+    compactMedia.addEventListener("change", onCompactChange);
+    return () => compactMedia.removeEventListener("change", onCompactChange);
   }, []);
 
   const heroStaggerContainer = useMemo(
@@ -354,7 +364,7 @@ export default function HomePage() {
 
         {/* Content — grows to fill remaining space */}
         <div className="flex flex-1 items-center">
-          <div className="mx-auto grid w-full max-w-7xl grid-cols-1 items-center gap-10 px-4 py-14 sm:px-6 sm:py-20 lg:grid-cols-2 lg:gap-20 lg:px-8 lg:py-28">
+          <div className="mx-auto grid w-full max-w-7xl grid-cols-1 items-center gap-10 px-4 py-10 sm:px-6 sm:py-16 lg:grid-cols-2 lg:gap-16 lg:px-8 lg:py-24">
           {/* ── Left: text ── */}
           <motion.div
             variants={heroStaggerContainer}
@@ -371,9 +381,9 @@ export default function HomePage() {
 
             {/* Headline with typewriter second line */}
             <motion.div variants={heroFadeUp} className="mt-5">
-              <h1 className="text-4xl font-black leading-[1.08] tracking-tight sm:text-6xl lg:text-[4.5rem]">
+              <h1 className="text-[clamp(2rem,8vw,4.5rem)] font-black leading-[1.08] tracking-tight text-balance">
                 <span className="block text-foreground">Drop the mask.</span>
-                <span className="block text-accent">
+                <span className="block max-w-[22ch] text-accent">
                   <TypewriterText
                     phrases={heroTypingPhrases}
                     typingSpeed={isDesktop ? 50 : 55}
@@ -382,6 +392,7 @@ export default function HomePage() {
                     startDelay={isDesktop ? 1050 : 900}
                     forceAnimate
                     cursorClassName="bg-accent"
+                    responsiveMaxChars={{ mobile: 14, tablet: 20, desktop: 28 }}
                   />
                 </span>
               </h1>
@@ -497,12 +508,17 @@ export default function HomePage() {
           initial={{ opacity: 0, y: 8 }}
           animate={canStartMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 8 }}
           transition={{ duration: 0.6, delay: isDesktop ? 1.25 : 1.1, ease: "easeOut" }}
-          className="flex justify-center pb-7 pt-2"
+          className={cn(
+            "pointer-events-none absolute inset-x-0 z-10 flex justify-center",
+            isCompactHeight
+              ? "bottom-[max(0.25rem,env(safe-area-inset-bottom))]"
+              : "bottom-[max(0.75rem,env(safe-area-inset-bottom))]"
+          )}
           aria-hidden
         >
           <a
             href="#highlights"
-            className="group flex flex-col items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground/55 transition-colors hover:text-muted-foreground/80"
+            className="pointer-events-auto group flex flex-col items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground/65 transition-colors hover:text-muted-foreground/85"
           >
             <motion.div
               animate={{ y: [0, 2, 0], opacity: [0.55, 1, 0.55] }}
@@ -515,7 +531,7 @@ export default function HomePage() {
             <motion.div
               animate={{ scaleY: [0.55, 1, 0.55], opacity: [0.35, 0.8, 0.35] }}
               transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut", delay: 0.12 }}
-              className="h-7 w-px origin-top rounded-full bg-linear-to-b from-muted-foreground/60 to-transparent"
+              className="h-6 w-px origin-top rounded-full bg-linear-to-b from-muted-foreground/60 to-transparent"
             />
           </a>
         </motion.div>
@@ -604,7 +620,7 @@ export default function HomePage() {
       </section>
 
       {/* ── CTA Banner ──────────────────────────────────────────────── */}
-      <section className="mx-auto w-full max-w-7xl px-4 pb-16 sm:px-6 sm:pb-20 lg:px-8">
+      <section className="mx-auto w-full max-w-7xl px-4 pb-14 sm:px-6 sm:pb-18 lg:px-8">
         <motion.div
           initial={{ opacity: 0, scale: 0.97, y: 24 }}
           whileInView={{ opacity: 1, scale: 1, y: 0 }}
@@ -630,7 +646,7 @@ export default function HomePage() {
           <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-accent/60 to-transparent" />
 
           {/* Content */}
-          <div className="relative z-10 px-8 py-16 text-center sm:py-24">
+          <div className="relative z-10 px-5 py-14 text-center sm:px-8 sm:py-20">
             {/* Animated badge */}
             <motion.span
               animate={{ y: [0, -5, 0] }}
@@ -642,7 +658,7 @@ export default function HomePage() {
             </motion.span>
 
             {/* Headline */}
-            <h3 className="mx-auto mt-4 max-w-2xl text-3xl font-black tracking-tight text-white sm:text-5xl leading-[1.08]">
+            <h3 className="mx-auto mt-4 max-w-2xl text-[clamp(1.85rem,7vw,3.2rem)] font-black leading-[1.08] tracking-tight text-white text-balance">
               Your secret is{" "}
               <span className="relative inline-block text-accent">
                 safe here.
@@ -670,11 +686,11 @@ export default function HomePage() {
             </p>
 
             {/* CTA buttons */}
-            <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
+            <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <Magnetic strength={0.3}>
                 <Button
                   size="lg"
-                  className="group relative h-auto w-full overflow-hidden rounded-full bg-accent px-10 py-5 text-sm font-semibold text-accent-foreground shadow-2xl shadow-accent/30 transition-all hover:bg-accent/90 hover:shadow-accent/50 sm:w-auto"
+                  className="group relative h-auto w-full overflow-hidden rounded-full bg-accent px-8 py-4 text-sm font-semibold text-accent-foreground shadow-2xl shadow-accent/30 transition-all hover:bg-accent/90 hover:shadow-accent/50 sm:w-auto"
                   render={<Link href="/submit" />}
                 >
                   <>
@@ -692,7 +708,7 @@ export default function HomePage() {
                 <Button
                   size="lg"
                   variant="outline"
-                  className="h-auto w-full rounded-full border-white/20 bg-white/5 px-10 py-5 text-sm font-semibold text-white backdrop-blur-sm transition-all hover:border-white/35 hover:bg-white/10 sm:w-auto"
+                  className="h-auto w-full rounded-full border-white/20 bg-white/5 px-8 py-4 text-sm font-semibold text-white backdrop-blur-sm transition-all hover:border-white/35 hover:bg-white/10 sm:w-auto"
                   render={<Link href="/guidelines" />}
                 >
                   <>

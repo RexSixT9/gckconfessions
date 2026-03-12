@@ -47,7 +47,7 @@ const privacyNotes = [
 
 export default function GuidelinesClient() {
   return (
-    <main className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6 sm:py-12">
+    <main className="mx-auto w-full max-w-4xl px-4 py-6 sm:px-6 sm:py-10">
       <PageReveal>
       <Button
         variant="ghost"
@@ -64,7 +64,7 @@ export default function GuidelinesClient() {
       <Card className="border-border/70 shadow-none">
         <CardHeader>
           <Badge className="w-fit">Privacy and Guidelines</Badge>
-          <CardTitle className="text-2xl font-semibold tracking-tight">Simple safety rules</CardTitle>
+          <CardTitle className="text-2xl font-semibold tracking-tight text-balance">Simple safety rules</CardTitle>
           <CardDescription>
             This platform is anonymous, moderated, and designed to reduce abuse.
           </CardDescription>
@@ -101,7 +101,7 @@ export default function GuidelinesClient() {
         </Card>
       </section>
 
-      <section className="mt-8 grid gap-4 md:grid-cols-2">
+        <section className="mt-8 grid gap-4 md:grid-cols-2">
           <Card className="border-border/70 shadow-none">
           <CardHeader>
             <Badge variant="outline" className="w-fit">
@@ -110,7 +110,7 @@ export default function GuidelinesClient() {
             </Badge>
             <CardTitle className="text-base">Content we welcome</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm text-muted-foreground">
+          <CardContent className="space-y-3 text-sm leading-6 text-muted-foreground">
             {allowed.map((item) => (
               <div key={item} className="flex items-start gap-2">
                 <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-foreground/50" />
@@ -128,7 +128,7 @@ export default function GuidelinesClient() {
             </Badge>
             <CardTitle className="text-base">Content we reject</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm text-muted-foreground">
+          <CardContent className="space-y-3 text-sm leading-6 text-muted-foreground">
             {disallowed.map((item) => (
               <div key={item} className="flex items-start gap-2">
                 <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-foreground/50" />

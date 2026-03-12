@@ -41,7 +41,7 @@ export default async function AdminPage() {
   const stats = await getStats();
   return (
     <main className="flex-1 bg-background">
-      <PageReveal className="mx-auto w-full max-w-5xl px-4 pb-16 pt-6 sm:px-6 sm:pt-10" y={10} duration={0.4}>
+      <PageReveal className="mx-auto w-full max-w-6xl px-4 pb-14 pt-6 sm:px-6 sm:pb-16 sm:pt-10" y={10} duration={0.4}>
 
         {/*  Page header  */}
         <div className="mb-8 flex animate-slide-down flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -49,7 +49,7 @@ export default async function AdminPage() {
             <Badge variant="secondary" className="mb-3 uppercase tracking-wider">
               Admin Panel
             </Badge>
-            <h1 className="text-3xl font-black tracking-tight text-foreground sm:text-4xl">
+            <h1 className="text-[clamp(1.7rem,5.6vw,2.25rem)] font-black tracking-tight text-foreground text-balance">
               Confession Review
             </h1>
             <p className="mt-2 text-sm text-muted-foreground">

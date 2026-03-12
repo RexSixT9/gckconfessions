@@ -25,11 +25,11 @@ export default async function TransparencyPage() {
   const data = await getData();
 
   return (
-    <main className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6 sm:py-12">
+    <main className="mx-auto w-full max-w-5xl px-4 py-6 sm:px-6 sm:py-10">
       <Badge variant="secondary" className="mb-3 uppercase tracking-wider">
         Transparency
       </Badge>
-      <h1 className="text-3xl font-black tracking-tight sm:text-4xl">Safety and moderation stats</h1>
+      <h1 className="text-[clamp(1.7rem,5.5vw,2.25rem)] font-black tracking-tight text-balance">Safety and moderation stats</h1>
       <p className="mt-2 text-sm text-muted-foreground">
         We publish queue and moderation activity to increase trust.
       </p>
@@ -41,7 +41,7 @@ export default async function TransparencyPage() {
           </CardContent>
         </Card>
       ) : (
-        <div className="mt-6 grid gap-4 sm:grid-cols-2">
+        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {[
             ["Pending", data.queue.pending],
             ["Approved", data.queue.approved],
@@ -55,11 +55,11 @@ export default async function TransparencyPage() {
                 <CardTitle className="text-sm text-muted-foreground">{label}</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-3xl font-black tabular-nums">{value as number}</p>
+                <p className="text-[clamp(1.5rem,5vw,1.85rem)] font-black tabular-nums">{value as number}</p>
               </CardContent>
             </Card>
           ))}
-          <p className="col-span-full text-xs text-muted-foreground">
+          <p className="col-span-full text-xs text-muted-foreground lg:col-span-3">
             Last updated: {new Date(data.generatedAt).toLocaleString()}
           </p>
         </div>
