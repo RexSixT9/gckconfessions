@@ -1,39 +1,55 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useTheme } from "next-themes";
 import { Toaster } from "sonner";
 
 export function SonnerToaster() {
-  const { resolvedTheme } = useTheme();
-  const [isMobile, setIsMobile] = useState(() =>
-    typeof window !== "undefined" ? window.matchMedia("(max-width: 640px)").matches : false
+  const [position, setPosition] = useState<"top-center" | "bottom-center" | "bottom-right">(
+    "bottom-right"
   );
 
   useEffect(() => {
-    const mq = window.matchMedia("(max-width: 640px)");
-    const onChange = (event: MediaQueryListEvent) => setIsMobile(event.matches);
+    const mobileMq = window.matchMedia("(max-width: 640px)");
+    const tabletMq = window.matchMedia("(max-width: 1024px)");
 
-    mq.addEventListener("change", onChange);
+    const updatePosition = () => {
+      if (mobileMq.matches) {
+        setPosition("top-center");
+        return;
+      }
 
-    return () => mq.removeEventListener("change", onChange);
+      if (tabletMq.matches) {
+        setPosition("bottom-center");
+        return;
+      }
+
+      setPosition("bottom-right");
+    };
+
+    updatePosition();
+
+    const onChange = () => updatePosition();
+    mobileMq.addEventListener("change", onChange);
+    tabletMq.addEventListener("change", onChange);
+
+    return () => {
+      mobileMq.removeEventListener("change", onChange);
+      tabletMq.removeEventListener("change", onChange);
+    };
   }, []);
 
   return (
     <Toaster
-      theme={resolvedTheme as "light" | "dark" | "system"}
-      position={isMobile ? "top-center" : "bottom-right"}
-      closeButton
+      position={position}
+      theme="system"
+      richColors={false}
+      closeButton={false}
       duration={4000}
       gap={8}
       toastOptions={{
-        classNames: {
-          toast: "sonner-toast",
-          title: "sonner-title",
-          description: "sonner-description",
-          closeButton: "sonner-close",
-          actionButton: "sonner-action",
-        },
+        className:
+          "rounded-xl border border-border/70 bg-background text-foreground shadow-md",
+        descriptionClassName: "text-muted-foreground",
       }}
     />
   );
