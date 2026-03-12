@@ -13,6 +13,11 @@ const navLinks = [
   { href: "/guidelines", label: "Guidelines", icon: BookOpen },
 ];
 
+const mobileMenuLinks = [
+  { href: "/submit", label: "Write a Confession", icon: PenLine, primary: true },
+  { href: "/guidelines", label: "Guidelines", icon: BookOpen, primary: false },
+];
+
 /** Animated three-line hamburger that morphs into an × */
 function HamburgerIcon({ isOpen }: { isOpen: boolean }) {
   return (
@@ -86,7 +91,7 @@ export default function HeaderNav() {
             <div className="hidden items-center gap-2 sm:flex">
               <Link
                 href="/submit"
-                className={cn(buttonVariants({ size: "sm" }), "rounded-full gap-1.5 font-semibold")}
+                className={cn(buttonVariants({ size: "sm" }), "gap-1.5 rounded-full px-4 font-semibold")}
               >
                 <PenLine className="h-3.5 w-3.5" />
                 Write
@@ -121,15 +126,7 @@ export default function HeaderNav() {
                 transition={{ duration: 0.18, ease: [0.4, 0, 0.2, 1] }}
                 className="absolute inset-x-3 top-full z-50 mt-1.5 overflow-hidden rounded-2xl border border-border/50 bg-background/97 p-2 shadow-xl backdrop-blur-xl sm:hidden"
               >
-                {[
-                  { href: "/submit", label: "Write a Confession", icon: PenLine, primary: true },
-                  ...navLinks.map(({ href, label, icon }) => ({
-                    href,
-                    label,
-                    icon,
-                    primary: false,
-                  })),
-                ].map(({ href, label, icon: Icon, primary }, i) => (
+                {mobileMenuLinks.map(({ href, label, icon: Icon, primary }, i) => (
                   <motion.div
                     key={href}
                     initial={{ opacity: 0, x: -6 }}
@@ -144,7 +141,7 @@ export default function HeaderNav() {
                           variant: primary ? "default" : "ghost",
                           size: "default",
                         }),
-                        "mb-1 w-full justify-start rounded-xl"
+                        "mb-1 w-full justify-start rounded-xl px-4 py-3"
                       )}
                     >
                       <Icon className="h-4 w-4" />

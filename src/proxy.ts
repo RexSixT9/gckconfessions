@@ -2,13 +2,12 @@ import { NextResponse, type NextRequest } from "next/server";
 import { verifyAdminToken } from "@/lib/auth";
 import { COOKIE_NAME } from "@/lib/constants";
 
-export default async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Use precise matching: /admin starts /admin/ or is exactly /admin
-  // This avoids /adminlogin being caught by a naive startsWith("/admin") check
-  const isAdminPage =
-    pathname === "/admin" || pathname.startsWith("/admin/");
+  // Use precise matching: /admin starts /admin/ or is exactly /admin.
+  // This avoids /adminlogin being caught by a naive startsWith("/admin") check.
+  const isAdminPage = pathname === "/admin" || pathname.startsWith("/admin/");
   const isAdminApi = pathname.startsWith("/api/admin/");
   const isConfessionApi = pathname.startsWith("/api/confessions");
   const isAdminLogin =

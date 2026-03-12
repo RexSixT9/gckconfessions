@@ -140,7 +140,7 @@ export default function SubmitPage() {
   return (
     <main className="flex-1 bg-background">
       <div className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 sm:py-12">
-        <Button variant="ghost" size="sm" render={<Link href="/" />} className="mb-4 -ml-2">
+        <Button variant="ghost" size="sm" render={<Link href="/" />} className="mb-4 -ml-2 rounded-full px-3 py-2">
           <>
             <ArrowLeft className="h-4 w-4" />
             Home
@@ -243,7 +243,12 @@ export default function SubmitPage() {
                 </div>
               </div>
 
-              <Button type="submit" className="w-full" size="lg" disabled={loading || !message.trim()}>
+              <Button
+                type="submit"
+                className="h-auto w-full rounded-full px-8 py-4 text-sm font-semibold"
+                size="lg"
+                disabled={loading || !message.trim()}
+              >
                 {loading ? (
                   <>
                     <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground/40 border-t-primary-foreground" />

@@ -73,11 +73,18 @@ export default function NotFoundPage() {
             )}
 
             <div className="flex flex-col gap-2.5 sm:flex-row sm:justify-center">
-              <Button onClick={() => router.push("/")} className="w-full sm:w-auto">
+              <Button
+                onClick={() => router.push("/")}
+                className="h-auto w-full rounded-full px-7 py-3.5 text-sm font-semibold sm:w-auto"
+              >
                 <Home className="h-4 w-4" />
                 Go home
               </Button>
-              <Button variant="outline" onClick={() => router.back()} className="w-full sm:w-auto">
+              <Button
+                variant="outline"
+                onClick={() => router.back()}
+                className="h-auto w-full rounded-full px-7 py-3.5 text-sm sm:w-auto"
+              >
                 <ArrowLeft className="h-4 w-4" />
                 Go back
               </Button>

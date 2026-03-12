@@ -76,15 +76,43 @@ export default function HomePage() {
     <main className="flex-1 bg-background">
 
       {/* ── Hero ──────────────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden">
+      <section className="relative overflow-hidden perspective-[1400px]">
         {/* Decorative floating blobs */}
         <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
           <div className="absolute -top-40 right-0 h-130 w-130 translate-x-1/3 rounded-full bg-accent/10 blur-[110px] animate-float" />
-          <div className="absolute -bottom-20 -left-24 h-95 w-95 rounded-full bg-accent/8 blur-[90px] animate-float animation-delay-500" />
+          <div className="absolute -bottom-20 -left-24 h-95 w-95 rounded-full bg-accent/10 blur-[90px] animate-float animation-delay-500" />
           <div className="absolute top-1/2 left-1/2 h-60 w-60 -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent/5 blur-[60px] animate-float animation-delay-300" />
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.55, delay: 0.15 }}
+            className="absolute right-6 top-24 hidden h-32 w-44 rounded-2xl border border-accent/20 bg-background/60 backdrop-blur-md md:block"
+            style={{ transform: "rotateY(-26deg) rotateX(10deg)" }}
+          >
+            <div className="absolute inset-3 rounded-xl border border-border/60" />
+            <div className="absolute bottom-3 left-3 h-2.5 w-20 rounded-full bg-accent/35" />
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.55, delay: 0.25 }}
+            className="absolute bottom-16 left-4 hidden h-24 w-36 rounded-2xl border border-accent/20 bg-background/60 backdrop-blur-md md:block"
+            style={{ transform: "rotateY(20deg) rotateX(-8deg)" }}
+          >
+            <div className="absolute inset-3 rounded-xl border border-border/60" />
+            <div className="absolute right-3 top-3 h-2.5 w-14 rounded-full bg-accent/30" />
+          </motion.div>
         </div>
 
-        <div className="mx-auto w-full max-w-7xl px-4 pb-16 pt-16 sm:px-6 sm:pb-20 sm:pt-24 lg:px-8 lg:pb-28 lg:pt-32">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ duration: 0.5 }}
+          className="mx-auto w-full max-w-7xl px-4 pb-16 pt-14 sm:px-6 sm:pb-20 sm:pt-20 lg:px-8 lg:pb-28 lg:pt-28"
+        >
           {/* Eyebrow */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
@@ -102,11 +130,11 @@ export default function HomePage() {
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.55, delay: 0.1 }}
-            className="mt-5 max-w-3xl"
+            className="mt-6 max-w-4xl"
           >
-            <h1 className="text-5xl font-black leading-[1.06] tracking-tight sm:text-6xl lg:text-7xl xl:text-8xl">
-              <span className="block">A safe space</span>
-              <span className="block text-accent">to speak freely.</span>
+            <h1 className="text-4xl font-black leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl xl:text-8xl">
+              <span className="block">Drop the mask.</span>
+              <span className="block text-accent">Speak the truth.</span>
             </h1>
           </motion.div>
 
@@ -115,7 +143,7 @@ export default function HomePage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.4, delay: 0.35 }}
-            className="mt-5 h-7 text-base text-muted-foreground sm:text-lg"
+            className="mt-4 h-8 text-base text-muted-foreground sm:text-lg"
           >
             <TypewriterText
               phrases={heroTypingPhrases}
@@ -129,22 +157,40 @@ export default function HomePage() {
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.45 }}
-            className="mt-4 max-w-md text-sm leading-relaxed text-muted-foreground sm:text-base"
+            className="mt-5 max-w-xl text-sm leading-relaxed text-muted-foreground sm:text-base"
           >
-            GCK Confessions is a private wall for honest thoughts. Submit freely,
-            stay anonymous, and let your words be heard.
+            GCK Confessions is a private wall for honest thoughts. Write what you
+            cannot say out loud, submit anonymously, and let your words reach
+            people who truly understand.
           </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.5 }}
+            className="mt-6 flex flex-wrap items-center gap-2"
+          >
+            <span className="rounded-full border border-border/60 bg-background/70 px-3 py-1 text-xs font-medium text-muted-foreground backdrop-blur-sm">
+              No login required
+            </span>
+            <span className="rounded-full border border-border/60 bg-background/70 px-3 py-1 text-xs font-medium text-muted-foreground backdrop-blur-sm">
+              Human moderated
+            </span>
+            <span className="rounded-full border border-border/60 bg-background/70 px-3 py-1 text-xs font-medium text-muted-foreground backdrop-blur-sm">
+              Anonymous by default
+            </span>
+          </motion.div>
 
           {/* CTAs */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.55 }}
-            className="mt-8 flex flex-col gap-3 sm:flex-row"
+            className="mt-9 flex flex-col gap-3 sm:flex-row"
           >
             <Button
               size="lg"
-              className="w-full rounded-full font-semibold sm:w-auto"
+              className="h-auto w-full rounded-full px-8 py-4 text-sm font-semibold sm:w-auto"
               render={<Link href="/submit" />}
             >
               <>
@@ -155,7 +201,7 @@ export default function HomePage() {
             <Button
               size="lg"
               variant="outline"
-              className="w-full rounded-full sm:w-auto"
+              className="h-auto w-full rounded-full px-8 py-4 text-sm sm:w-auto"
               render={<a href="#how-it-works" />}
             >
               <>
@@ -170,7 +216,7 @@ export default function HomePage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.7 }}
-            className="mt-12 flex flex-wrap gap-8 border-t border-border/40 pt-8"
+            className="mt-12 flex flex-wrap gap-8 border-t border-border/40 pt-8 sm:mt-14"
           >
             <div>
               <p className="text-2xl font-black text-accent sm:text-3xl">100%</p>
@@ -191,7 +237,7 @@ export default function HomePage() {
               </p>
             </div>
           </motion.div>
-        </div>
+        </motion.div>
       </section>
 
       {/* ── Highlights ──────────────────────────────────────────────── */}
@@ -294,7 +340,7 @@ export default function HomePage() {
           <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Button
               size="lg"
-              className="w-full rounded-full font-semibold sm:w-auto"
+              className="h-auto w-full rounded-full px-8 py-4 text-sm font-semibold sm:w-auto"
               render={<Link href="/submit" />}
             >
               <>
@@ -305,7 +351,7 @@ export default function HomePage() {
             <Button
               size="lg"
               variant="outline"
-              className="w-full rounded-full sm:w-auto"
+              className="h-auto w-full rounded-full px-8 py-4 text-sm sm:w-auto"
               render={<Link href="/guidelines" />}
             >
               <>

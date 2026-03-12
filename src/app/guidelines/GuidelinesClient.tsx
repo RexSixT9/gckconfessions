@@ -67,7 +67,12 @@ export default function GuidelinesClient() {
       transition={{ duration: 0.35 }}
       className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6 sm:py-12"
     >
-      <Button variant="ghost" size="sm" render={<Link href="/" />} className="mb-4 -ml-2">
+      <Button
+        variant="ghost"
+        size="sm"
+        render={<Link href="/" />}
+        className="mb-4 -ml-2 rounded-full px-3 py-2"
+      >
         <>
           <ArrowLeft className="h-4 w-4" />
           Home
