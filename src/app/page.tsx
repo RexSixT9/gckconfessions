@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import {
   motion,
@@ -35,21 +35,7 @@ import TypewriterText from "@/components/TypewriterText";
 import { useMotionRuntime } from "@/components/MotionProvider";
 
 /* ─── Animation variants ─────────────────────────────────────────── */
-const staggerContainer = {
-  hidden: {},
-  show: {
-    transition: { staggerChildren: 0.1, delayChildren: 0.05 },
-  },
-};
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 22 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.55, ease: [0.16, 1, 0.3, 1] },
-  },
-};
+const EASE_OUT: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
 /* ─── Data ───────────────────────────────────────────────────────── */
 const highlights = [
@@ -300,6 +286,49 @@ function Magnetic({
 export default function HomePage() {
   const { isAppReady, shouldReduceMotion } = useMotionRuntime();
   const canStartMotion = isAppReady || shouldReduceMotion;
+  const [isDesktop, setIsDesktop] = useState(false);
+
+  useEffect(() => {
+    const media = window.matchMedia("(min-width: 1024px)");
+    const onChange = (event: MediaQueryListEvent) => setIsDesktop(event.matches);
+
+    setIsDesktop(media.matches);
+    media.addEventListener("change", onChange);
+    return () => media.removeEventListener("change", onChange);
+  }, []);
+
+  const heroStaggerContainer = useMemo(
+    () => ({
+      hidden: {},
+      show: {
+        transition: {
+          staggerChildren: isDesktop ? 0.12 : 0.1,
+          delayChildren: isDesktop ? 0.1 : 0.05,
+        },
+      },
+    }),
+    [isDesktop]
+  );
+
+  const heroFadeUp = useMemo(
+    () => ({
+      hidden: {
+        opacity: 0,
+        y: isDesktop ? 28 : 22,
+        filter: isDesktop ? "blur(5px)" : "blur(0px)",
+      },
+      show: {
+        opacity: 1,
+        y: 0,
+        filter: "blur(0px)",
+        transition: {
+          duration: isDesktop ? 0.62 : 0.55,
+          ease: EASE_OUT,
+        },
+      },
+    }),
+    [isDesktop]
+  );
 
   return (
     <main className="flex-1 bg-background">
@@ -327,12 +356,12 @@ export default function HomePage() {
           <div className="mx-auto grid w-full max-w-7xl grid-cols-1 items-center gap-10 px-4 py-14 sm:px-6 sm:py-20 lg:grid-cols-2 lg:gap-20 lg:px-8 lg:py-28">
           {/* ── Left: text ── */}
           <motion.div
-            variants={staggerContainer}
+            variants={heroStaggerContainer}
             initial="hidden"
             animate={canStartMotion ? "show" : "hidden"}
           >
             {/* Eyebrow */}
-            <motion.div variants={fadeUp}>
+            <motion.div variants={heroFadeUp}>
               <Badge className="gap-1.5 bg-accent/10 px-3 py-1 text-xs text-accent hover:bg-accent/10">
                 <Sparkles className="h-3 w-3" />
                 Anonymous Space
@@ -340,16 +369,16 @@ export default function HomePage() {
             </motion.div>
 
             {/* Headline with typewriter second line */}
-            <motion.div variants={fadeUp} className="mt-5">
+            <motion.div variants={heroFadeUp} className="mt-5">
               <h1 className="text-4xl font-black leading-[1.08] tracking-tight sm:text-6xl lg:text-[4.5rem]">
                 <span className="block text-foreground">Drop the mask.</span>
                 <span className="block text-accent">
                   <TypewriterText
                     phrases={heroTypingPhrases}
-                    typingSpeed={55}
-                    deletingSpeed={28}
-                    pauseAfterType={2600}
-                    startDelay={900}
+                    typingSpeed={isDesktop ? 50 : 55}
+                    deletingSpeed={isDesktop ? 24 : 28}
+                    pauseAfterType={isDesktop ? 3000 : 2600}
+                    startDelay={isDesktop ? 1050 : 900}
                     forceAnimate
                     cursorClassName="bg-accent"
                   />
@@ -359,7 +388,7 @@ export default function HomePage() {
 
             {/* Description */}
             <motion.p
-              variants={fadeUp}
+              variants={heroFadeUp}
               className="mt-5 max-w-lg text-sm leading-relaxed text-muted-foreground sm:text-base"
             >
               GCK Confessions is a private wall for honest thoughts. Write what
@@ -368,7 +397,7 @@ export default function HomePage() {
             </motion.p>
 
             {/* Pill tags */}
-            <motion.div variants={fadeUp} className="mt-5 flex flex-wrap gap-2">
+            <motion.div variants={heroFadeUp} className="mt-5 flex flex-wrap gap-2">
               {[
                 { tag: "No login required", color: "text-success" },
                 { tag: "Human moderated", color: "text-accent" },
@@ -385,7 +414,7 @@ export default function HomePage() {
 
             {/* CTA buttons */}
             <motion.div
-              variants={fadeUp}
+              variants={heroFadeUp}
               className="mt-8 flex flex-col gap-3 sm:flex-row"
             >
               <Magnetic strength={0.25}>
@@ -423,9 +452,9 @@ export default function HomePage() {
 
           {/* ── Right: 3D floating scene (desktop) ── */}
           <motion.div
-            initial={{ opacity: 0, x: 36, scale: 0.95 }}
-            animate={canStartMotion ? { opacity: 1, x: 0, scale: 1 } : { opacity: 0, x: 36, scale: 0.95 }}
-            transition={{ duration: 0.75, delay: 0.45, ease: [0.16, 1, 0.3, 1] }}
+            initial={{ opacity: 0, x: 42, scale: 0.94, rotateY: -7 }}
+            animate={canStartMotion ? { opacity: 1, x: 0, scale: 1, rotateY: 0 } : { opacity: 0, x: 42, scale: 0.94, rotateY: -7 }}
+            transition={{ duration: 0.82, delay: 0.52, ease: EASE_OUT }}
             className="relative hidden lg:flex lg:items-center lg:justify-center"
             style={{ perspective: "1200px" }}
           >
@@ -469,7 +498,7 @@ export default function HomePage() {
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={canStartMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 8 }}
-          transition={{ duration: 0.6, delay: 1.1, ease: "easeOut" }}
+          transition={{ duration: 0.6, delay: isDesktop ? 1.25 : 1.1, ease: "easeOut" }}
           className="flex justify-center pb-7 pt-2"
           aria-hidden
         >
