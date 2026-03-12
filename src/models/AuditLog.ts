@@ -38,7 +38,8 @@ const AuditLogSchema = new Schema(
     adminEmail: { type: String, default: "", index: true, immutable: true },
     confessionId: { type: Schema.Types.ObjectId, ref: "Confession", immutable: true },
     ip: { type: String, default: "", index: true, immutable: true },
-    userAgent: { type: String, immutable: true },
+    userAgent: { type: String, default: "", immutable: true },
+    requestId: { type: String, default: "", index: true, immutable: true },
     meta: { type: Schema.Types.Mixed, default: {} },
     metaEncrypted: { type: String, default: "" },
     metaIv: { type: String, default: "" },
@@ -65,7 +66,7 @@ AuditLogSchema.pre("save", function onSave(next) {
   }
 
   if (this.isNew) {
-    const raw = `${this.get("action")}|${this.get("adminEmail")}|${this.get("ip")}|${this.get("metaEncrypted")}|${this.get("createdAt")}`;
+    const raw = `${this.get("action")}|${this.get("adminEmail")}|${this.get("ip")}|${this.get("userAgent")}|${this.get("requestId")}|${this.get("metaEncrypted")}|${this.get("createdAt")}`;
     const checksum = createHash("sha256").update(raw).digest("hex");
     this.set("checksum", checksum);
   }

@@ -3,6 +3,7 @@ import { createHash } from "crypto";
 import { cookies } from "next/headers";
 import { connectToDatabase } from "@/lib/mongodb";
 import { aj } from "@/lib/arcjet";
+import { writeAuditLog } from "@/lib/audit";
 import { isbot } from "isbot";
 import { verifyAdminToken } from "@/lib/auth";
 import { COOKIE_NAME } from "@/lib/constants";
@@ -14,6 +15,7 @@ import {
   getAdaptiveRetryAfterSeconds,
   getBlockedIps,
   getClientIp,
+  getRateLimitHeaders,
 } from "@/lib/rateLimit";
 import { MAX_MESSAGE_LENGTH, MAX_MUSIC_LENGTH } from "@/lib/constants";
 import Confession from "@/models/Confession";
@@ -260,11 +262,13 @@ export async function POST(request: Request) {
     const adaptiveCooldown = getAdaptiveRetryAfterSeconds(risk);
 
     if (!rate.allowed || !burst.allowed) {
+      const retrySource = !rate.allowed ? rate : burst;
       return NextResponse.json(
         { error: "Too many submissions. Please try again later." },
         {
           status: 429,
           headers: {
+            ...getRateLimitHeaders(retrySource),
             "Retry-After": String(
               Math.max(rate.retryAfterSeconds, burst.retryAfterSeconds, adaptiveCooldown)
             ),
@@ -327,6 +331,21 @@ export async function POST(request: Request) {
       messageHash,
       music,
     });
+
+    try {
+      await writeAuditLog({
+        action: "confession_created",
+        request,
+        confessionId: String(confession._id),
+        meta: {
+          moderationChanged: moderated.clean !== message,
+          musicIncluded: Boolean(music),
+          fingerprint,
+        },
+      });
+    } catch (logError) {
+      console.error("AuditLog write failed (confession create):", logError);
+    }
 
     return NextResponse.json({ confession: serializeConfession(confession) }, { status: 201 });
   } catch (error) {

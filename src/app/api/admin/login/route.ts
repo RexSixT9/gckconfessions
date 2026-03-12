@@ -3,11 +3,11 @@ import bcrypt from "bcryptjs";
 import { connectToDatabase } from "@/lib/mongodb";
 import { aj } from "@/lib/arcjet";
 import { signAdminToken } from "@/lib/auth";
-import { checkLoginLimit, getBlockedIps, getClientIp } from "@/lib/rateLimit";
+import { writeAuditLog } from "@/lib/audit";
+import { checkLoginIdentityLimit, checkLoginLimit, getBlockedIps, getClientIp, getRateLimitHeaders } from "@/lib/rateLimit";
 import { COOKIE_NAME, COOKIE_OPTIONS, COOKIE_MAX_AGE, MIN_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH } from "@/lib/constants";
 import { isSameOrigin, isValidEmail } from "@/lib/requestUtils";
 import Admin from "@/models/Admin";
-import AuditLog from "@/models/AuditLog";
 const DUMMY_PASSWORD_HASH = "$2a$10$CwTycUXWue0Thq9StjUM0uJ8n9f5M5w7x1YgnSUQoqBYwygJyI072";
 
 export async function POST(request: Request) {
@@ -46,19 +46,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
     }
 
-    const rateKey = `login:${ip}`;
-    const rate = await checkLoginLimit(rateKey);
-
-    if (!rate.allowed) {
-      return NextResponse.json(
-        { error: "Too many login attempts. Try again later." },
-        {
-          status: 429,
-          headers: { "Retry-After": String(rate.retryAfterSeconds) },
-        }
-      );
-    }
-
     let body: unknown;
     try {
       body = await request.json();
@@ -77,6 +64,24 @@ export async function POST(request: Request) {
         : "";
     // Do NOT trim passwords — whitespace may be intentional
     const password = typeof payload.password === "string" ? payload.password : "";
+
+    const rateKey = `login:${ip}`;
+    const identityKey = `login-account:${email || "unknown"}`;
+    const [rate, identityRate] = await Promise.all([
+      checkLoginLimit(rateKey),
+      checkLoginIdentityLimit(identityKey),
+    ]);
+
+    if (!rate.allowed || !identityRate.allowed) {
+      const retrySource = rate.allowed ? identityRate : rate;
+      return NextResponse.json(
+        { error: "Too many login attempts. Try again later." },
+        {
+          status: 429,
+          headers: getRateLimitHeaders(retrySource),
+        }
+      );
+    }
 
     if (!email || !password) {
       return NextResponse.json(
@@ -117,13 +122,12 @@ export async function POST(request: Request) {
     }
 
     if (!admin || typeof passwordHash !== "string" || !isValid) {
-      // Log failed attempt
       try {
-        await AuditLog.create({
+        await writeAuditLog({
           action: "admin_login_failed",
+          request,
           adminEmail: email,
-          ip,
-          meta: { reason: "invalid_credentials" },
+          meta: { reason: "invalid_credentials", loginKey: identityKey },
         });
       } catch (logError) {
         console.error("Failed to log failed login attempt:", logError);
@@ -141,10 +145,10 @@ export async function POST(request: Request) {
     });
 
     try {
-      await AuditLog.create({
+      await writeAuditLog({
         action: "admin_login",
+        request,
         adminEmail: admin.email ?? email,
-        ip,
       });
     } catch (logErr) {
       console.error("AuditLog write failed (login):", logErr);
@@ -154,6 +158,8 @@ export async function POST(request: Request) {
       ok: true,
       message: "Login successful.",
       redirectTo: "/admin"
+    }, {
+      headers: { "Cache-Control": "no-store" },
     });
 
     // Set secure httpOnly cookie

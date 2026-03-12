@@ -3,13 +3,13 @@ import { cookies } from "next/headers";
 import mongoose from "mongoose";
 import { connectToDatabase } from "@/lib/mongodb";
 import { aj } from "@/lib/arcjet";
+import { writeAuditLog } from "@/lib/audit";
 import { verifyAdminToken } from "@/lib/auth";
 import { COOKIE_NAME } from "@/lib/constants";
-import { getClientIp } from "@/lib/rateLimit";
+import { checkAdminActionLimit, getClientIp, getRateLimitHeaders } from "@/lib/rateLimit";
 import { isSameOrigin } from "@/lib/requestUtils";
 import Confession from "@/models/Confession";
 import DeletedConfession from "@/models/DeletedConfession";
-import AuditLog from "@/models/AuditLog";
 
 type ConfessionResponse = {
   _id: string;
@@ -84,6 +84,14 @@ export async function PATCH(
 
     if (!admin.sub) {
       return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+    }
+
+    const adminRate = await checkAdminActionLimit(`confession-patch:${getClientIp(request)}`);
+    if (!adminRate.allowed) {
+      return NextResponse.json(
+        { error: "Too many requests. Try again later." },
+        { status: 429, headers: getRateLimitHeaders(adminRate) }
+      );
     }
 
     const { id } = await params;
@@ -175,12 +183,35 @@ export async function PATCH(
     }
 
     try {
-      await AuditLog.create({
-        action: "confession_updated",
-        adminEmail: admin.email,
-        ip: getClientIp(request),
-        meta: { confessionId: id, update },
-      });
+      if (status !== undefined && status !== (current.status ?? "pending")) {
+        await writeAuditLog({
+          action: "status_changed",
+          request,
+          adminEmail: admin.email,
+          confessionId: id,
+          meta: { from: current.status ?? "pending", to: status },
+        });
+      }
+
+      if (posted !== undefined && posted !== Boolean(current.posted)) {
+        await writeAuditLog({
+          action: posted ? "published" : "unpublished",
+          request,
+          adminEmail: admin.email,
+          confessionId: id,
+          meta: { posted },
+        });
+      }
+
+      if (Object.keys(update).length > 0) {
+        await writeAuditLog({
+          action: "confession_updated",
+          request,
+          adminEmail: admin.email,
+          confessionId: id,
+          meta: { update },
+        });
+      }
     } catch (logErr) {
       console.error("AuditLog write failed (PATCH):", logErr);
     }
@@ -228,6 +259,14 @@ export async function DELETE(
     const admin = await verifyAdminToken(token);
     if (!admin.sub) {
       return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+    }
+
+    const adminRate = await checkAdminActionLimit(`confession-delete:${getClientIp(request)}`);
+    if (!adminRate.allowed) {
+      return NextResponse.json(
+        { error: "Too many requests. Try again later." },
+        { status: 429, headers: getRateLimitHeaders(adminRate) }
+      );
     }
 
     const { id } = await params;
@@ -283,10 +322,11 @@ export async function DELETE(
     backupId = null;
 
     try {
-      await AuditLog.create({
+      await writeAuditLog({
         action: "confession_deleted",
+        request,
         adminEmail: admin.email,
-        ip: getClientIp(request),
+        confessionId: id,
         meta: { confessionId: id, backedUp: true },
       });
     } catch (logErr) {

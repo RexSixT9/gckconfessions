@@ -77,8 +77,8 @@ export function ScrollReveal({
   const inViewOptions = useMemo(
     () => ({
       once: true,
-      margin: isMobile || isLowEnd ? "0px 0px -40px 0px" : "0px 0px -80px 0px",
-      amount: isMobile || isLowEnd ? 0.08 : 0.2,
+      margin: (isMobile || isLowEnd ? "0px 0px -24px 0px" : "0px 0px -56px 0px") as const,
+      amount: isMobile || isLowEnd ? 0.03 : 0.08,
     }),
     [isLowEnd, isMobile]
   );

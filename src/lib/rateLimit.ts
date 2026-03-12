@@ -14,6 +14,8 @@ export type RateLimitResult = {
   retryAfterSeconds: number;
 };
 
+export type RateLimitHeaders = Record<string, string>;
+
 // ─── IP helpers ──────────────────────────────────────────────────────────────
 
 export function getClientIp(request: Request): string {
@@ -21,16 +23,22 @@ export function getClientIp(request: Request): string {
     return process.env.DEV_IP_OVERRIDE;
   }
 
+  const normalizeIp = (value: string | null) => {
+    if (!value) return "unknown";
+    const candidate = value.split(",")[0]?.trim() ?? "unknown";
+    return candidate.slice(0, 64) || "unknown";
+  };
+
   const cfConnectingIp = request.headers.get("cf-connecting-ip");
-  if (cfConnectingIp) return cfConnectingIp;
+  if (cfConnectingIp) return normalizeIp(cfConnectingIp);
 
   const vercelForwarded = request.headers.get("x-vercel-forwarded-for");
-  if (vercelForwarded) return vercelForwarded.split(",")[0]?.trim() || "unknown";
+  if (vercelForwarded) return normalizeIp(vercelForwarded);
 
   const forwarded = request.headers.get("x-forwarded-for");
-  if (forwarded) return forwarded.split(",")[0]?.trim() || "unknown";
+  if (forwarded) return normalizeIp(forwarded);
 
-  return request.headers.get("x-real-ip") || "unknown";
+  return normalizeIp(request.headers.get("x-real-ip"));
 }
 
 export function getBlockedIps(): string[] {
@@ -67,6 +75,15 @@ const loginLimiter = new RateLimiterMemory({
   points: MAX_LOGIN_ATTEMPTS,
   duration: process.env.NODE_ENV === "production" ? 15 * 60 : 60 * 60,
   blockDuration: process.env.NODE_ENV === "production" ? 15 * 60 : 0,
+});
+
+/**
+ * Email-scoped login limiter slows credential stuffing against a single admin account.
+ */
+const loginIdentityLimiter = new RateLimiterMemory({
+  points: process.env.NODE_ENV === "production" ? 6 : 30,
+  duration: process.env.NODE_ENV === "production" ? 15 * 60 : 60 * 60,
+  blockDuration: process.env.NODE_ENV === "production" ? 20 * 60 : 0,
 });
 
 /**
@@ -139,10 +156,22 @@ export function checkLoginLimit(key: string) {
   return consume(loginLimiter, key);
 }
 
+export function checkLoginIdentityLimit(key: string) {
+  return consume(loginIdentityLimiter, key);
+}
+
 export function checkSetupLimit(key: string) {
   return consume(setupLimiter, key);
 }
 
 export function checkAdminActionLimit(key: string) {
   return consume(adminActionLimiter, key);
+}
+
+export function getRateLimitHeaders(result: RateLimitResult): RateLimitHeaders {
+  return {
+    "Retry-After": String(Math.max(1, result.retryAfterSeconds)),
+    "X-RateLimit-Remaining": String(Math.max(0, result.remaining)),
+    "X-RateLimit-Reset": String(Math.ceil(result.reset / 1000)),
+  };
 }

@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { AlertCircle, CheckCircle2, Loader, ShieldCheck, Mail, Eye, EyeOff, KeyRound } from "lucide-react";
+import { AlertCircle, ArrowRight, CheckCircle2, Loader, ShieldCheck, Mail, Eye, EyeOff, KeyRound } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -228,10 +228,10 @@ export default function AdminLoginPage() {
                   <Button
                     type="button"
                     variant="ghost"
-                    size="icon"
+                    size="icon-sm"
                     onClick={() => setShowPassword(!showPassword)}
                     disabled={loading}
-                    className="absolute inset-y-0 right-0 h-full w-10 rounded-l-none"
+                    className="absolute right-1 top-1/2 -translate-y-1/2 rounded-md text-muted-foreground"
                     aria-label={showPassword ? "Hide password" : "Show password"}
                   >
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -242,8 +242,10 @@ export default function AdminLoginPage() {
               {/* Submit */}
               <Button
                 type="submit"
+                variant="brand"
+                size="touch"
                 disabled={loading || !email.trim() || password.length < MIN_PASSWORD_LENGTH}
-                className="mt-2 w-full rounded-lg font-semibold"
+                className="mt-2 w-full rounded-xl font-semibold shadow-none"
               >
                 {loading ? (
                   <>
@@ -251,7 +253,10 @@ export default function AdminLoginPage() {
                     Signing in…
                   </>
                 ) : (
-                  "Sign in"
+                  <>
+                    Sign in
+                    <ArrowRight className="h-4 w-4" />
+                  </>
                 )}
               </Button>
             </form>

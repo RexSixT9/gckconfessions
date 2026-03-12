@@ -44,29 +44,27 @@ export default async function AdminPage() {
       <PageReveal className="mx-auto w-full max-w-5xl px-4 pb-16 pt-6 sm:px-6 sm:pt-10" y={10} duration={0.4}>
 
         {/*  Page header  */}
-        <ScrollReveal>
-          <div className="mb-8 flex animate-slide-down flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-            <div>
-              <Badge variant="secondary" className="mb-3 uppercase tracking-wider">
-                Admin Panel
-              </Badge>
-              <h1 className="text-3xl font-black tracking-tight text-foreground sm:text-4xl">
-                Confession Review
-              </h1>
-              <p className="mt-2 text-sm text-muted-foreground">
-                Review, approve, reject, and manage submissions.
-              </p>
-            </div>
-            <SignOutButton />
+        <div className="mb-8 flex animate-slide-down flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <Badge variant="secondary" className="mb-3 uppercase tracking-wider">
+              Admin Panel
+            </Badge>
+            <h1 className="text-3xl font-black tracking-tight text-foreground sm:text-4xl">
+              Confession Review
+            </h1>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Review, approve, reject, and manage submissions.
+            </p>
           </div>
-        </ScrollReveal>
+          <SignOutButton />
+        </div>
 
-        <ScrollReveal delay={0.04}>
+        <ScrollReveal delay={0.02} y={10}>
           <AdminStatsBar initialStats={stats} />
         </ScrollReveal>
 
         {/*  Main list  */}
-        <ScrollReveal delay={0.08}>
+        <ScrollReveal delay={0.06} y={12}>
           <Card className="animate-blur-in border-border/70 animation-delay-400">
             <CardContent className="p-6 sm:p-8">
               <AdminList />

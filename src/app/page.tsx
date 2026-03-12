@@ -12,6 +12,7 @@ import {
 import {
   ArrowRight,
   CheckCircle2,
+  ChevronDown,
   Heart,
   Lock,
   MessageSquare,
@@ -420,17 +421,14 @@ export default function HomePage() {
               <Magnetic strength={0.25}>
                 <Button
                   size="lg"
-                  className="btn-glow group relative h-auto w-full overflow-hidden rounded-full px-8 py-4 text-sm font-semibold shadow-lg shadow-accent/20 transition-shadow hover:shadow-accent/35 hover:shadow-xl sm:w-auto"
+                  variant="brand"
+                  className="group h-auto w-full rounded-full px-8 py-4 text-sm font-semibold shadow-none sm:w-auto"
                   render={<Link href="/submit" />}
                 >
                   <>
                     <PenLine className="h-4 w-4" />
-                    Write a confession
+                    Write your confession
                     <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                    <span
-                      aria-hidden
-                      className="absolute inset-0 -translate-x-full bg-linear-to-r from-transparent via-white/20 to-transparent transition-transform duration-500 group-hover:translate-x-full"
-                    />
                   </>
                 </Button>
               </Magnetic>
@@ -504,13 +502,20 @@ export default function HomePage() {
         >
           <a
             href="#highlights"
-            className="group flex flex-col items-center gap-2 text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground/50 transition-colors hover:text-muted-foreground/80"
+            className="group flex flex-col items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground/55 transition-colors hover:text-muted-foreground/80"
           >
-            <span>scroll</span>
             <motion.div
-              animate={{ scaleY: [0.6, 1, 0.6], opacity: [0.4, 1, 0.4] }}
-              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-              className="h-9 w-px origin-top rounded-full bg-linear-to-b from-muted-foreground/60 to-transparent"
+              animate={{ y: [0, 2, 0], opacity: [0.55, 1, 0.55] }}
+              transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+              className="flex items-center gap-1"
+            >
+              <span>Scroll</span>
+              <ChevronDown className="h-3 w-3" />
+            </motion.div>
+            <motion.div
+              animate={{ scaleY: [0.55, 1, 0.55], opacity: [0.35, 0.8, 0.35] }}
+              transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut", delay: 0.12 }}
+              className="h-7 w-px origin-top rounded-full bg-linear-to-b from-muted-foreground/60 to-transparent"
             />
           </a>
         </motion.div>

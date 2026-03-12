@@ -3,13 +3,13 @@ import bcrypt from "bcryptjs";
 import { cookies } from "next/headers";
 import { connectToDatabase } from "@/lib/mongodb";
 import { aj } from "@/lib/arcjet";
+import { writeAuditLog } from "@/lib/audit";
 import { verifyAdminToken } from "@/lib/auth";
 import { validatePasswordPolicy } from "@/lib/moderation";
 import { COOKIE_NAME, BCRYPT_ROUNDS, MAX_EMAIL_LENGTH } from "@/lib/constants";
-import { checkAdminActionLimit, checkSetupLimit, getBlockedIps, getClientIp } from "@/lib/rateLimit";
+import { checkSetupLimit, getBlockedIps, getClientIp, getRateLimitHeaders } from "@/lib/rateLimit";
 import { isSameOrigin, isValidEmail, safeCompare } from "@/lib/requestUtils";
 import Admin from "@/models/Admin";
-import AuditLog from "@/models/AuditLog";
 
 /**
  * GET /api/admin/admins
@@ -81,7 +81,7 @@ export async function POST(request: Request) {
     if (!rate.allowed) {
       return NextResponse.json(
         { error: "Too many requests. Try again later.", code: "RATE_LIMIT" },
-        { status: 429, headers: { "Retry-After": String(rate.retryAfterSeconds) } }
+        { status: 429, headers: getRateLimitHeaders(rate) }
       );
     }
 
@@ -143,10 +143,10 @@ export async function POST(request: Request) {
     const passwordHash = await bcrypt.hash(password, BCRYPT_ROUNDS);
     const newAdmin = await Admin.create({ email, passwordHash });
 
-    await AuditLog.create({
+    await writeAuditLog({
       action: "admin_created",
+      request,
       adminEmail: email,
-      ip,
       meta: { createdEmail: email },
     });
 

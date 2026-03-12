@@ -3,11 +3,12 @@ import mongoose from "mongoose";
 import { cookies } from "next/headers";
 import { connectToDatabase } from "@/lib/mongodb";
 import { aj } from "@/lib/arcjet";
+import { writeAuditLog } from "@/lib/audit";
 import { verifyAdminToken } from "@/lib/auth";
 import { COOKIE_NAME } from "@/lib/constants";
-import { checkAdminActionLimit, getClientIp } from "@/lib/rateLimit";
+import { checkAdminActionLimit, getClientIp, getRateLimitHeaders } from "@/lib/rateLimit";
+import { isSameOrigin } from "@/lib/requestUtils";
 import Admin from "@/models/Admin";
-import AuditLog from "@/models/AuditLog";
 
 /**
  * DELETE /api/admin/admins/[id]
@@ -21,6 +22,10 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    if (!isSameOrigin(request)) {
+      return NextResponse.json({ error: "Invalid origin." }, { status: 403 });
+    }
+
     let arcjetDecision;
     try {
       arcjetDecision = await aj.protect(request);
@@ -45,7 +50,7 @@ export async function DELETE(
     if (!rate.allowed) {
       return NextResponse.json(
         { error: "Too many requests. Try again later." },
-        { status: 429, headers: { "Retry-After": String(rate.retryAfterSeconds) } }
+        { status: 429, headers: getRateLimitHeaders(rate) }
       );
     }
 
@@ -100,10 +105,10 @@ export async function DELETE(
     }
 
     try {
-      await AuditLog.create({
+      await writeAuditLog({
         action: "admin_deleted",
+        request,
         adminEmail: caller.email,
-        ip,
         meta: {
           deletedId: id,
           deletedEmail: (deleted as { email?: string }).email ?? "",

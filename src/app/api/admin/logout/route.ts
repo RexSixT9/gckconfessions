@@ -2,13 +2,17 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { connectToDatabase } from "@/lib/mongodb";
 import { aj } from "@/lib/arcjet";
+import { writeAuditLog } from "@/lib/audit";
 import { verifyAdminToken } from "@/lib/auth";
-import { getClientIp } from "@/lib/rateLimit";
 import { COOKIE_NAME, COOKIE_OPTIONS } from "@/lib/constants";
-import AuditLog from "@/models/AuditLog";
+import { isSameOrigin } from "@/lib/requestUtils";
 
 export async function POST(request: Request) {
   try {
+    if (!isSameOrigin(request)) {
+      return NextResponse.json({ error: "Invalid origin." }, { status: 403 });
+    }
+
     // Arcjet protection
     let arcjetDecision;
     try {
@@ -33,14 +37,12 @@ export async function POST(request: Request) {
         const payload = await verifyAdminToken(token);
         if (payload.sub && payload.email) {
           adminEmail = payload.email;
-          
-          // Log the logout action
+
           await connectToDatabase();
-          const ip = getClientIp(request);
-          await AuditLog.create({
+          await writeAuditLog({
             action: "admin_logout",
+            request,
             adminEmail,
-            ip,
           });
         }
       } catch (error) {
