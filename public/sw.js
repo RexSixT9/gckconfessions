@@ -1,4 +1,4 @@
-const CACHE_NAME = "gck-v2-cache-v1";
+const CACHE_NAME = "gck-v3-cache-v2";
 const APP_SHELL = ["/", "/submit", "/guidelines"];
 
 self.addEventListener("install", (event) => {
@@ -18,18 +18,57 @@ self.addEventListener("activate", (event) => {
 });
 
 self.addEventListener("fetch", (event) => {
-  if (event.request.method !== "GET") return;
+  const { request } = event;
+  if (request.method !== "GET") return;
 
-  event.respondWith(
-    caches.match(event.request).then((cached) => {
-      if (cached) return cached;
-      return fetch(event.request)
+  const url = new URL(request.url);
+  if (url.origin !== self.location.origin) return;
+
+  // Never cache Next.js versioned chunks to avoid stale asset 404/MIME issues.
+  if (url.pathname.startsWith("/_next/")) {
+    event.respondWith(fetch(request, { cache: "no-store" }));
+    return;
+  }
+
+  // APIs should always hit network.
+  if (url.pathname.startsWith("/api/")) {
+    event.respondWith(fetch(request));
+    return;
+  }
+
+  // Navigation requests: network-first, fallback to cached shell page.
+  if (request.mode === "navigate") {
+    event.respondWith(
+      fetch(request)
         .then((response) => {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone)).catch(() => undefined);
+          if (response.ok) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, clone)).catch(() => undefined);
+          }
           return response;
         })
-        .catch(() => caches.match("/") || Response.error());
+        .catch(async () => {
+          const cachedPage = await caches.match(request);
+          if (cachedPage) return cachedPage;
+          const shell = await caches.match("/");
+          return shell || Response.error();
+        })
+    );
+    return;
+  }
+
+  event.respondWith(
+    caches.match(request).then((cached) => {
+      if (cached) return cached;
+      return fetch(request)
+        .then((response) => {
+          if (response.ok) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, clone)).catch(() => undefined);
+          }
+          return response;
+        })
+        .catch(() => Response.error());
     })
   );
 });

@@ -9,7 +9,15 @@ export default function PWARegister() {
 
     const register = async () => {
       try {
-        await navigator.serviceWorker.register("/sw.js", { scope: "/" });
+        const registration = await navigator.serviceWorker.register("/sw.js", { scope: "/" });
+        void registration.update();
+
+        let hasRefreshed = false;
+        navigator.serviceWorker.addEventListener("controllerchange", () => {
+          if (hasRefreshed) return;
+          hasRefreshed = true;
+          window.location.reload();
+        });
       } catch (error) {
         console.warn("Service worker registration failed", error);
       }
