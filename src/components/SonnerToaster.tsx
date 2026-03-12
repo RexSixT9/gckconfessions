@@ -3,24 +3,27 @@
 import { useTheme } from "next-themes";
 import { Toaster } from "sonner";
 
-/**
- * Sonner Toaster that automatically matches the app's current light/dark theme.
- * Rendered once in the root layout.
- */
 export function SonnerToaster() {
   const { resolvedTheme } = useTheme();
 
   return (
     <Toaster
       theme={resolvedTheme as "light" | "dark" | "system"}
-      position="bottom-center"
-      richColors
+      position="bottom-right"
       closeButton
-      duration={4500}
+      duration={4000}
+      gap={8}
       toastOptions={{
-        style: {
-          fontFamily: "var(--font-geist-sans)",
-          borderRadius: "var(--radius)",
+        classNames: {
+          toast: "sonner-toast",
+          title: "sonner-title",
+          description: "sonner-description",
+          closeButton: "sonner-close",
+          actionButton: "sonner-action",
+          success: "sonner-success",
+          error: "sonner-error",
+          warning: "sonner-warning",
+          info: "sonner-info",
         },
       }}
     />

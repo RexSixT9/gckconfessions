@@ -7,6 +7,7 @@ import {
   useMotionValue,
   useTransform,
   useSpring,
+  useScroll,
   AnimatePresence,
 } from "framer-motion";
 import {
@@ -231,9 +232,60 @@ function FloatingConfessionCard() {
   );
 }
 
+/* ─── Scroll progress bar ────────────────────────────────────────── */
+function ScrollProgress() {
+  const { scrollYProgress } = useScroll();
+  const scaleX = useSpring(scrollYProgress, { stiffness: 400, damping: 40 });
+  return (
+    <motion.div
+      className="fixed left-0 right-0 top-0 z-200 h-0.5 origin-left bg-accent"
+      style={{ scaleX }}
+      aria-hidden
+    />
+  );
+}
+
+/* ─── Magnetic hover wrapper ─────────────────────────────────────── */
+function Magnetic({
+  children,
+  strength = 0.3,
+}: {
+  children: React.ReactNode;
+  strength?: number;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  const springX = useSpring(x, { stiffness: 200, damping: 20 });
+  const springY = useSpring(y, { stiffness: 200, damping: 20 });
+
+  function onMove(e: React.MouseEvent<HTMLDivElement>) {
+    const rect = ref.current?.getBoundingClientRect();
+    if (!rect) return;
+    x.set((e.clientX - rect.left - rect.width / 2) * strength);
+    y.set((e.clientY - rect.top - rect.height / 2) * strength);
+  }
+  function onLeave() {
+    x.set(0);
+    y.set(0);
+  }
+
+  return (
+    <motion.div
+      ref={ref}
+      style={{ x: springX, y: springY }}
+      onMouseMove={onMove}
+      onMouseLeave={onLeave}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
 export default function HomePage() {
   return (
     <main className="flex-1 bg-background">
+      <ScrollProgress />
 
       {/* ── Hero ──────────────────────────────────────────────────────── */}
       <section className="relative overflow-hidden">
@@ -242,6 +294,8 @@ export default function HomePage() {
           <div className="absolute -right-32 -top-48 h-160 w-160 rounded-full bg-accent/8 blur-[130px] animate-float" />
           <div className="absolute -bottom-32 -left-32 h-130 w-130 rounded-full bg-accent/8 blur-[110px] animate-float animation-delay-500" />
           <div className="absolute left-1/3 top-1/2 h-95 w-95 -translate-y-1/2 rounded-full bg-violet-500/4 blur-[90px] animate-float animation-delay-300" />
+          {/* Subtle grid lines */}
+          <div className="absolute inset-0 bg-[linear-gradient(rgba(var(--accent-rgb,220,40,120),0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(var(--accent-rgb,220,40,120),0.04)_1px,transparent_1px)] bg-size-[56px_56px] mask-[radial-gradient(ellipse_80%_60%_at_50%_40%,black,transparent)]" />
         </div>
 
         <div className="mx-auto grid w-full max-w-7xl grid-cols-1 items-center gap-10 px-4 pb-16 pt-14 sm:px-6 sm:pb-20 sm:pt-20 lg:grid-cols-2 lg:gap-20 lg:px-8 lg:pb-28 lg:pt-28">
@@ -291,10 +345,14 @@ export default function HomePage() {
 
             {/* Pill tags */}
             <motion.div variants={fadeUp} className="mt-5 flex flex-wrap gap-2">
-              {["No login required", "Human moderated", "Anonymous by default"].map((tag) => (
+              {[
+                { tag: "No login required", color: "text-success" },
+                { tag: "Human moderated", color: "text-accent" },
+                { tag: "Anonymous by default", color: "text-muted-foreground" },
+              ].map(({ tag, color }) => (
                 <span
                   key={tag}
-                  className="rounded-full border border-border/60 bg-background/70 px-3 py-1 text-xs font-medium text-muted-foreground backdrop-blur-sm"
+                  className={`rounded-full border border-border/60 bg-background/70 px-3 py-1 text-xs font-medium backdrop-blur-sm ${color}`}
                 >
                   {tag}
                 </span>
@@ -306,27 +364,36 @@ export default function HomePage() {
               variants={fadeUp}
               className="mt-8 flex flex-col gap-3 sm:flex-row"
             >
-              <Button
-                size="lg"
-                className="btn-glow h-auto w-full rounded-full px-8 py-4 text-sm font-semibold sm:w-auto"
-                render={<Link href="/submit" />}
-              >
-                <>
-                  <PenLine className="h-4 w-4" />
-                  Write a confession
-                </>
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                className="h-auto w-full rounded-full px-8 py-4 text-sm sm:w-auto"
-                render={<a href="#how-it-works" />}
-              >
-                <>
-                  How it works
-                  <ArrowRight className="h-4 w-4" />
-                </>
-              </Button>
+              <Magnetic strength={0.25}>
+                <Button
+                  size="lg"
+                  className="btn-glow group relative h-auto w-full overflow-hidden rounded-full px-8 py-4 text-sm font-semibold shadow-lg shadow-accent/20 transition-shadow hover:shadow-accent/35 hover:shadow-xl sm:w-auto"
+                  render={<Link href="/submit" />}
+                >
+                  <>
+                    <PenLine className="h-4 w-4" />
+                    Write a confession
+                    <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                    <span
+                      aria-hidden
+                      className="absolute inset-0 -translate-x-full bg-linear-to-r from-transparent via-white/20 to-transparent transition-transform duration-500 group-hover:translate-x-full"
+                    />
+                  </>
+                </Button>
+              </Magnetic>
+              <Magnetic strength={0.25}>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="h-auto w-full rounded-full border-border/60 px-8 py-4 text-sm backdrop-blur-sm transition-all hover:border-accent/40 hover:bg-accent/5 sm:w-auto"
+                  render={<a href="#how-it-works" />}
+                >
+                  <>
+                    How it works
+                    <ArrowRight className="h-4 w-4" />
+                  </>
+                </Button>
+              </Magnetic>
             </motion.div>
 
             {/* Stats row */}
@@ -447,53 +514,107 @@ export default function HomePage() {
       {/* ── CTA Banner ──────────────────────────────────────────────── */}
       <section className="mx-auto w-full max-w-7xl px-4 pb-16 sm:px-6 sm:pb-20 lg:px-8">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, scale: 0.97, y: 24 }}
+          whileInView={{ opacity: 1, scale: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-          className="relative overflow-hidden rounded-3xl border border-accent/20 bg-linear-to-br from-accent/8 via-accent/5 to-transparent px-6 py-14 text-center sm:px-10 sm:py-20"
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          className="relative overflow-hidden rounded-3xl"
         >
-          {/* Decorative orbs */}
-          <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden rounded-3xl">
-            <div className="absolute left-1/2 top-1/2 h-96 w-96 -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent/20 blur-3xl" />
-            <div className="absolute -right-16 top-0 h-64 w-64 rounded-full bg-accent/10 blur-[80px]" />
-          </div>
-          {/* Top shimmer line */}
-          <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-accent/50 to-transparent" />
+          {/* Dark gradient base */}
+          <div className="absolute inset-0 bg-linear-to-br from-zinc-950 via-accent/20 to-zinc-950 dark:from-zinc-900 dark:via-accent/15 dark:to-zinc-900" />
 
-          <Badge className="mb-4 gap-1.5 bg-accent/15 text-accent hover:bg-accent/15">
-            <Sparkles className="h-3 w-3" />
-            Community Wall
-          </Badge>
-          <h3 className="text-2xl font-black sm:text-4xl">
-            Your secret is safe here.
-          </h3>
-          <p className="mx-auto mt-4 max-w-lg text-sm text-muted-foreground sm:text-base">
-            Thousands have already shared their untold stories. If you have
-            something to say, this is your place.
-          </p>
-          <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <Button
-              size="lg"
-              className="btn-glow h-auto w-full rounded-full px-8 py-4 text-sm font-semibold sm:w-auto"
-              render={<Link href="/submit" />}
+          {/* Noise texture overlay */}
+          <div className="absolute inset-0 opacity-[0.025] [background-image:url('data:image/svg+xml,%3Csvg viewBox%3D%220 0 256 256%22 xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cfilter id%3D%22n%22%3E%3CfeTurbulence type%3D%22fractalNoise%22 baseFrequency%3D%220.9%22 numOctaves%3D%224%22 stitchTiles%3D%22stitch%22%2F%3E%3C%2Ffilter%3E%3Crect width%3D%22100%25%22 height%3D%22100%25%22 filter%3D%22url(%23n)%22%2F%3E%3C%2Fsvg%3E')]" />
+
+          {/* Glow blobs */}
+          <div className="pointer-events-none absolute -left-16 -top-16 h-64 w-64 rounded-full bg-accent/25 blur-3xl" />
+          <div className="pointer-events-none absolute -bottom-16 -right-16 h-72 w-72 rounded-full bg-accent/20 blur-3xl" />
+          <div className="pointer-events-none absolute left-1/2 top-1/2 h-48 w-48 -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent/10 blur-3xl" />
+
+          {/* Grid dots */}
+          <div className="absolute inset-0 bg-[radial-gradient(rgba(220,38,120,0.07)_1px,transparent_1px)] bg-size-[28px_28px]" />
+
+          {/* Top shimmer line */}
+          <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-accent/60 to-transparent" />
+
+          {/* Content */}
+          <div className="relative z-10 px-8 py-16 text-center sm:py-24">
+            {/* Animated badge */}
+            <motion.span
+              animate={{ y: [0, -5, 0] }}
+              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+              className="mb-8 inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-accent"
             >
-              <>
-                <Heart className="h-4 w-4" />
-                Submit now
-              </>
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="h-auto w-full rounded-full px-8 py-4 text-sm sm:w-auto"
-              render={<Link href="/guidelines" />}
-            >
-              <>
-                <CheckCircle2 className="h-4 w-4" />
-                Read guidelines
-              </>
-            </Button>
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-accent" />
+              Join the community
+            </motion.span>
+
+            {/* Headline */}
+            <h3 className="mx-auto mt-4 max-w-2xl text-3xl font-black tracking-tight text-white sm:text-5xl leading-[1.08]">
+              Your secret is{" "}
+              <span className="relative inline-block text-accent">
+                safe here.
+                <svg
+                  className="absolute -bottom-1.5 left-0 w-full"
+                  viewBox="0 0 200 8"
+                  fill="none"
+                  aria-hidden
+                >
+                  <path
+                    d="M2 6 C40 2 100 2 198 4"
+                    stroke="currentColor"
+                    strokeOpacity="0.5"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              </span>
+            </h3>
+
+            {/* Subtext */}
+            <p className="mx-auto mt-5 max-w-lg text-sm leading-relaxed text-zinc-400 sm:text-base">
+              Thousands have already shared their untold stories. If you have
+              something to say, this is your place.
+            </p>
+
+            {/* CTA buttons */}
+            <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
+              <Magnetic strength={0.3}>
+                <Button
+                  size="lg"
+                  className="group relative h-auto w-full overflow-hidden rounded-full bg-accent px-10 py-5 text-sm font-semibold text-accent-foreground shadow-2xl shadow-accent/30 transition-all hover:bg-accent/90 hover:shadow-accent/50 sm:w-auto"
+                  render={<Link href="/submit" />}
+                >
+                  <>
+                    <Heart className="h-4 w-4" />
+                    Submit now
+                    <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                    <span
+                      aria-hidden
+                      className="absolute inset-0 -translate-x-full bg-linear-to-r from-transparent via-white/15 to-transparent transition-transform duration-700 group-hover:translate-x-full"
+                    />
+                  </>
+                </Button>
+              </Magnetic>
+              <Magnetic strength={0.3}>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="h-auto w-full rounded-full border-white/20 bg-white/5 px-10 py-5 text-sm font-semibold text-white backdrop-blur-sm transition-all hover:border-white/35 hover:bg-white/10 sm:w-auto"
+                  render={<Link href="/guidelines" />}
+                >
+                  <>
+                    <CheckCircle2 className="h-4 w-4" />
+                    Read guidelines
+                  </>
+                </Button>
+              </Magnetic>
+            </div>
+
+            {/* Trust line */}
+            <p className="mt-8 text-xs text-zinc-600">
+              No account needed&nbsp;·&nbsp;Always anonymous&nbsp;·&nbsp;100% free
+            </p>
           </div>
         </motion.div>
       </section>
