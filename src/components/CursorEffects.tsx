@@ -27,6 +27,7 @@ export function CursorEffects() {
   const isActiveRef = useRef(false);
 
   const fadeTrails = useCallback(() => {
+    let shouldContinue = false;
     setTrails((prev) => {
       const next = prev
         .map((trail) => ({
@@ -35,15 +36,16 @@ export function CursorEffects() {
         }))
         .filter((trail) => trail.opacity > 0);
 
-      // Stop the RAF loop if no trails remain
-      if (next.length === 0) {
-        isActiveRef.current = false;
-        return next;
-      }
-
-      rafIdRef.current = requestAnimationFrame(fadeTrails);
+      shouldContinue = next.length > 0;
       return next;
     });
+
+    if (shouldContinue) {
+      rafIdRef.current = requestAnimationFrame(fadeTrails);
+      return;
+    }
+
+    isActiveRef.current = false;
   }, []);
 
   useEffect(() => {
@@ -106,7 +108,7 @@ export function CursorEffects() {
       {trails.map((trail, index) => (
         <div
           key={trail.id}
-          className="pointer-events-none fixed z-9999 h-1.5 w-1.5 rounded-full bg-[hsl(var(--accent))] mix-blend-screen"
+          className="pointer-events-none fixed z-9999 h-1.5 w-1.5 rounded-full bg-accent mix-blend-screen"
           style={{
             left: trail.x,
             top: trail.y,
@@ -121,7 +123,7 @@ export function CursorEffects() {
       {pulses.map((pulse) => (
         <div
           key={pulse.id}
-          className="pointer-events-none fixed z-9998 animate-cursor-pulse rounded-full border-2 border-[hsl(var(--accent))]"
+          className="pointer-events-none fixed z-9998 animate-cursor-pulse rounded-full border-2 border-accent"
           style={{
             left: pulse.x,
             top: pulse.y,
@@ -132,3 +134,4 @@ export function CursorEffects() {
     </>
   );
 }
+

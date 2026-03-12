@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
@@ -22,18 +22,18 @@ import {
   MessageSquare,
 } from "lucide-react";
 
-// ─── tiny helpers ────────────────────────────────────────────────
+// --- tiny helpers ------------------------------------------------
 function StatusBadge({ status }: { status?: string }) {
   const map: Record<string, { icon: React.ReactNode; label: string; cls: string }> = {
     approved: {
       icon: <CheckCircle2 className="h-3 w-3" />,
       label: "Approved",
-      cls: "border-[hsl(var(--action-accept))]/30 bg-[hsl(var(--action-accept))]/10 text-[hsl(var(--action-accept))]",
+      cls: "border-action-accept/30 bg-action-accept/10 text-action-accept",
     },
     rejected: {
       icon: <X className="h-3 w-3" />,
       label: "Rejected",
-      cls: "border-[hsl(var(--border))] bg-[hsl(var(--secondary))] text-[hsl(var(--muted-foreground))]",
+      cls: "border-border bg-secondary text-muted-foreground",
     },
     pending: {
       icon: <Clock className="h-3 w-3" />,
@@ -65,18 +65,18 @@ function ActionBtn({
   className?: string;
 }) {
   const base =
-    "inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-medium transition-all active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]/40";
+    "inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-medium transition-all active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40";
   const variants: Record<string, string> = {
     ghost:
-      "border-[hsl(var(--border))] bg-transparent text-[hsl(var(--foreground))] hover:border-[hsl(var(--accent))]/40 hover:text-[hsl(var(--accent))]",
+      "border-border bg-transparent text-foreground hover:border-accent/40 hover:text-accent",
     accept:
-      "border-[hsl(var(--action-accept))]/30 bg-[hsl(var(--action-accept))]/10 text-[hsl(var(--action-accept))] hover:bg-[hsl(var(--action-accept))]/20",
+      "border-action-accept/30 bg-action-accept/10 text-action-accept hover:bg-action-accept/20",
     reject:
-      "border-[hsl(var(--action-reject))]/30 bg-[hsl(var(--action-reject))]/10 text-[hsl(var(--action-reject))] hover:bg-[hsl(var(--action-reject))]/20",
+      "border-action-reject/30 bg-action-reject/10 text-action-reject hover:bg-action-reject/20",
     publish:
-      "border-[hsl(var(--action-publish))]/30 bg-[hsl(var(--action-publish))]/10 text-[hsl(var(--action-publish))] hover:bg-[hsl(var(--action-publish))]/20",
+      "border-action-publish/30 bg-action-publish/10 text-action-publish hover:bg-action-publish/20",
     danger:
-      "border-[hsl(var(--destructive))]/30 bg-transparent text-[hsl(var(--destructive))] hover:bg-[hsl(var(--destructive))]/10",
+      "border-destructive/30 bg-transparent text-destructive hover:bg-destructive/10",
   };
   return (
     <button
@@ -90,10 +90,10 @@ function ActionBtn({
   );
 }
 
-// ─── constants ───────────────────────────────────────────────────
+// --- constants ---------------------------------------------------
 const PAGE_SIZE = 10;
 
-// ─── types ───────────────────────────────────────────────────────
+// --- types -------------------------------------------------------
 type Notice = { type: "error" | "success"; message: string } | null;
 
 type ConfessionItem = {
@@ -105,7 +105,7 @@ type ConfessionItem = {
   createdAt?: string;
 };
 
-// ─── main component ──────────────────────────────────────────────
+// --- main component ----------------------------------------------
 export default function AdminList() {
   const [items, setItems] = useState<ConfessionItem[]>([]);
   const [notice, setNotice] = useState<Notice>(null);
@@ -282,24 +282,24 @@ export default function AdminList() {
   return (
     <div className="space-y-5">
 
-      {/* ── Toolbar ───────────────────────────────────── */}
+      {/* -- Toolbar ------------------------------------- */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
         {/* Search */}
         <form onSubmit={handleSearch} className="relative flex-1">
-          <span className="pointer-events-none absolute inset-y-0 left-0 flex w-8 items-center justify-center text-[hsl(var(--muted-foreground))]">
+          <span className="pointer-events-none absolute inset-y-0 left-0 flex w-8 items-center justify-center text-muted-foreground">
             <Search className="h-3.5 w-3.5" />
           </span>
           <input
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
-            placeholder="Search confessions or songs…"
+            placeholder="Search confessions or songs..."
             className="input-base w-full py-2 pl-9 pr-9 text-sm"
           />
           {searchInput && (
             <button
               type="button"
               onClick={() => { setSearchInput(""); setQuery(""); }}
-              className="absolute inset-y-0 right-0 flex w-9 items-center justify-center text-[hsl(var(--muted-foreground))] transition hover:text-[hsl(var(--foreground))]"
+              className="absolute inset-y-0 right-0 flex w-9 items-center justify-center text-muted-foreground transition hover:text-foreground"
             >
               <X className="h-3.5 w-3.5" />
             </button>
@@ -311,18 +311,18 @@ export default function AdminList() {
           type="button"
           onClick={fetchItems}
           disabled={loading}
-          className="btn-ghost btn-sm shrink-0 border border-[hsl(var(--border))] hover:border-[hsl(var(--accent))]/40"
+          className="btn-ghost btn-sm shrink-0 border border-border hover:border-accent/40"
         >
           <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
           <span className="sm:hidden">Reload</span>
         </button>
       </div>
 
-      {/* ── Filters ───────────────────────────────────── */}
-      <div className="flex flex-col gap-3 border-b border-[hsl(var(--border))] pb-4 sm:flex-row sm:flex-wrap sm:items-center">
+      {/* -- Filters ------------------------------------- */}
+      <div className="flex flex-col gap-3 border-b border-border pb-4 sm:flex-row sm:flex-wrap sm:items-center">
         {/* Share filter */}
         <div className="-mx-1 overflow-x-auto px-1 sm:mx-0 sm:px-0">
-          <div className="inline-flex items-center gap-0.5 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] p-0.5">
+          <div className="inline-flex items-center gap-0.5 rounded-lg border border-border bg-secondary p-0.5">
             {(["all", "shared", "not-shared"] as const).map((f) => {
               const labels: Record<string, string> = { all: "All", shared: "Shared", "not-shared": "Not shared" };
               return (
@@ -331,8 +331,8 @@ export default function AdminList() {
                   type="button"
                   onClick={() => setFilter(f)}
                   className={`shrink-0 rounded-md px-2.5 py-1.5 text-xs font-medium transition sm:py-1 ${filter === f
-                    ? "bg-[hsl(var(--card))] text-[hsl(var(--foreground))] shadow-sm"
-                    : "text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]"
+                    ? "bg-card text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
                     }`}
                 >
                   {labels[f]}
@@ -344,15 +344,15 @@ export default function AdminList() {
 
         {/* Status segmented control */}
         <div className="-mx-1 overflow-x-auto px-1 sm:mx-0 sm:px-0">
-          <div className="inline-flex items-center gap-0.5 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] p-0.5">
+          <div className="inline-flex items-center gap-0.5 rounded-lg border border-border bg-secondary p-0.5">
             {(["all", "pending", "approved", "rejected"] as const).map((s) => (
               <button
                 key={s}
                 type="button"
                 onClick={() => setStatusFilter(s)}
                 className={`shrink-0 rounded-md px-2.5 py-1.5 text-xs font-medium transition sm:py-1 ${statusFilter === s
-                  ? "bg-[hsl(var(--card))] text-[hsl(var(--foreground))] shadow-sm"
-                  : "text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]"
+                  ? "bg-card text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
                   }`}
               >
                 {s.charAt(0).toUpperCase() + s.slice(1)}
@@ -361,25 +361,25 @@ export default function AdminList() {
           </div>
         </div>
 
-        <span className="text-xs tabular-nums text-[hsl(var(--muted-foreground))] sm:ml-auto">
+        <span className="text-xs tabular-nums text-muted-foreground sm:ml-auto">
           {totalCount} result{totalCount !== 1 ? "s" : ""}
         </span>
       </div>
 
-      {/* ── Notice ────────────────────────────────────── */}
+      {/* -- Notice -------------------------------------- */}
       {notice && (
         <div className={`notice ${notice.type === "error" ? "notice-error" : "notice-success"}`}>
           {notice.type === "error"
             ? <AlertCircle className="h-4 w-4 shrink-0" />
             : <CheckCircle2 className="h-4 w-4 shrink-0" />}
           <p className="flex-1 font-medium">{notice.message}</p>
-          <button type="button" onClick={() => setNotice(null)} className="rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]/40">
+          <button type="button" onClick={() => setNotice(null)} className="rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40">
             <X className="h-3.5 w-3.5 opacity-50 transition hover:opacity-100" />
           </button>
         </div>
       )}
 
-      {/* ── Loading skeleton ──────────────────────────── */}
+      {/* -- Loading skeleton ---------------------------- */}
       {loading && (
         <div className="flex flex-col gap-3">
           {[1, 2, 3].map((i) => (
@@ -401,20 +401,20 @@ export default function AdminList() {
         </div>
       )}
 
-      {/* ── Empty state ───────────────────────────────── */}
+      {/* -- Empty state --------------------------------- */}
       {!loading && items.length === 0 && (
-        <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-[hsl(var(--border))] py-14 text-center">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[hsl(var(--accent))]/10">
-            <MessageSquare className="h-5 w-5 text-[hsl(var(--accent))]" />
+        <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-border py-14 text-center">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent/10">
+            <MessageSquare className="h-5 w-5 text-accent" />
           </div>
           <div>
-            <p className="text-sm font-semibold text-[hsl(var(--foreground))]">Nothing here</p>
-            <p className="mt-0.5 text-xs text-[hsl(var(--muted-foreground))]">No confessions match the current filters.</p>
+            <p className="text-sm font-semibold text-foreground">Nothing here</p>
+            <p className="mt-0.5 text-xs text-muted-foreground">No confessions match the current filters.</p>
           </div>
         </div>
       )}
 
-      {/* ── Confession cards ──────────────────────────── */}
+      {/* -- Confession cards ---------------------------- */}
       {!loading && items.length > 0 && (
         <div className="flex flex-col gap-3">
           {items.map((item, idx) => {
@@ -436,27 +436,27 @@ export default function AdminList() {
                   <div className="flex flex-wrap items-center gap-1.5">
                     <StatusBadge status={item.status} />
                     {item.posted && (
-                      <span className="inline-flex items-center gap-1 rounded-full border border-[hsl(var(--action-publish))]/30 bg-[hsl(var(--action-publish))]/10 px-2 py-0.5 text-[11px] font-semibold text-[hsl(var(--action-publish))]">
+                      <span className="inline-flex items-center gap-1 rounded-full border border-action-publish/30 bg-action-publish/10 px-2 py-0.5 text-[11px] font-semibold text-action-publish">
                         <Share2 className="h-3 w-3" />
                         Shared
                       </span>
                     )}
                   </div>
-                  <time className="shrink-0 text-[11px] tabular-nums text-[hsl(var(--muted-foreground))]">
+                  <time className="shrink-0 text-[11px] tabular-nums text-muted-foreground">
                     {item.createdAt
                       ? new Date(item.createdAt).toLocaleString("en-US", {
                         month: "short", day: "numeric",
                         hour: "2-digit", minute: "2-digit",
                       })
-                      : "—"}
+                      : "-"}
                   </time>
                 </div>
 
                 {/* Message */}
                 <div className="px-3 pb-3 sm:px-5">
                   <div className="group relative">
-                    <div className="max-h-40 overflow-y-auto rounded-xl bg-[hsl(var(--secondary))] px-4 py-3">
-                      <p className="wrap-break-word whitespace-pre-wrap text-sm leading-relaxed text-[hsl(var(--foreground))]">
+                    <div className="max-h-40 overflow-y-auto rounded-xl bg-secondary px-4 py-3">
+                      <p className="wrap-break-word whitespace-pre-wrap text-sm leading-relaxed text-foreground">
                         {item.message}
                       </p>
                     </div>
@@ -464,10 +464,10 @@ export default function AdminList() {
                       type="button"
                       onClick={() => handleCopy(item.message, msgId)}
                       title="Copy message"
-                      className="absolute right-2 top-2 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-1 text-[hsl(var(--muted-foreground))] opacity-100 transition hover:text-[hsl(var(--accent))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]/40 sm:opacity-0 sm:group-hover:opacity-100"
+                      className="absolute right-2 top-2 rounded-lg border border-border bg-card p-1 text-muted-foreground opacity-100 transition hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 sm:opacity-0 sm:group-hover:opacity-100"
                     >
                       {copiedId === msgId
-                        ? <Check className="h-3 w-3 text-[hsl(var(--action-accept))]" />
+                        ? <Check className="h-3 w-3 text-action-accept" />
                         : <Copy className="h-3 w-3" />}
                     </button>
                   </div>
@@ -475,17 +475,17 @@ export default function AdminList() {
                   {/* Music pill */}
                   {item.music && (
                     <div className="mt-2">
-                      <div className="group/mus flex min-w-0 items-center gap-2 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] px-3 py-2">
-                        <Music2 className="h-3.5 w-3.5 shrink-0 text-[hsl(var(--accent))]" />
-                        <span className="min-w-0 flex-1 truncate text-xs text-[hsl(var(--muted-foreground))]">{item.music}</span>
+                      <div className="group/mus flex min-w-0 items-center gap-2 rounded-lg border border-border bg-secondary px-3 py-2">
+                        <Music2 className="h-3.5 w-3.5 shrink-0 text-accent" />
+                        <span className="min-w-0 flex-1 truncate text-xs text-muted-foreground">{item.music}</span>
                         <button
                           type="button"
                           onClick={() => handleCopy(item.music!, musId)}
                           title="Copy song"
-                          className="shrink-0 rounded-lg p-0.5 text-[hsl(var(--muted-foreground))] opacity-100 transition hover:text-[hsl(var(--accent))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]/40 sm:opacity-0 sm:group-hover/mus:opacity-100"
+                          className="shrink-0 rounded-lg p-0.5 text-muted-foreground opacity-100 transition hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 sm:opacity-0 sm:group-hover/mus:opacity-100"
                         >
                           {copiedId === musId
-                            ? <Check className="h-3 w-3 text-[hsl(var(--action-accept))]" />
+                            ? <Check className="h-3 w-3 text-action-accept" />
                             : <Copy className="h-3 w-3" />}
                         </button>
                       </div>
@@ -494,7 +494,7 @@ export default function AdminList() {
                 </div>
 
                 {/* Divider */}
-                <div className="mx-3 border-t border-[hsl(var(--border))] sm:mx-5" />
+                <div className="mx-3 border-t border-border sm:mx-5" />
 
                 {/* Actions */}
                 <div className="flex flex-wrap items-center gap-2 px-3 py-3 sm:px-5">
@@ -506,7 +506,7 @@ export default function AdminList() {
                           item._id,
                           (i) => ({ ...i, status: "approved" as const }),
                           () => patch(item._id, { status: "approved" }),
-                          "Approved ✓",
+                          "Approved.",
                         )}
                         disabled={busy}
                       >
@@ -536,7 +536,7 @@ export default function AdminList() {
                         item._id,
                         (i) => ({ ...i, posted: !i.posted }),
                         () => patch(item._id, { posted: !item.posted }),
-                        item.posted ? "Unshared." : "Shared to Instagram ✓",
+                        item.posted ? "Unshared." : "Shared to Instagram.",
                       )}
                       disabled={busy}
                     >
@@ -547,13 +547,13 @@ export default function AdminList() {
                   )}
 
                   {item.status === "rejected" && (
-                    <span className="inline-flex items-center gap-1.5 rounded-lg border border-[hsl(var(--border))] px-3 py-1.5 text-xs text-[hsl(var(--muted-foreground))]">
+                    <span className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs text-muted-foreground">
                       <X className="h-3.5 w-3.5" />
                       Rejected
                     </span>
                   )}
 
-                  {/* Delete — available for all statuses */}
+                  {/* Delete - available for all statuses */}
                   <ActionBtn
                     variant="danger"
                     className="ml-auto"
@@ -566,17 +566,17 @@ export default function AdminList() {
 
                   {/* Delete confirmation dialog */}
                   {deleteConfirmId === item._id && (
-                    <div className="mt-2 flex w-full flex-col gap-2 rounded-lg border border-[hsl(var(--destructive))]/30 bg-[hsl(var(--destructive))]/5 px-3 py-2.5 dark:border-[hsl(var(--destructive))]/25 dark:bg-[hsl(var(--destructive))]/8 sm:flex-row sm:items-center">
+                    <div className="mt-2 flex w-full flex-col gap-2 rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2.5 dark:border-destructive/25 dark:bg-destructive/8 sm:flex-row sm:items-center">
                       <div className="flex items-center gap-2">
-                        <AlertCircle className="h-4 w-4 shrink-0 text-[hsl(var(--destructive))]" />
-                        <p className="flex-1 text-xs font-medium text-[hsl(var(--destructive))]">
+                        <AlertCircle className="h-4 w-4 shrink-0 text-destructive" />
+                        <p className="flex-1 text-xs font-medium text-destructive">
                           Delete this confession?
                         </p>
                       </div>
                       <div className="flex items-center gap-2 sm:ml-auto sm:shrink-0">
                         <button
                           type="button"
-                          className="flex-1 rounded-lg border border-[hsl(var(--destructive))]/40 bg-[hsl(var(--destructive))]/15 px-2.5 py-1.5 text-xs font-semibold text-[hsl(var(--destructive))] transition hover:bg-[hsl(var(--destructive))]/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--destructive))]/40 active:scale-95 sm:flex-none sm:py-1"
+                          className="flex-1 rounded-lg border border-destructive/40 bg-destructive/15 px-2.5 py-1.5 text-xs font-semibold text-destructive transition hover:bg-destructive/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/40 active:scale-95 sm:flex-none sm:py-1"
                           disabled={busy}
                           onClick={() => void handleDeleteConfirm(item._id)}
                         >
@@ -584,7 +584,7 @@ export default function AdminList() {
                         </button>
                         <button
                           type="button"
-                          className="flex-1 rounded-lg border border-[hsl(var(--border))] px-2.5 py-1.5 text-xs font-medium text-[hsl(var(--muted-foreground))] transition hover:bg-[hsl(var(--secondary))] hover:text-[hsl(var(--foreground))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]/30 active:scale-95 sm:flex-none sm:py-1"
+                          className="flex-1 rounded-lg border border-border px-2.5 py-1.5 text-xs font-medium text-muted-foreground transition hover:bg-secondary hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/30 active:scale-95 sm:flex-none sm:py-1"
                           onClick={() => setDeleteConfirmId(null)}
                         >
                           Cancel
@@ -600,10 +600,10 @@ export default function AdminList() {
         </div>
       )}
 
-      {/* ── Pagination ────────────────────────────────── */}
+      {/* -- Pagination ---------------------------------- */}
       {!loading && totalPages > 1 && (
         <div className="flex items-center justify-between gap-3 pt-1">
-          <span className="text-xs tabular-nums text-[hsl(var(--muted-foreground))]">
+          <span className="text-xs tabular-nums text-muted-foreground">
             Page {page} / {totalPages}
           </span>
           <div className="flex items-center gap-1.5">
@@ -611,7 +611,7 @@ export default function AdminList() {
               type="button"
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page <= 1 || loading}
-              className="btn-ghost btn-sm border border-[hsl(var(--border))] hover:border-[hsl(var(--accent))]/40"
+              className="btn-ghost btn-sm border border-border hover:border-accent/40"
             >
               <ChevronLeft className="h-3 w-3" />
               Prev
@@ -620,7 +620,7 @@ export default function AdminList() {
               type="button"
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page >= totalPages || loading}
-              className="btn-ghost btn-sm border border-[hsl(var(--border))] hover:border-[hsl(var(--accent))]/40"
+              className="btn-ghost btn-sm border border-border hover:border-accent/40"
             >
               Next
               <ChevronRight className="h-3 w-3" />
@@ -631,3 +631,4 @@ export default function AdminList() {
     </div>
   );
 }
+

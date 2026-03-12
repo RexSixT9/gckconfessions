@@ -1,4 +1,4 @@
-﻿import { cookies } from "next/headers";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { verifyAdminToken } from "@/lib/auth";
 import { COOKIE_NAME } from "@/lib/constants";
@@ -8,6 +8,14 @@ import { connectToDatabase } from "@/lib/mongodb";
 import Confession from "@/models/Confession";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+
+type StatItem = {
+  label: string;
+  value: number;
+  valueClassName: string;
+  dotClassName: string;
+  animationDelayClassName: string;
+};
 
 async function getStats() {
   try {
@@ -37,9 +45,41 @@ export default async function AdminPage() {
   }
 
   const stats = await getStats();
+  const statItems: StatItem[] = stats
+    ? [
+        {
+          label: "Total",
+          value: stats.total,
+          valueClassName: "text-foreground",
+          dotClassName: "bg-muted-foreground",
+          animationDelayClassName: "",
+        },
+        {
+          label: "Pending",
+          value: stats.pending,
+          valueClassName: "text-warning",
+          dotClassName: "bg-warning",
+          animationDelayClassName: "animation-delay-100",
+        },
+        {
+          label: "Approved",
+          value: stats.approved,
+          valueClassName: "text-green-600 dark:text-green-400",
+          dotClassName: "bg-green-500",
+          animationDelayClassName: "animation-delay-200",
+        },
+        {
+          label: "Rejected",
+          value: stats.rejected,
+          valueClassName: "text-muted-foreground",
+          dotClassName: "bg-muted-foreground/40",
+          animationDelayClassName: "animation-delay-300",
+        },
+      ]
+    : [];
 
   return (
-    <main className="flex-1 bg-[hsl(var(--background))]">
+    <main className="flex-1 bg-background">
       <div className="mx-auto w-full max-w-5xl px-4 pb-16 pt-6 sm:px-6 sm:pt-10">
 
         {/*  Page header  */}
@@ -61,22 +101,17 @@ export default async function AdminPage() {
         {/*  Stats bar  */}
         {stats && (
           <div className="mb-8 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-            {[
-              { label: "Total",    value: stats.total,    cls: "text-foreground",               dot: "bg-muted-foreground",      delay: "" },
-              { label: "Pending",  value: stats.pending,  cls: "text-[hsl(var(--warning))]",    dot: "bg-[hsl(var(--warning))]", delay: "animation-delay-100" },
-              { label: "Approved", value: stats.approved, cls: "text-green-600 dark:text-green-400", dot: "bg-green-500",        delay: "animation-delay-200" },
-              { label: "Rejected", value: stats.rejected, cls: "text-muted-foreground",          dot: "bg-muted-foreground/40",   delay: "animation-delay-300" },
-            ].map(({ label, value, cls, dot, delay }) => (
+            {statItems.map(({ label, value, valueClassName, dotClassName, animationDelayClassName }) => (
               <Card
                 key={label}
-                className={`border-shine animate-slide-up ${delay}`}
+                className={`animate-slide-up border-border/70 ${animationDelayClassName}`}
               >
                 <CardContent className="flex flex-col gap-2 px-4 py-4 sm:px-6 sm:py-5">
                   <div className="flex items-center gap-2">
-                    <span className={`h-2 w-2 rounded-full ${dot}`} />
+                    <span className={`h-2 w-2 rounded-full ${dotClassName}`} />
                     <span className="text-xs font-semibold text-muted-foreground">{label}</span>
                   </div>
-                  <span className={`text-3xl font-black tabular-nums ${cls}`}>{value}</span>
+                  <span className={`text-3xl font-black tabular-nums ${valueClassName}`}>{value}</span>
                 </CardContent>
               </Card>
             ))}
@@ -84,7 +119,7 @@ export default async function AdminPage() {
         )}
 
         {/*  Main list  */}
-        <Card className="animate-blur-in border-shine animation-delay-400">
+        <Card className="animate-blur-in border-border/70 animation-delay-400">
           <CardContent className="p-6 sm:p-8">
             <AdminList />
           </CardContent>
@@ -94,3 +129,4 @@ export default async function AdminPage() {
     </main>
   );
 }
+

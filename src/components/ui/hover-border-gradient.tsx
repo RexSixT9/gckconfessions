@@ -9,7 +9,7 @@
  * both light and dark modes without any extra config.
  */
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 
 export interface HoverBorderGradientProps
@@ -44,19 +44,16 @@ export function HoverBorderGradient({
   const lastTimeRef = useRef<number | null>(null);
   const running = automatic || hovered;
 
-  const tick = useCallback(
-    (time: number) => {
+  useEffect(() => {
+    const tick = (time: number) => {
       if (lastTimeRef.current !== null) {
         const delta = time - lastTimeRef.current;
         setAngle((prev) => (prev + clockwise * (delta / (duration * 1000)) * 360) % 360);
       }
       lastTimeRef.current = time;
       rafRef.current = requestAnimationFrame(tick);
-    },
-    [clockwise, duration]
-  );
+    };
 
-  useEffect(() => {
     if (running) {
       lastTimeRef.current = null;
       rafRef.current = requestAnimationFrame(tick);
@@ -72,7 +69,7 @@ export function HoverBorderGradient({
         rafRef.current = null;
       }
     };
-  }, [running, tick]);
+  }, [clockwise, duration, running]);
 
   /**
    * The gradient itself.

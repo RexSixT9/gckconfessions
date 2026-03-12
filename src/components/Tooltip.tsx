@@ -119,7 +119,7 @@ export default function Tooltip({ content, children, side = "top" }: TooltipProp
             className="pointer-events-none absolute z-50"
             style={position}
           >
-            <span className="block max-w-[min(calc(100vw-2rem),260px)] whitespace-normal rounded-md bg-[hsl(var(--foreground))] px-2.5 py-1.5 text-xs font-medium leading-snug text-[hsl(var(--background))] shadow-lg">
+            <span className="block max-w-[min(calc(100vw-2rem),260px)] whitespace-normal rounded-md bg-foreground px-2.5 py-1.5 text-xs font-medium leading-snug text-background shadow-lg">
               {content}
             </span>
           </motion.div>
@@ -128,3 +128,4 @@ export default function Tooltip({ content, children, side = "top" }: TooltipProp
     </div>
   );
 }
+

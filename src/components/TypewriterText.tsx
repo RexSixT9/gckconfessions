@@ -36,12 +36,16 @@ export default function TypewriterText({
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   // Keep a stable ref to the latest phrases array
   const phrasesRef = useRef(phrases);
-  useEffect(() => { phrasesRef.current = phrases; });
+  useEffect(() => {
+    phrasesRef.current = phrases;
+  }, [phrases]);
 
   useEffect(() => {
-    // Respect reduced-motion: show first phrase immediately, no animation
+    // Respect reduced-motion: show first phrase with a deferred state update.
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      setDisplayed(phrasesRef.current[0] ?? "");
+      timerRef.current = setTimeout(() => {
+        setDisplayed(phrasesRef.current[0] ?? "");
+      }, 0);
       return;
     }
 
@@ -81,8 +85,10 @@ export default function TypewriterText({
     };
 
     timerRef.current = setTimeout(tick, startDelay);
-    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps — intentionally runs once
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, [deletingSpeed, pauseAfterDelete, pauseAfterType, startDelay, typingSpeed]);
 
   return (
     <span className={`inline-block min-h-[1.2em] ${className}`}>

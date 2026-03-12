@@ -1,13 +1,21 @@
-'use client';
+"use client";
 
-import { useRouter } from 'next/navigation';
-import { Home, ArrowLeft, Search } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
-import { Button } from '@/components/ui/button';
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { ArrowLeft, Home, Search } from "lucide-react";
+import { motion } from "framer-motion";
 
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
-export default function NotFound() {
+export default function NotFoundPage() {
   const router = useRouter();
   const [countdown, setCountdown] = useState(10);
   const [autoRedirect, setAutoRedirect] = useState(true);
@@ -19,7 +27,7 @@ export default function NotFound() {
       setCountdown((prev) => {
         if (prev <= 1) {
           clearInterval(timer);
-          router.push('/');
+          router.push("/");
           return 0;
         }
         return prev - 1;
@@ -27,107 +35,56 @@ export default function NotFound() {
     }, 1000);
 
     return () => clearInterval(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [autoRedirect]);
-
-  const handleCancelRedirect = () => {
-    setAutoRedirect(false);
-  };
-
-  const handleGoHome = () => {
-    router.push('/');
-  };
-
-  const handleGoBack = () => {
-    router.back();
-  };
+  }, [autoRedirect, router]);
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.6 }}
-      className="flex flex-1 flex-col items-center justify-center"
-    >
-      {/* 404 Section */}
-      <section className="mx-auto w-full max-w-2xl px-4 py-8 sm:px-6 sm:py-16">
-        <div className="flex flex-col items-center text-center">
-          {/* 404 Illustration */}
-          <div className="relative mb-6 sm:mb-10">
-            {/* Gradient Background */}
-            <div className="absolute inset-0 rounded-full bg-linear-to-br from-[hsl(var(--accent))]/20 to-[hsl(var(--accent))]/5 blur-3xl"></div>
+    <main className="flex flex-1 items-center justify-center bg-background px-4 py-8 sm:px-6">
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35 }}
+        className="w-full max-w-lg"
+      >
+        <Card className="border-border/70 text-center">
+          <CardHeader className="items-center">
+            <Badge className="gap-1 bg-accent/10 text-accent hover:bg-accent/10">
+              <Search className="h-3.5 w-3.5" />
+              Not Found
+            </Badge>
+            <CardTitle className="text-5xl font-black tracking-tight">404</CardTitle>
+            <CardDescription className="text-sm sm:text-base">
+              The page you requested does not exist.
+            </CardDescription>
+          </CardHeader>
 
-            {/* 404 Text */}
-            <div className="relative">
-              <h1 className="text-5xl font-bold tracking-tighter text-[hsl(var(--foreground))] sm:text-8xl lg:text-[10rem]">
-                404
-              </h1>
-              <div className="absolute inset-0 bg-linear-to-r from-[hsl(var(--accent))]/30 to-transparent bg-clip-text text-5xl font-bold tracking-tighter text-transparent sm:text-8xl lg:text-[10rem]">
-                404
-              </div>
-            </div>
-          </div>
-
-          {/* Message */}
-          <div className="mb-6 max-w-2xl space-y-3 sm:mb-10 sm:space-y-4">
-            <div className="inline-flex items-center gap-2 rounded-full border border-[hsl(var(--border))]/70 bg-[hsl(var(--card))] px-4 py-2">
-              <Search className="h-4 w-4 text-[hsl(var(--accent))]" />
-              <span className="text-xs font-semibold text-[hsl(var(--accent))]">
-                Not found
-              </span>
-            </div>
-
-            <h2 className="text-lg font-semibold tracking-tight text-[hsl(var(--foreground))] sm:text-2xl lg:text-3xl">
-              Page not found
-            </h2>
-
-            <p className="text-sm leading-relaxed text-[hsl(var(--muted-foreground))] sm:text-base">
-              The page you requested doesn&apos;t exist.
-            </p>
-
-            {/* Auto-redirect notification */}
+          <CardContent className="space-y-5">
             {autoRedirect && countdown > 0 && (
-              <div className="card mx-auto mt-6 max-w-md p-4">
-                <p className="text-sm text-muted-foreground">
-                  Redirecting to home in{' '}
-                  <span className="font-bold text-accent">
-                    {countdown}
-                  </span>{' '}
-                  second{countdown !== 1 ? 's' : ''}...
-                </p>
+              <div className="rounded-lg border border-border/70 bg-muted/30 p-3 text-sm text-muted-foreground">
+                Redirecting to home in <span className="font-semibold text-accent">{countdown}</span> second
+                {countdown !== 1 ? "s" : ""}.
                 <button
-                  onClick={handleCancelRedirect}
-                  className="mt-2 text-xs text-muted-foreground underline transition hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/30"
+                  type="button"
+                  onClick={() => setAutoRedirect(false)}
+                  className="ml-2 underline underline-offset-2 hover:text-foreground"
                 >
-                  Cancel redirect
+                  Cancel
                 </button>
               </div>
             )}
-          </div>
 
-          {/* Action Buttons */}
-          <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center sm:justify-center sm:gap-3">
-            <Button
-              onClick={handleGoHome}
-              size="lg"
-              className="rounded-full font-semibold w-full sm:w-auto"
-            >
-              <Home className="h-4 w-4" />
-              Home
-            </Button>
-
-            <Button
-              variant="outline"
-              size="lg"
-              onClick={handleGoBack}
-              className="rounded-full font-semibold w-full sm:w-auto"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Go back
-            </Button>
-          </div>
-        </div>
-      </section>
-    </motion.div>
+            <div className="flex flex-col gap-2.5 sm:flex-row sm:justify-center">
+              <Button onClick={() => router.push("/")} className="w-full sm:w-auto">
+                <Home className="h-4 w-4" />
+                Go home
+              </Button>
+              <Button variant="outline" onClick={() => router.back()} className="w-full sm:w-auto">
+                <ArrowLeft className="h-4 w-4" />
+                Go back
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+    </main>
   );
 }
