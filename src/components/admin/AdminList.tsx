@@ -99,10 +99,11 @@ type Notice = { type: "error" | "success"; message: string } | null;
 type ConfessionItem = {
   _id: string;
   message: string;
-  music?: string;
-  status?: "pending" | "approved" | "rejected";
-  posted?: boolean;
+  music: string;
+  status: "pending" | "approved" | "rejected";
+  posted: boolean;
   createdAt?: string;
+  updatedAt?: string;
 };
 
 // --- main component ----------------------------------------------
@@ -143,6 +144,11 @@ export default function AdminList() {
       params.set("limit", String(PAGE_SIZE));
 
       const response = await fetch(`/api/confessions?${params.toString()}`);
+      if (response.status === 401) {
+        router.replace("/adminlogin");
+        return;
+      }
+
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Failed to load.");
       setItems(data.confessions ?? []);
@@ -154,7 +160,7 @@ export default function AdminList() {
     } finally {
       setLoading(false);
     }
-  }, [filter, statusFilter, query, page]);
+  }, [filter, statusFilter, query, page, router]);
 
   useEffect(() => { fetchItems(); }, [fetchItems]);
 
@@ -170,12 +176,18 @@ export default function AdminList() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     });
+
+    if (res.status === 401) {
+      router.replace("/adminlogin");
+      throw new Error("Session expired. Please sign in again.");
+    }
+
     const data = (await res.json().catch(() => ({}))) as { error?: string; confession?: ConfessionItem };
     if (!res.ok) {
       throw new Error(data.error ?? "Action failed.");
     }
     return data.confession!;
-  }, []);
+  }, [router]);
 
   /** Optimistic update: apply local state change immediately, call API in background, rollback on error. */
   const optimisticRun = useCallback(
@@ -257,6 +269,11 @@ export default function AdminList() {
 
       try {
         const res = await fetch(`/api/confessions/${id}`, { method: "DELETE" });
+        if (res.status === 401) {
+          router.replace("/adminlogin");
+          throw new Error("Session expired. Please sign in again.");
+        }
+
         if (!res.ok) {
           const d = (await res.json().catch(() => ({}))) as { error?: string };
           throw new Error(d.error ?? "Delete failed.");

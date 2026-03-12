@@ -15,7 +15,7 @@ export default function PageTransition({ children }: { children: ReactNode }) {
         animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
         exit={{ opacity: 0, y: -6, filter: "blur(2px)" }}
         transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
-        className="motion-page"
+        className="motion-page flex flex-1 flex-col"
       >
         {children}
       </motion.div>

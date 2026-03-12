@@ -30,7 +30,11 @@ export default function AdminLoginPage() {
           credentials: "same-origin",
         });
 
-        if (response.ok) {
+        const data = (await response.json().catch(() => ({}))) as {
+          authenticated?: boolean;
+        };
+
+        if (response.ok && data.authenticated) {
           // User is already logged in, redirect to admin panel
           router.push("/admin");
         }

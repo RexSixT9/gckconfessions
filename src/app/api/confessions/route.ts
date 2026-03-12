@@ -18,6 +18,39 @@ import {
 import { MAX_MESSAGE_LENGTH, MAX_MUSIC_LENGTH } from "@/lib/constants";
 import Confession from "@/models/Confession";
 
+type ConfessionResponse = {
+  _id: string;
+  message: string;
+  music: string;
+  status: "pending" | "approved" | "rejected";
+  posted: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
+function serializeConfession(item: {
+  _id: unknown;
+  message?: string;
+  music?: string;
+  status?: string;
+  posted?: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
+}): ConfessionResponse {
+  return {
+    _id: String(item._id),
+    message: item.message ?? "",
+    music: item.music ?? "",
+    status:
+      item.status === "approved" || item.status === "rejected"
+        ? item.status
+        : "pending",
+    posted: Boolean(item.posted),
+    createdAt: item.createdAt?.toISOString(),
+    updatedAt: item.updatedAt?.toISOString(),
+  };
+}
+
 // NOTE: hCaptcha verification disabled - will be implemented in future
 // To enable CAPTCHA protection, uncomment below and add verification logic to POST handler
 /*
@@ -75,6 +108,10 @@ export async function GET(request: Request) {
     }
 
     const validStatuses = ["pending", "approved", "rejected"];
+    if (status && !validStatuses.includes(status)) {
+      return NextResponse.json({ error: "Invalid status filter." }, { status: 400 });
+    }
+
     if (status && validStatuses.includes(status)) {
       filter.status = status;
     }
@@ -90,24 +127,25 @@ export async function GET(request: Request) {
         .sort({ createdAt: -1 })
         .skip((page - 1) * limit)
         .limit(limit)
-        .lean(),
+        .lean<{
+          _id: unknown;
+          message?: string;
+          music?: string;
+          status?: string;
+          posted?: boolean;
+          createdAt?: Date;
+          updatedAt?: Date;
+        }[]>(),
     ]);
 
-    const confessions = data.map((item) => ({
-      _id: String(item._id),
-      message: item.message,
-      music: item.music,
-      status: item.status,
-      posted: item.posted,
-      createdAt: item.createdAt?.toISOString(),
-    }));
+    const confessions = data.map(serializeConfession);
 
     return NextResponse.json(
       {
         confessions,
         page,
         total,
-        totalPages: Math.ceil(total / limit),
+        totalPages: Math.max(1, Math.ceil(total / limit)),
       },
       { headers: { "Cache-Control": "no-store" } }
     );
@@ -258,7 +296,7 @@ export async function POST(request: Request) {
       music,
     });
 
-    return NextResponse.json({ confession }, { status: 201 });
+    return NextResponse.json({ confession: serializeConfession(confession) }, { status: 201 });
   } catch (error) {
     console.error("Confession submit error:", error);
     return NextResponse.json(

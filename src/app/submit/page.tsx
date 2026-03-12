@@ -9,16 +9,13 @@ import {
   CircleCheck,
   Eye,
   EyeOff,
-  Heart,
   Lock,
   Music2,
   Send,
   ShieldCheck,
-  Sparkles,
   TriangleAlert,
 } from "lucide-react";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -31,6 +28,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
+import { Toggle } from "@/components/ui/toggle";
 import { cn } from "@/lib/cn";
 
 const CHAR_LIMIT = 1000;
@@ -291,258 +289,243 @@ export default function SubmitPage() {
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-        className="mx-auto w-full max-w-3xl px-4 pb-28 pt-8 sm:px-6 sm:pb-12 sm:pt-12"
+        className="mx-auto w-full max-w-5xl px-4 pb-16 pt-8 sm:px-6 sm:pt-12"
       >
-        <Button variant="ghost" size="sm" render={<Link href="/" />} className="mb-6 -ml-2 gap-1.5 rounded-full px-3 py-2 text-muted-foreground hover:text-foreground">
+        <Button
+          variant="ghost"
+          size="sm"
+          render={<Link href="/" />}
+          className="mb-6 gap-1.5 rounded-lg px-0 text-muted-foreground hover:bg-transparent hover:text-muted-foreground"
+        >
           <>
             <ArrowLeft className="h-4 w-4" />
             Back to home
           </>
         </Button>
 
-        {firstVisit && (
-          <Card className="mb-6 border-accent/30 bg-accent/5">
-            <CardHeader className="gap-2 pb-3">
-              <Badge className="w-fit gap-1.5 bg-accent/10 text-accent hover:bg-accent/10">
-                <Sparkles className="h-3 w-3" />
-                First-time walkthrough
-              </Badge>
-              <CardTitle className="text-base font-bold">How anonymity works</CardTitle>
-              <CardDescription>
-                We do not ask for your name or account. Avoid adding personal identifiers in the text.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3 text-sm">
-              <div className="flex items-center gap-2">
-                <CircleCheck className="h-4 w-4 text-success" />
-                <span>Drafts are saved only on your device.</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CircleCheck className="h-4 w-4 text-success" />
-                <span>Human moderators review every post before publish.</span>
-              </div>
-              <Button
-                type="button"
-                size="sm"
-                className="touch-target rounded-full px-4"
-                onClick={() => {
-                  localStorage.setItem(FIRST_VISIT_KEY, "seen");
-                  setFirstVisit(false);
-                }}
-              >
-                Continue writing
-              </Button>
-            </CardContent>
-          </Card>
-        )}
-
-        <Card className={cn("border-border/60 shadow-sm", focusMode && "border-accent/40 shadow-lg shadow-accent/10")}>
-          <CardHeader className="gap-3">
-            <Badge className="w-fit gap-1.5 bg-accent/10 text-accent hover:bg-accent/10">
-              <Heart className="h-3 w-3" />
-              Anonymous Submission
-            </Badge>
-            <CardTitle className="text-2xl font-black tracking-tight sm:text-3xl">
-              Share your confession
-            </CardTitle>
-            <CardDescription>
-              We never ask for your identity. Your confession is reviewed by a person before it goes live.
-            </CardDescription>
-            <div className="flex flex-wrap items-center gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="touch-target rounded-full px-4"
-                onClick={() => setFocusMode((prev) => !prev)}
-              >
-                {focusMode ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                {focusMode ? "Exit focus mode" : "Focus writing mode"}
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={onSubmit} className="space-y-5">
-              <input
-                type="text"
-                name="website"
-                value={website}
-                onChange={(event) => setWebsite(event.target.value)}
-                className="hidden"
-                autoComplete="off"
-                tabIndex={-1}
-                aria-hidden="true"
-              />
-
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-start">
+          <Card className={cn("border-border/70 shadow-none", focusMode && "border-accent/25")}>
+            <CardHeader className="gap-4 border-b border-border/70 pb-5">
               <div className="space-y-2">
-                <div className="flex items-center justify-between gap-3">
-                  <Label htmlFor="confession" className="text-sm font-semibold">
-                    Your confession
-                  </Label>
-                  <span
-                    className={cn(
-                      "text-xs tabular-nums text-muted-foreground",
-                      charCount > CHAR_LIMIT * 0.9 && "font-semibold text-destructive"
-                    )}
-                  >
-                    {charCount} / {CHAR_LIMIT}
-                  </span>
-                </div>
-                <Textarea
-                  id="confession"
-                  name="confession"
-                  value={message}
-                  onChange={(event) => setMessage(event.target.value)}
-                  maxLength={CHAR_LIMIT}
-                  rows={focusMode ? 13 : 8}
-                  className={cn("text-[15px] leading-6", focusMode && "border-accent/40 bg-background")}
-                  placeholder="What has been on your mind?"
-                />
-                <p className="text-xs text-muted-foreground">{guidanceText}</p>
+                <CardTitle className="text-2xl font-semibold tracking-tight sm:text-3xl">
+                  Share your confession
+                </CardTitle>
+                <CardDescription className="max-w-2xl">
+                  A quiet, anonymous form. Write clearly, avoid personal details, and a moderator will review it before anything is published.
+                </CardDescription>
               </div>
 
-              <div className="rounded-lg border border-border/70 bg-muted/30 p-4">
-                <p className="mb-2 text-sm font-semibold">Confidence indicators</p>
-                <div className="mb-3 flex flex-wrap items-center gap-2">
-                  <span className="text-xs text-muted-foreground">Tone risk:</span>
-                  <span className={cn("text-xs font-semibold uppercase", toneStyle)}>{toneLevel}</span>
-                </div>
-                <div className="grid gap-2 sm:grid-cols-3">
-                  {safetyChecks.map((check) => (
-                    <div
-                      key={check.label}
+              <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                <span className="inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5">
+                  <Lock className="h-3.5 w-3.5" />
+                  Anonymous by default
+                </span>
+                <span className="inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5">
+                  <ShieldCheck className="h-3.5 w-3.5" />
+                  Human reviewed
+                </span>
+                <span className="inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5">
+                  <Music2 className="h-3.5 w-3.5" />
+                  Music tag optional
+                </span>
+              </div>
+            </CardHeader>
+
+            <CardContent className="pt-6">
+              <form onSubmit={onSubmit} className="space-y-6">
+                <input
+                  type="text"
+                  name="website"
+                  value={website}
+                  onChange={(event) => setWebsite(event.target.value)}
+                  className="hidden"
+                  autoComplete="off"
+                  tabIndex={-1}
+                  aria-hidden="true"
+                />
+
+                <div className="space-y-2.5">
+                  <div className="flex items-center justify-between gap-3">
+                    <Label htmlFor="confession" className="text-sm font-medium">
+                      Your confession
+                    </Label>
+                    <span
                       className={cn(
-                        "flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-xs",
-                        check.ok
-                          ? "border-success/30 bg-success/10 text-success"
-                          : "border-destructive/30 bg-destructive/10 text-destructive"
+                        "text-xs tabular-nums text-muted-foreground",
+                        charCount > CHAR_LIMIT * 0.9 && "font-medium text-destructive"
                       )}
                     >
-                      {check.ok ? <CircleCheck className="h-3.5 w-3.5" /> : <TriangleAlert className="h-3.5 w-3.5" />}
-                      {check.label}
+                      {charCount}/{CHAR_LIMIT}
+                    </span>
+                  </div>
+                  <Textarea
+                    id="confession"
+                    name="confession"
+                    value={message}
+                    onChange={(event) => setMessage(event.target.value)}
+                    maxLength={CHAR_LIMIT}
+                    rows={focusMode ? 14 : 10}
+                    className={cn(
+                      "min-h-56 resize-none border-border/70 bg-background text-sm leading-6 shadow-none",
+                      focusMode && "border-accent/30"
+                    )}
+                    placeholder="What has been on your mind?"
+                  />
+                  <p className="text-xs text-muted-foreground">{guidanceText}</p>
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="space-y-2.5">
+                    <Label htmlFor="music" className="text-sm font-medium">
+                      Song for this confession
+                    </Label>
+                    <Input
+                      id="music"
+                      name="music"
+                      value={music}
+                      onChange={(event) => setMusic(event.target.value)}
+                      maxLength={120}
+                      placeholder="Artist - Song"
+                      className="h-10 border-border/70 bg-background shadow-none"
+                    />
+                    <p className="text-xs text-muted-foreground">Optional. Keep it short and recognizable.</p>
+                  </div>
+
+                  <div className="space-y-2.5">
+                    <Label className="text-sm font-medium">Writing view</Label>
+                    <Toggle
+                      pressed={focusMode}
+                      onPressedChange={setFocusMode}
+                      variant="outline"
+                      size="lg"
+                      className="h-10 w-full justify-start gap-2 border-border/70 px-3 text-sm font-medium hover:bg-background"
+                    >
+                      {focusMode ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      {focusMode ? "Focused editor enabled" : "Focused editor disabled"}
+                    </Toggle>
+                    <p className="text-xs text-muted-foreground">A calmer layout with fewer visual distractions.</p>
+                  </div>
+                </div>
+
+                <div className="space-y-4 rounded-lg border border-border/70 bg-muted/20 p-4">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                      <p className="text-sm font-medium">Draft and submit</p>
+                      <p className="text-xs text-muted-foreground">
+                        {draftError
+                          ? "Local storage is unavailable on this device."
+                          : hasDraft && saveDraft
+                            ? "Your draft is stored locally on this device."
+                            : "Auto-save is available while you write."}
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <Button
+                        type="button"
+                        variant={saveDraft ? "secondary" : "outline"}
+                        size="sm"
+                        onClick={() => setSaveDraft((prev) => !prev)}
+                        disabled={draftError}
+                      >
+                        {saveDraft ? "Auto-save on" : "Auto-save off"}
+                      </Button>
+                      {hasDraft && (
+                        <Button type="button" variant="ghost" size="sm" onClick={clearDraft}>
+                          Clear draft
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+
+                  <Separator />
+
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="space-y-1">
+                      <p className="text-sm font-medium">Ready for review</p>
+                      <p className="text-xs text-muted-foreground">
+                        Only clear, non-identifying confessions move through moderation quickly.
+                      </p>
+                    </div>
+                    <Button type="submit" size="lg" className="h-10 px-5" disabled={!canSubmit}>
+                      {loading ? (
+                        <>
+                          <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground/40 border-t-primary-foreground" />
+                          Sending...
+                        </>
+                      ) : (
+                        <>
+                          <Send className="h-4 w-4" />
+                          Submit confession
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+
+          <div className="space-y-4">
+            {firstVisit && (
+              <Card className="border-border/70 shadow-none">
+                <CardHeader>
+                  <CardTitle className="text-base font-medium">Before you submit</CardTitle>
+                  <CardDescription>
+                    We do not ask for your name or account. Drafts stay on your device.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-2">
+                    <CircleCheck className="h-4 w-4 text-success" />
+                    <span>Every post is reviewed by a human moderator.</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CircleCheck className="h-4 w-4 text-success" />
+                    <span>Avoid names, phone numbers, links, and personal email addresses.</span>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      localStorage.setItem(FIRST_VISIT_KEY, "seen");
+                      setFirstVisit(false);
+                    }}
+                  >
+                    Dismiss
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+
+            <Card className="border-border/70 shadow-none">
+              <CardHeader>
+                <CardTitle className="text-base font-medium">Checks</CardTitle>
+                <CardDescription>These simple checks help keep the queue safe and readable.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Tone risk</span>
+                  <span className={cn("text-xs font-semibold uppercase", toneStyle)}>{toneLevel}</span>
+                </div>
+                <Separator />
+                <div className="space-y-2">
+                  {safetyChecks.map((check) => (
+                    <div key={check.label} className="flex items-center gap-2 text-sm">
+                      {check.ok ? (
+                        <CircleCheck className="h-4 w-4 text-success" />
+                      ) : (
+                        <TriangleAlert className="h-4 w-4 text-destructive" />
+                      )}
+                      <span className={check.ok ? "text-foreground" : "text-destructive"}>{check.label}</span>
                     </div>
                   ))}
                 </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="music" className="text-sm font-semibold">
-                  Song for this confession (optional)
-                </Label>
-                <Input
-                  id="music"
-                  name="music"
-                  value={music}
-                  onChange={(event) => setMusic(event.target.value)}
-                  maxLength={120}
-                  placeholder="Artist - Song"
-                />
-              </div>
-
-              <div className="rounded-lg border border-border/70 bg-muted/30 p-4">
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div>
-                    <p className="text-sm font-semibold">Local draft</p>
-                    <p className="text-xs text-muted-foreground">
-                      {draftError
-                        ? "Storage unavailable"
-                        : hasDraft && saveDraft
-                          ? "Draft saved"
-                          : "Auto-save enabled"}
-                    </p>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <Button
-                      type="button"
-                      variant={saveDraft ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setSaveDraft((prev) => !prev)}
-                      disabled={draftError}
-                    >
-                      {saveDraft ? "Saving" : "Paused"}
-                    </Button>
-                    {hasDraft && (
-                      <Button type="button" variant="ghost" size="sm" onClick={clearDraft}>
-                        Clear
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              <Button
-                type="submit"
-                className="hidden h-auto w-full rounded-full px-8 py-4 text-sm font-semibold sm:inline-flex"
-                size="lg"
-                disabled={!canSubmit}
-              >
-                {loading ? (
-                  <>
-                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground/40 border-t-primary-foreground" />
-                    Sending...
-                  </>
-                ) : (
-                  <>
-                    <Send className="h-4 w-4" />
-                    Submit confession
-                  </>
-                )}
-              </Button>
-
-              <div className="keyboard-safe-bottom fixed inset-x-0 bottom-0 z-40 border-t border-border/60 bg-background/95 px-4 py-3 backdrop-blur sm:hidden">
-                <Button
-                  type="submit"
-                  className="touch-target h-auto w-full rounded-full px-6 py-3.5 text-sm font-semibold"
-                  size="lg"
-                  disabled={!canSubmit}
-                >
-                  {loading ? (
-                    <>
-                      <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground/40 border-t-primary-foreground" />
-                      Sending...
-                    </>
-                  ) : (
-                    <>
-                      <Send className="h-4 w-4" />
-                      Submit confession
-                    </>
-                  )}
-                </Button>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
-
-        <Card className="mt-6 border-border/70">
-          <CardHeader>
-            <CardTitle className="text-base font-bold">Safety and review</CardTitle>
-            <CardDescription>
-              Every post is moderated before publication to keep the space respectful.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="flex items-center gap-2 text-sm">
-              <Lock className="h-4 w-4 text-accent" />
-              <span>Anonymous by default</span>
-            </div>
-            <Separator />
-            <div className="flex items-center gap-2 text-sm">
-              <ShieldCheck className="h-4 w-4 text-accent" />
-              <span>Human moderation queue</span>
-            </div>
-            <Separator />
-            <div className="flex items-center gap-2 text-sm">
-              <Music2 className="h-4 w-4 text-accent" />
-              <span>Optional music tag</span>
-            </div>
-            <Separator />
-            <div className="flex items-center gap-2 text-sm">
-              <Heart className="h-4 w-4 text-accent" />
-              <span>No account required</span>
-            </div>
-          </CardContent>
-        </Card>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       </motion.div>
     </main>
   );

@@ -10,6 +10,39 @@ import Confession from "@/models/Confession";
 import DeletedConfession from "@/models/DeletedConfession";
 import AuditLog from "@/models/AuditLog";
 
+type ConfessionResponse = {
+  _id: string;
+  message: string;
+  music: string;
+  status: "pending" | "approved" | "rejected";
+  posted: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
+function serializeConfession(item: {
+  _id: unknown;
+  message?: string;
+  music?: string;
+  status?: string;
+  posted?: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
+}): ConfessionResponse {
+  return {
+    _id: String(item._id),
+    message: item.message ?? "",
+    music: item.music ?? "",
+    status:
+      item.status === "approved" || item.status === "rejected"
+        ? item.status
+        : "pending",
+    posted: Boolean(item.posted),
+    createdAt: item.createdAt?.toISOString(),
+    updatedAt: item.updatedAt?.toISOString(),
+  };
+}
+
 export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -102,7 +135,15 @@ export async function PATCH(
 
     const confession = await Confession.findByIdAndUpdate(id, update, {
       new: true,
-    }).lean();
+    }).lean<{
+      _id: unknown;
+      message?: string;
+      music?: string;
+      status?: string;
+      posted?: boolean;
+      createdAt?: Date;
+      updatedAt?: Date;
+    }>();
 
     if (!confession) {
       // Should not happen since we fetched above, but handle edge case
@@ -123,7 +164,7 @@ export async function PATCH(
       console.error("AuditLog write failed (PATCH):", logErr);
     }
 
-    return NextResponse.json({ confession });
+    return NextResponse.json({ confession: serializeConfession(confession) });
   } catch (error) {
     console.error("Confession update error:", error);
     return NextResponse.json(
@@ -137,6 +178,8 @@ export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  let backupId: string | null = null;
+
   try {
     let arcjetDecision;
     try {
@@ -187,7 +230,7 @@ export async function DELETE(
     }
 
     // Backup to DeletedConfession collection before removing
-    await DeletedConfession.create({
+    const backup = await DeletedConfession.create({
       originalId: String(confession._id),
       message: confession.message,
       messageHash: confession.messageHash,
@@ -200,9 +243,19 @@ export async function DELETE(
       deletedAt: new Date(),
       deleteReason: "admin_delete",
     });
+    backupId = String(backup._id);
 
     // Now remove from the main collection
-    await Confession.findByIdAndDelete(id);
+    const deleted = await Confession.findByIdAndDelete(id).select({ _id: 1 }).lean();
+
+    if (!deleted) {
+      await DeletedConfession.findByIdAndDelete(backupId).catch((rollbackError) => {
+        console.error("DeletedConfession rollback failed:", rollbackError);
+      });
+      return NextResponse.json({ error: "Confession not found." }, { status: 404 });
+    }
+
+    backupId = null;
 
     try {
       await AuditLog.create({
@@ -217,6 +270,12 @@ export async function DELETE(
 
     return NextResponse.json({ ok: true });
   } catch (error) {
+    if (backupId) {
+      await DeletedConfession.findByIdAndDelete(backupId).catch((rollbackError) => {
+        console.error("DeletedConfession rollback failed:", rollbackError);
+      });
+    }
+
     console.error("Confession delete error:", error);
     return NextResponse.json(
       { error: "Failed to delete confession." },

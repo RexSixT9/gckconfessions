@@ -83,7 +83,7 @@ export default function NotFoundPage() {
               <Button
                 variant="outline"
                 onClick={() => router.back()}
-                className="h-auto w-full rounded-full px-7 py-3.5 text-sm sm:w-auto"
+                className="h-auto w-full rounded-lg border-border/70 bg-background px-7 py-3.5 text-sm hover:bg-background sm:w-auto"
               >
                 <ArrowLeft className="h-4 w-4" />
                 Go back
