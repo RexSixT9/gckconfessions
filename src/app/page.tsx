@@ -400,25 +400,6 @@ export default function HomePage() {
                 </Button>
               </Magnetic>
             </motion.div>
-
-            {/* Stats row */}
-            <motion.div
-              variants={fadeUp}
-              className="mt-12 flex flex-wrap gap-8 border-t border-border/40 pt-8"
-            >
-              {[
-                { value: "100%", label: "Human reviewed", color: "text-accent" },
-                { value: "<60s", label: "Typical submit", color: "" },
-                { value: "Zero", label: "Data collected", color: "text-success" },
-              ].map(({ value, label, color }) => (
-                <div key={label}>
-                  <p className={`text-2xl font-black sm:text-3xl ${color}`}>{value}</p>
-                  <p className="mt-0.5 text-xs font-medium uppercase tracking-widest text-muted-foreground">
-                    {label}
-                  </p>
-                </div>
-              ))}
-            </motion.div>
           </motion.div>
 
           {/* ── Right: 3D floating card (desktop) ── */}
