@@ -12,6 +12,11 @@ import { PageReveal } from "@/components/Reveal";
 
 
 type Notice = { type: "error" | "success"; message: string } | null;
+const MIN_PASSWORD_LENGTH = 8;
+
+function isValidEmail(email: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -51,7 +56,22 @@ export default function AdminLoginPage() {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (loading) return;
+
     setNotice(null);
+
+    const normalizedEmail = email.trim().toLowerCase();
+
+    if (!isValidEmail(normalizedEmail)) {
+      setNotice({ type: "error", message: "Enter a valid admin email address." });
+      return;
+    }
+
+    if (password.length < MIN_PASSWORD_LENGTH) {
+      setNotice({ type: "error", message: `Password must be at least ${MIN_PASSWORD_LENGTH} characters.` });
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -59,7 +79,7 @@ export default function AdminLoginPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "same-origin",
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email: normalizedEmail, password }),
       });
 
       const data = await response.json();
@@ -174,7 +194,7 @@ export default function AdminLoginPage() {
                     maxLength={254}
                     required
                     disabled={loading}
-                    className="h-10 pl-9"
+                    className="h-10 border-border/70 bg-background pl-9 shadow-none"
                   />
                 </div>
               </div>
@@ -200,9 +220,10 @@ export default function AdminLoginPage() {
                     autoCorrect="off"
                     spellCheck={false}
                     maxLength={128}
+                    minLength={MIN_PASSWORD_LENGTH}
                     required
                     disabled={loading}
-                    className="h-10 pl-9 pr-10"
+                    className="h-10 border-border/70 bg-background pl-9 pr-10 shadow-none"
                   />
                   <Button
                     type="button"
@@ -221,7 +242,7 @@ export default function AdminLoginPage() {
               {/* Submit */}
               <Button
                 type="submit"
-                disabled={loading || !email || !password}
+                disabled={loading || !email.trim() || password.length < MIN_PASSWORD_LENGTH}
                 className="mt-2 w-full rounded-lg font-semibold"
               >
                 {loading ? (

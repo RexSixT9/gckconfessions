@@ -1,30 +1,71 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Heart } from "lucide-react";
 import { motion } from "framer-motion";
 import ThemeToggle from "@/components/ThemeToggle";
 import AnnouncementBanner from "@/components/AnnouncementBanner";
+import { cn } from "@/lib/cn";
 
 export default function HeaderNav() {
   const headerRef = useRef<HTMLElement>(null);
+  const [isHidden, setIsHidden] = useState(false);
+
+  useEffect(() => {
+    let lastY = window.scrollY;
+
+    const onScroll = () => {
+      const currentY = window.scrollY;
+      const delta = currentY - lastY;
+
+      if (currentY <= 8) {
+        setIsHidden(false);
+        lastY = currentY;
+        return;
+      }
+
+      if (Math.abs(delta) < 4) return;
+
+      if (delta > 0 && currentY > 72) {
+        setIsHidden(true);
+      } else if (delta < 0) {
+        setIsHidden(false);
+      }
+
+      lastY = currentY;
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   // Keep --header-height CSS variable accurate at all times
   useEffect(() => {
     const el = headerRef.current;
     if (!el || typeof ResizeObserver === "undefined") return;
-    const update = () =>
-      document.documentElement.style.setProperty("--header-height", `${el.offsetHeight}px`);
+
+    const update = () => {
+      const height = `${el.offsetHeight}px`;
+      document.documentElement.style.setProperty("--header-height", height);
+      document.documentElement.style.setProperty("--header-offset", isHidden ? "0px" : height);
+    };
+
     update();
     const ro = new ResizeObserver(update);
     ro.observe(el);
     return () => ro.disconnect();
-  }, []);
+  }, [isHidden]);
 
   return (
     <>
-      <header ref={headerRef} className="sticky top-0 z-50 animate-fade-in">
+      <header
+        ref={headerRef}
+        className={cn(
+          "sticky top-0 z-50 animate-fade-in transition-transform duration-300",
+          isHidden && "-translate-y-full"
+        )}
+      >
         <AnnouncementBanner />
 
         {/* Floating pill wrapper */}

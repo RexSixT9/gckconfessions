@@ -19,7 +19,7 @@ export default function ScrollProgressBar() {
       transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
       className="pointer-events-none fixed inset-x-3 z-40 sm:inset-x-4"
       style={{
-        top: "calc(var(--header-height) + var(--announcement-height, 0px) + 0.25rem)",
+        top: "calc(var(--header-offset, var(--header-height, 0px)) + 0.25rem)",
       }}
       aria-hidden
     >

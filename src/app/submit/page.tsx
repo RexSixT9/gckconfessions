@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
@@ -50,6 +50,7 @@ type SafetyCheck = {
 type ToneLevel = "low" | "medium" | "high";
 
 export default function SubmitPage() {
+  const confessionRef = useRef<HTMLTextAreaElement>(null);
   const [message, setMessage] = useState("");
   const [music, setMusic] = useState("");
   const [website, setWebsite] = useState("");
@@ -130,7 +131,12 @@ export default function SubmitPage() {
 
     const timer = setTimeout(() => {
       try {
-        if (!message.trim() && !music.trim()) return;
+        if (!message.trim() && !music.trim()) {
+          localStorage.removeItem(DRAFT_KEY);
+          setHasDraft(false);
+          return;
+        }
+
         localStorage.setItem(DRAFT_KEY, JSON.stringify({ message, music }));
         setHasDraft(true);
       } catch {
@@ -140,6 +146,17 @@ export default function SubmitPage() {
 
     return () => clearTimeout(timer);
   }, [message, music, saveDraft]);
+
+  useEffect(() => {
+    if (saveDraft) return;
+
+    try {
+      localStorage.removeItem(DRAFT_KEY);
+      setHasDraft(false);
+    } catch {
+      setDraftError(true);
+    }
+  }, [saveDraft]);
 
   useEffect(() => {
     try {
@@ -161,6 +178,11 @@ export default function SubmitPage() {
 
     return () => window.removeEventListener("online", handleOnline);
   }, [syncOfflineQueue]);
+
+  useEffect(() => {
+    if (!focusMode) return;
+    confessionRef.current?.focus({ preventScroll: true });
+  }, [focusMode]);
 
   const clearDraft = useCallback(() => {
     try {
@@ -199,6 +221,17 @@ export default function SubmitPage() {
       if (pendingSafety) {
         toast.error("Safety check failed", {
           description: "Please remove phone numbers, links, or personal identifiers.",
+        });
+        return;
+      }
+
+      const lower = message.toLowerCase();
+      const strongWords = ["hate", "kill", "worthless", "stupid", "die"];
+      const toneHits = strongWords.filter((word) => lower.includes(word)).length;
+
+      if (toneHits >= 2) {
+        toast.error("Tone risk too high", {
+          description: "Please soften hostile wording before submitting.",
         });
         return;
       }
@@ -275,7 +308,7 @@ export default function SubmitPage() {
   }, [charCount]);
 
   const checksPassed = safetyChecks.every((check) => check.ok);
-  const canSubmit = Boolean(message.trim()) && checksPassed && !loading;
+  const canSubmit = Boolean(message.trim()) && checksPassed && toneLevel !== "high" && !loading;
 
   const toneStyle =
     toneLevel === "high"
@@ -291,7 +324,7 @@ export default function SubmitPage() {
           variant="ghost"
           size="sm"
           render={<Link href="/" />}
-          className="mb-6 gap-1.5 rounded-lg px-0 text-muted-foreground hover:bg-transparent hover:text-muted-foreground"
+          className="mb-6 shrink-0 gap-1.5 rounded-lg"
         >
           <>
             <ArrowLeft className="h-4 w-4" />
@@ -356,6 +389,7 @@ export default function SubmitPage() {
                     </span>
                   </div>
                   <Textarea
+                    ref={confessionRef}
                     id="confession"
                     name="confession"
                     value={message}

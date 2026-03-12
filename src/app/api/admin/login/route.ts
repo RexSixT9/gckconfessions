@@ -9,6 +9,10 @@ import { isSameOrigin, isValidEmail } from "@/lib/requestUtils";
 import Admin from "@/models/Admin";
 import AuditLog from "@/models/AuditLog";
 
+const MIN_PASSWORD_LENGTH = 8;
+const MAX_PASSWORD_LENGTH = 128;
+const DUMMY_PASSWORD_HASH = "$2a$10$CwTycUXWue0Thq9StjUM0uJ8n9f5M5w7x1YgnSUQoqBYwygJyI072";
+
 export async function POST(request: Request) {
   try {
     if (!isSameOrigin(request)) {
@@ -58,10 +62,24 @@ export async function POST(request: Request) {
       );
     }
 
-    const body = await request.json();
-    const email = String(body.email ?? "").toLowerCase().trim();
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json({ error: "Invalid JSON payload." }, { status: 400 });
+    }
+
+    if (!body || typeof body !== "object") {
+      return NextResponse.json({ error: "Invalid request payload." }, { status: 400 });
+    }
+
+    const payload = body as Record<string, unknown>;
+    const email =
+      typeof payload.email === "string"
+        ? payload.email.toLowerCase().trim()
+        : "";
     // Do NOT trim passwords — whitespace may be intentional
-    const password = String(body.password ?? "");
+    const password = typeof payload.password === "string" ? payload.password : "";
 
     if (!email || !password) {
       return NextResponse.json(
@@ -77,6 +95,13 @@ export async function POST(request: Request) {
       );
     }
 
+    if (password.length < MIN_PASSWORD_LENGTH || password.length > MAX_PASSWORD_LENGTH) {
+      return NextResponse.json(
+        { error: `Password must be ${MIN_PASSWORD_LENGTH}-${MAX_PASSWORD_LENGTH} characters.` },
+        { status: 400 }
+      );
+    }
+
     await connectToDatabase();
     const admin = await Admin.findOne({ email }).lean<{
       _id?: unknown;
@@ -86,11 +111,13 @@ export async function POST(request: Request) {
 
     // Always perform password comparison to prevent timing attacks
     const passwordHash = admin?.passwordHash;
-    const dummyHash = "$2a$10$invalidhashtopreventtimingattacksdummy";
-    const isValid = await bcrypt.compare(
-      password,
-      typeof passwordHash === "string" ? passwordHash : dummyHash
-    );
+    const hashToCompare = typeof passwordHash === "string" ? passwordHash : DUMMY_PASSWORD_HASH;
+    let isValid = false;
+    try {
+      isValid = await bcrypt.compare(password, hashToCompare);
+    } catch {
+      isValid = false;
+    }
 
     if (!admin || typeof passwordHash !== "string" || !isValid) {
       // Log failed attempt

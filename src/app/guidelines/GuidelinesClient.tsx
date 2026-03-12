@@ -68,7 +68,7 @@ export default function GuidelinesClient() {
         variant="ghost"
         size="sm"
         render={<Link href="/" />}
-        className="mb-6 gap-1.5 rounded-lg px-0 text-muted-foreground hover:bg-transparent hover:text-muted-foreground"
+        className="mb-6 shrink-0 gap-1.5 rounded-lg"
       >
         <>
           <ArrowLeft className="h-4 w-4" />
