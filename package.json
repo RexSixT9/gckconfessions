@@ -9,8 +9,10 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "ci": "npm run lint && npm run typecheck && npm run build",
+    "test:e2e": "node ./node_modules/playwright/cli.js test",
+    "test:e2e:ui": "node ./node_modules/playwright/cli.js test --ui",
+    "perf:assert": "lhci autorun --config=lighthouserc.json",
     "dev2": "next dev -H 0.0.0.0"
-
   },
   "dependencies": {
     "@arcjet/next": "^1.1.0",
@@ -38,6 +40,8 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.4",
+    "@lhci/cli": "^0.15.1",
+    "@playwright/test": "^1.58.2",
     "@tailwindcss/postcss": "^4",
     "@types/bcryptjs": "^2.4.6",
     "@types/canvas-confetti": "^1.9.0",
