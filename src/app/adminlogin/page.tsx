@@ -3,12 +3,11 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ArrowRight, Loader, ShieldCheck, Mail, Eye, EyeOff, KeyRound } from "lucide-react";
-import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageReveal } from "@/components/Reveal";
 
 const MIN_PASSWORD_LENGTH = 12;
@@ -118,35 +117,24 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <PageReveal className="flex flex-1 items-center justify-center px-4 py-8 sm:py-12" y={8} duration={0.4}>
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95, y: 20 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.1, ease: "easeOut" }}
-        className="w-full max-w-sm"
-      >
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.5 }}
-          className="mb-6 text-center"
-        >
-          <motion.span
-            initial={{ scale: 0.8 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 0.3, duration: 0.4, type: "spring", stiffness: 200 }}
-            className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl border border-border bg-card"
-          >
-            <ShieldCheck className="h-6 w-6 text-foreground" />
-          </motion.span>
-          <h1 className="text-2xl font-black tracking-tight text-foreground">Admin sign in</h1>
-          <p className="mt-1.5 text-sm text-muted-foreground">Access moderation tools</p>
-        </motion.div>
+    <main className="relative flex flex-1 bg-background">
+      <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+        <div className="absolute -left-20 top-10 h-72 w-72 rounded-full bg-accent/10 blur-3xl" />
+        <div className="absolute -right-24 bottom-0 h-80 w-80 rounded-full bg-accent/10 blur-3xl" />
+      </div>
 
-        {/* Card */}
-        <Card className="border-shine border shadow-sm">
-          <CardContent className="p-6 sm:p-8">
+      <PageReveal className="mx-auto flex w-full max-w-5xl items-center justify-center px-4 py-8 sm:px-6 sm:py-12" y={8} duration={0.4}>
+        <div className="w-full max-w-sm">
+          <Card className="border-border/70 bg-card/75 shadow-none backdrop-blur-sm">
+            <CardHeader className="space-y-3 pb-2 text-center">
+              <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl border border-border/70 bg-background/70">
+                <ShieldCheck className="h-6 w-6 text-foreground" />
+              </span>
+              <CardTitle className="text-2xl font-black tracking-tight">Admin sign in</CardTitle>
+              <CardDescription>Access moderation tools</CardDescription>
+            </CardHeader>
+
+            <CardContent className="p-6 pt-4 sm:p-8 sm:pt-5">
             <form className="space-y-5" onSubmit={handleSubmit}>
               {/* Email */}
               <div className="space-y-2">
@@ -237,18 +225,12 @@ export default function AdminLoginPage() {
                 )}
               </Button>
             </form>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
 
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5, duration: 0.5 }}
-          className="mt-4 text-center text-xs text-muted-foreground"
-        >
-          GCK Confessions · Admin
-        </motion.p>
-      </motion.div>
-    </PageReveal>
+          <p className="mt-4 text-center text-xs text-muted-foreground">GCK Confessions · Admin</p>
+        </div>
+      </PageReveal>
+    </main>
   );
 }

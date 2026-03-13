@@ -1,10 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import Link from "next/link";
 import { toast } from "sonner";
 import {
-  ArrowLeft,
   Send,
 } from "lucide-react";
 
@@ -21,6 +19,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { PageReveal } from "@/components/Reveal";
+import { PageBackLink, PageIntro, PageShell } from "@/components/PageScaffold";
 import { cn } from "@/lib/cn";
 
 const CHAR_LIMIT = 1000;
@@ -233,25 +232,20 @@ export default function SubmitPage() {
   const canSubmit = Boolean(message.trim()) && !loading;
 
   return (
-    <main className="flex-1 bg-background">
-      <PageReveal className="mx-auto w-full max-w-3xl px-4 pb-14 pt-6 sm:px-6 sm:pb-16 sm:pt-10">
-        <Button
-          variant="ghost"
-          size="sm"
-          render={<Link href="/" />}
-          className="group mb-6 gap-2 rounded-xl border border-border/50 bg-background/50 px-4 py-2 backdrop-blur-sm transition-all hover:border-accent/40 hover:bg-accent/5"
-        >
-          <>
-            <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-0.5" />
-            Back to home
-          </>
-        </Button>
+    <PageShell containerClassName="max-w-3xl">
+      <PageReveal>
+        <PageBackLink />
+        <PageIntro
+          badge="Submit"
+          title="Share your confession"
+          description="Keep it anonymous and clear. A moderator reviews every submission before publishing."
+        />
 
-        <Card className="border-border/70 shadow-none">
+        <Card className="border-border/70 bg-card/70 shadow-none backdrop-blur-sm">
           <CardHeader>
-            <CardTitle className="text-2xl font-semibold tracking-tight">Share your confession</CardTitle>
+            <CardTitle className="text-xl font-semibold tracking-tight sm:text-2xl">Write your confession</CardTitle>
             <CardDescription>
-              Keep it anonymous and clear. A moderator reviews every submission before publishing.
+              Be direct, avoid personal identifiers, and submit when ready.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -362,6 +356,6 @@ export default function SubmitPage() {
             </CardContent>
         </Card>
       </PageReveal>
-    </main>
+    </PageShell>
   );
 }

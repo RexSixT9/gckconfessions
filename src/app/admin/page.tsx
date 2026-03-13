@@ -10,6 +10,7 @@ import { connectToDatabase } from "@/lib/mongodb";
 import Confession from "@/models/Confession";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { PageShell } from "@/components/PageScaffold";
 
 async function getStats() {
   try {
@@ -40,8 +41,8 @@ export default async function AdminPage() {
 
   const stats = await getStats();
   return (
-    <main className="flex-1 bg-background">
-      <PageReveal className="mx-auto w-full max-w-6xl px-4 pb-14 pt-6 sm:px-6 sm:pb-16 sm:pt-10" y={10} duration={0.4}>
+    <PageShell containerClassName="max-w-6xl">
+      <PageReveal y={10} duration={0.4}>
 
         {/*  Page header  */}
         <div className="mb-8 flex animate-slide-down flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -65,7 +66,7 @@ export default async function AdminPage() {
 
         {/*  Main list  */}
         <ScrollReveal delay={0.06} y={12}>
-          <Card className="animate-blur-in border-border/70 animation-delay-400">
+          <Card className="animate-blur-in border-border/70 bg-card/70 shadow-none backdrop-blur-sm animation-delay-400">
             <CardContent className="p-6 sm:p-8">
               <AdminList />
             </CardContent>
@@ -73,7 +74,7 @@ export default async function AdminPage() {
         </ScrollReveal>
 
       </PageReveal>
-    </main>
+    </PageShell>
   );
 }
 

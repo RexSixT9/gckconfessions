@@ -1,5 +1,5 @@
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageIntro, PageShell } from "@/components/PageScaffold";
 
 type TransparencyData = {
   queue: { pending: number; approved: number; rejected: number; published: number };
@@ -25,17 +25,15 @@ export default async function TransparencyPage() {
   const data = await getData();
 
   return (
-    <main className="mx-auto w-full max-w-5xl px-4 py-6 sm:px-6 sm:py-10">
-      <Badge variant="secondary" className="mb-3 uppercase tracking-wider">
-        Transparency
-      </Badge>
-      <h1 className="text-[clamp(1.7rem,5.5vw,2.25rem)] font-black tracking-tight text-balance">Safety and moderation stats</h1>
-      <p className="mt-2 text-sm text-muted-foreground">
-        We publish queue and moderation activity to increase trust.
-      </p>
+    <PageShell>
+      <PageIntro
+        badge="Transparency"
+        title="Safety and moderation stats"
+        description="We publish queue and moderation activity to increase trust."
+      />
 
       {!data ? (
-        <Card className="mt-6 border-border/70">
+        <Card className="mt-6 border-border/70 bg-card/70 shadow-none backdrop-blur-sm">
           <CardContent className="py-10 text-center text-sm text-muted-foreground">
             Stats are temporarily unavailable. Please try again later.
           </CardContent>
@@ -50,7 +48,7 @@ export default async function TransparencyPage() {
             ["Moderation actions", data.moderationActions],
             ["Audit events", data.totalAuditEvents],
           ].map(([label, value]) => (
-            <Card key={label as string} className="border-border/70">
+            <Card key={label as string} className="border-border/70 bg-card/70 shadow-none backdrop-blur-sm">
               <CardHeader>
                 <CardTitle className="text-sm text-muted-foreground">{label}</CardTitle>
               </CardHeader>
@@ -64,6 +62,6 @@ export default async function TransparencyPage() {
           </p>
         </div>
       )}
-    </main>
+    </PageShell>
   );
 }
