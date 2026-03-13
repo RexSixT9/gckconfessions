@@ -3,11 +3,15 @@ import { cookies } from "next/headers";
 import mongoose from "mongoose";
 import { connectToDatabase } from "@/lib/mongodb";
 import { aj } from "@/lib/arcjet";
+import { apiError, apiOk, isJsonContentType, parseJsonObject, safeLogError } from "@/lib/api";
+import { rotateCsrfCookie, validateCsrf } from "@/lib/csrf";
 import { writeAuditLog } from "@/lib/audit";
 import { verifyAdminToken } from "@/lib/auth";
 import { COOKIE_NAME } from "@/lib/constants";
 import { checkAdminActionLimit, getClientIp, getRateLimitHeaders } from "@/lib/rateLimit";
+import { sanitizeOutputText } from "@/lib/moderation";
 import { isSameOrigin } from "@/lib/requestUtils";
+import { requiresReauth, rotateSessionCookie } from "@/lib/session";
 import Confession from "@/models/Confession";
 import DeletedConfession from "@/models/DeletedConfession";
 
@@ -32,8 +36,8 @@ function serializeConfession(item: {
 }): ConfessionResponse {
   return {
     _id: String(item._id),
-    message: item.message ?? "",
-    music: item.music ?? "",
+    message: sanitizeOutputText(item.message ?? "", 1000),
+    music: sanitizeOutputText(item.music ?? "", 120),
     status:
       item.status === "approved" || item.status === "rejected"
         ? item.status
@@ -50,80 +54,82 @@ export async function PATCH(
 ) {
   try {
     if (!isSameOrigin(request)) {
-      return NextResponse.json({ error: "Invalid origin." }, { status: 403 });
+      return apiError(403, "INVALID_ORIGIN", "Invalid origin.");
     }
 
-    const contentType = request.headers.get("content-type") ?? "";
-    if (!contentType.includes("application/json")) {
-      return NextResponse.json({ error: "Unsupported content type." }, { status: 415 });
+    if (!(await validateCsrf(request))) {
+      return apiError(403, "INVALID_CSRF", "Invalid CSRF token.");
+    }
+
+    if (!isJsonContentType(request)) {
+      return apiError(415, "INVALID_CONTENT_TYPE", "Unsupported content type.");
     }
 
     let arcjetDecision;
     try {
       arcjetDecision = await aj.protect(request);
     } catch (arcjetError) {
-      console.error("Arcjet error:", arcjetError);
+      safeLogError("Arcjet error", arcjetError);
       arcjetDecision = null;
     }
 
     if (arcjetDecision?.isDenied()) {
-      return NextResponse.json(
-        { error: "Request blocked." },
-        { status: 403 }
-      );
+      return apiError(403, "FORBIDDEN", "Request blocked.");
     }
 
     const cookieStore = await cookies();
     const token = cookieStore.get(COOKIE_NAME)?.value;
 
     if (!token) {
-      return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+      return apiError(401, "UNAUTHORIZED", "Unauthorized.");
     }
 
     const admin = await verifyAdminToken(token);
 
     if (!admin.sub) {
-      return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+      return apiError(401, "UNAUTHORIZED", "Unauthorized.");
     }
 
     const adminRate = await checkAdminActionLimit(`confession-patch:${getClientIp(request)}`);
     if (!adminRate.allowed) {
-      return NextResponse.json(
-        { error: "Too many requests. Try again later." },
-        { status: 429, headers: getRateLimitHeaders(adminRate) }
-      );
+      return apiError(429, "RATE_LIMIT", "Too many requests. Try again later.", getRateLimitHeaders(adminRate));
+    }
+    if (adminRate.remaining <= 2) {
+      await writeAuditLog({
+        action: "security_alert",
+        request,
+        adminEmail: admin.email,
+        meta: {
+          type: "moderation_spike",
+          endpoint: "confession_patch",
+          remaining: adminRate.remaining,
+        },
+      }).catch(() => {
+        // Best-effort alerting only
+      });
     }
 
     const { id } = await params;
 
     if (!id || !mongoose.Types.ObjectId.isValid(id)) {
-      return NextResponse.json({ error: "Invalid confession id." }, { status: 400 });
+      return apiError(400, "VALIDATION_ERROR", "Invalid confession id.");
     }
 
-    let body: unknown;
-    try {
-      body = await request.json();
-    } catch {
-      return NextResponse.json({ error: "Invalid JSON payload." }, { status: 400 });
+    const body = await parseJsonObject(request);
+    if (!body) {
+      return apiError(400, "INVALID_JSON", "Invalid request payload.");
     }
 
-    if (!body || typeof body !== "object") {
-      return NextResponse.json({ error: "Invalid request payload." }, { status: 400 });
-    }
-
-    const payload = body as Record<string, unknown>;
+    const payload = body;
     const posted = typeof payload.posted === "boolean" ? payload.posted : undefined;
     const status = typeof payload.status === "string" && payload.status !== "" ? payload.status : undefined;
 
     if (posted === undefined && status === undefined) {
-      return NextResponse.json(
-        { error: "No updates provided." },
-        { status: 400 }
-      );
+      return apiError(400, "VALIDATION_ERROR", "No updates provided.");
     }
 
     if (status !== undefined && !["pending", "approved", "rejected"].includes(status)) {
-      return NextResponse.json({ error: "Invalid status." }, { status: 400 });
+      return apiError(400, "VALIDATION_ERROR", "Invalid status.");
     }
 
     await connectToDatabase();
@@ -136,20 +142,14 @@ export async function PATCH(
     }>();
 
     if (!current) {
-      return NextResponse.json(
-        { error: "Confession not found." },
-        { status: 404 }
-      );
+      return apiError(404, "NOT_FOUND", "Confession not found.");
     }
 
     const effectiveStatus = status ?? current.status ?? "pending";
 
     // Guard: posted can only be set on approved confessions
     if (posted !== undefined && effectiveStatus !== "approved") {
-      return NextResponse.json(
-        { error: "Only approved confessions can be shared." },
-        { status: 400 }
-      );
+      return apiError(400, "VALIDATION_ERROR", "Only approved confessions can be shared.");
     }
 
     const update: Record<string, unknown> = {};
@@ -176,10 +176,7 @@ export async function PATCH(
 
     if (!confession) {
       // Should not happen since we fetched above, but handle edge case
-      return NextResponse.json(
-        { error: "Confession not found." },
-        { status: 404 }
-      );
+      return apiError(404, "NOT_FOUND", "Confession not found.");
     }
 
     try {
@@ -213,16 +210,16 @@ export async function PATCH(
         });
       }
     } catch (logErr) {
-      console.error("AuditLog write failed (PATCH):", logErr);
+      safeLogError("AuditLog write failed (PATCH)", logErr);
     }
 
-    return NextResponse.json({ confession: serializeConfession(confession) });
+    const response = apiOk({ confession: serializeConfession(confession) });
+    await rotateSessionCookie(response, { sub: admin.sub, email: admin.email });
+    await rotateCsrfCookie(response);
+    return response;
   } catch (error) {
-    console.error("Confession update error:", error);
-    return NextResponse.json(
-      { error: "Failed to update confession." },
-      { status: 500 }
-    );
+    safeLogError("Confession update error", error);
+    return apiError(500, "SERVER_ERROR", "Failed to update confession.");
   }
 }
 
@@ -234,45 +231,63 @@ export async function DELETE(
 
   try {
     if (!isSameOrigin(request)) {
-      return NextResponse.json({ error: "Invalid origin." }, { status: 403 });
+      return apiError(403, "INVALID_ORIGIN", "Invalid origin.");
+    }
+
+    if (!(await validateCsrf(request))) {
+      return apiError(403, "INVALID_CSRF", "Invalid CSRF token.");
     }
 
     let arcjetDecision;
     try {
       arcjetDecision = await aj.protect(request);
     } catch (arcjetError) {
-      console.error("Arcjet error:", arcjetError);
+      safeLogError("Arcjet error", arcjetError);
       arcjetDecision = null;
     }
 
     if (arcjetDecision?.isDenied()) {
-      return NextResponse.json({ error: "Request blocked." }, { status: 403 });
+      return apiError(403, "FORBIDDEN", "Request blocked.");
     }
 
     const cookieStore = await cookies();
     const token = cookieStore.get(COOKIE_NAME)?.value;
 
     if (!token) {
-      return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+      return apiError(401, "UNAUTHORIZED", "Unauthorized.");
     }
 
     const admin = await verifyAdminToken(token);
     if (!admin.sub) {
-      return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+      return apiError(401, "UNAUTHORIZED", "Unauthorized.");
+    }
+    if (requiresReauth(admin.iat ?? 0)) {
+      return apiError(401, "REAUTH_REQUIRED", "Please sign in again before this sensitive action.");
     }
 
     const adminRate = await checkAdminActionLimit(`confession-delete:${getClientIp(request)}`);
     if (!adminRate.allowed) {
-      return NextResponse.json(
-        { error: "Too many requests. Try again later." },
-        { status: 429, headers: getRateLimitHeaders(adminRate) }
-      );
+      return apiError(429, "RATE_LIMIT", "Too many requests. Try again later.", getRateLimitHeaders(adminRate));
+    }
+    if (adminRate.remaining <= 2) {
+      await writeAuditLog({
+        action: "security_alert",
+        request,
+        adminEmail: admin.email,
+        meta: {
+          type: "moderation_spike",
+          endpoint: "confession_delete",
+          remaining: adminRate.remaining,
+        },
+      }).catch(() => {
+        // Best-effort alerting only
+      });
     }
 
     const { id } = await params;
 
     if (!id || !mongoose.Types.ObjectId.isValid(id)) {
-      return NextResponse.json({ error: "Invalid confession id." }, { status: 400 });
+      return apiError(400, "VALIDATION_ERROR", "Invalid confession id.");
     }
 
     await connectToDatabase();
@@ -290,7 +305,7 @@ export async function DELETE(
     }>();
 
     if (!confession) {
-      return NextResponse.json({ error: "Confession not found." }, { status: 404 });
+      return apiError(404, "NOT_FOUND", "Confession not found.");
     }
 
     // Backup to DeletedConfession collection before removing
@@ -314,9 +329,9 @@ export async function DELETE(
 
     if (!deleted) {
       await DeletedConfession.findByIdAndDelete(backupId).catch((rollbackError) => {
-        console.error("DeletedConfession rollback failed:", rollbackError);
+        safeLogError("DeletedConfession rollback failed", rollbackError);
       });
-      return NextResponse.json({ error: "Confession not found." }, { status: 404 });
+      return apiError(404, "NOT_FOUND", "Confession not found.");
     }
 
     backupId = null;
@@ -330,21 +345,21 @@ export async function DELETE(
         meta: { confessionId: id, backedUp: true },
       });
     } catch (logErr) {
-      console.error("AuditLog write failed (DELETE):", logErr);
+      safeLogError("AuditLog write failed (DELETE)", logErr);
     }
 
-    return NextResponse.json({ ok: true });
+    const response = apiOk({ ok: true });
+    await rotateSessionCookie(response, { sub: admin.sub, email: admin.email });
+    await rotateCsrfCookie(response);
+    return response;
   } catch (error) {
     if (backupId) {
       await DeletedConfession.findByIdAndDelete(backupId).catch((rollbackError) => {
-        console.error("DeletedConfession rollback failed:", rollbackError);
+        safeLogError("DeletedConfession rollback failed", rollbackError);
       });
     }
 
-    console.error("Confession delete error:", error);
-    return NextResponse.json(
-      { error: "Failed to delete confession." },
-      { status: 500 }
-    );
+    safeLogError("Confession delete error", error);
+    return apiError(500, "SERVER_ERROR", "Failed to delete confession.");
   }
 }

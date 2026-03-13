@@ -25,13 +25,14 @@ export function PageReveal({
   duration = 0.45,
 }: RevealProps) {
   const { isAppReady, shouldReduceMotion } = useMotionRuntime();
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState(() =>
+    typeof window !== "undefined" ? window.matchMedia("(max-width: 640px)").matches : false
+  );
 
   useEffect(() => {
     const media = window.matchMedia("(max-width: 640px)");
     const onChange = (event: MediaQueryListEvent) => setIsMobile(event.matches);
 
-    setIsMobile(media.matches);
     media.addEventListener("change", onChange);
     return () => media.removeEventListener("change", onChange);
   }, []);
@@ -64,15 +65,15 @@ export function ScrollReveal({
 }: RevealProps) {
   const ref = useRef<HTMLDivElement | null>(null);
   const { isAppReady, shouldReduceMotion } = useMotionRuntime();
-  const [isMobile, setIsMobile] = useState(false);
-  const [isLowEnd, setIsLowEnd] = useState(false);
+  const [isMobile, setIsMobile] = useState(() =>
+    typeof window !== "undefined" ? window.matchMedia("(max-width: 640px)").matches : false
+  );
+  const [isLowEnd] = useState(() => (typeof window !== "undefined" ? isLowEndDevice() : false));
 
   useEffect(() => {
     const media = window.matchMedia("(max-width: 640px)");
     const onChange = (event: MediaQueryListEvent) => setIsMobile(event.matches);
 
-    setIsMobile(media.matches);
-    setIsLowEnd(isLowEndDevice());
     media.addEventListener("change", onChange);
     return () => media.removeEventListener("change", onChange);
   }, []);

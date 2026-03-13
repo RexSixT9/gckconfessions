@@ -37,3 +37,12 @@ npm run perf:assert
 ```
 
 The Lighthouse assertions currently enforce thresholds for LCP, CLS, and TBT in `lighthouserc.json`.
+
+## Security operations
+
+- Dependency automation is configured via `.github/dependabot.yml`.
+- CI runs `npm audit --audit-level=high` and dependency review checks.
+- CSP rollout starts in report-only mode by default. Set `CSP_ENFORCE=true` to enforce CSP.
+- Incident handling and dependency review runbooks:
+	- `docs/INCIDENT_RESPONSE_RUNBOOK.md`
+	- `docs/SECURITY_DEPENDENCY_REVIEW.md`

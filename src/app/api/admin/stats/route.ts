@@ -1,8 +1,9 @@
-import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { connectToDatabase } from "@/lib/mongodb";
+import { ensureCsrfCookie } from "@/lib/csrf";
 import { verifyAdminToken } from "@/lib/auth";
 import { COOKIE_NAME } from "@/lib/constants";
+import { apiError, apiOk, safeLogError } from "@/lib/api";
 import Confession from "@/models/Confession";
 
 export async function GET() {
@@ -11,12 +12,12 @@ export async function GET() {
     const token = cookieStore.get(COOKIE_NAME)?.value;
 
     if (!token) {
-      return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+      return apiError(401, "UNAUTHORIZED", "Unauthorized.");
     }
 
     const payload = await verifyAdminToken(token);
     if (!payload.sub) {
-      return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+      return apiError(401, "UNAUTHORIZED", "Unauthorized.");
     }
 
     await connectToDatabase();
@@ -26,17 +27,20 @@ export async function GET() {
       Confession.countDocuments({ status: "rejected" }),
     ]);
 
-    return NextResponse.json(
+    const response = apiOk(
       {
         pending,
         approved,
         rejected,
         total: pending + approved + rejected,
       },
-      { headers: { "Cache-Control": "no-store" } }
+      200,
+      { "Cache-Control": "no-store" }
     );
+    await ensureCsrfCookie(response);
+    return response;
   } catch (error) {
-    console.error("Admin stats error:", error);
-    return NextResponse.json({ error: "Failed to load stats." }, { status: 500 });
+    safeLogError("Admin stats error", error);
+    return apiError(500, "SERVER_ERROR", "Failed to load stats.");
   }
 }

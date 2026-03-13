@@ -8,9 +8,13 @@
 export const SESSION_DURATION_HOURS = 8;
 export const COOKIE_MAX_AGE = SESSION_DURATION_HOURS * 60 * 60; // seconds
 export const TOKEN_EXPIRATION = `${SESSION_DURATION_HOURS}h` as const;
+export const ADMIN_IDLE_TIMEOUT_SECONDS = 15 * 60;
+export const SENSITIVE_REAUTH_WINDOW_SECONDS = 10 * 60;
 
 // ── Cookie configuration ─────────────────────────────────────────────────────
 export const COOKIE_NAME = "gck_admin_token" as const;
+export const CSRF_COOKIE_NAME = "gck_csrf" as const;
+export const SESSION_ACTIVITY_COOKIE = "gck_admin_last_active" as const;
 
 export const COOKIE_OPTIONS = {
   httpOnly: true,

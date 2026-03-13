@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit",
     "ci": "npm run lint && npm run typecheck && npm run build",
     "test:e2e": "node ./node_modules/playwright/cli.js test",
+    "test:security-alert": "node ./node_modules/playwright/cli.js test tests/e2e/security-alert-delivery.spec.ts",
     "test:e2e:ui": "node ./node_modules/playwright/cli.js test --ui",
     "perf:assert": "lhci autorun --config=lighthouserc.json",
     "dev2": "next dev -H 0.0.0.0"
@@ -53,5 +54,10 @@
     "tailwindcss": "^4",
     "typescript": "^5"
   },
-  "overrides": {}
+  "overrides": {
+    "jose": "5.10.0",
+    "bcryptjs": "2.4.3",
+    "rate-limiter-flexible": "5.0.3",
+    "@arcjet/next": "1.1.0"
+  }
 }

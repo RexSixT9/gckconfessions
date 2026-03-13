@@ -12,6 +12,7 @@ const secretKey = new TextEncoder().encode(JWT_SECRET);
 export type AdminTokenPayload = {
   sub: string;
   email: string;
+  iat?: number;
 };
 
 export async function signAdminToken(payload: AdminTokenPayload) {

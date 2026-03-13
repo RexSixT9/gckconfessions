@@ -186,7 +186,7 @@ export default function SubmitPage() {
 
         const response = await fetch("/api/confessions", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json", "x-human-check": "1" },
           body: JSON.stringify({ message, music, website }),
           signal: AbortSignal.timeout(10000),
         });

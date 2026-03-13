@@ -4,6 +4,7 @@ import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 import { LogOut, Loader } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { getCsrfHeader } from "@/lib/clientSecurity";
 
 export default function SignOutButton() {
   const router = useRouter();
@@ -17,6 +18,9 @@ export default function SignOutButton() {
       const response = await fetch("/api/admin/logout", {
         method: "POST",
         credentials: "same-origin",
+        headers: {
+          ...getCsrfHeader(),
+        },
       });
 
       if (response.ok || response.redirected) {

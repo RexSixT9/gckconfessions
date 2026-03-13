@@ -2,10 +2,28 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { connectToDatabase } from "@/lib/mongodb";
 import { aj } from "@/lib/arcjet";
+import { apiError, apiOk, isJsonContentType, parseJsonObject, safeLogError } from "@/lib/api";
 import { signAdminToken } from "@/lib/auth";
+import { rotateCsrfCookie } from "@/lib/csrf";
 import { writeAuditLog } from "@/lib/audit";
-import { checkLoginIdentityLimit, checkLoginLimit, getBlockedIps, getClientIp, getRateLimitHeaders } from "@/lib/rateLimit";
-import { COOKIE_NAME, COOKIE_OPTIONS, COOKIE_MAX_AGE, MIN_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH } from "@/lib/constants";
+import {
+  checkLoginIdentityLimit,
+  checkLoginLimit,
+  clearLoginFailures,
+  getBlockedIps,
+  getClientIp,
+  getLoginBackoff,
+  getRateLimitHeaders,
+  registerLoginFailure,
+} from "@/lib/rateLimit";
+import {
+  COOKIE_NAME,
+  COOKIE_OPTIONS,
+  COOKIE_MAX_AGE,
+  MIN_PASSWORD_LENGTH,
+  MAX_PASSWORD_LENGTH,
+  SESSION_ACTIVITY_COOKIE,
+} from "@/lib/constants";
 import { isSameOrigin, isValidEmail } from "@/lib/requestUtils";
 import Admin from "@/models/Admin";
 const DUMMY_PASSWORD_HASH = "$2a$10$CwTycUXWue0Thq9StjUM0uJ8n9f5M5w7x1YgnSUQoqBYwygJyI072";
@@ -13,51 +31,36 @@ const DUMMY_PASSWORD_HASH = "$2a$10$CwTycUXWue0Thq9StjUM0uJ8n9f5M5w7x1YgnSUQoqBY
 export async function POST(request: Request) {
   try {
     if (!isSameOrigin(request)) {
-      return NextResponse.json({ error: "Invalid origin." }, { status: 403 });
+      return apiError(403, "INVALID_ORIGIN", "Invalid origin.");
     }
 
-    const contentType = request.headers.get("content-type") ?? "";
-    if (!contentType.includes("application/json")) {
-      return NextResponse.json(
-        { error: "Unsupported content type." },
-        { status: 415 }
-      );
+    if (!isJsonContentType(request)) {
+      return apiError(415, "INVALID_CONTENT_TYPE", "Unsupported content type.");
     }
 
     let arcjetDecision;
     try {
       arcjetDecision = await aj.protect(request);
     } catch (arcjetError) {
-      console.error("Arcjet error:", arcjetError);
+      safeLogError("Arcjet error", arcjetError);
       arcjetDecision = null;
     }
 
     if (arcjetDecision?.isDenied()) {
-      return NextResponse.json(
-        { error: "Login blocked." },
-        { status: 403 }
-      );
+      return apiError(403, "FORBIDDEN", "Login blocked.");
     }
 
     const ip = getClientIp(request);
     const blocked = getBlockedIps();
 
     if (blocked.includes(ip)) {
-      return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+      return apiError(401, "UNAUTHORIZED", "Unauthorized.");
     }
 
-    let body: unknown;
-    try {
-      body = await request.json();
-    } catch {
-      return NextResponse.json({ error: "Invalid JSON payload." }, { status: 400 });
+    const payload = await parseJsonObject(request);
+    if (!payload) {
+      return apiError(400, "INVALID_JSON", "Invalid request payload.");
     }
-
-    if (!body || typeof body !== "object") {
-      return NextResponse.json({ error: "Invalid request payload." }, { status: 400 });
-    }
-
-    const payload = body as Record<string, unknown>;
     const email =
       typeof payload.email === "string"
         ? payload.email.toLowerCase().trim()
@@ -67,6 +70,13 @@ export async function POST(request: Request) {
 
     const rateKey = `login:${ip}`;
     const identityKey = `login-account:${email || "unknown"}`;
+    const backoffSeconds = getLoginBackoff(identityKey);
+    if (backoffSeconds > 0) {
+      return apiError(429, "RATE_LIMIT", "Too many login attempts. Try again later.", {
+        "Retry-After": String(backoffSeconds),
+      });
+    }
+
     const [rate, identityRate] = await Promise.all([
       checkLoginLimit(rateKey),
       checkLoginIdentityLimit(identityKey),
@@ -74,34 +84,26 @@ export async function POST(request: Request) {
 
     if (!rate.allowed || !identityRate.allowed) {
       const retrySource = rate.allowed ? identityRate : rate;
-      return NextResponse.json(
-        { error: "Too many login attempts. Try again later." },
+      return apiError(
+        429,
+        "RATE_LIMIT",
+        "Too many login attempts. Try again later.",
         {
-          status: 429,
-          headers: getRateLimitHeaders(retrySource),
+          ...getRateLimitHeaders(retrySource),
         }
       );
     }
 
     if (!email || !password) {
-      return NextResponse.json(
-        { error: "Email and password are required." },
-        { status: 400 }
-      );
+      return apiError(400, "VALIDATION_ERROR", "Email and password are required.");
     }
 
     if (!isValidEmail(email)) {
-      return NextResponse.json(
-        { error: "Invalid email address." },
-        { status: 400 }
-      );
+      return apiError(400, "VALIDATION_ERROR", "Invalid email address.");
     }
 
     if (password.length < MIN_PASSWORD_LENGTH || password.length > MAX_PASSWORD_LENGTH) {
-      return NextResponse.json(
-        { error: `Password must be ${MIN_PASSWORD_LENGTH}-${MAX_PASSWORD_LENGTH} characters.` },
-        { status: 400 }
-      );
+      return apiError(400, "VALIDATION_ERROR", `Password must be ${MIN_PASSWORD_LENGTH}-${MAX_PASSWORD_LENGTH} characters.`);
     }
 
     await connectToDatabase();
@@ -130,14 +132,31 @@ export async function POST(request: Request) {
           meta: { reason: "invalid_credentials", loginKey: identityKey },
         });
       } catch (logError) {
-        console.error("Failed to log failed login attempt:", logError);
+        safeLogError("Failed to log failed login attempt", logError);
       }
 
-      return NextResponse.json(
-        { error: "Invalid email or password." },
-        { status: 401 }
-      );
+      const retryAfter = registerLoginFailure(identityKey);
+      if (retryAfter >= 120) {
+        await writeAuditLog({
+          action: "security_alert",
+          request,
+          adminEmail: email,
+          meta: {
+            type: "failed_login_spike",
+            identityKey,
+            retryAfter,
+          },
+        }).catch(() => {
+          // Alert path should not block response
+        });
+      }
+
+      return apiError(401, "UNAUTHORIZED", "Invalid email or password.", {
+        "Retry-After": String(retryAfter),
+      });
     }
+
+    clearLoginFailures(identityKey);
 
     const token = await signAdminToken({
       sub: String(admin._id ?? ""),
@@ -151,29 +170,29 @@ export async function POST(request: Request) {
         adminEmail: admin.email ?? email,
       });
     } catch (logErr) {
-      console.error("AuditLog write failed (login):", logErr);
+      safeLogError("AuditLog write failed (login)", logErr);
     }
 
-    const response = NextResponse.json({
+    const response = apiOk({
       ok: true,
       message: "Login successful.",
       redirectTo: "/admin"
-    }, {
-      headers: { "Cache-Control": "no-store" },
-    });
+    }, 200, { "Cache-Control": "no-store" });
 
     // Set secure httpOnly cookie
     response.cookies.set(COOKIE_NAME, token, {
       ...COOKIE_OPTIONS,
       maxAge: COOKIE_MAX_AGE,
     });
+    response.cookies.set(SESSION_ACTIVITY_COOKIE, String(Date.now()), {
+      ...COOKIE_OPTIONS,
+      maxAge: COOKIE_MAX_AGE,
+    });
+    await rotateCsrfCookie(response);
 
     return response;
   } catch (error) {
-    console.error("Login error:", error);
-    return NextResponse.json(
-      { error: "Failed to authenticate." },
-      { status: 500 }
-    );
+    safeLogError("Login error", error);
+    return apiError(500, "SERVER_ERROR", "Failed to authenticate.");
   }
 }

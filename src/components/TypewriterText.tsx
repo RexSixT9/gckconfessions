@@ -84,12 +84,12 @@ export default function TypewriterText({
     phraseIdx.current = 0;
     charCount.current = 0;
     isDeleting.current = false;
-    setDisplayed("");
+    timerRef.current = setTimeout(() => setDisplayed(""), 0);
   }, [preparedPhrases]);
 
   useEffect(() => {
     if (!phrasesRef.current.length) {
-      setDisplayed("");
+      timerRef.current = setTimeout(() => setDisplayed(""), 0);
       return;
     }
 

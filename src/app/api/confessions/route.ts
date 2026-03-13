@@ -1,13 +1,14 @@
-import { NextResponse } from "next/server";
 import { createHash } from "crypto";
 import { cookies } from "next/headers";
 import { connectToDatabase } from "@/lib/mongodb";
 import { aj } from "@/lib/arcjet";
+import { apiError, apiOk, isJsonContentType, parseJsonObject, safeLogError } from "@/lib/api";
+import { ensureCsrfCookie } from "@/lib/csrf";
 import { writeAuditLog } from "@/lib/audit";
 import { isbot } from "isbot";
 import { verifyAdminToken } from "@/lib/auth";
 import { COOKIE_NAME } from "@/lib/constants";
-import { filterProfanity, sanitizeText, validateConfessionSubmission } from "@/lib/moderation";
+import { filterProfanity, sanitizeOutputText, sanitizeText, validateConfessionSubmission } from "@/lib/moderation";
 import { getRequestFingerprint, isSameOrigin } from "@/lib/requestUtils";
 import {
   checkSubmissionBurstLimit,
@@ -41,8 +42,8 @@ function serializeConfession(item: {
 }): ConfessionResponse {
   return {
     _id: String(item._id),
-    message: item.message ?? "",
-    music: item.music ?? "",
+    message: sanitizeOutputText(item.message ?? "", MAX_MESSAGE_LENGTH),
+    music: sanitizeOutputText(item.music ?? "", MAX_MUSIC_LENGTH),
     status:
       item.status === "approved" || item.status === "rejected"
         ? item.status
@@ -86,13 +87,13 @@ export async function GET(request: Request) {
     const token = cookieStore.get(COOKIE_NAME)?.value;
 
     if (!token) {
-      return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+      return apiError(401, "UNAUTHORIZED", "Unauthorized.");
     }
 
     try {
       await verifyAdminToken(token);
     } catch {
-      return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+      return apiError(401, "UNAUTHORIZED", "Unauthorized.");
     }
 
     await connectToDatabase();
@@ -111,7 +112,7 @@ export async function GET(request: Request) {
 
     const validStatuses = ["pending", "approved", "rejected"];
     if (status && !validStatuses.includes(status)) {
-      return NextResponse.json({ error: "Invalid status filter." }, { status: 400 });
+      return apiError(400, "VALIDATION_ERROR", "Invalid status filter.");
     }
 
     if (status && validStatuses.includes(status)) {
@@ -142,82 +143,64 @@ export async function GET(request: Request) {
 
     const confessions = data.map(serializeConfession);
 
-    return NextResponse.json(
+    const response = apiOk(
       {
         confessions,
         page,
         total,
         totalPages: Math.max(1, Math.ceil(total / limit)),
       },
+      200,
       {
-        headers: {
-          "Cache-Control": "no-store",
-        },
+        "Cache-Control": "no-store",
       }
     );
+    await ensureCsrfCookie(response);
+    return response;
   } catch (error) {
-    console.error("Confession list error:", error);
-    return NextResponse.json(
-      { error: "Failed to load confessions." },
-      { status: 500 }
-    );
+    safeLogError("Confession list error", error);
+    return apiError(500, "SERVER_ERROR", "Failed to load confessions.");
   }
 }
 
 export async function POST(request: Request) {
   try {
     if (!isSameOrigin(request)) {
-      return NextResponse.json(
-        { error: "Invalid origin.", code: "ORIGIN_DENY" },
-        { status: 403 }
-      );
+      return apiError(403, "INVALID_ORIGIN", "Invalid origin.");
     }
 
-    const contentType = request.headers.get("content-type") ?? "";
-    if (!contentType.includes("application/json")) {
-      return NextResponse.json(
-        { error: "Unsupported content type." },
-        { status: 415 }
-      );
+    if (!isJsonContentType(request)) {
+      return apiError(415, "INVALID_CONTENT_TYPE", "Unsupported content type.");
     }
 
     if (process.env.MAINTENANCE_MODE === "on") {
-      return NextResponse.json(
-        { error: "Submissions are temporarily paused." },
-        { status: 503 }
-      );
+      return apiError(503, "SERVICE_UNAVAILABLE", "Submissions are temporarily paused.");
     }
 
     let arcjetDecision;
     try {
       arcjetDecision = await aj.protect(request);
     } catch (arcjetError) {
-      console.error("Arcjet error:", arcjetError);
+      safeLogError("Arcjet error", arcjetError);
       // Continue without Arcjet if it fails
       arcjetDecision = null;
     }
 
     if (arcjetDecision?.isDenied()) {
-      return NextResponse.json(
-        { error: "Submission blocked.", code: "ARCJET_DENY" },
-        { status: 403 }
-      );
+      return apiError(403, "FORBIDDEN", "Submission blocked.");
     }
 
     const ip = getClientIp(request);
     const blocked = getBlockedIps();
 
     if (blocked.includes(ip)) {
-      return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+      return apiError(401, "UNAUTHORIZED", "Unauthorized.");
     }
 
     const userAgent = request.headers.get("user-agent") || "";
 
     if (isbot(userAgent)) {
-      return NextResponse.json(
-        { error: "Automated submissions are not allowed.", code: "BOT_DENY" },
-        { status: 403 }
-      );
+      return apiError(403, "FORBIDDEN", "Automated submissions are not allowed.");
     }
 
     const fingerprint = getRequestFingerprint(request, ip);
@@ -231,34 +214,35 @@ export async function POST(request: Request) {
         : userAgent.length < 18
           ? "medium"
           : "low";
+
+    const humanCheckHeader = request.headers.get("x-human-check") ?? "";
+    if (risk === "high" && humanCheckHeader !== "1") {
+      return apiError(403, "CHALLENGE_REQUIRED", "Additional verification required.");
+    }
+
     const adaptiveCooldown = getAdaptiveRetryAfterSeconds(risk);
 
     if (!rate.allowed || !burst.allowed) {
       const retrySource = !rate.allowed ? rate : burst;
-      return NextResponse.json(
-        { error: "Too many submissions. Please try again later." },
-        {
-          status: 429,
-          headers: {
-            ...getRateLimitHeaders(retrySource),
-            "Retry-After": String(
-              Math.max(rate.retryAfterSeconds, burst.retryAfterSeconds, adaptiveCooldown)
-            ),
-          },
-        }
-      );
+      return apiError(429, "RATE_LIMIT", "Too many submissions. Please try again later.", {
+        ...getRateLimitHeaders(retrySource),
+        "Retry-After": String(
+          Math.max(rate.retryAfterSeconds, burst.retryAfterSeconds, adaptiveCooldown)
+        ),
+      });
     }
 
-    const body = await request.json();
+    const body = await parseJsonObject(request);
+    if (!body) {
+      return apiError(400, "INVALID_JSON", "Invalid request payload.");
+    }
+
     const rawMessage = String(body.message ?? "");
     const rawMusic = String(body.music ?? "");
     const website = String(body.website ?? "").trim();
 
     if (website) {
-      return NextResponse.json(
-        { error: "Submission rejected." },
-        { status: 400 }
-      );
+      return apiError(400, "VALIDATION_ERROR", "Submission rejected.");
     }
 
     const message = sanitizeText(rawMessage, MAX_MESSAGE_LENGTH);
@@ -267,17 +251,11 @@ export async function POST(request: Request) {
 
     const validation = validateConfessionSubmission(message);
     if (!validation.valid) {
-      return NextResponse.json(
-        { error: validation.error ?? "Submission rejected." },
-        { status: 400 }
-      );
+      return apiError(400, "VALIDATION_ERROR", validation.error ?? "Submission rejected.");
     }
 
     if (message.length < 5) {
-      return NextResponse.json(
-        { error: "Confession message is too short." },
-        { status: 400 }
-      );
+      return apiError(400, "VALIDATION_ERROR", "Confession message is too short.");
     }
 
     await connectToDatabase();
@@ -293,10 +271,9 @@ export async function POST(request: Request) {
       .lean();
 
     if (recentDuplicate) {
-      return NextResponse.json(
-        { error: "Duplicate submission detected. Please wait." },
-        { status: 429, headers: { "Retry-After": "1800" } }
-      );
+      return apiError(429, "RATE_LIMIT", "Duplicate submission detected. Please wait.", {
+        "Retry-After": "1800",
+      });
     }
 
     const confession = await Confession.create({
@@ -317,15 +294,12 @@ export async function POST(request: Request) {
         },
       });
     } catch (logError) {
-      console.error("AuditLog write failed (confession create):", logError);
+      safeLogError("AuditLog write failed (confession create)", logError);
     }
 
-    return NextResponse.json({ confession: serializeConfession(confession) }, { status: 201 });
+    return apiOk({ confession: serializeConfession(confession) }, 201);
   } catch (error) {
-    console.error("Confession submit error:", error);
-    return NextResponse.json(
-      { error: "Failed to submit confession." },
-      { status: 500 }
-    );
+    safeLogError("Confession submit error", error);
+    return apiError(500, "SERVER_ERROR", "Failed to submit confession.");
   }
 }

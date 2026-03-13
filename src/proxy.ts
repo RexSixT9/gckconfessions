@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { verifyAdminToken } from "@/lib/auth";
-import { COOKIE_NAME } from "@/lib/constants";
+import { COOKIE_NAME, SESSION_ACTIVITY_COOKIE } from "@/lib/constants";
+import { clearSessionCookies, isSessionIdle, touchSessionActivity } from "@/lib/session";
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -26,6 +27,7 @@ export async function proxy(request: NextRequest) {
 
   if (isAdminPage || isAdminApi || isConfessionApi) {
     const token = request.cookies.get(COOKIE_NAME)?.value;
+    const sessionActivity = request.cookies.get(SESSION_ACTIVITY_COOKIE)?.value;
 
     if (!token) {
       if (isAdminPage) {
@@ -38,10 +40,28 @@ export async function proxy(request: NextRequest) {
     }
 
     try {
+      if (isSessionIdle(sessionActivity)) {
+        if (isAdminPage) {
+          const loginUrl = request.nextUrl.clone();
+          loginUrl.pathname = "/adminlogin";
+          const response = NextResponse.redirect(loginUrl);
+          clearSessionCookies(response);
+          return response;
+        }
+
+        const response = NextResponse.json({ error: "Session expired due to inactivity." }, { status: 401 });
+        clearSessionCookies(response);
+        return response;
+      }
+
       const payload = await verifyAdminToken(token);
       if (!payload.sub) {
         throw new Error("Invalid token");
       }
+
+      const response = NextResponse.next();
+      touchSessionActivity(response);
+      return response;
     } catch {
       if (isAdminPage) {
         const loginUrl = request.nextUrl.clone();

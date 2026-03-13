@@ -32,6 +32,7 @@ const AuditLogSchema = new Schema(
         "status_changed",
         "published",
         "unpublished",
+        "security_alert",
       ],
       index: true,
     },

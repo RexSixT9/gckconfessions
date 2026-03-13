@@ -1,108 +1,92 @@
-import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { connectToDatabase } from "@/lib/mongodb";
 import { aj } from "@/lib/arcjet";
+import { apiError, apiOk, isJsonContentType, parseJsonObject, safeLogError } from "@/lib/api";
 import { validatePasswordPolicy } from "@/lib/moderation";
-import { BCRYPT_ROUNDS } from "@/lib/constants";
-import { checkSetupLimit, getBlockedIps, getClientIp } from "@/lib/rateLimit";
+import { BCRYPT_ROUNDS, MAX_EMAIL_LENGTH } from "@/lib/constants";
+import { checkSetupLimit, getBlockedIps, getClientIp, getRateLimitHeaders } from "@/lib/rateLimit";
 import { isSameOrigin, isValidEmail, safeCompare } from "@/lib/requestUtils";
 import Admin from "@/models/Admin";
 
 export async function POST(request: Request) {
   try {
     if (!isSameOrigin(request)) {
-      return NextResponse.json({ error: "Invalid origin." }, { status: 403 });
+      return apiError(403, "INVALID_ORIGIN", "Invalid origin.");
     }
 
-    const contentType = request.headers.get("content-type") ?? "";
-    if (!contentType.includes("application/json")) {
-      return NextResponse.json({ error: "Unsupported content type." }, { status: 415 });
+    if (!isJsonContentType(request)) {
+      return apiError(415, "INVALID_CONTENT_TYPE", "Unsupported content type.");
     }
 
     let arcjetDecision;
     try {
       arcjetDecision = await aj.protect(request);
     } catch (arcjetError) {
-      console.error("Arcjet error:", arcjetError);
+      safeLogError("Arcjet error", arcjetError);
       arcjetDecision = null;
     }
 
     if (arcjetDecision?.isDenied()) {
-      return NextResponse.json({ error: "Setup blocked." }, { status: 403 });
+      return apiError(403, "FORBIDDEN", "Setup blocked.");
     }
 
     const ip = getClientIp(request);
 
     if (getBlockedIps().includes(ip)) {
-      return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+      return apiError(401, "UNAUTHORIZED", "Unauthorized.");
     }
 
     const rate = await checkSetupLimit(`setup:${ip}`);
     if (!rate.allowed) {
-      return NextResponse.json(
-        { error: "Too many setup attempts. Try again later." },
-        { status: 429, headers: { "Retry-After": String(rate.retryAfterSeconds) } }
-      );
+      return apiError(429, "RATE_LIMIT", "Too many setup attempts. Try again later.", {
+        ...getRateLimitHeaders(rate),
+      });
     }
 
     const setupKey = process.env.ADMIN_SETUP_KEY;
     if (!setupKey) {
-      return NextResponse.json(
-        { error: "ADMIN_SETUP_KEY is not configured." },
-        { status: 500 }
-      );
+      return apiError(500, "SERVER_ERROR", "ADMIN_SETUP_KEY is not configured.");
     }
 
-    const body = await request.json();
+    const body = await parseJsonObject(request);
+    if (!body) {
+      return apiError(400, "INVALID_JSON", "Invalid JSON payload.");
+    }
+
     const email = String(body.email ?? "").toLowerCase().trim();
     // Do NOT trim passwords — whitespace may be intentional
     const password = String(body.password ?? "");
     const providedKey = String(body.setupKey ?? "").trim();
 
     if (!email || !password || !providedKey) {
-      return NextResponse.json(
-        { error: "Email, password, and setupKey are required." },
-        { status: 400 }
-      );
+      return apiError(400, "VALIDATION_ERROR", "Email, password, and setupKey are required.");
     }
 
-    if (!isValidEmail(email)) {
-      return NextResponse.json({ error: "Invalid email address." }, { status: 400 });
+    if (email.length > MAX_EMAIL_LENGTH || !isValidEmail(email)) {
+      return apiError(400, "VALIDATION_ERROR", "Invalid email address.");
     }
 
     if (!validatePasswordPolicy(password)) {
-      return NextResponse.json(
-        {
-          error:
-            "Password must be at least 12 characters and include uppercase, lowercase, number, and symbol.",
-        },
-        { status: 400 }
-      );
+      return apiError(400, "VALIDATION_ERROR", "Password must be at least 12 characters and include uppercase, lowercase, number, and symbol.");
     }
 
     if (!safeCompare(providedKey, setupKey)) {
-      return NextResponse.json({ error: "Invalid setup key." }, { status: 401 });
+      return apiError(401, "UNAUTHORIZED", "Invalid setup key.");
     }
 
     await connectToDatabase();
 
     const existing = await Admin.findOne({ email }).select({ _id: 1 }).lean();
     if (existing) {
-      return NextResponse.json(
-        { error: "An admin with that email already exists." },
-        { status: 409 }
-      );
+      return apiError(409, "CONFLICT", "An admin with that email already exists.");
     }
 
     const passwordHash = await bcrypt.hash(password, BCRYPT_ROUNDS);
     await Admin.create({ email, passwordHash });
 
-    return NextResponse.json({ ok: true }, { status: 201 });
+    return apiOk({ ok: true }, 201);
   } catch (error) {
-    console.error("Admin setup error:", error);
-    return NextResponse.json(
-      { error: "Failed to create admin." },
-      { status: 500 }
-    );
+    safeLogError("Admin setup error", error);
+    return apiError(500, "SERVER_ERROR", "Failed to create admin.");
   }
 }

@@ -1,7 +1,8 @@
-import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { verifyAdminToken } from "@/lib/auth";
 import { COOKIE_NAME } from "@/lib/constants";
+import { ensureCsrfCookie } from "@/lib/csrf";
+import { apiOk, safeLogError } from "@/lib/api";
 
 /**
  * GET /api/admin/check
@@ -14,32 +15,24 @@ export async function GET() {
     const token = cookieStore.get(COOKIE_NAME)?.value;
 
     if (!token) {
-      return NextResponse.json(
-        { authenticated: false },
-        { status: 200, headers: { "Cache-Control": "no-store" } }
-      );
+      return apiOk({ authenticated: false }, 200, { "Cache-Control": "no-store" });
     }
 
     // Verify the token is valid
     const payload = await verifyAdminToken(token);
 
     if (!payload.sub) {
-      return NextResponse.json(
-        { authenticated: false },
-        { status: 200, headers: { "Cache-Control": "no-store" } }
-      );
+      return apiOk({ authenticated: false }, 200, { "Cache-Control": "no-store" });
     }
 
     // Token is valid
-    return NextResponse.json(
-      { authenticated: true, email: payload.email },
-      { status: 200, headers: { "Cache-Control": "no-store" } }
-    );
+    const response = apiOk({ authenticated: true, email: payload.email }, 200, {
+      "Cache-Control": "no-store",
+    });
+    await ensureCsrfCookie(response);
+    return response;
   } catch (error) {
-    console.error("Auth check error:", error);
-    return NextResponse.json(
-      { authenticated: false },
-      { status: 200, headers: { "Cache-Control": "no-store" } }
-    );
+    safeLogError("Auth check error", error);
+    return apiOk({ authenticated: false }, 200, { "Cache-Control": "no-store" });
   }
 }

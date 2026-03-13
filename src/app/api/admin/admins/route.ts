@@ -1,28 +1,30 @@
-import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { cookies } from "next/headers";
 import { connectToDatabase } from "@/lib/mongodb";
 import { aj } from "@/lib/arcjet";
+import { apiError, apiOk, isJsonContentType, parseJsonObject, safeLogError } from "@/lib/api";
+import { ensureCsrfCookie, rotateCsrfCookie, validateCsrf } from "@/lib/csrf";
 import { writeAuditLog } from "@/lib/audit";
 import { verifyAdminToken } from "@/lib/auth";
 import { validatePasswordPolicy } from "@/lib/moderation";
 import { COOKIE_NAME, BCRYPT_ROUNDS, MAX_EMAIL_LENGTH } from "@/lib/constants";
 import { checkSetupLimit, getBlockedIps, getClientIp, getRateLimitHeaders } from "@/lib/rateLimit";
 import { isSameOrigin, isValidEmail, safeCompare } from "@/lib/requestUtils";
+import { requiresReauth, rotateSessionCookie } from "@/lib/session";
 import Admin from "@/models/Admin";
 
 /**
  * GET /api/admin/admins
  * List all admin accounts (id + email + createdAt). Password hashes are never returned.
  */
-export async function GET(request: Request) {
+export async function GET() {
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get(COOKIE_NAME)?.value;
-    if (!token) return NextResponse.json({ error: "Unauthorized.", code: "UNAUTHORIZED" }, { status: 401 });
+    if (!token) return apiError(401, "UNAUTHORIZED", "Unauthorized.");
 
     const caller = await verifyAdminToken(token);
-    if (!caller.sub) return NextResponse.json({ error: "Unauthorized.", code: "UNAUTHORIZED" }, { status: 401 });
+    if (!caller.sub) return apiError(401, "UNAUTHORIZED", "Unauthorized.");
 
     await connectToDatabase();
     const admins = await Admin.find()
@@ -30,7 +32,7 @@ export async function GET(request: Request) {
       .sort({ createdAt: 1 })
       .lean();
 
-    return NextResponse.json({
+    const response = apiOk({
       admins: admins.map((a) => ({
         _id: String(a._id),
         email: a.email,
@@ -38,12 +40,11 @@ export async function GET(request: Request) {
         isSelf: String(a._id) === caller.sub,
       })),
     });
+    await ensureCsrfCookie(response);
+    return response;
   } catch (error) {
-    console.error("Admin list error:", error);
-    return NextResponse.json(
-      { error: "Failed to list admins.", code: "SERVER_ERROR" },
-      { status: 500 }
-    );
+    safeLogError("Admin list error", error);
+    return apiError(500, "SERVER_ERROR", "Failed to list admins.");
   }
 }
 
@@ -56,88 +57,85 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     if (!isSameOrigin(request)) {
-      return NextResponse.json({ error: "Invalid origin.", code: "INVALID_ORIGIN" }, { status: 403 });
+      return apiError(403, "INVALID_ORIGIN", "Invalid origin.");
+    }
+
+    if (!(await validateCsrf(request))) {
+      return apiError(403, "INVALID_CSRF", "Invalid CSRF token.");
     }
 
     let arcjetDecision;
     try {
       arcjetDecision = await aj.protect(request);
     } catch (arcjetError) {
-      console.error("Arcjet error:", arcjetError);
+      safeLogError("Arcjet error", arcjetError);
       arcjetDecision = null;
     }
 
     if (arcjetDecision?.isDenied()) {
-      return NextResponse.json({ error: "Request blocked.", code: "ARCJET_DENY" }, { status: 403 });
+      return apiError(403, "FORBIDDEN", "Request blocked.");
+    }
+
+    const cookieStore = await cookies();
+    const token = cookieStore.get(COOKIE_NAME)?.value;
+    if (!token) return apiError(401, "UNAUTHORIZED", "Unauthorized.");
+
+    const caller = await verifyAdminToken(token);
+    if (!caller.sub) return apiError(401, "UNAUTHORIZED", "Unauthorized.");
+    if (requiresReauth(caller.iat ?? 0)) {
+      return apiError(401, "REAUTH_REQUIRED", "Please sign in again before this sensitive action.");
     }
 
     const ip = getClientIp(request);
 
     if (getBlockedIps().includes(ip)) {
-      return NextResponse.json({ error: "Unauthorized.", code: "BLOCKED_IP" }, { status: 401 });
+      return apiError(401, "UNAUTHORIZED", "Unauthorized.");
     }
 
     const rate = await checkSetupLimit(`admin-create:${ip}`);
     if (!rate.allowed) {
-      return NextResponse.json(
-        { error: "Too many requests. Try again later.", code: "RATE_LIMIT" },
-        { status: 429, headers: getRateLimitHeaders(rate) }
-      );
+      return apiError(429, "RATE_LIMIT", "Too many requests. Try again later.", getRateLimitHeaders(rate));
     }
 
-    const contentType = request.headers.get("content-type") ?? "";
-    if (!contentType.includes("application/json")) {
-      return NextResponse.json({ error: "Unsupported content type.", code: "UNSUPPORTED_CONTENT_TYPE" }, { status: 415 });
+    if (!isJsonContentType(request)) {
+      return apiError(415, "INVALID_CONTENT_TYPE", "Unsupported content type.");
     }
 
     const setupKey = process.env.ADMIN_SETUP_KEY;
     if (!setupKey) {
-      return NextResponse.json(
-        { error: "ADMIN_SETUP_KEY is not configured.", code: "SETUP_KEY_MISSING" },
-        { status: 500 }
-      );
+      return apiError(500, "SERVER_ERROR", "ADMIN_SETUP_KEY is not configured.");
     }
 
-    const body = await request.json();
+    const body = await parseJsonObject(request);
+    if (!body) {
+      return apiError(400, "INVALID_JSON", "Invalid JSON payload.");
+    }
     const email = String(body.email ?? "").toLowerCase().trim();
     // Do NOT trim passwords — whitespace may be intentional
     const password = String(body.password ?? "");
     const providedKey = String(body.setupKey ?? "").trim();
 
     if (!email || !password || !providedKey) {
-      return NextResponse.json(
-        { error: "Email, password, and setupKey are required.", code: "MISSING_FIELDS" },
-        { status: 400 }
-      );
+      return apiError(400, "VALIDATION_ERROR", "Email, password, and setupKey are required.");
     }
 
     if (!safeCompare(providedKey, setupKey)) {
-      return NextResponse.json({ error: "Invalid setup key.", code: "INVALID_SETUP_KEY" }, { status: 401 });
+      return apiError(401, "UNAUTHORIZED", "Invalid setup key.");
     }
 
     if (email.length > MAX_EMAIL_LENGTH || !isValidEmail(email)) {
-      return NextResponse.json({ error: "Invalid email address.", code: "INVALID_EMAIL" }, { status: 400 });
+      return apiError(400, "VALIDATION_ERROR", "Invalid email address.");
     }
 
     if (!validatePasswordPolicy(password)) {
-      return NextResponse.json(
-        {
-          error:
-            "Password must be at least 12 characters and include uppercase, lowercase, number, and symbol.",
-          code: "WEAK_PASSWORD"
-        },
-        { status: 400 }
-      );
+      return apiError(400, "VALIDATION_ERROR", "Password must be at least 12 characters and include uppercase, lowercase, number, and symbol.");
     }
 
     await connectToDatabase();
 
     const existing = await Admin.findOne({ email }).select({ _id: 1 }).lean();
     if (existing) {
-      return NextResponse.json(
-        { error: "An admin with that email already exists.", code: "EMAIL_EXISTS" },
-        { status: 409 }
-      );
+      return apiError(409, "CONFLICT", "An admin with that email already exists.");
     }
 
     const passwordHash = await bcrypt.hash(password, BCRYPT_ROUNDS);
@@ -150,22 +148,23 @@ export async function POST(request: Request) {
       meta: { createdEmail: email },
     });
 
-    return NextResponse.json(
+    const response = apiOk(
       {
         admin: {
           _id: String(newAdmin._id),
           email: newAdmin.email,
           createdAt: (newAdmin as { createdAt?: Date }).createdAt?.toISOString() ?? null,
         },
-        ok: true
+        ok: true,
       },
-      { status: 201 }
+      201
     );
+
+    await rotateSessionCookie(response, { sub: caller.sub, email: caller.email });
+    await rotateCsrfCookie(response);
+    return response;
   } catch (error) {
-    console.error("Admin create error:", error);
-    return NextResponse.json(
-      { error: "Failed to create admin.", code: "SERVER_ERROR" },
-      { status: 500 }
-    );
+    safeLogError("Admin create error", error);
+    return apiError(500, "SERVER_ERROR", "Failed to create admin.");
   }
 }

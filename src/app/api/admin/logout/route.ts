@@ -2,15 +2,22 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { connectToDatabase } from "@/lib/mongodb";
 import { aj } from "@/lib/arcjet";
+import { apiError, safeLogError } from "@/lib/api";
+import { validateCsrf } from "@/lib/csrf";
 import { writeAuditLog } from "@/lib/audit";
 import { verifyAdminToken } from "@/lib/auth";
 import { COOKIE_NAME, COOKIE_OPTIONS } from "@/lib/constants";
 import { isSameOrigin } from "@/lib/requestUtils";
+import { clearSessionCookies } from "@/lib/session";
 
 export async function POST(request: Request) {
   try {
     if (!isSameOrigin(request)) {
-      return NextResponse.json({ error: "Invalid origin." }, { status: 403 });
+      return apiError(403, "INVALID_ORIGIN", "Invalid origin.");
+    }
+
+    if (!(await validateCsrf(request))) {
+      return apiError(403, "INVALID_CSRF", "Invalid CSRF token.");
     }
 
     // Arcjet protection
@@ -18,12 +25,12 @@ export async function POST(request: Request) {
     try {
       arcjetDecision = await aj.protect(request);
     } catch (arcjetError) {
-      console.error("Arcjet error:", arcjetError);
+      safeLogError("Arcjet error", arcjetError);
       arcjetDecision = null;
     }
 
     if (arcjetDecision?.isDenied()) {
-      return NextResponse.json({ error: "Request blocked." }, { status: 403 });
+      return apiError(403, "FORBIDDEN", "Request blocked.");
     }
 
     const cookieStore = await cookies();
@@ -46,7 +53,7 @@ export async function POST(request: Request) {
           });
         }
       } catch (error) {
-        console.error("Token verification error during logout:", error);
+        safeLogError("Token verification error during logout", error);
         // Continue to clear cookie even if verification fails
       }
     }
@@ -54,24 +61,18 @@ export async function POST(request: Request) {
     // Clear the authentication cookie
     const redirectUrl = new URL("/", request.url);
     const response = NextResponse.redirect(redirectUrl);
-    
-    // Set cookie to expired with all security flags
-    response.cookies.set(COOKIE_NAME, "", {
-      ...COOKIE_OPTIONS,
-      maxAge: 0,
-    });
+    clearSessionCookies(response);
+    response.cookies.set(COOKIE_NAME, "", { ...COOKIE_OPTIONS, maxAge: 0 });
 
     return response;
   } catch (error) {
-    console.error("Logout error:", error);
+    safeLogError("Logout error", error);
     
     // Even if there's an error, still try to clear the cookie
     const redirectUrl = new URL("/", request.url);
     const response = NextResponse.redirect(redirectUrl);
-    response.cookies.set(COOKIE_NAME, "", {
-      ...COOKIE_OPTIONS,
-      maxAge: 0,
-    });
+    clearSessionCookies(response);
+    response.cookies.set(COOKIE_NAME, "", { ...COOKIE_OPTIONS, maxAge: 0 });
 
     return response;
   }

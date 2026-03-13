@@ -1,5 +1,5 @@
-import { NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/mongodb";
+import { apiError, apiOk, safeLogError } from "@/lib/api";
 import Confession from "@/models/Confession";
 import DeletedConfession from "@/models/DeletedConfession";
 import AuditLog from "@/models/AuditLog";
@@ -13,7 +13,7 @@ function authorized(request: Request) {
 export async function POST(request: Request) {
   try {
     if (!authorized(request)) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return apiError(401, "UNAUTHORIZED", "Unauthorized");
     }
 
     await connectToDatabase();
@@ -32,7 +32,7 @@ export async function POST(request: Request) {
       AuditLog.collection.deleteMany({ createdAt: { $lt: staleRejectedBefore } }),
     ]);
 
-    return NextResponse.json({
+    return apiOk({
       ok: true,
       deleted: {
         pending: pendingRes.deletedCount,
@@ -42,7 +42,7 @@ export async function POST(request: Request) {
       },
     });
   } catch (error) {
-    console.error("Retention cleanup failed", error);
-    return NextResponse.json({ error: "Cleanup failed" }, { status: 500 });
+    safeLogError("Retention cleanup failed", error);
+    return apiError(500, "SERVER_ERROR", "Cleanup failed");
   }
 }

@@ -1,7 +1,7 @@
-import { NextResponse } from "next/server";
+import { apiOk } from "@/lib/api";
 
 export async function GET() {
-  return NextResponse.json(
+  return apiOk(
     {
       status: "ok",
       timestamp: new Date().toISOString(),
@@ -9,6 +9,6 @@ export async function GET() {
       environment: process.env.NODE_ENV || "unknown",
       version: "1.0.0",
     },
-    { status: 200 }
+    200
   );
 }

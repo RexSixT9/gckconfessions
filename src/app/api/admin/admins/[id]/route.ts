@@ -3,11 +3,14 @@ import mongoose from "mongoose";
 import { cookies } from "next/headers";
 import { connectToDatabase } from "@/lib/mongodb";
 import { aj } from "@/lib/arcjet";
+import { apiError, apiOk, safeLogError } from "@/lib/api";
+import { rotateCsrfCookie, validateCsrf } from "@/lib/csrf";
 import { writeAuditLog } from "@/lib/audit";
 import { verifyAdminToken } from "@/lib/auth";
 import { COOKIE_NAME } from "@/lib/constants";
 import { checkAdminActionLimit, getClientIp, getRateLimitHeaders } from "@/lib/rateLimit";
 import { isSameOrigin } from "@/lib/requestUtils";
+import { requiresReauth, rotateSessionCookie } from "@/lib/session";
 import Admin from "@/models/Admin";
 
 /**
@@ -23,49 +26,50 @@ export async function DELETE(
 ) {
   try {
     if (!isSameOrigin(request)) {
-      return NextResponse.json({ error: "Invalid origin." }, { status: 403 });
+      return apiError(403, "INVALID_ORIGIN", "Invalid origin.");
+    }
+
+    if (!(await validateCsrf(request))) {
+      return apiError(403, "INVALID_CSRF", "Invalid CSRF token.");
     }
 
     let arcjetDecision;
     try {
       arcjetDecision = await aj.protect(request);
     } catch (arcjetError) {
-      console.error("Arcjet error:", arcjetError);
+      safeLogError("Arcjet error", arcjetError);
       arcjetDecision = null;
     }
 
     if (arcjetDecision?.isDenied()) {
-      return NextResponse.json({ error: "Request blocked." }, { status: 403 });
+      return apiError(403, "FORBIDDEN", "Request blocked.");
     }
 
     const cookieStore = await cookies();
     const token = cookieStore.get(COOKIE_NAME)?.value;
-    if (!token) return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+    if (!token) return apiError(401, "UNAUTHORIZED", "Unauthorized.");
 
     const caller = await verifyAdminToken(token);
-    if (!caller.sub) return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+    if (!caller.sub) return apiError(401, "UNAUTHORIZED", "Unauthorized.");
+    if (requiresReauth(caller.iat ?? 0)) {
+      return apiError(401, "REAUTH_REQUIRED", "Please sign in again before this sensitive action.");
+    }
 
     const ip = getClientIp(request);
     const rate = await checkAdminActionLimit(`admin-delete:${ip}`);
     if (!rate.allowed) {
-      return NextResponse.json(
-        { error: "Too many requests. Try again later." },
-        { status: 429, headers: getRateLimitHeaders(rate) }
-      );
+      return apiError(429, "RATE_LIMIT", "Too many requests. Try again later.", getRateLimitHeaders(rate));
     }
 
     const { id } = await params;
 
     if (!id || !mongoose.Types.ObjectId.isValid(id)) {
-      return NextResponse.json({ error: "Invalid admin id." }, { status: 400 });
+      return apiError(400, "VALIDATION_ERROR", "Invalid admin id.");
     }
 
     // Prevent self-deletion — would lock the caller out
     if (id === caller.sub) {
-      return NextResponse.json(
-        { error: "You cannot delete your own account." },
-        { status: 403 }
-      );
+      return apiError(403, "FORBIDDEN", "You cannot delete your own account.");
     }
 
     await connectToDatabase();
@@ -76,17 +80,14 @@ export async function DELETE(
     // deleteOne is atomic at the document level.
     const totalAdmins = await Admin.countDocuments();
     if (totalAdmins <= 1) {
-      return NextResponse.json(
-        { error: "Cannot delete the last admin account." },
-        { status: 409 }
-      );
+      return apiError(409, "CONFLICT", "Cannot delete the last admin account.");
     }
 
     // Atomic delete — if another concurrent request already deleted this
     // admin, findByIdAndDelete returns null and we return 404.
     const deleted = await Admin.findByIdAndDelete(id).lean();
     if (!deleted) {
-      return NextResponse.json({ error: "Admin not found." }, { status: 404 });
+      return apiError(404, "NOT_FOUND", "Admin not found.");
     }
 
     // Post-delete safety: if this somehow left 0 admins (extreme race),
@@ -98,10 +99,7 @@ export async function DELETE(
         email: (deleted as { email?: string }).email,
         passwordHash: (deleted as { passwordHash?: string }).passwordHash,
       });
-      return NextResponse.json(
-        { error: "Cannot delete the last admin account." },
-        { status: 409 }
-      );
+      return apiError(409, "CONFLICT", "Cannot delete the last admin account.");
     }
 
     try {
@@ -115,15 +113,15 @@ export async function DELETE(
         },
       });
     } catch (logErr) {
-      console.error("AuditLog write failed (admin delete):", logErr);
+      safeLogError("AuditLog write failed (admin delete)", logErr);
     }
 
-    return NextResponse.json({ ok: true });
+    const response = apiOk({ ok: true });
+    await rotateSessionCookie(response, { sub: caller.sub, email: caller.email });
+    await rotateCsrfCookie(response);
+    return response;
   } catch (error) {
-    console.error("Admin delete error:", error);
-    return NextResponse.json(
-      { error: "Failed to delete admin." },
-      { status: 500 }
-    );
+    safeLogError("Admin delete error", error);
+    return apiError(500, "SERVER_ERROR", "Failed to delete admin.");
   }
 }

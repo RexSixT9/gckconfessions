@@ -14,6 +14,11 @@ export function sanitizeText(input: string, maxLength = 500) {
   return cleaned;
 }
 
+export function sanitizeOutputText(input: string, maxLength = 500) {
+  const truncated = String(input ?? "").slice(0, maxLength);
+  return truncated.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, "");
+}
+
 export function filterProfanity(text: string) {
   const clean = filter.clean(text);
   return { clean, hadProfanity: clean !== text };

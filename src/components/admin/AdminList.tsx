@@ -22,6 +22,7 @@ import {
   Music2,
   MessageSquare,
 } from "lucide-react";
+import { getCsrfHeader } from "@/lib/clientSecurity";
 
 // --- tiny helpers ------------------------------------------------
 function StatusBadge({ status }: { status?: string }) {
@@ -220,7 +221,10 @@ export default function AdminList() {
   const patch = useCallback(async (id: string, body: Record<string, unknown>): Promise<ConfessionItem> => {
     const res = await fetch(`/api/confessions/${id}`, {
       method: "PATCH",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        ...getCsrfHeader(),
+      },
       body: JSON.stringify(body),
     });
 
@@ -314,7 +318,12 @@ export default function AdminList() {
       });
 
       try {
-        const res = await fetch(`/api/confessions/${id}`, { method: "DELETE" });
+        const res = await fetch(`/api/confessions/${id}`, {
+          method: "DELETE",
+          headers: {
+            ...getCsrfHeader(),
+          },
+        });
         if (res.status === 401) {
           router.replace("/adminlogin");
           throw new Error("Session expired. Please sign in again.");
@@ -339,7 +348,7 @@ export default function AdminList() {
         setProcessingId(null);
       }
     },
-    [fetchItems],
+    [fetchItems, router],
   );
 
   const handleSearch = useCallback(

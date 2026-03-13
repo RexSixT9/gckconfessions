@@ -36,7 +36,7 @@ export default function AppPreloader() {
 
     const maybeReduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (maybeReduceMotion) {
-      setVisible(false);
+      hideTimerRef.current = setTimeout(beginHide, 0);
       return () => {
         document.documentElement.removeAttribute("data-app-loading");
         document.body.style.overflow = "";

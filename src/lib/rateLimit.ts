@@ -104,6 +104,54 @@ const adminActionLimiter = new RateLimiterMemory({
   blockDuration: process.env.NODE_ENV === "production" ? 5 * 60 : 0,
 });
 
+/**
+ * CSP report endpoint limiter to reduce alert/audit flooding.
+ */
+const cspReportLimiter = new RateLimiterMemory({
+  points: process.env.NODE_ENV === "production" ? 30 : 300,
+  duration: 60,
+  blockDuration: process.env.NODE_ENV === "production" ? 2 * 60 : 0,
+});
+
+type LoginFailureState = {
+  count: number;
+  lockedUntil: number;
+  lastAttemptAt: number;
+};
+
+const loginFailures = new Map<string, LoginFailureState>();
+const LOGIN_BACKOFF_BASE_SECONDS = 30;
+const LOGIN_BACKOFF_MAX_SECONDS = 20 * 60;
+const LOGIN_FAILURE_RESET_MS = 60 * 60 * 1000;
+
+export function getLoginBackoff(identity: string) {
+  const state = loginFailures.get(identity);
+  if (!state) return 0;
+  if (Date.now() > state.lockedUntil) return 0;
+  return Math.max(1, Math.ceil((state.lockedUntil - Date.now()) / 1000));
+}
+
+export function registerLoginFailure(identity: string) {
+  const now = Date.now();
+  const current = loginFailures.get(identity);
+
+  const baseCount = current && now - current.lastAttemptAt < LOGIN_FAILURE_RESET_MS ? current.count : 0;
+  const count = baseCount + 1;
+  const backoffSeconds = Math.min(LOGIN_BACKOFF_MAX_SECONDS, LOGIN_BACKOFF_BASE_SECONDS * 2 ** Math.max(0, count - 3));
+
+  loginFailures.set(identity, {
+    count,
+    lastAttemptAt: now,
+    lockedUntil: now + backoffSeconds * 1000,
+  });
+
+  return backoffSeconds;
+}
+
+export function clearLoginFailures(identity: string) {
+  loginFailures.delete(identity);
+}
+
 // ─── Consume helper ───────────────────────────────────────────────────────────
 
 async function consume(limiter: RateLimiterMemory, key: string): Promise<RateLimitResult> {
@@ -166,6 +214,10 @@ export function checkSetupLimit(key: string) {
 
 export function checkAdminActionLimit(key: string) {
   return consume(adminActionLimiter, key);
+}
+
+export function checkCspReportLimit(key: string) {
+  return consume(cspReportLimiter, key);
 }
 
 export function getRateLimitHeaders(result: RateLimitResult): RateLimitHeaders {

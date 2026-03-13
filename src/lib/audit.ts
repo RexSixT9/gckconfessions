@@ -1,6 +1,11 @@
 import { createHash } from "crypto";
 import AuditLog from "@/models/AuditLog";
 import { getClientIp } from "@/lib/rateLimit";
+import { deliverSecurityAlert } from "@/lib/alerts";
+import { safeLogError } from "@/lib/api";
+
+const SECURITY_ALERT_DEDUPE_WINDOW_MS = Number(process.env.SECURITY_ALERT_DEDUPE_WINDOW_MS ?? 60_000);
+const recentSecurityAlertDeliveries = new Map<string, number>();
 
 type AuditAction =
   | "admin_login"
@@ -13,7 +18,8 @@ type AuditAction =
   | "confession_deleted"
   | "status_changed"
   | "published"
-  | "unpublished";
+  | "unpublished"
+  | "security_alert";
 
 type AuditParams = {
   action: AuditAction;
@@ -38,6 +44,41 @@ function createRequestId(request: Request, ip: string) {
     .slice(0, 20);
 }
 
+function createSecurityAlertDedupeKey(
+  route: string,
+  method: string,
+  ip: string,
+  adminEmail: string,
+  meta: Record<string, unknown>
+) {
+  const type = typeof meta.type === "string" ? meta.type : "unknown";
+  return createHash("sha256")
+    .update(`${type}|${route}|${method}|${ip}|${adminEmail}`)
+    .digest("hex")
+    .slice(0, 24);
+}
+
+function shouldDeliverSecurityAlert(dedupeKey: string) {
+  const now = Date.now();
+  const lastSent = recentSecurityAlertDeliveries.get(dedupeKey);
+  if (lastSent && now - lastSent < SECURITY_ALERT_DEDUPE_WINDOW_MS) {
+    return false;
+  }
+
+  recentSecurityAlertDeliveries.set(dedupeKey, now);
+
+  // Opportunistic cleanup to avoid unbounded growth.
+  if (recentSecurityAlertDeliveries.size > 5000) {
+    for (const [key, ts] of recentSecurityAlertDeliveries.entries()) {
+      if (now - ts > SECURITY_ALERT_DEDUPE_WINDOW_MS * 2) {
+        recentSecurityAlertDeliveries.delete(key);
+      }
+    }
+  }
+
+  return true;
+}
+
 export async function writeAuditLog({
   action,
   request,
@@ -50,7 +91,7 @@ export async function writeAuditLog({
   const requestId = createRequestId(request, ip);
   const userAgent = (request.headers.get("user-agent") ?? "").slice(0, 512);
 
-  return AuditLog.create({
+  const created = await AuditLog.create({
     action,
     adminEmail,
     confessionId,
@@ -65,4 +106,36 @@ export async function writeAuditLog({
       loggedAt: new Date().toISOString(),
     }),
   });
+
+  if (action === "security_alert") {
+    const serializableMeta = toSerializableMeta(meta);
+    const dedupeKey = createSecurityAlertDedupeKey(
+      url.pathname,
+      request.method,
+      ip,
+      adminEmail,
+      serializableMeta
+    );
+
+    if (!shouldDeliverSecurityAlert(dedupeKey)) {
+      return created;
+    }
+
+    void deliverSecurityAlert({
+      auditId: String(created._id),
+      action,
+      requestId,
+      route: url.pathname,
+      method: request.method,
+      ip,
+      userAgent,
+      adminEmail,
+      createdAt: new Date().toISOString(),
+      meta: serializableMeta,
+    }).catch((error) => {
+      safeLogError("Security alert delivery error", error);
+    });
+  }
+
+  return created;
 }

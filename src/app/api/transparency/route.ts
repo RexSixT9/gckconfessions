@@ -1,5 +1,5 @@
-import { NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/mongodb";
+import { apiError, apiOk, safeLogError } from "@/lib/api";
 import Confession from "@/models/Confession";
 import AuditLog from "@/models/AuditLog";
 
@@ -16,14 +16,14 @@ export async function GET() {
       AuditLog.countDocuments({}),
     ]);
 
-    return NextResponse.json({
+    return apiOk({
       queue: { pending, approved, rejected, published },
       moderationActions,
       totalAuditEvents,
       generatedAt: new Date().toISOString(),
     });
   } catch (error) {
-    console.error("Transparency stats failed", error);
-    return NextResponse.json({ error: "Failed to build transparency stats" }, { status: 500 });
+    safeLogError("Transparency stats failed", error);
+    return apiError(500, "SERVER_ERROR", "Failed to build transparency stats");
   }
 }

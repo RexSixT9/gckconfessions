@@ -3,12 +3,17 @@ import type { NextConfig } from "next";
 const vercelPreviewOrigins = process.env.VERCEL_ENV === "preview"
   ? ["https://vercel.live"]
   : [];
+const cspReportOnly = process.env.CSP_ENFORCE !== "true";
 
 const scriptSrc = ["'self'", "'unsafe-inline'", ...vercelPreviewOrigins].join(" ");
 const connectSrc = ["'self'", ...vercelPreviewOrigins].join(" ");
 
 const nextConfig: NextConfig = {
   async headers() {
+    const cspHeaderKey = cspReportOnly
+      ? "Content-Security-Policy-Report-Only"
+      : "Content-Security-Policy";
+
     return [
       {
         source: "/(.*)",
@@ -20,9 +25,10 @@ const nextConfig: NextConfig = {
           { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
           { key: "Cross-Origin-Resource-Policy", value: "same-site" },
           { key: "Origin-Agent-Cluster", value: "?1" },
+          { key: "Strict-Transport-Security", value: "max-age=31536000; includeSubDomains; preload" },
           { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
           {
-            key: "Content-Security-Policy",
+            key: cspHeaderKey,
             value: [
               "default-src 'self'",
               `script-src ${scriptSrc}`,
@@ -36,6 +42,16 @@ const nextConfig: NextConfig = {
               "upgrade-insecure-requests",
             ].join("; "),
           },
+          ...(cspReportOnly
+            ? [
+                {
+                  key: "Report-To",
+                  value:
+                    '{"group":"csp-endpoint","max_age":10886400,"endpoints":[{"url":"/api/security/csp-report"}]}',
+                },
+                { key: "Reporting-Endpoints", value: "csp-endpoint=\"/api/security/csp-report\"" },
+              ]
+            : []),
         ],
       },
       // Cache static assets for longer

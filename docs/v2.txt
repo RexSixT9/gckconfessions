@@ -1,0 +1,34 @@
+Submission flow clarity and confidence
+Add a 3-step progress narrative above the form:
+Write
+Review safety check
+Submit
+Show inline quality hints without being intrusive.
+Trust and transparency UX
+Add visible privacy summary near submit button:
+What is stored
+What is not stored
+How moderation works
+Add a simple moderation SLA indicator like usually reviewed within X hours.
+Accessibility uplift
+Complete keyboard-first flow checks for home, submit, admin login, admin list.
+Add consistent focus states and skip links on all major layouts.
+Verify contrast for accent colors in both themes.
+Mobile interaction polish
+Reduce visual weight on first load for smaller devices.
+Keep primary CTA fixed or persistently visible in key screens.
+Improve form spacing and touch targets for one-handed use.
+Perceived performance and smoothness
+Defer non-essential visual effects until after content is interactive.
+Keep hero animations subtle on low-end devices.
+Preload only critical fonts/assets and lazy-load decorative components.
+Content hierarchy and readability
+Standardize section rhythm:
+Heading
+Supporting line
+Primary action
+Keep line lengths tighter on large screens to improve reading comfort.
+Admin UX for moderation speed
+Add filters for status, age, risk flags.
+Add keyboard shortcuts for approve/reject.
+Add optimistic updates with undo toast for safer rapid triage
