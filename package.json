@@ -53,11 +53,5 @@
     "eslint-config-next": "^16",
     "tailwindcss": "^4",
     "typescript": "^5"
-  },
-  "overrides": {
-    "jose": "5.10.0",
-    "bcryptjs": "2.4.3",
-    "rate-limiter-flexible": "5.0.3",
-    "@arcjet/next": "1.1.0"
   }
 }
