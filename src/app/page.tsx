@@ -15,7 +15,6 @@ import {
   ArrowRight,
   ChevronDown,
   Heart,
-  HeartPulse,
   Lock,
   MessageSquare,
   PenLine,
@@ -23,9 +22,7 @@ import {
   Send,
   ShieldCheck,
   Sparkles,
-  Trophy,
   Users,
-  Zap,
 } from "lucide-react";
 
 import TypewriterText from "@/components/TypewriterText";
@@ -58,8 +55,6 @@ const highlights = [
   },
 ];
 
-const moodTags = ["Confession", "Missed Chances", "Friendship", "Family", "Campus Life", "Anxiety", "Love", "Growth"];
-
 const steps = [
   {
     step: "01",
@@ -78,24 +73,6 @@ const steps = [
     icon: Send,
     title: "Reach people",
     description: "Once approved, your words can support someone else.",
-  },
-];
-
-const benefits = [
-  {
-    icon: Zap,
-    title: "Fast Flow",
-    description: "Minimal interface with focused actions and quick submissions.",
-  },
-  {
-    icon: HeartPulse,
-    title: "Emotional Safety",
-    description: "Built to reduce pressure and encourage thoughtful sharing.",
-  },
-  {
-    icon: Trophy,
-    title: "Meaningful Impact",
-    description: "Small honest stories often help others feel less alone.",
   },
 ];
 
@@ -388,7 +365,7 @@ export default function HomePage() {
 
   return (
     <main className="flex-1 bg-background">
-      <section className="snap-section relative flex min-h-[calc(100dvh-var(--header-height))] flex-col overflow-hidden border-b border-border/50">
+      <section className="snap-section relative flex min-h-[88vh] flex-col items-center justify-center overflow-hidden border-b border-border/50 py-14 md:min-h-[calc(100dvh-var(--header-height))] md:py-0">
         <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
           <div className="absolute -right-24 -top-32 h-128 w-lg rounded-full bg-foreground/8 blur-[130px]" />
           <div className="absolute -bottom-20 -left-20 h-112 w-md rounded-full bg-foreground/8 blur-[120px]" />
@@ -398,17 +375,22 @@ export default function HomePage() {
         </div>
 
         <div className="flex flex-1 items-center">
-          <div className="mx-auto grid w-full max-w-7xl grid-cols-1 items-center gap-10 px-4 py-10 sm:px-6 sm:py-14 lg:grid-cols-2 lg:gap-16 lg:px-8 lg:py-20">
-            <motion.div variants={heroStaggerContainer} initial="hidden" animate={canStartMotion ? "show" : "hidden"}>
+          <div className="mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-12 px-4 py-4 sm:px-6 lg:grid-cols-2 lg:gap-16 lg:px-8">
+            <motion.div
+              variants={heroStaggerContainer}
+              initial="hidden"
+              animate={canStartMotion ? "show" : "hidden"}
+              className="space-y-6 text-center md:text-left"
+            >
               <motion.div variants={heroFadeUp}>
-                <Badge className="gap-1.5 border border-border/60 bg-card/65 px-3 py-1 text-xs text-foreground hover:bg-card">
+                <Badge className="inline-flex h-8 gap-1.5 border border-border/60 bg-card/65 px-4 text-xs font-medium text-foreground hover:bg-card">
                   <Activity className="h-3 w-3" />
                   Anonymous Community Wall
                 </Badge>
               </motion.div>
 
               <motion.div variants={heroFadeUp} className="mt-5">
-                <h1 className="text-[clamp(2rem,8vw,4.4rem)] font-black leading-[1.06] tracking-tight text-balance">
+                <h1 className="mx-auto max-w-[16ch] text-[clamp(2rem,8vw,4.4rem)] font-black leading-[1.03] tracking-tight text-balance md:mx-0 md:max-w-[15ch]">
                   <span className="block text-foreground">Drop the mask.</span>
                   <span className="block max-w-[22ch] text-foreground/75">
                     <TypewriterText
@@ -424,12 +406,12 @@ export default function HomePage() {
                 </h1>
               </motion.div>
 
-              <motion.p variants={heroFadeUp} className="mt-5 max-w-lg text-sm leading-relaxed text-muted-foreground sm:text-base">
+              <motion.p variants={heroFadeUp} className="mx-auto mt-5 max-w-lg text-sm leading-relaxed text-muted-foreground sm:text-base md:mx-0">
                 GCK Confessions is a private, moderated space for honest stories.
-                Share what you feel, stay anonymous, and connect through words that matter.
+                Share what you feel, stay anonymous, and be heard without pressure.
               </motion.p>
 
-              <motion.div variants={heroFadeUp} className="mt-5 flex flex-wrap gap-2">
+              <motion.div variants={heroFadeUp} className="mt-5 flex flex-wrap justify-center gap-2 md:justify-start">
                 {["No login", "Human moderation", "Identity hidden"].map((item) => (
                   <span
                     key={item}
@@ -440,12 +422,12 @@ export default function HomePage() {
                 ))}
               </motion.div>
 
-              <motion.div variants={heroFadeUp} className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <motion.div variants={heroFadeUp} className="mt-8 flex flex-wrap items-center justify-center gap-3 md:justify-start">
                 <motion.div whileHover={reduceHeavyMotion ? undefined : { y: -2, scale: 1.01 }} whileTap={{ scale: 0.98 }}>
                   <Button
                     size="lg"
                     variant="brand"
-                    className="group h-auto w-full gap-2 rounded-full px-8 py-4 text-sm font-semibold shadow-none sm:w-auto"
+                    className="group h-auto gap-2 rounded-full px-8 py-4 text-sm font-semibold shadow-none"
                     render={<Link href="/submit" />}
                   >
                     <>
@@ -460,7 +442,7 @@ export default function HomePage() {
                   <Button
                     size="lg"
                     variant="outline"
-                    className="h-auto w-full gap-2 rounded-full border-border/60 px-8 py-4 text-sm backdrop-blur-sm transition-all hover:border-foreground/35 hover:bg-card/60 sm:w-auto"
+                    className="h-auto gap-2 rounded-full border-border/60 px-8 py-4 text-sm backdrop-blur-sm transition-all hover:border-foreground/35 hover:bg-card/60"
                     render={<a href="#how-it-works" />}
                   >
                     <>
@@ -517,14 +499,14 @@ export default function HomePage() {
         </motion.a>
       </section>
 
-      <section className="snap-section mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 sm:py-12 lg:px-8">
+      <section className="snap-section mx-auto w-full max-w-7xl px-4 py-9 sm:px-6 sm:py-12 lg:px-8">
         <ScrollReveal y={12} duration={0.36}>
           <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
             <Card className="border-border/60 bg-card/65 backdrop-blur-sm">
               <CardHeader>
                 <CardTitle className="text-lg font-bold tracking-tight">Community pulse</CardTitle>
                 <CardDescription>
-                  A living stream of thoughts from students who needed a quiet place.
+                  A living stream of honest stories from students who needed a quiet place.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -547,37 +529,17 @@ export default function HomePage() {
         </ScrollReveal>
       </section>
 
-      <section className="snap-section mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 sm:py-12 lg:px-8">
+      <section className="snap-section mx-auto w-full max-w-7xl px-4 py-9 sm:px-6 sm:py-12 lg:px-8">
         <ScrollReveal y={12} duration={0.38}>
-          <Card className="border-border/60 bg-card/60 backdrop-blur-sm">
-            <CardHeader className="pb-4">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <CardTitle className="text-lg font-bold tracking-tight">Explore by mood</CardTitle>
-                  <CardDescription>Pick a theme and discover stories that feel familiar.</CardDescription>
-                </div>
-                <Badge variant="outline" className="border-border/70">Live topics</Badge>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                {moodTags.map((tag) => (
-                  <motion.div key={tag} whileHover={reduceHeavyMotion ? undefined : { y: -2 }} whileTap={{ scale: 0.98 }}>
-                    <Button
-                      variant="outline"
-                      className="w-full justify-between rounded-xl border-border/65 bg-background/70 px-4 py-5 text-left text-sm font-medium shadow-none backdrop-blur-sm transition-all hover:border-foreground/35 hover:bg-card"
-                      render={<Link href="/submit" />}
-                    >
-                      <>
-                        {tag}
-                        <ArrowRight className="h-3.5 w-3.5 opacity-70" />
-                      </>
-                    </Button>
-                  </motion.div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+          <div className="rounded-2xl border border-border/60 bg-card/55 p-5 backdrop-blur-sm sm:p-6">
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Explore</h3>
+              <Badge variant="outline" className="h-8 border-border/70 px-3">Moderated feed</Badge>
+            </div>
+            <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">
+              Browse community stories, understand what others are carrying, and share when you are ready.
+            </p>
+          </div>
         </ScrollReveal>
       </section>
 
@@ -587,17 +549,17 @@ export default function HomePage() {
         id="highlights"
         ref={highlightsRef}
         style={{ y: reduceHeavyMotion ? 0 : highlightsParallax }}
-        className="snap-section mx-auto flex min-h-dvh w-full max-w-7xl items-center px-4 py-14 sm:px-6 lg:px-8"
+        className="snap-section mx-auto flex min-h-dvh w-full max-w-7xl items-center px-4 py-12 sm:px-6 sm:py-14 lg:px-8"
       >
         <div className="w-full">
           <div className="mb-10 text-center">
-            <Badge variant="outline" className="mb-3 gap-1.5 border-border/70 bg-card/60 text-foreground">
+            <Badge variant="outline" className="mb-3 h-8 gap-1.5 border-border/70 bg-card/60 px-3.5 text-foreground">
               <Sparkles className="h-3.5 w-3.5" />
               Why this works
             </Badge>
-            <h2 className="text-2xl font-black tracking-tight sm:text-3xl">Minimal by design</h2>
-            <p className="mx-auto mt-2 max-w-xl text-sm text-muted-foreground sm:text-base">
-              Fewer distractions, clearer intent, and a more thoughtful experience.
+            <h2 className="mx-auto max-w-[18ch] text-2xl font-black leading-[1.08] tracking-tight sm:text-3xl">Simple, clear, and calm</h2>
+            <p className="mx-auto mt-2 max-w-[54ch] text-sm text-muted-foreground sm:text-base">
+              Less noise, better focus, and a safer space to speak honestly.
             </p>
           </div>
 
@@ -631,16 +593,16 @@ export default function HomePage() {
         id="how-it-works"
         ref={stepsRef}
         style={{ y: reduceHeavyMotion ? 0 : stepsParallax }}
-        className="snap-section mx-auto flex min-h-dvh w-full max-w-7xl items-center px-4 py-14 sm:px-6 lg:px-8"
+        className="snap-section mx-auto flex min-h-dvh w-full max-w-7xl items-center px-4 py-12 sm:px-6 sm:py-14 lg:px-8"
       >
         <div className="w-full">
           <div className="mb-10 text-center">
-            <Badge variant="secondary" className="mb-3 uppercase tracking-wider">
+            <Badge variant="secondary" className="mb-3 h-8 px-3.5 uppercase tracking-wider">
               Workflow
             </Badge>
-            <h2 className="text-2xl font-black tracking-tight sm:text-3xl">Three simple steps</h2>
-            <p className="mx-auto mt-2 max-w-sm text-sm text-muted-foreground">
-              From private thought to shared support in seconds.
+            <h2 className="mx-auto max-w-[18ch] text-2xl font-black leading-[1.08] tracking-tight sm:text-3xl">Three simple steps</h2>
+            <p className="mx-auto mt-2 max-w-[42ch] text-sm text-muted-foreground">
+              From private thought to shared support in under a minute.
             </p>
           </div>
 
@@ -673,7 +635,7 @@ export default function HomePage() {
         </div>
       </motion.section>
 
-      <section className="snap-section mx-auto w-full max-w-7xl px-4 pb-16 sm:px-6 sm:pb-20 lg:px-8">
+      <section className="snap-section mx-auto w-full max-w-7xl px-4 pb-14 sm:px-6 sm:pb-20 lg:px-8">
         <ScrollReveal y={16} duration={0.45}>
           <div className="relative overflow-hidden rounded-3xl border border-border/60">
             <div className="absolute inset-0 bg-linear-to-br from-zinc-950 via-zinc-900 to-zinc-950 dark:from-zinc-900 dark:via-zinc-950 dark:to-black" />
@@ -682,12 +644,12 @@ export default function HomePage() {
             <div className="pointer-events-none absolute -bottom-16 -right-16 h-72 w-72 rounded-full bg-white/8 blur-3xl" />
 
             <div className="relative z-10 px-8 py-18 text-center sm:py-24">
-              <Badge className="mb-6 border border-white/20 bg-white/10 text-white hover:bg-white/10">Start now</Badge>
-              <h2 className="mx-auto max-w-3xl text-[clamp(2rem,6vw,3.8rem)] font-black leading-[1.06] tracking-tight text-white">
+              <Badge className="mb-6 h-8 border border-white/20 bg-white/10 px-3.5 text-white hover:bg-white/10">Start now</Badge>
+              <h2 className="mx-auto max-w-[16ch] text-[clamp(2rem,6vw,3.8rem)] font-black leading-[1.04] tracking-tight text-white">
                 Say what matters.
                 <span className="block text-zinc-300">Someone may need to hear it.</span>
               </h2>
-              <p className="mx-auto mt-5 max-w-xl text-sm leading-relaxed text-zinc-400 sm:text-base">
+              <p className="mx-auto mt-5 max-w-[56ch] text-sm leading-relaxed text-zinc-400 sm:text-base">
                 Join a calmer community experience built for real stories, safety, and empathy.
               </p>
 
