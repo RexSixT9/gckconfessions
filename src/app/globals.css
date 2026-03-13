@@ -921,6 +921,18 @@ select {
   }
 }
 
+/* Home page section snapping (desktop-only, opt-in via html.home-snap) */
+@media (min-width: 1024px) {
+  html.home-snap {
+    scroll-snap-type: y proximity;
+  }
+
+  html.home-snap .snap-section {
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+  }
+}
+
 /* ─────────────────────────────────────────
    Mobile & Responsive Optimizations
 ───────────────────────────────────────── */
