@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Analytics } from "@vercel/analytics/react";
 import { ThemeProvider } from "next-themes";
 import { MotionProvider } from "@/components/MotionProvider";
 import HeaderNav from "@/components/HeaderNav";
@@ -113,6 +114,7 @@ export default function RootLayout({
               <PageTransition>{children}</PageTransition>
               <Footer />
             </div>
+            <Analytics />
           </MotionProvider>
         </ThemeProvider>
       </body>
