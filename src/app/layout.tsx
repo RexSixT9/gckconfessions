@@ -82,6 +82,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} bg-background text-foreground antialiased`}
       >
+        <a
+          href="#app-content"
+          className="sr-only fixed left-3 top-3 z-120 rounded-md bg-background px-3 py-2 text-sm font-medium text-foreground ring-2 ring-ring/60 focus:not-sr-only"
+        >
+          Skip to content
+        </a>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -103,7 +109,7 @@ export default function RootLayout({
             {/* ── Header ── */}
             <HeaderNav />
 
-            <div className="flex min-h-[calc(100svh-var(--header-height))] flex-col">
+            <div id="app-content" tabIndex={-1} className="flex min-h-[calc(100svh-var(--header-height))] flex-col">
               <PageTransition>{children}</PageTransition>
               <Footer />
             </div>

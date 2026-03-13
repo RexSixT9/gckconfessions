@@ -214,11 +214,21 @@ function FloatingConfessionCard({ reduceMotion = false }: { reduceMotion?: boole
   );
 }
 
-function StatChip({ icon: Icon, label, delay = 0 }: { icon: React.ElementType; label: string; delay?: number }) {
+function StatChip({
+  icon: Icon,
+  label,
+  delay = 0,
+  reduceMotion = false,
+}: {
+  icon: React.ElementType;
+  label: string;
+  delay?: number;
+  reduceMotion?: boolean;
+}) {
   return (
     <motion.div
-      animate={{ y: [0, -7, 0] }}
-      transition={{ duration: 4 + delay, repeat: Infinity, ease: "easeInOut", delay }}
+      animate={reduceMotion ? undefined : { y: [0, -7, 0] }}
+      transition={reduceMotion ? undefined : { duration: 4 + delay, repeat: Infinity, ease: "easeInOut", delay }}
       className="pointer-events-none select-none"
     >
       <div className="flex items-center gap-2 rounded-xl border border-border/65 bg-card/85 px-3 py-2 shadow-lg shadow-black/10 backdrop-blur-lg">
@@ -247,7 +257,7 @@ function MiniTestimonialSlider({ reduceMotion = false }: { reduceMotion?: boolea
         <CardDescription>Small words, real impact.</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="relative min-h-24">
+        <div className="relative min-h-24" aria-live="polite">
           <AnimatePresence mode="wait">
             <motion.div
               key={idx}
@@ -375,7 +385,11 @@ export default function HomePage() {
 
   return (
     <main className="flex-1 bg-background">
-      <section className="snap-section relative flex min-h-[88vh] flex-col items-center justify-center overflow-hidden border-b border-border/50 py-14 md:min-h-[calc(100dvh-var(--header-height))] md:py-0">
+      <section
+        id="home-hero"
+        aria-labelledby="hero-title"
+        className="snap-section relative flex min-h-[88vh] flex-col items-center justify-center overflow-hidden border-b border-border/50 py-14 md:min-h-[calc(100dvh-var(--header-height))] md:py-0"
+      >
         <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
           <div className="absolute -right-24 -top-32 h-128 w-lg rounded-full bg-foreground/8 blur-[130px]" />
           <div className="absolute -bottom-20 -left-20 h-112 w-md rounded-full bg-foreground/8 blur-[120px]" />
@@ -400,7 +414,10 @@ export default function HomePage() {
               </motion.div>
 
               <motion.div variants={heroFadeUp} className="mt-5">
-                <h1 className="mx-auto max-w-[16ch] text-[clamp(2rem,8vw,4.4rem)] font-black leading-[1.03] tracking-tight text-balance md:mx-0 md:max-w-[15ch]">
+                <h1
+                  id="hero-title"
+                  className="mx-auto max-w-[16ch] text-[clamp(2rem,8vw,4.4rem)] font-black leading-[1.03] tracking-tight text-balance md:mx-0 md:max-w-[15ch]"
+                >
                   <span className="block text-foreground">Drop the mask.</span>
                   <span className="block max-w-[22ch] text-foreground/75">
                     <TypewriterText
@@ -479,13 +496,13 @@ export default function HomePage() {
               {!reduceHeavyMotion ? <OrbitRing radius={118} duration={12} reverse /> : null}
 
               <div className="absolute -left-14 top-10 z-10">
-                <StatChip icon={Lock} label="100% Anonymous" />
+                <StatChip icon={Lock} label="100% Anonymous" reduceMotion={reduceHeavyMotion} />
               </div>
               <div className="absolute -right-14 bottom-10 z-10">
-                <StatChip icon={ShieldCheck} label="Human Reviewed" delay={0.8} />
+                <StatChip icon={ShieldCheck} label="Human Reviewed" delay={0.8} reduceMotion={reduceHeavyMotion} />
               </div>
               <div className="absolute -right-8 top-4 z-10">
-                <StatChip icon={Sparkles} label="Calm Experience" delay={0.4} />
+                <StatChip icon={Sparkles} label="Calm Experience" delay={0.4} reduceMotion={reduceHeavyMotion} />
               </div>
 
               <FloatingConfessionCard reduceMotion={reduceHeavyMotion} />
@@ -501,6 +518,7 @@ export default function HomePage() {
           transition={{ duration: 0.55, delay: 1.05, ease: "easeOut" }}
           className="absolute bottom-[max(0.65rem,env(safe-area-inset-bottom))] left-1/2 hidden -translate-x-1/2 flex-col items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground/65 transition-colors hover:text-muted-foreground/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 lg:flex"
           aria-label="Scroll to next section"
+          aria-controls="highlights"
         >
           <span className="rounded-full border border-border/60 bg-card/55 px-3 py-1 backdrop-blur-sm">Scroll</span>
           <span className="relative flex h-10 w-6 items-start justify-center rounded-full border border-border/60 bg-card/40 p-1 backdrop-blur-sm">
@@ -514,12 +532,12 @@ export default function HomePage() {
         </motion.button>
       </section>
 
-      <section className="snap-section mx-auto w-full max-w-7xl px-4 py-9 sm:px-6 sm:py-12 lg:px-8">
+      <section className="snap-section mx-auto w-full max-w-7xl px-4 py-9 sm:px-6 sm:py-12 lg:px-8" aria-labelledby="community-pulse-heading">
         <ScrollReveal y={12} duration={0.36}>
           <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
             <Card className="border-border/60 bg-card/65 backdrop-blur-sm">
               <CardHeader>
-                <CardTitle className="text-lg font-bold tracking-tight">Community pulse</CardTitle>
+                <CardTitle id="community-pulse-heading" className="text-lg font-bold tracking-tight">Community pulse</CardTitle>
                 <CardDescription>
                   A living stream of honest stories from students who needed a quiet place.
                 </CardDescription>
@@ -544,11 +562,11 @@ export default function HomePage() {
         </ScrollReveal>
       </section>
 
-      <section className="snap-section mx-auto w-full max-w-7xl px-4 py-9 sm:px-6 sm:py-12 lg:px-8">
+      <section className="snap-section mx-auto w-full max-w-7xl px-4 py-9 sm:px-6 sm:py-12 lg:px-8" aria-labelledby="explore-heading">
         <ScrollReveal y={12} duration={0.38}>
           <div className="rounded-2xl border border-border/60 bg-card/55 p-5 backdrop-blur-sm sm:p-6">
             <div className="mb-3 flex items-center justify-between gap-3">
-              <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Explore</h3>
+              <h2 id="explore-heading" className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Explore</h2>
               <Badge variant="outline" className="h-8 border-border/70 px-3">Moderated feed</Badge>
             </div>
             <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">
@@ -562,6 +580,7 @@ export default function HomePage() {
 
       <motion.section
         id="highlights"
+        aria-labelledby="highlights-heading"
         ref={highlightsRef}
         style={{ y: reduceHeavyMotion ? 0 : highlightsParallax }}
         className="snap-section mx-auto flex min-h-dvh w-full max-w-7xl items-center px-4 py-12 sm:px-6 sm:py-14 lg:px-8"
@@ -572,7 +591,7 @@ export default function HomePage() {
               <Sparkles className="h-3.5 w-3.5" />
               Why this works
             </Badge>
-            <h2 className="mx-auto max-w-[18ch] text-2xl font-black leading-[1.08] tracking-tight sm:text-3xl">Simple, clear, and calm</h2>
+            <h2 id="highlights-heading" className="mx-auto max-w-[18ch] text-2xl font-black leading-[1.08] tracking-tight sm:text-3xl">Simple, clear, and calm</h2>
             <p className="mx-auto mt-2 max-w-[54ch] text-sm text-muted-foreground sm:text-base">
               Less noise, better focus, and a safer space to speak honestly.
             </p>
@@ -606,6 +625,7 @@ export default function HomePage() {
 
       <motion.section
         id="how-it-works"
+        aria-labelledby="how-it-works-heading"
         ref={stepsRef}
         style={{ y: reduceHeavyMotion ? 0 : stepsParallax }}
         className="snap-section mx-auto flex min-h-dvh w-full max-w-7xl items-center px-4 py-12 sm:px-6 sm:py-14 lg:px-8"
@@ -615,7 +635,7 @@ export default function HomePage() {
             <Badge variant="secondary" className="mb-3 h-8 px-3.5 uppercase tracking-wider">
               Workflow
             </Badge>
-            <h2 className="mx-auto max-w-[18ch] text-2xl font-black leading-[1.08] tracking-tight sm:text-3xl">Three simple steps</h2>
+            <h2 id="how-it-works-heading" className="mx-auto max-w-[18ch] text-2xl font-black leading-[1.08] tracking-tight sm:text-3xl">Three simple steps</h2>
             <p className="mx-auto mt-2 max-w-[42ch] text-sm text-muted-foreground">
               From private thought to shared support in under a minute.
             </p>
@@ -654,7 +674,7 @@ export default function HomePage() {
         <ScrollReveal y={16} duration={0.45}>
           <div className="relative overflow-hidden rounded-3xl border border-border/60">
             <div className="absolute inset-0 bg-linear-to-br from-zinc-950 via-zinc-900 to-zinc-950 dark:from-zinc-900 dark:via-zinc-950 dark:to-black" />
-            <div className="absolute inset-0 opacity-[0.03] [background-image:url('data:image/svg+xml,%3Csvg viewBox%3D%220 0 256 256%22 xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cfilter id%3D%22n%22%3E%3CfeTurbulence type%3D%22fractalNoise%22 baseFrequency%3D%220.9%22 numOctaves%3D%224%22 stitchTiles%3D%22stitch%22/%3E%3C/filter%3E%3Crect width%3D%22100%25%22 height%3D%22100%25%22 filter%3D%22url(%23n)%22/%3E%3C/svg%3E') ]" />
+            <div className="absolute inset-0 hidden opacity-[0.03] md:block [background-image:url('data:image/svg+xml,%3Csvg viewBox%3D%220 0 256 256%22 xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cfilter id%3D%22n%22%3E%3CfeTurbulence type%3D%22fractalNoise%22 baseFrequency%3D%220.9%22 numOctaves%3D%224%22 stitchTiles%3D%22stitch%22/%3E%3C/filter%3E%3Crect width%3D%22100%25%22 height%3D%22100%25%22 filter%3D%22url(%23n)%22/%3E%3C/svg%3E') ]" />
             <div className="pointer-events-none absolute -left-16 -top-16 h-64 w-64 rounded-full bg-white/8 blur-3xl" />
             <div className="pointer-events-none absolute -bottom-16 -right-16 h-72 w-72 rounded-full bg-white/8 blur-3xl" />
 

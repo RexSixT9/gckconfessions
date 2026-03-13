@@ -110,14 +110,14 @@ export default function AdminLoginPage() {
 
   if (isChecking) {
     return (
-      <div className="flex flex-1 items-center justify-center">
+      <div className="flex flex-1 items-center justify-center" role="status" aria-live="polite" aria-label="Checking admin session">
         <Loader className="h-5 w-5 animate-spin text-accent" />
       </div>
     );
   }
 
   return (
-    <main className="relative flex flex-1 bg-background">
+    <main className="relative flex flex-1 bg-background" aria-labelledby="admin-login-title">
       <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
         <div className="absolute -left-20 top-10 h-72 w-72 rounded-full bg-accent/10 blur-3xl" />
         <div className="absolute -right-24 bottom-0 h-80 w-80 rounded-full bg-accent/10 blur-3xl" />
@@ -130,12 +130,12 @@ export default function AdminLoginPage() {
               <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl border border-border/70 bg-background/70">
                 <ShieldCheck className="h-6 w-6 text-foreground" />
               </span>
-              <CardTitle className="text-2xl font-black tracking-tight">Admin sign in</CardTitle>
+              <CardTitle id="admin-login-title" className="text-2xl font-black tracking-tight">Admin sign in</CardTitle>
               <CardDescription>Access moderation tools</CardDescription>
             </CardHeader>
 
             <CardContent className="p-6 pt-4 sm:p-8 sm:pt-5">
-            <form className="space-y-5" onSubmit={handleSubmit}>
+            <form className="space-y-5" onSubmit={handleSubmit} aria-busy={loading}>
               {/* Email */}
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-xs font-bold uppercase tracking-wider text-muted-foreground">

@@ -267,10 +267,13 @@ export default function SubmitPage() {
                       Your confession
                     </Label>
                     <span
+                      id="confession-count"
                       className={cn(
                         "text-xs tabular-nums text-muted-foreground",
                         charCount > CHAR_LIMIT * 0.9 && "font-medium text-destructive"
                       )}
+                      role="status"
+                      aria-live="polite"
                     >
                       {charCount}/{CHAR_LIMIT}
                     </span>
@@ -284,8 +287,12 @@ export default function SubmitPage() {
                     rows={10}
                     className="min-h-52 resize-none border-border/70 bg-background text-sm leading-6 shadow-none"
                     placeholder="What has been on your mind?"
+                    required
+                    aria-describedby="confession-help confession-count"
                   />
-                  <p className="text-xs text-muted-foreground">{guidanceText}</p>
+                  <p id="confession-help" className="text-xs text-muted-foreground" aria-live="polite">
+                    {guidanceText}
+                  </p>
                 </div>
 
                 <div className="space-y-2">

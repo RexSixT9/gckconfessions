@@ -53,13 +53,13 @@ export default function GuidelinesClient() {
         description="This platform is anonymous, moderated, and designed to reduce abuse."
       />
 
-      <section className="mt-8 grid gap-6 md:grid-cols-2">
+      <section className="mt-8 grid gap-6 md:grid-cols-2" aria-labelledby="privacy-heading">
         <Card className="border-border/70 bg-card/70 shadow-none backdrop-blur-sm">
           <CardHeader className="space-y-3 pb-4">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent/10">
               <Lock className="h-5 w-5 text-accent" />
             </div>
-            <CardTitle className="text-lg font-bold">Privacy</CardTitle>
+            <CardTitle id="privacy-heading" className="text-lg font-bold">Privacy</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-sm leading-6 text-muted-foreground">
             {privacyPoints.map((point) => (
@@ -89,14 +89,14 @@ export default function GuidelinesClient() {
         </Card>
       </section>
 
-        <section className="mt-8 grid gap-6 md:grid-cols-2">
+          <section className="mt-8 grid gap-6 md:grid-cols-2" aria-labelledby="allowed-heading">
           <Card className="border-border/70 bg-card/70 shadow-none backdrop-blur-sm">
           <CardHeader className="space-y-3 pb-4">
             <Badge variant="outline" className="w-fit gap-1.5 border-action-accept/30 bg-action-accept/5 text-action-accept">
               <ShieldCheck className="h-3.5 w-3.5" />
               Allowed
             </Badge>
-            <CardTitle className="text-lg font-bold">Content we welcome</CardTitle>
+            <CardTitle id="allowed-heading" className="text-lg font-bold">Content we welcome</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4 text-sm leading-6 text-muted-foreground">
             {allowed.map((item) => (
@@ -114,7 +114,7 @@ export default function GuidelinesClient() {
               <AlertTriangle className="h-3.5 w-3.5" />
               Not Allowed
             </Badge>
-            <CardTitle className="text-lg font-bold">Content we reject</CardTitle>
+            <CardTitle id="disallowed-heading" className="text-lg font-bold">Content we reject</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4 text-sm leading-6 text-muted-foreground">
             {disallowed.map((item) => (
