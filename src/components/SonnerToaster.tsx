@@ -9,20 +9,11 @@ export function SonnerToaster() {
       theme="system"
       richColors={false}
       closeButton={false}
-      duration={4000}
-      gap={8}
+      duration={3000}
       toastOptions={{
         className:
-          "rounded-xl border border-border/70 bg-background text-foreground shadow-md backdrop-blur-sm",
+          "rounded-xl border border-border/60 bg-background/80 text-foreground shadow-md backdrop-blur-xl",
         descriptionClassName: "text-muted-foreground",
-        actionButtonStyle: {
-          background: "hsl(var(--primary))",
-          color: "hsl(var(--primary-foreground))",
-        },
-        cancelButtonStyle: {
-          background: "hsl(var(--secondary))",
-          color: "hsl(var(--secondary-foreground))",
-        },
       }}
     />
   );

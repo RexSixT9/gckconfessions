@@ -27,6 +27,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import { ScrollReveal } from "@/components/Reveal";
 import TypewriterText from "@/components/TypewriterText";
 import { useMotionRuntime } from "@/components/MotionProvider";
@@ -76,12 +77,19 @@ const steps = [
   },
 ];
 
+const trustStats = [
+  { label: "Account required", value: "No" },
+  { label: "Review model", value: "Human" },
+  { label: "Submission time", value: "< 60 sec" },
+  { label: "Public identity", value: "Never shown" },
+];
+
 const heroTypingPhrases = ["Speak the truth.", "Share your story.", "Be heard.", "You are not alone."];
 
 const mockConfessions = [
   "I still hum the song you used to sing when you thought no one was listening.",
   "Sometimes I reread our old messages just to feel close to you again.",
-  "I got the scholarship but never told anyone because I feared expectations.",
+  "I got the scholarship but never told anyone because I was afraid of expectations.",
   "I cry in the shower so nobody hears how much I am struggling.",
 ];
 
@@ -276,6 +284,8 @@ export default function HomePage() {
           <div className="absolute -right-24 -top-32 h-128 w-lg rounded-full bg-accent/10 blur-[130px]" />
           <div className="absolute -bottom-20 -left-20 h-112 w-md rounded-full bg-sky-500/8 blur-[120px]" />
           <div className="absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--border)/0.32)_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--border)/0.32)_1px,transparent_1px)] bg-size-[52px_52px] mask-[radial-gradient(ellipse_78%_62%_at_50%_40%,black,transparent)]" />
+          <div className="hero-beam opacity-70" />
+          <div className="hero-beam-extra opacity-55" />
         </div>
 
         <div className="flex flex-1 items-center">
@@ -306,9 +316,24 @@ export default function HomePage() {
               </motion.div>
 
               <motion.p variants={heroFadeUp} className="mt-5 max-w-lg text-sm leading-relaxed text-muted-foreground sm:text-base">
-                GCK Confessions is a quiet space for honest thoughts. Write what you feel,
-                submit anonymously, and let your words reach people who understand.
+                GCK Confessions is a quiet space for honest thoughts. Share what you feel,
+                stay anonymous, and be heard without pressure.
               </motion.p>
+
+              <motion.div variants={heroFadeUp} className="mt-5 flex flex-wrap gap-2">
+                {[
+                  "No login required",
+                  "Moderated with care",
+                  "Clean and private",
+                ].map((item) => (
+                  <span
+                    key={item}
+                    className="rounded-full border border-border/60 bg-card/60 px-3 py-1 text-xs font-medium text-foreground/85 backdrop-blur-sm"
+                  >
+                    {item}
+                  </span>
+                ))}
+              </motion.div>
 
               <motion.div variants={heroFadeUp} className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <motion.div whileHover={shouldReduceMotion ? undefined : { y: -2, scale: 1.01 }} whileTap={{ scale: 0.98 }}>
@@ -387,6 +412,33 @@ export default function HomePage() {
         </motion.a>
       </section>
 
+      <section className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 sm:py-12 lg:px-8">
+        <ScrollReveal y={12} duration={0.38}>
+          <Card className="border-border/60 bg-card/60 backdrop-blur-sm">
+            <CardHeader className="pb-4">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <CardTitle className="text-lg font-bold tracking-tight">Trust snapshot</CardTitle>
+                  <CardDescription>Simple rules, calm experience, and privacy first.</CardDescription>
+                </div>
+                <Badge variant="outline" className="border-border/70">Live principles</Badge>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                {trustStats.map((item, index) => (
+                  <div key={item.label} className="rounded-xl border border-border/70 bg-background/70 p-3">
+                    <p className="text-[11px] uppercase tracking-wide text-muted-foreground">{item.label}</p>
+                    <p className="mt-1 text-sm font-semibold tracking-tight">{item.value}</p>
+                    {index < trustStats.length - 1 ? <Separator className="mt-3 opacity-50 sm:hidden" /> : null}
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </ScrollReveal>
+      </section>
+
       <motion.section
         id="highlights"
         ref={highlightsRef}
@@ -437,7 +489,7 @@ export default function HomePage() {
               Workflow
             </Badge>
             <h2 className="text-2xl font-black tracking-tight sm:text-3xl">Three simple steps</h2>
-            <p className="mx-auto mt-2 max-w-sm text-sm text-muted-foreground">From thought to community in seconds.</p>
+            <p className="mx-auto mt-2 max-w-sm text-sm text-muted-foreground">From private thought to shared support in seconds.</p>
           </div>
 
           <div className="relative grid gap-4 sm:grid-cols-3">
