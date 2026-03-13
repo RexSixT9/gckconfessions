@@ -5,6 +5,7 @@ import Link from "next/link";
 import {
   motion,
   useMotionValue,
+  useScroll,
   useSpring,
   useTransform,
   AnimatePresence,
@@ -206,13 +207,41 @@ export default function HomePage() {
   const { isAppReady, shouldReduceMotion } = useMotionRuntime();
   const canStartMotion = isAppReady || shouldReduceMotion;
   const [isDesktop, setIsDesktop] = useState(false);
+  const [isTablet, setIsTablet] = useState(false);
+  const highlightsRef = useRef<HTMLElement | null>(null);
+  const stepsRef = useRef<HTMLElement | null>(null);
+
+  const { scrollYProgress: highlightsProgress } = useScroll({
+    target: highlightsRef,
+    offset: ["start end", "end start"],
+  });
+  const { scrollYProgress: stepsProgress } = useScroll({
+    target: stepsRef,
+    offset: ["start end", "end start"],
+  });
+
+  const highlightsParallax = useSpring(useTransform(highlightsProgress, [0, 1], [18, -18]), {
+    stiffness: 120,
+    damping: 24,
+  });
+  const stepsParallax = useSpring(useTransform(stepsProgress, [0, 1], [14, -14]), {
+    stiffness: 120,
+    damping: 24,
+  });
 
   useEffect(() => {
     const media = window.matchMedia("(min-width: 1024px)");
+    const tabletMedia = window.matchMedia("(min-width: 768px)");
     const onChange = (event: MediaQueryListEvent) => setIsDesktop(event.matches);
+    const onTabletChange = (event: MediaQueryListEvent) => setIsTablet(event.matches);
     setIsDesktop(media.matches);
+    setIsTablet(tabletMedia.matches);
     media.addEventListener("change", onChange);
-    return () => media.removeEventListener("change", onChange);
+    tabletMedia.addEventListener("change", onTabletChange);
+    return () => {
+      media.removeEventListener("change", onChange);
+      tabletMedia.removeEventListener("change", onTabletChange);
+    };
   }, []);
 
   const heroStaggerContainer = useMemo(
@@ -220,12 +249,12 @@ export default function HomePage() {
       hidden: {},
       show: {
         transition: {
-          staggerChildren: isDesktop ? 0.12 : 0.1,
-          delayChildren: isDesktop ? 0.1 : 0.05,
+          staggerChildren: isDesktop ? 0.11 : isTablet ? 0.085 : 0.065,
+          delayChildren: isDesktop ? 0.11 : isTablet ? 0.08 : 0.05,
         },
       },
     }),
-    [isDesktop]
+    [isDesktop, isTablet]
   );
 
   const heroFadeUp = useMemo(
@@ -271,7 +300,6 @@ export default function HomePage() {
                       startDelay={isDesktop ? 1050 : 900}
                       forceAnimate
                       cursorClassName="bg-accent"
-                      responsiveMaxChars={{ mobile: 14, tablet: 20, desktop: 28 }}
                     />
                   </span>
                 </h1>
@@ -283,29 +311,33 @@ export default function HomePage() {
               </motion.p>
 
               <motion.div variants={heroFadeUp} className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <Button
-                  size="lg"
-                  variant="brand"
-                  className="group h-auto w-full gap-2 rounded-full px-8 py-4 text-sm font-semibold shadow-none sm:w-auto"
-                  render={<Link href="/submit" />}
-                >
-                  <>
-                    <PenLine className="h-4 w-4" />
-                    Write your confession
-                    <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                  </>
-                </Button>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="h-auto w-full gap-2 rounded-full border-border/60 px-8 py-4 text-sm backdrop-blur-sm transition-all hover:border-accent/40 hover:bg-accent/5 sm:w-auto"
-                  render={<a href="#how-it-works" />}
-                >
-                  <>
-                    How it works
-                    <ArrowRight className="h-4 w-4" />
-                  </>
-                </Button>
+                <motion.div whileHover={shouldReduceMotion ? undefined : { y: -2, scale: 1.01 }} whileTap={{ scale: 0.98 }}>
+                  <Button
+                    size="lg"
+                    variant="brand"
+                    className="group h-auto w-full gap-2 rounded-full px-8 py-4 text-sm font-semibold shadow-none sm:w-auto"
+                    render={<Link href="/submit" />}
+                  >
+                    <>
+                      <PenLine className="h-4 w-4" />
+                      Write your confession
+                      <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                    </>
+                  </Button>
+                </motion.div>
+                <motion.div whileHover={shouldReduceMotion ? undefined : { y: -2, scale: 1.01 }} whileTap={{ scale: 0.98 }}>
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="h-auto w-full gap-2 rounded-full border-border/60 px-8 py-4 text-sm backdrop-blur-sm transition-all hover:border-accent/40 hover:bg-accent/5 sm:w-auto"
+                    render={<a href="#how-it-works" />}
+                  >
+                    <>
+                      How it works
+                      <ArrowRight className="h-4 w-4" />
+                    </>
+                  </Button>
+                </motion.div>
               </motion.div>
             </motion.div>
 
@@ -355,7 +387,12 @@ export default function HomePage() {
         </motion.a>
       </section>
 
-      <section id="highlights" className="mx-auto flex min-h-dvh w-full max-w-7xl items-center px-4 py-14 sm:px-6 lg:px-8">
+      <motion.section
+        id="highlights"
+        ref={highlightsRef}
+        style={{ y: shouldReduceMotion ? 0 : highlightsParallax }}
+        className="mx-auto flex min-h-dvh w-full max-w-7xl items-center px-4 py-14 sm:px-6 lg:px-8"
+      >
         <div className="w-full">
           <div className="mb-10 text-center">
             <Badge variant="outline" className="mb-3 gap-1.5 border-accent/30 bg-accent/5 text-accent">
@@ -371,22 +408,29 @@ export default function HomePage() {
           <div className="grid gap-4 sm:grid-cols-3">
             {highlights.map(({ title, description, icon: Icon, tone }, index) => (
               <ScrollReveal key={title} delay={index * 0.06} y={16} duration={0.4}>
-                <Card className="group h-full border-border/60 bg-card/70 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-accent/35 hover:shadow-lg hover:shadow-accent/5">
-                  <CardHeader>
-                    <span className={cn("flex h-10 w-10 items-center justify-center rounded-xl", tone)}>
-                      <Icon className="h-5 w-5" />
-                    </span>
-                    <CardTitle className="text-base font-bold">{title}</CardTitle>
-                    <CardDescription>{description}</CardDescription>
-                  </CardHeader>
-                </Card>
+                <motion.div whileHover={shouldReduceMotion ? undefined : { y: -3, scale: 1.01 }} transition={{ duration: 0.22 }}>
+                  <Card className="group h-full border-border/60 bg-card/70 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-accent/35 hover:shadow-lg hover:shadow-accent/5">
+                    <CardHeader>
+                      <span className={cn("flex h-10 w-10 items-center justify-center rounded-xl", tone)}>
+                        <Icon className="h-5 w-5" />
+                      </span>
+                      <CardTitle className="text-base font-bold">{title}</CardTitle>
+                      <CardDescription>{description}</CardDescription>
+                    </CardHeader>
+                  </Card>
+                </motion.div>
               </ScrollReveal>
             ))}
           </div>
         </div>
-      </section>
+      </motion.section>
 
-      <section id="how-it-works" className="mx-auto flex min-h-dvh w-full max-w-7xl items-center px-4 py-14 sm:px-6 lg:px-8">
+      <motion.section
+        id="how-it-works"
+        ref={stepsRef}
+        style={{ y: shouldReduceMotion ? 0 : stepsParallax }}
+        className="mx-auto flex min-h-dvh w-full max-w-7xl items-center px-4 py-14 sm:px-6 lg:px-8"
+      >
         <div className="w-full">
           <div className="mb-10 text-center">
             <Badge variant="secondary" className="mb-3 uppercase tracking-wider">
@@ -400,25 +444,27 @@ export default function HomePage() {
             <div aria-hidden className="absolute left-[16.67%] right-[16.67%] top-10 hidden h-px bg-linear-to-r from-transparent via-accent/25 to-transparent sm:block" />
             {steps.map(({ step, title, description, icon: Icon }, index) => (
               <ScrollReveal key={step} delay={index * 0.08} y={16} duration={0.4}>
-                <Card className="group h-full overflow-hidden border-border/60 bg-card/80 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-accent/40 hover:shadow-lg hover:shadow-accent/5">
-                  <CardHeader className="space-y-3">
-                    <div className="flex items-center gap-3">
-                      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent/10 text-accent ring-1 ring-accent/20 transition-all duration-300 group-hover:bg-accent group-hover:text-accent-foreground">
-                        <Icon className="h-5 w-5" />
-                      </span>
-                      <span className="text-3xl font-black tabular-nums text-border transition-colors duration-300 group-hover:text-accent/40">
-                        {step}
-                      </span>
-                    </div>
-                    <CardTitle className="text-base font-bold tracking-tight">{title}</CardTitle>
-                    <CardDescription className="text-sm leading-relaxed">{description}</CardDescription>
-                  </CardHeader>
-                </Card>
+                <motion.div whileHover={shouldReduceMotion ? undefined : { y: -3 }} transition={{ duration: 0.2 }}>
+                  <Card className="group h-full overflow-hidden border-border/60 bg-card/80 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-accent/40 hover:shadow-lg hover:shadow-accent/5">
+                    <CardHeader className="space-y-3">
+                      <div className="flex items-center gap-3">
+                        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent/10 text-accent ring-1 ring-accent/20 transition-all duration-300 group-hover:bg-accent group-hover:text-accent-foreground">
+                          <Icon className="h-5 w-5" />
+                        </span>
+                        <span className="text-3xl font-black tabular-nums text-border transition-colors duration-300 group-hover:text-accent/40">
+                          {step}
+                        </span>
+                      </div>
+                      <CardTitle className="text-base font-bold tracking-tight">{title}</CardTitle>
+                      <CardDescription className="text-sm leading-relaxed">{description}</CardDescription>
+                    </CardHeader>
+                  </Card>
+                </motion.div>
               </ScrollReveal>
             ))}
           </div>
         </div>
-      </section>
+      </motion.section>
     </main>
   );
 }

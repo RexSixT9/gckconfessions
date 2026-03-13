@@ -50,7 +50,9 @@ export default function TypewriterText({
   responsiveMaxChars,
 }: TypewriterTextProps) {
   const [displayed, setDisplayed] = useState("");
-  const [viewportWidth, setViewportWidth] = useState(1024);
+  const [viewportWidth, setViewportWidth] = useState(() =>
+    typeof window !== "undefined" ? window.innerWidth || 1024 : 1024
+  );
 
   useEffect(() => {
     const updateViewport = () => setViewportWidth(window.innerWidth || 1024);
@@ -60,9 +62,9 @@ export default function TypewriterText({
   }, []);
 
   const maxChars = useMemo(() => {
-    if (viewportWidth < 640) return responsiveMaxChars?.mobile ?? 16;
-    if (viewportWidth < 1024) return responsiveMaxChars?.tablet ?? 24;
-    return responsiveMaxChars?.desktop ?? 40;
+    if (viewportWidth < 640) return responsiveMaxChars?.mobile ?? 24;
+    if (viewportWidth < 1024) return responsiveMaxChars?.tablet ?? 32;
+    return responsiveMaxChars?.desktop ?? 48;
   }, [responsiveMaxChars?.desktop, responsiveMaxChars?.mobile, responsiveMaxChars?.tablet, viewportWidth]);
 
   const preparedPhrases = useMemo(
