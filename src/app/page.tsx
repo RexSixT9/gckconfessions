@@ -363,6 +363,16 @@ export default function HomePage() {
     [isDesktop]
   );
 
+  function scrollToSection(sectionId: string) {
+    const section = document.getElementById(sectionId);
+    if (!section) return;
+
+    section.scrollIntoView({
+      behavior: reduceHeavyMotion ? "auto" : "smooth",
+      block: "start",
+    });
+  }
+
   return (
     <main className="flex-1 bg-background">
       <section className="snap-section relative flex min-h-[88vh] flex-col items-center justify-center overflow-hidden border-b border-border/50 py-14 md:min-h-[calc(100dvh-var(--header-height))] md:py-0">
@@ -443,7 +453,7 @@ export default function HomePage() {
                     size="lg"
                     variant="outline"
                     className="h-auto gap-2 rounded-full border-border/60 px-8 py-4 text-sm backdrop-blur-sm transition-all hover:border-foreground/35 hover:bg-card/60"
-                    render={<a href="#how-it-works" />}
+                    onClick={() => scrollToSection("how-it-works")}
                   >
                     <>
                       How it works
@@ -483,20 +493,25 @@ export default function HomePage() {
           </div>
         </div>
 
-        <motion.a
-          href="#highlights"
+        <motion.button
+          type="button"
+          onClick={() => scrollToSection("highlights")}
           initial={{ opacity: 0, y: 10 }}
           animate={canStartMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
           transition={{ duration: 0.55, delay: 1.05, ease: "easeOut" }}
-          className="absolute bottom-[max(0.75rem,env(safe-area-inset-bottom))] left-1/2 hidden -translate-x-1/2 flex-col items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground/65 transition-colors hover:text-muted-foreground/85 lg:flex"
+          className="absolute bottom-[max(0.65rem,env(safe-area-inset-bottom))] left-1/2 hidden -translate-x-1/2 flex-col items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground/65 transition-colors hover:text-muted-foreground/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 lg:flex"
           aria-label="Scroll to next section"
         >
-          <span className="flex items-center gap-1">
-            Scroll
-            <ChevronDown className="h-3 w-3" />
+          <span className="rounded-full border border-border/60 bg-card/55 px-3 py-1 backdrop-blur-sm">Scroll</span>
+          <span className="relative flex h-10 w-6 items-start justify-center rounded-full border border-border/60 bg-card/40 p-1 backdrop-blur-sm">
+            <motion.span
+              animate={reduceHeavyMotion ? { y: 0, opacity: 0.8 } : { y: [0, 12, 0], opacity: [0.65, 1, 0.65] }}
+              transition={reduceHeavyMotion ? undefined : { duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+              className="h-2 w-2 rounded-full bg-foreground/70"
+            />
+            <ChevronDown className="absolute -bottom-4 h-3 w-3 text-muted-foreground/70" />
           </span>
-          <span className="h-6 w-px rounded-full bg-linear-to-b from-muted-foreground/60 to-transparent" />
-        </motion.a>
+        </motion.button>
       </section>
 
       <section className="snap-section mx-auto w-full max-w-7xl px-4 py-9 sm:px-6 sm:py-12 lg:px-8">
