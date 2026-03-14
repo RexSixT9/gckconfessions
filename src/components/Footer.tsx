@@ -8,7 +8,7 @@ const Footer = memo(function Footer() {
     <footer className="shrink-0 border-t border-border/70 bg-background animate-fade-in">
       <div className="mx-auto flex w-full max-w-7xl flex-col items-center gap-2 px-4 py-4 text-center sm:flex-row sm:justify-between sm:px-6 sm:text-left lg:px-8">
         <p className="text-[11px] text-muted-foreground sm:text-xs">
-          © {new Date().getFullYear()} GCK Confessions — With love, Batman
+          © {new Date().getFullYear()} GCK Confessions
         </p>
         <nav aria-label="Footer" className="flex items-center gap-4 text-[11px] sm:text-xs">
           <Link
