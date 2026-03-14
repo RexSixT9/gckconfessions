@@ -1,0 +1,1385 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/* ─────────────────────────────────────────
+   Custom breakpoints & radius scale
+───────────────────────────────────────── */
+@theme {
+  /* xs breakpoint — used for narrow landscape phones (≥480px) */
+  --breakpoint-xs: 480px;
+  /* Radius scale used by shadcn components */
+  --radius-sm: 0.5rem;
+  --radius-md: 0.625rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+}
+
+:root {
+  /* Light Mode - Dark Pink + White */
+  --header-height: 3.5rem;
+  --background: 0 0% 100%;
+  --foreground: 350 30% 12%;
+  --card: 0 0% 100%;
+  --card-foreground: 350 30% 12%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 350 30% 12%;
+  --primary: 350 30% 12%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 350 30% 96%;
+  --secondary-foreground: 350 20% 18%;
+  --muted: 350 24% 94%;
+  --muted-foreground: 350 12% 45%;
+  --accent: 338 78% 42%;
+  --accent-foreground: 0 0% 100%;
+  --success: 142 71% 45%;
+  --success-foreground: 0 0% 100%;
+  --warning: 38 92% 50%;
+  --warning-foreground: 0 0% 100%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 350 18% 88%;
+  --input: 350 18% 92%;
+  --ring: 338 78% 42%;
+  --radius: 1rem;
+  /* Light Mode - Action button colors */
+  --action-accept: 142 71% 45%;
+  --action-accept-foreground: 0 0% 100%;
+  --action-publish: 217 91% 60%;
+  --action-publish-foreground: 0 0% 100%;
+  --action-reject: 0 84% 60%;
+  --action-reject-foreground: 0 0% 100%;
+}
+
+.dark {
+  /* Dark Mode - Deep Pink */
+  --background: 350 20% 6%;
+  --foreground: 0 0% 96%;
+  --card: 350 18% 10%;
+  --card-foreground: 0 0% 96%;
+  --popover: 350 18% 10%;
+  --popover-foreground: 0 0% 96%;
+  --primary: 0 0% 96%;
+  --primary-foreground: 350 20% 6%;
+  --secondary: 350 16% 16%;
+  --secondary-foreground: 0 0% 96%;
+  --muted: 350 16% 16%;
+  --muted-foreground: 0 0% 62%;
+  --accent: 338 78% 52%;
+  --accent-foreground: 0 0% 100%;
+  --success: 142 65% 55%;
+  --success-foreground: 0 0% 100%;
+  --warning: 38 100% 60%;
+  --warning-foreground: 0 0% 5%;
+  --destructive: 0 80% 55%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 350 16% 22%;
+  --input: 350 16% 22%;
+  --ring: 338 78% 52%;
+  /* Action button colors */
+  --action-accept: 142 65% 55%;
+  --action-accept-foreground: 0 0% 100%;
+  --action-publish: 217 85% 65%;
+  --action-publish-foreground: 0 0% 100%;
+  --action-reject: 0 80% 55%;
+  --action-reject-foreground: 0 0% 100%;
+}
+
+/* ─────────────────────────────────────────
+   Tailwind v4 → shadcn color token bridge
+   Maps CSS custom props to Tailwind utilities
+   so shadcn classes like bg-primary work.
+───────────────────────────────────────── */
+@theme inline {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-success: hsl(var(--success));
+  --color-success-foreground: hsl(var(--success-foreground));
+  --color-warning: hsl(var(--warning));
+  --color-warning-foreground: hsl(var(--warning-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --color-action-accept: hsl(var(--action-accept));
+  --color-action-accept-foreground: hsl(var(--action-accept-foreground));
+  --color-action-publish: hsl(var(--action-publish));
+  --color-action-publish-foreground: hsl(var(--action-publish-foreground));
+  --color-action-reject: hsl(var(--action-reject));
+  --color-action-reject-foreground: hsl(var(--action-reject-foreground));
+}
+
+/* ─────────────────────────────────────────
+   Animations
+───────────────────────────────────────── */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes gradient-shift {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(30px, -50px) scale(1.1);
+  }
+  66% {
+    transform: translate(-20px, 20px) scale(0.9);
+  }
+}
+
+@keyframes cursor-pulse {
+  0% {
+    width: 0;
+    height: 0;
+    opacity: 1;
+  }
+  100% {
+    width: 80px;
+    height: 80px;
+    opacity: 0;
+  }
+}
+
+@keyframes beam-sweep {
+  0% {
+    transform: translateX(-120%) skewX(-15deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(250%) skewX(-15deg);
+    opacity: 0;
+  }
+}
+
+@keyframes beam-pulse {
+  0%, 100% {
+    opacity: 0.4;
+    filter: blur(40px);
+  }
+  50% {
+    opacity: 0.7;
+    filter: blur(60px);
+  }
+}
+
+@keyframes btn-shimmer {
+  from { background-position: -200% center; }
+  to   { background-position:  200% center; }
+}
+
+@keyframes card-border-spin {
+  to { --card-border-angle: 360deg; }
+}
+
+/* Animatable CSS custom property for the spinning card border */
+@property --card-border-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slide-down {
+  from { opacity: 0; transform: translateY(-12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slide-in-left {
+  from { opacity: 0; transform: translateX(-12px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slide-in-right {
+  from { opacity: 0; transform: translateX(12px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes blur-in {
+  from { opacity: 0; filter: blur(8px); transform: translateY(12px); }
+  to   { opacity: 1; filter: blur(0);   transform: translateY(0); }
+}
+
+@keyframes blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+.animate-cursor-blink {
+  animation: blink 1.1s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-6px); }
+}
+
+@keyframes border-shine {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+.animate-fade-in      { animation: fade-in 500ms ease-out both; }
+.animate-slide-up     { animation: slide-up 500ms ease-out both; }
+.animate-slide-down   { animation: slide-down 500ms ease-out both; }
+.animate-slide-in-left  { animation: slide-in-left 500ms ease-out both; }
+.animate-slide-in-right { animation: slide-in-right 500ms ease-out both; }
+.animate-scale-in     { animation: scale-in 500ms ease-out both; }
+.animate-blur-in      { animation: blur-in 600ms cubic-bezier(0.16,1,0.3,1) both; }
+.animate-float        { animation: float 4s ease-in-out infinite; }
+.animate-cursor-pulse { animation: cursor-pulse 1s cubic-bezier(0.16,1,0.3,1) forwards; }
+
+.animation-delay-50  { animation-delay: 50ms; }
+.animation-delay-100 { animation-delay: 100ms; }
+.animation-delay-150 { animation-delay: 150ms; }
+.animation-delay-200 { animation-delay: 200ms; }
+.animation-delay-300 { animation-delay: 300ms; }
+.animation-delay-400 { animation-delay: 400ms; }
+.animation-delay-500 { animation-delay: 500ms; }
+.animation-delay-600 { animation-delay: 600ms; }
+.animation-delay-700 { animation-delay: 700ms; }
+.animation-delay-800 { animation-delay: 800ms; }
+
+/* ─────────────────────────────────────────
+   Gradient text — accent shimmer
+───────────────────────────────────────── */
+.grad-text-accent {
+  background: linear-gradient(
+    135deg,
+    hsl(var(--accent)) 0%,
+    hsl(338 90% 60%) 55%,
+    hsl(var(--accent) / 0.75) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* ─────────────────────────────────────────
+   Primary button glow effect
+───────────────────────────────────────── */
+.btn-glow {
+  transition: box-shadow 0.3s ease, transform 0.15s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .btn-glow:hover {
+    box-shadow: 0 0 18px hsl(var(--accent) / 0.45),
+                0 0 40px hsl(var(--accent) / 0.18);
+  }
+}
+
+/* ─────────────────────────────────────────
+   Modern transition utilities
+───────────────────────────────────────── */
+@layer utilities {
+  .duration-400 { transition-duration: 400ms; }
+  .duration-600 { transition-duration: 600ms; }
+  
+  /* Border shine effect on hover */
+  .border-shine {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .border-shine::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      transparent 40%,
+      hsl(var(--accent) / 0.8) 50%,
+      transparent 60%,
+      transparent
+    );
+    background-size: 200% 100%;
+    background-position: -200% center;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+  }
+  
+  @media (hover: hover) and (pointer: fine) {
+    .border-shine:hover::before {
+      opacity: 1;
+      animation: border-shine 1.5s linear infinite;
+    }
+  }
+}
+
+/* ─────────────────────────────────────────
+   Modern Button System - Next.js Trendy Style
+───────────────────────────────────────── */
+@layer components {
+  /* Primary Button - Main CTAs */
+  .btn-primary {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 9999px;
+    background: hsl(var(--foreground));
+    padding: 0.75rem 1.75rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+    color: hsl(var(--background));
+    border: 1px solid transparent;
+    overflow: hidden;
+    transition: all 180ms cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    isolation: isolate;
+  }
+
+  /* Shimmer trace on hover */
+  .btn-primary::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(
+      105deg,
+      transparent 35%,
+      hsl(var(--accent) / 0.18) 50%,
+      transparent 65%
+    );
+    background-size: 200% 100%;
+    background-position: -200% center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 200ms ease;
+  }
+
+  .btn-primary:hover:not(:disabled)::after {
+    opacity: 1;
+    animation: btn-shimmer 0.55s ease forwards;
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    background: hsl(var(--foreground) / 0.88);
+    transform: translateY(-1px);
+    box-shadow: 0 0 0 1px hsl(var(--accent) / 0.12),
+                0 4px 20px -4px hsl(var(--accent) / 0.22),
+                0 2px 8px  -2px hsl(var(--foreground) / 0.15);
+  }
+
+  .btn-primary:active:not(:disabled) {
+    transform: translateY(0) scale(0.98);
+    box-shadow: none;
+  }
+
+  .btn-primary:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px hsl(var(--background)), 0 0 0 4px hsl(var(--ring) / 0.45);
+  }
+
+  .btn-primary:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  /* Secondary Button - Alternative actions */
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 9999px;
+    border: 1px solid hsl(var(--border));
+    background: transparent;
+    padding: 0.75rem 1.75rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+    color: hsl(var(--foreground));
+    transition: all 180ms cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+  }
+
+  .btn-secondary:hover:not(:disabled) {
+    background: hsl(var(--secondary));
+    border-color: hsl(var(--foreground) / 0.2);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 20px -6px hsl(var(--foreground) / 0.1),
+                0 1px  6px -2px hsl(var(--foreground) / 0.06);
+  }
+
+  .btn-secondary:active:not(:disabled) {
+    transform: translateY(0) scale(0.98);
+    box-shadow: none;
+  }
+
+  .btn-secondary:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px hsl(var(--background)), 0 0 0 4px hsl(var(--ring) / 0.35);
+  }
+
+  .btn-secondary:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  /* Ghost Button - Minimal style */
+  .btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 9999px;
+    border: none;
+    background: transparent;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    color: hsl(var(--muted-foreground));
+    transition: all 150ms ease;
+    cursor: pointer;
+  }
+
+  .btn-ghost:hover:not(:disabled) {
+    color: hsl(var(--foreground));
+    background: hsl(var(--secondary));
+    box-shadow: inset 0 1px 0 hsl(var(--background) / 0.4);
+  }
+
+  .btn-ghost:active:not(:disabled) {
+    transform: scale(0.97);
+    background: hsl(var(--muted));
+  }
+
+  .btn-ghost:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px hsl(var(--background)), 0 0 0 3px hsl(var(--ring) / 0.3);
+  }
+
+  .btn-ghost:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  /* Accent Button Variant - For key actions */
+  .btn-accent {
+    background: hsl(var(--accent));
+    color: hsl(var(--accent-foreground));
+  }
+
+  .btn-accent:hover:not(:disabled) {
+    background: hsl(var(--accent) / 0.9);
+  }
+
+  /* Small Button Modifier */
+  .btn-sm {
+    padding: 0.5rem 1rem;
+    font-size: 0.8125rem;
+  }
+
+  /* Large Button Modifier */
+  .btn-lg {
+    padding: 0.875rem 2rem;
+    font-size: 0.9375rem;
+    min-height: 48px;
+  }
+
+  /* Badge System */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    border-radius: 9999px;
+    padding: 0.2rem 0.625rem;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    transition: opacity 150ms ease, transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 150ms ease;
+    cursor: default;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .badge:hover {
+      transform: translateY(-1px) scale(1.04);
+    }
+  }
+
+  .badge-accent {
+    background: hsl(var(--accent) / 0.1);
+    color: hsl(var(--accent));
+    border: 1px solid hsl(var(--accent) / 0.25);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .badge-accent:hover {
+      background: hsl(var(--accent) / 0.16);
+      box-shadow: 0 2px 8px -2px hsl(var(--accent) / 0.25);
+    }
+  }
+
+  .badge-success {
+    background: hsl(var(--success) / 0.1);
+    color: hsl(var(--success));
+    border: 1px solid hsl(var(--success) / 0.25);
+  }
+
+  .badge-neutral {
+    background: hsl(var(--muted));
+    color: hsl(var(--muted-foreground));
+    border: 1px solid hsl(var(--border));
+  }
+}
+
+/* ─────────────────────────────────────────
+   Form / input resets
+───────────────────────────────────────── */
+@layer components {
+  .input-base {
+    width: 100%;
+    border-radius: 0.75rem;
+    border: 1px solid hsl(var(--border));
+    background: hsl(var(--background));
+    padding: 0.625rem 0.875rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    letter-spacing: -0.01em;
+    color: hsl(var(--foreground));
+    outline: none;
+    transition: all 180ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .input-base::placeholder {
+    color: hsl(var(--muted-foreground) / 0.5);
+  }
+
+  .input-base:focus {
+    border-color: hsl(var(--ring));
+    background: hsl(var(--card));
+    box-shadow: 0 0 0 3px hsl(var(--ring) / 0.12);
+    outline: none;
+  }
+
+  .input-base:hover:not(:disabled):not(:focus) {
+    border-color: hsl(var(--border));
+    background: hsl(var(--secondary) / 0.5);
+  }
+
+  .input-base:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* Modern Card System - Next.js Trendy Style */
+  .card {
+    border-radius: 1rem;
+    border: 1px solid hsl(var(--border));
+    background: hsl(var(--card));
+    transition: border-color 320ms cubic-bezier(0.4, 0, 0.2, 1),
+                box-shadow 320ms cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+  }
+
+  /* Full rotating conic border — appears on hover, spins continuously */
+  .card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1.5px;
+    background: conic-gradient(
+      from var(--card-border-angle),
+      transparent       0deg,
+      transparent     195deg,
+      hsl(var(--accent) / 0.3)  230deg,
+      hsl(var(--accent))        282deg,
+      hsl(var(--accent) / 0.5)  325deg,
+      transparent     360deg
+    );
+    -webkit-mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 400ms cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 2;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .card:hover {
+      border-color: transparent;
+      box-shadow:
+        0 4px 24px -6px hsl(var(--accent) / 0.12),
+        0 2px 10px -4px hsl(var(--foreground) / 0.04);
+    }
+    .card:hover::after {
+      opacity: 1;
+      animation: card-border-spin 4s linear infinite;
+    }
+  }
+
+  /* Glass Card - Modern glassmorphism */
+  .card-glass {
+    border-radius: 1rem;
+    border: 1px solid hsl(var(--border) / 0.5);
+    background: linear-gradient(
+      135deg,
+      hsl(var(--card) / 0.8) 0%,
+      hsl(var(--card) / 0.5) 100%
+    );
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    will-change: transform;
+    transform: translateZ(0);
+    transition: border-color 320ms cubic-bezier(0.4, 0, 0.2, 1),
+                box-shadow 320ms cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+  }
+
+  /* Glass card gets the same spinning conic border */
+  .card-glass::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1.5px;
+    background: conic-gradient(
+      from var(--card-border-angle),
+      transparent       0deg,
+      transparent     195deg,
+      hsl(var(--accent) / 0.3)  230deg,
+      hsl(var(--accent))        282deg,
+      hsl(var(--accent) / 0.5)  325deg,
+      transparent     360deg
+    );
+    -webkit-mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 400ms cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 2;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .card-glass:hover {
+      border-color: transparent;
+      box-shadow:
+        0 4px 24px -6px hsl(var(--accent) / 0.1),
+        0 2px 10px -4px hsl(var(--foreground) / 0.04);
+    }
+    .card-glass:hover::after {
+      opacity: 1;
+      animation: card-border-spin 4s linear infinite;
+    }
+  }
+
+  /* Notice components - using semantic colors */
+  .notice {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.625rem;
+    border-radius: 0.75rem;
+    border: 1px solid;
+    padding: 0.75rem 0.875rem;
+    font-size: 0.8125rem;
+    line-height: 1.5;
+  }
+
+  .notice-success {
+    border-color: hsl(var(--success) / 0.3);
+    background: hsl(var(--success) / 0.05);
+    color: hsl(var(--success));
+  }
+
+  .dark .notice-success {
+    border-color: hsl(var(--success) / 0.25);
+    background: hsl(var(--success) / 0.08);
+    color: hsl(var(--success));
+  }
+
+  .notice-error {
+    border-color: hsl(var(--destructive) / 0.3);
+    background: hsl(var(--destructive) / 0.05);
+    color: hsl(var(--destructive));
+  }
+
+  .dark .notice-error {
+    border-color: hsl(var(--destructive) / 0.25);
+    background: hsl(var(--destructive) / 0.08);
+    color: hsl(var(--destructive));
+  }
+
+  .notice-warning {
+    border-color: hsl(var(--warning) / 0.3);
+    background: hsl(var(--warning) / 0.05);
+    color: hsl(var(--warning));
+  }
+
+  .dark .notice-warning {
+    border-color: hsl(var(--warning) / 0.25);
+    background: hsl(var(--warning) / 0.08);
+    color: hsl(var(--warning-foreground));
+  }
+
+  /* Status badge variants */
+  .badge-warning {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    border-radius: 9999px;
+    border: 1px solid hsl(var(--warning) / 0.3);
+    background: hsl(var(--warning) / 0.1);
+    padding: 0.2rem 0.625rem;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: hsl(var(--warning));
+    transition: opacity 150ms ease, transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .dark .badge-warning {
+    border-color: hsl(var(--warning) / 0.25);
+    background: hsl(var(--warning) / 0.12);
+    color: hsl(var(--warning));
+  }
+}
+
+/* ─────────────────────────────────────────
+   Selection & Scrollbar
+───────────────────────────────────────── */
+::selection {
+  background: hsl(var(--accent) / 0.18);
+  color: hsl(var(--foreground));
+}
+
+/* Custom slim scrollbar — blends with the theme */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+  border-radius: 99px;
+  transition: background 150ms ease;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.45);
+}
+* {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--border)) transparent;
+}
+
+/* ─────────────────────────────────────────
+   Skeleton loader utility
+───────────────────────────────────────── */
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.45; }
+}
+
+@layer utilities {
+  .skeleton {
+    border-radius: 0.5rem;
+    background: hsl(var(--secondary));
+    animation: skeleton-pulse 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+}
+
+/* ─────────────────────────────────────────
+   Base styles
+───────────────────────────────────────── */
+html {
+  scroll-behavior: smooth;
+  /* Offset for sticky header when navigating to anchors */
+  scroll-padding-top: calc(var(--header-height, 3.5rem) + 2rem);
+  /* Contain scroll bounce to the page — prevents the background from
+     showing behind content on iOS rubber-band overscroll */
+  overscroll-behavior-y: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+* {
+  border-color: hsl(var(--border));
+}
+
+body {
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+  color-scheme: light dark;
+  min-height: 100svh;
+  overflow-x: hidden;
+  /* Smooth momentum scrolling on iOS */
+  -webkit-overflow-scrolling: touch;
+  /* Safe area insets for notched devices (iPhone Dynamic Island, etc) */
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+a,
+button,
+[role="button"] {
+  transition: color 150ms ease, background-color 150ms ease,
+    border-color 150ms ease, box-shadow 150ms ease, transform 150ms ease,
+    opacity 150ms ease;
+  /* Removes the 300ms tap delay on mobile without disabling pinch-zoom */
+  touch-action: manipulation;
+  /* Prevent text selection on rapid taps / double-taps */
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Re-enable selection where content should be selectable */
+p, span, h1, h2, h3, h4, h5, h6, li, label, textarea, input {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+a:active,
+button:active {
+  transform: scale(0.98);
+}
+
+input,
+textarea,
+select {
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0ms !important;
+    transition-duration: 0ms !important;
+  }
+}
+
+/* Home page section snapping (desktop-only, opt-in via html.home-snap) */
+@media (min-width: 1024px) {
+  html.home-snap {
+    scroll-snap-type: y proximity;
+  }
+
+  html.home-snap .snap-section {
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+  }
+}
+
+/* ─────────────────────────────────────────
+   Mobile & Responsive Optimizations
+───────────────────────────────────────── */
+
+/* Ensure minimum touch target size on mobile (44x44px WCAG) */
+@media (max-width: 640px) {
+  /* Better mobile spacing for forms — font-size ≥16px prevents iOS zoom.
+     NOTE: we intentionally do NOT override padding-left here so that Tailwind
+     pl-9 / pl-10 utility classes (used on icon-prefixed inputs) continue to
+     win in the cascade. Only vertical + right padding are adjusted. */
+  .input-base {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+    padding-right: 1rem;
+    font-size: 1rem;
+  }
+
+  /* Ensure WCAG 2.5.5 minimum 44×44px touch targets */
+  .btn-primary,
+  .btn-secondary {
+    padding: 0.875rem 1.5rem;
+    font-size: 0.9375rem;
+    min-height: 44px;
+  }
+
+  .btn-ghost {
+    min-height: 44px;
+    padding: 0.625rem 0.875rem;
+  }
+
+  .btn-sm {
+    padding: 0.625rem 1.125rem;
+    font-size: 0.875rem;
+    min-height: 44px;
+  }
+
+  /* Improve mobile tap highlight for interactive elements */
+  button,
+  [role="button"],
+  .btn-primary,
+  .btn-secondary,
+  .btn-ghost {
+    -webkit-tap-highlight-color: hsl(var(--accent) / 0.1);
+  }
+}
+
+/* Desktop-specific enhancements — rotating border handled by ::after */
+
+/* Better text readability on all devices */
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: 'kern' 1, 'liga' 1, 'calt' 1;
+}
+
+/* Balance long headings to avoid orphans */
+h1, h2, h3, h4 {
+  text-wrap: balance;
+}
+
+/* Natural text wrap for paragraphs and labels */
+p, li, label {
+  text-wrap: pretty;
+}
+
+/* Prevent text overflow on small screens */
+.truncate-mobile {
+  @media (max-width: 640px) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+/* Safe-area padding already applied directly on body above */
+
+/* ─────────────────────────────────────────
+   View Transitions API — native page fade
+   (Chrome/Edge 126+; no-op in other browsers)
+───────────────────────────────────────── */
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 220ms;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ─────────────────────────────────────────
+   Global focus-visible style for links
+───────────────────────────────────────── */
+a:focus-visible {
+  outline: none;
+  border-radius: 4px;
+  box-shadow: 0 0 0 2px hsl(var(--background)), 0 0 0 4px hsl(var(--ring) / 0.4);
+}
+
+/* ─────────────────────────────────────────
+   Hero beam & gradient utilities
+───────────────────────────────────────── */
+
+/* Reverse-direction sweep for extra beam layers */
+@keyframes beam-sweep-reverse {
+  0% {
+    transform: translateX(250%) skewX(15deg);
+    opacity: 0;
+  }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% {
+    transform: translateX(-120%) skewX(15deg);
+    opacity: 0;
+  }
+}
+
+/* Slow wide sweep — subtle depth layer */
+@keyframes beam-slow {
+  0% {
+    transform: translateX(-130%) skewX(-10deg);
+    opacity: 0;
+  }
+  8%  { opacity: 1; }
+  92% { opacity: 1; }
+  100% {
+    transform: translateX(280%) skewX(-10deg);
+    opacity: 0;
+  }
+}
+
+.hero-beam {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.hero-beam::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: 0;
+  width: 22%;
+  height: 200%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    hsl(338 78% 52% / 0.09) 25%,
+    hsl(338 78% 52% / 0.20) 50%,
+    hsl(338 78% 52% / 0.09) 75%,
+    transparent
+  );
+  animation: beam-sweep 8s ease-in-out infinite;
+  animation-delay: 2s;
+}
+
+.hero-beam::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: 0;
+  width: 13%;
+  height: 200%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    hsl(350 80% 60% / 0.06) 30%,
+    hsl(350 80% 60% / 0.14) 50%,
+    hsl(350 80% 60% / 0.06) 70%,
+    transparent
+  );
+  animation: beam-sweep 14s ease-in-out infinite;
+  animation-delay: 6s;
+}
+
+/* Extra beams — reverse direction sweeps for richness */
+.hero-beam-extra {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.hero-beam-extra::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: 0;
+  width: 18%;
+  height: 200%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    hsl(338 78% 52% / 0.06) 20%,
+    hsl(338 78% 52% / 0.13) 50%,
+    hsl(338 78% 52% / 0.06) 80%,
+    transparent
+  );
+  animation: beam-sweep-reverse 19s ease-in-out infinite;
+  animation-delay: 9s;
+}
+
+.hero-beam-extra::after {
+  content: '';
+  position: absolute;
+  top: 15%;
+  left: 0;
+  width: 28%;
+  height: 170%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    hsl(350 70% 55% / 0.04) 20%,
+    hsl(350 70% 55% / 0.09) 50%,
+    hsl(350 70% 55% / 0.04) 80%,
+    transparent
+  );
+  animation: beam-slow 32s ease-in-out infinite;
+  animation-delay: 4s;
+}
+
+.hero-gradient {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  contain: layout style;
+}
+
+/* Reduce gradient orb intensity and disable animations on mobile to improve perf and clarity */
+@media (max-width: 640px) {
+  .hero-gradient {
+    filter: blur(60px);
+    opacity: 0.5;
+    /* Disable animations on mobile */
+    animation: none !important;
+  }
+
+  .hero-beam::before,
+  .hero-beam::after,
+  .hero-beam-extra::before,
+  .hero-beam-extra::after {
+    display: none;
+  }
+}
+
+/* Further optimization: disable blur animations on low-end connections (< 4G) */
+@media (max-width: 1024px) {
+  .hero-gradient {
+    /* Reduce blur intensity for better perf on mid-range devices */
+    filter: blur(70px);
+    opacity: 0.6;
+  }
+}
+
+/* Ensure bento grid cards on sm don't have awkward height on card 4 */
+@media (min-width: 640px) and (max-width: 1023px) {
+  .bento-card-4 {
+    grid-column: span 2;
+  }
+}
+
+/* ─────────────────────────────────────────
+   V2 Design System Layer
+───────────────────────────────────────── */
+:root {
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+
+  --motion-fast: 150ms;
+  --motion-base: 280ms;
+  --motion-slow: 420ms;
+  --ease-standard: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@layer utilities {
+  .motion-page {
+    will-change: opacity, transform, filter;
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  .keyboard-safe-bottom {
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 0.75rem);
+  }
+
+  .skeleton {
+    position: relative;
+    overflow: hidden;
+    background: hsl(var(--muted));
+  }
+
+  .skeleton::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      hsl(var(--background) / 0.45),
+      transparent
+    );
+    transform: translateX(-100%);
+    animation: skeleton-shimmer 1.35s infinite;
+  }
+}
+
+@keyframes skeleton-shimmer {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+/* Campaign/event visual variants without changing core theme tokens */
+html[data-campaign="awareness"] {
+  --accent: 12 82% 52%;
+}
+
+html[data-campaign="exam-season"] {
+  --accent: 220 78% 54%;
+}
+
+html[data-campaign="kindness-week"] {
+  --accent: 156 56% 44%;
+}
+
+/* ─────────────────────────────────────────
+   Sonner Toast — project theme-aware styles
+   All colours use HSL CSS vars so they
+   auto-switch between :root and .dark.
+───────────────────────────────────────── */
+[data-sonner-toaster] {
+  --offset: 20px;
+}
+
+@media (max-width: 640px) {
+  [data-sonner-toaster] {
+    --offset: 12px;
+  }
+}
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(6px) scale(0.982); }
+  to   { opacity: 1; transform: translateY(0)   scale(1);     }
+}
+
+/* ── Base toast shell ── */
+[data-sonner-toast] {
+  font-family: var(--font-geist-sans), system-ui, sans-serif !important;
+  font-size: 0.8125rem !important;
+  line-height: 1.45 !important;
+  padding: 11px 14px !important;
+  gap: 10px !important;
+  min-width: 0 !important;
+  max-width: 340px !important;
+  width: min(calc(100vw - 1.5rem), 340px) !important;
+  animation: toast-in 180ms cubic-bezier(0.16, 1, 0.3, 1) both !important;
+}
+
+/* ── Title ── */
+[data-sonner-toast] [data-title] {
+  font-size: 0.8125rem !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.01em !important;
+  line-height: 1.3 !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+/* ── Description ── */
+[data-sonner-toast] [data-description] {
+  font-size: 0.75rem !important;
+  line-height: 1.45 !important;
+  margin-top: 1px !important;
+}
+
+/* ── Icon — inherits semantic colour from type overrides below ── */
+[data-sonner-toast] [data-icon] svg {
+  width: 15px !important;
+  height: 15px !important;
+}
+
+/* ── Type-specific left border accent + icon colour ── */
+[data-type="success"][data-sonner-toast] {
+  border-left: 3px solid hsl(var(--success)) !important;
+}
+[data-type="success"][data-sonner-toast] [data-icon] {
+  color: hsl(var(--success)) !important;
+}
+
+[data-type="error"][data-sonner-toast] {
+  border-left: 3px solid hsl(var(--destructive)) !important;
+}
+[data-type="error"][data-sonner-toast] [data-icon] {
+  color: hsl(var(--destructive)) !important;
+}
+
+[data-type="warning"][data-sonner-toast] {
+  border-left: 3px solid hsl(var(--warning)) !important;
+}
+[data-type="warning"][data-sonner-toast] [data-icon] {
+  color: hsl(var(--warning)) !important;
+}
+
+[data-type="info"][data-sonner-toast] {
+  border-left: 3px solid hsl(var(--accent)) !important;
+}
+[data-type="info"][data-sonner-toast] [data-icon] {
+  color: hsl(var(--accent)) !important;
+}
+
+/* ── Action button ── */
+[data-sonner-toast] [data-button] {
+  border-radius: 8px !important;
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+  padding: 4px 12px !important;
+  height: auto !important;
+  background: hsl(var(--accent)) !important;
+  color: hsl(var(--accent-foreground)) !important;
+  border: 1px solid hsl(var(--accent) / 0.3) !important;
+  transition: all 0.15s !important;
+}
+[data-sonner-toast] [data-button]:hover {
+  background: hsl(var(--accent) / 0.9) !important;
+}
