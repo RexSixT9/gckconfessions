@@ -40,18 +40,18 @@ const EASE_OUT: [number, number, number, number] = [0.16, 1, 0.3, 1];
 const highlights = [
   {
     icon: Users,
-    title: "Quiet Community",
-    description: "A respectful space where stories are read without judgment.",
+    title: "A Gentle Space",
+    description: "A respectful corner where people can speak and be heard without judgment.",
   },
   {
     icon: ShieldCheck,
-    title: "Careful Moderation",
-    description: "Every confession is reviewed by a human before it goes live.",
+    title: "Reviewed With Care",
+    description: "Every confession is checked by a real person before anything gets published.",
   },
   {
     icon: Lock,
-    title: "Private by Default",
-    description: "No signup and no public identity attached to your words.",
+    title: "Anonymous by Design",
+    description: "No account required and no public identity attached to your words.",
   },
 ];
 
@@ -59,43 +59,43 @@ const steps = [
   {
     step: "01",
     icon: PenLine,
-    title: "Write honestly",
-    description: "Tell your story clearly and avoid personal identifiers.",
+    title: "Write what you feel",
+    description: "Share your story in your own words, and leave out personal details.",
   },
   {
     step: "02",
     icon: MessageSquare,
-    title: "Submit quietly",
-    description: "Send it in seconds with no account or profile needed.",
+    title: "Send it privately",
+    description: "Submit in a few seconds, no account or profile needed.",
   },
   {
     step: "03",
     icon: Send,
-    title: "Reach people",
-    description: "Once approved, your words can support someone else.",
+    title: "Reach someone",
+    description: "After review, your words may help someone feel less alone.",
   },
 ];
 
-const heroTypingPhrases = ["Speak the truth.", "Share your story.", "Be heard.", "You are not alone."];
+const heroTypingPhrases = ["Say it as it is.", "Tell your story.", "You deserve to be heard.", "You are not alone."];
 
 const mockConfessions = [
-  "I still hum the song you used to sing when you thought no one was listening.",
-  "Sometimes I reread our old messages just to feel close to you again.",
-  "I got the scholarship but never told anyone because I was afraid of expectations.",
-  "I cry in the shower so nobody hears how much I am struggling.",
+  "I still hum the song you used to sing when you thought no one could hear you.",
+  "I reread our old chats sometimes just to feel close to you again.",
+  "I got the scholarship and stayed quiet because I was scared of the pressure.",
+  "Some nights I cry in the shower so nobody has to hear me break down.",
 ];
 
 const testimonials = [
   {
-    quote: "I posted once at 2AM and the supportive replies helped me breathe again.",
+    quote: "I posted at 2 AM and the replies helped me calm down for the first time in weeks.",
     meta: "Anonymous student",
   },
   {
-    quote: "Writing it out here felt lighter than carrying it alone for months.",
-    meta: "Campus confession",
+    quote: "Writing it here felt lighter than carrying it by myself for months.",
+    meta: "Student confession",
   },
   {
-    quote: "It is the first place where I can be honest without fear of being known.",
+    quote: "This is the first place where I can be fully honest without worrying who will find out.",
     meta: "Community member",
   },
 ];
@@ -253,8 +253,8 @@ function MiniTestimonialSlider({ reduceMotion = false }: { reduceMotion?: boolea
   return (
     <Card className="border-border/60 bg-card/65 backdrop-blur-sm">
       <CardHeader>
-        <CardTitle className="text-base font-semibold tracking-tight">What people feel here</CardTitle>
-        <CardDescription>Small words, real impact.</CardDescription>
+        <CardTitle className="text-base font-semibold tracking-tight">How people describe this space</CardTitle>
+        <CardDescription>Short stories, real relief.</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="relative min-h-24" aria-live="polite">
@@ -409,7 +409,7 @@ export default function HomePage() {
               <motion.div variants={heroFadeUp}>
                 <Badge className="inline-flex h-8 gap-1.5 border border-border/60 bg-card/65 px-4 text-xs font-medium text-foreground hover:bg-card">
                   <Activity className="h-3 w-3" />
-                  Anonymous Community Wall
+                  Anonymous student space
                 </Badge>
               </motion.div>
 
@@ -418,7 +418,7 @@ export default function HomePage() {
                   id="hero-title"
                   className="mx-auto max-w-[16ch] text-[clamp(2rem,8vw,4.4rem)] font-black leading-[1.03] tracking-tight text-balance md:mx-0 md:max-w-[15ch]"
                 >
-                  <span className="block text-foreground">Drop the mask.</span>
+                  <span className="block text-foreground">You do not have to pretend here.</span>
                   <span className="block max-w-[22ch] text-foreground/75">
                     <TypewriterText
                       phrases={heroTypingPhrases}
@@ -434,12 +434,12 @@ export default function HomePage() {
               </motion.div>
 
               <motion.p variants={heroFadeUp} className="mx-auto mt-5 max-w-lg text-sm leading-relaxed text-muted-foreground sm:text-base md:mx-0">
-                GCK Confessions is a private, moderated space for honest stories.
-                Share what you feel, stay anonymous, and be heard without pressure.
+                GCK Confessions is a private, moderated space for real stories.
+                Say what is on your mind, stay anonymous, and share without pressure.
               </motion.p>
 
               <motion.div variants={heroFadeUp} className="mt-5 flex flex-wrap justify-center gap-2 md:justify-start">
-                {["No signup", "Human moderation", "Identity hidden"].map((item) => (
+                {["No sign-up", "Human review", "Identity protected"].map((item) => (
                   <span
                     key={item}
                     className="rounded-full border border-border/60 bg-card/60 px-3 py-1 text-xs font-medium text-foreground/85 backdrop-blur-sm"
@@ -459,7 +459,7 @@ export default function HomePage() {
                   >
                     <>
                       <PenLine className="h-4 w-4" />
-                      Write a confession
+                      Share a confession
                       <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
                     </>
                   </Button>
@@ -496,13 +496,13 @@ export default function HomePage() {
               {!reduceHeavyMotion ? <OrbitRing radius={118} duration={12} reverse /> : null}
 
               <div className="absolute -left-14 top-10 z-10">
-                <StatChip icon={Lock} label="100% Anonymous" reduceMotion={reduceHeavyMotion} />
+                <StatChip icon={Lock} label="Anonymous by default" reduceMotion={reduceHeavyMotion} />
               </div>
               <div className="absolute -right-14 bottom-10 z-10">
-                <StatChip icon={ShieldCheck} label="Human Reviewed" delay={0.8} reduceMotion={reduceHeavyMotion} />
+                <StatChip icon={ShieldCheck} label="Reviewed by people" delay={0.8} reduceMotion={reduceHeavyMotion} />
               </div>
               <div className="absolute -right-8 top-4 z-10">
-                <StatChip icon={Sparkles} label="Calm Experience" delay={0.4} reduceMotion={reduceHeavyMotion} />
+                <StatChip icon={Sparkles} label="Calm, simple flow" delay={0.4} reduceMotion={reduceHeavyMotion} />
               </div>
 
               <FloatingConfessionCard reduceMotion={reduceHeavyMotion} />
@@ -520,7 +520,7 @@ export default function HomePage() {
           aria-label="Scroll to next section"
           aria-controls="highlights"
         >
-          <span>Scroll</span>
+          <span>Scroll down</span>
           <motion.span
             aria-hidden
             animate={reduceHeavyMotion ? { opacity: 0.7 } : { opacity: [0.35, 0.75, 0.35] }}
@@ -545,15 +545,15 @@ export default function HomePage() {
               <CardHeader>
                 <CardTitle id="community-pulse-heading" className="text-lg font-bold tracking-tight">Community pulse</CardTitle>
                 <CardDescription>
-                  A living stream of honest stories from students who needed a quiet place.
+                  A steady stream of honest stories from students who needed a safe place to talk.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid gap-3 sm:grid-cols-3">
                   {[
-                    { label: "Submissions", value: "Open daily" },
-                    { label: "Review queue", value: "Human verified" },
-                    { label: "Identity exposure", value: "No account required" },
+                    { label: "Submissions", value: "Open every day" },
+                    { label: "Review", value: "Handled by people" },
+                    { label: "Identity", value: "No account required" },
                   ].map((item) => (
                     <div key={item.label} className="rounded-xl border border-border/70 bg-background/70 p-3">
                       <p className="text-[11px] uppercase tracking-wide text-muted-foreground">{item.label}</p>
@@ -573,10 +573,10 @@ export default function HomePage() {
           <div className="rounded-2xl border border-border/60 bg-card/55 p-5 backdrop-blur-sm sm:p-6">
             <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
               <h2 id="explore-heading" className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Explore</h2>
-              <Badge variant="outline" className="h-8 border-border/70 px-3">Moderated feed</Badge>
+              <Badge variant="outline" className="h-8 border-border/70 px-3">Reviewed posts</Badge>
             </div>
             <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">
-              Browse community stories, understand what others are carrying, and share when you are ready.
+              Read what others are carrying, feel less alone, and share when you are ready.
             </p>
             <div className="mt-4 flex flex-wrap items-center gap-2.5">
               <Button size="sm" variant="brand" className="h-9 rounded-full px-4" render={<Link href="/submit" />}>
@@ -586,7 +586,7 @@ export default function HomePage() {
                 </>
               </Button>
               <Button size="sm" variant="outline" className="h-9 rounded-full border-border/70 px-4" render={<Link href="/transparency" />}>
-                Transparency
+                View transparency
               </Button>
             </div>
           </div>
@@ -606,11 +606,11 @@ export default function HomePage() {
           <div className="mb-10 text-center">
             <Badge variant="outline" className="mb-3 h-8 gap-1.5 border-border/70 bg-card/60 px-3.5 text-foreground">
               <Sparkles className="h-3.5 w-3.5" />
-              Why this works
+              Why people trust this
             </Badge>
-            <h2 id="highlights-heading" className="mx-auto max-w-[18ch] text-2xl font-black leading-[1.08] tracking-tight sm:text-3xl">Simple, clear, and calm</h2>
+            <h2 id="highlights-heading" className="mx-auto max-w-[18ch] text-2xl font-black leading-[1.08] tracking-tight sm:text-3xl">Simple, clear, and safe</h2>
             <p className="mx-auto mt-2 max-w-[54ch] text-sm text-muted-foreground sm:text-base">
-              Less noise, better focus, and a safer space to speak honestly.
+              Fewer distractions, better moderation, and a safer way to speak honestly.
             </p>
           </div>
 
@@ -650,11 +650,11 @@ export default function HomePage() {
         <div className="w-full">
           <div className="mb-10 text-center">
             <Badge variant="secondary" className="mb-3 h-8 px-3.5 uppercase tracking-wider">
-              Workflow
+              How it works
             </Badge>
             <h2 id="how-it-works-heading" className="mx-auto max-w-[18ch] text-2xl font-black leading-[1.08] tracking-tight sm:text-3xl">Three simple steps</h2>
             <p className="mx-auto mt-2 max-w-[42ch] text-sm text-muted-foreground">
-              From private thought to shared support in under a minute.
+              From private thought to shared support in just a minute.
             </p>
           </div>
 
@@ -696,13 +696,13 @@ export default function HomePage() {
             <div className="pointer-events-none absolute -bottom-16 -right-16 h-72 w-72 rounded-full bg-white/8 blur-3xl" />
 
             <div className="relative z-10 px-4 py-14 text-center sm:px-8 sm:py-24">
-              <Badge className="mb-6 h-8 border border-white/20 bg-white/10 px-3.5 text-white hover:bg-white/10">Start now</Badge>
+              <Badge className="mb-6 h-8 border border-white/20 bg-white/10 px-3.5 text-white hover:bg-white/10">You can start now</Badge>
               <h2 className="mx-auto max-w-[16ch] text-[clamp(2rem,6vw,3.8rem)] font-black leading-[1.04] tracking-tight text-white">
-                Say what matters.
-                <span className="block text-zinc-300">Someone may need to hear it.</span>
+                Say what has been heavy.
+                <span className="block text-zinc-300">Someone out there may need your words.</span>
               </h2>
               <p className="mx-auto mt-5 max-w-[56ch] text-sm leading-relaxed text-zinc-400 sm:text-base">
-                Join a calmer community experience built for real stories, safety, and empathy.
+                Join a calmer community built for honesty, safety, and empathy.
               </p>
 
               <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
@@ -713,7 +713,7 @@ export default function HomePage() {
                     render={<Link href="/submit" />}
                   >
                     <>
-                      Write a confession
+                      Share a confession
                       <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                     </>
                   </Button>
@@ -726,7 +726,7 @@ export default function HomePage() {
                     className="h-auto w-full rounded-full border-white/30 bg-white/5 px-7 py-4 text-sm font-semibold text-white backdrop-blur-sm hover:border-white/45 hover:bg-white/10 sm:w-auto sm:px-9"
                     render={<Link href="/guidelines" />}
                   >
-                    Read safety guidelines
+                    Read the guidelines
                   </Button>
                 </motion.div>
               </div>

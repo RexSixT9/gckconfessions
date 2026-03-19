@@ -89,13 +89,13 @@ export default function HeaderNav() {
                   href="/submit"
                   className="rounded-md px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors duration-200 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
                 >
-                  Submit
+                  Share
                 </Link>
                 <Link
                   href="/guidelines"
                   className="rounded-md px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors duration-200 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
                 >
-                  Guidelines
+                  Rules
                 </Link>
               </nav>
 

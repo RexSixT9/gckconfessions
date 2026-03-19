@@ -33,7 +33,7 @@ export const metadata: Metadata = {
     template: "%s | GCK Confessions",
   },
   description:
-    "Anonymous confessions for students. Every post is reviewed before publishing.",
+    "An anonymous space for students to share honestly. Every post is reviewed before it goes live.",
   keywords: ["confessions", "anonymous", "students", "community"],
   authors: [{ name: "GCK Confessions" }],
   robots: {
@@ -42,7 +42,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "GCK Confessions",
-    description: "Share your thoughts anonymously. Moderated for safety.",
+    description: "Share what is on your mind anonymously in a community moderated for safety.",
     type: "website",
     locale: "en_US",
   },

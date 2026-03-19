@@ -59,14 +59,14 @@ export default function AdminLoginPage() {
 
     if (!isValidEmail(normalizedEmail)) {
       toast.error("Sign-in failed", {
-        description: "Enter a valid admin email address.",
+        description: "Please enter a valid admin email address.",
       });
       return;
     }
 
     if (password.length < MIN_PASSWORD_LENGTH) {
       toast.error("Sign-in failed", {
-        description: `Password must be at least ${MIN_PASSWORD_LENGTH} characters.`,
+        description: `Your password must be at least ${MIN_PASSWORD_LENGTH} characters.`,
       });
       return;
     }
@@ -84,14 +84,14 @@ export default function AdminLoginPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Login failed.");
+        throw new Error(data.error || "Could not sign you in.");
       }
 
       // Clear sensitive data from memory
       setPassword("");
 
       toast.success("Signed in", {
-        description: "Redirecting to admin dashboard...",
+        description: "Welcome back. Taking you to the admin dashboard.",
       });
       setTimeout(() => {
         router.push("/admin");
@@ -101,7 +101,7 @@ export default function AdminLoginPage() {
       setPassword("");
 
       toast.error("Sign-in failed", {
-        description: error instanceof Error ? error.message : "Sign-in failed. Try again.",
+        description: error instanceof Error ? error.message : "Could not sign in. Please try again.",
       });
     } finally {
       setLoading(false);
@@ -110,7 +110,7 @@ export default function AdminLoginPage() {
 
   if (isChecking) {
     return (
-      <div className="flex flex-1 items-center justify-center" role="status" aria-live="polite" aria-label="Checking admin session">
+      <div className="flex flex-1 items-center justify-center" role="status" aria-live="polite" aria-label="Checking your admin session">
         <Loader className="h-5 w-5 animate-spin text-accent" />
       </div>
     );
@@ -131,7 +131,7 @@ export default function AdminLoginPage() {
                 <ShieldCheck className="h-6 w-6 text-foreground" />
               </span>
               <CardTitle id="admin-login-title" className="text-2xl font-black tracking-tight">Admin sign in</CardTitle>
-              <CardDescription>Access moderation tools</CardDescription>
+              <CardDescription>Use your admin credentials to open moderation tools</CardDescription>
             </CardHeader>
 
             <CardContent className="p-6 pt-4 sm:p-8 sm:pt-5">
@@ -215,7 +215,7 @@ export default function AdminLoginPage() {
                 {loading ? (
                   <>
                     <Loader className="h-4 w-4 animate-spin" />
-                    Signing in…
+                    Signing you in...
                   </>
                 ) : (
                   <>
@@ -228,7 +228,7 @@ export default function AdminLoginPage() {
             </CardContent>
           </Card>
 
-          <p className="mt-4 text-center text-xs text-muted-foreground">GCK Confessions · Admin</p>
+          <p className="mt-4 text-center text-xs text-muted-foreground">GCK Confessions admin</p>
         </div>
       </PageReveal>
     </main>

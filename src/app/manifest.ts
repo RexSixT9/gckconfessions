@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "GCK Confessions",
     short_name: "GCK",
-    description: "Anonymous confessions for students.",
+    description: "An anonymous student space for sharing real thoughts safely.",
     start_url: "/",
     display: "standalone",
     background_color: "#ffffff",

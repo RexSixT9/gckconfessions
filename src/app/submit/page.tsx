@@ -47,12 +47,12 @@ export default function SubmitPage() {
       queue.push(payload);
       localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(queue.slice(-8)));
       setHasDraft(true);
-      toast.info("Saved offline", {
-        description: "Your confession is queued and will auto-send when back online.",
+      toast.info("Saved for later", {
+        description: "You are offline, so we will send this automatically when your connection is back.",
       });
     } catch {
-      toast.error("Offline queue failed", {
-        description: "Could not save this offline submission.",
+      toast.error("Could not save offline", {
+        description: "We could not keep this submission in your offline queue.",
       });
     }
   }, []);
@@ -79,8 +79,8 @@ export default function SubmitPage() {
 
       if (remaining.length === 0) {
         localStorage.removeItem(OFFLINE_QUEUE_KEY);
-        toast.success("Offline queue synced", {
-          description: "Queued confessions were submitted successfully.",
+        toast.success("Back online", {
+          description: "Your queued confession was sent successfully.",
         });
       } else {
         localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(remaining));
@@ -200,8 +200,8 @@ export default function SubmitPage() {
         setHasDraft(false);
         localStorage.removeItem(DRAFT_KEY);
 
-        toast.success("Confession submitted", {
-          description: "A human moderator will review it before publishing.",
+        toast.success("You are all set", {
+          description: "Thanks for sharing. A moderator will review this before it is posted.",
         });
 
         void fireConfetti();
@@ -213,7 +213,7 @@ export default function SubmitPage() {
               ? error.message
               : "Unknown error. Please try again.";
 
-        toast.error("Submission failed", { description: messageText });
+        toast.error("Could not submit", { description: messageText });
       } finally {
         setLoading(false);
       }
@@ -224,9 +224,9 @@ export default function SubmitPage() {
   const charCount = useMemo(() => message.length, [message]);
 
   const guidanceText = useMemo(() => {
-    if (charCount < 30) return "Add a bit more context for faster review.";
-    if (charCount > CHAR_LIMIT * 0.9) return "You are near the limit. Keep only what matters.";
-    return "Looks good. Keep it clear and anonymous.";
+    if (charCount < 30) return "Add a little more context so reviewers can understand it clearly.";
+    if (charCount > CHAR_LIMIT * 0.9) return "You are close to the limit, so keep only what matters most.";
+    return "This reads well. Keep it clear and avoid personal details.";
   }, [charCount]);
 
   const canSubmit = Boolean(message.trim()) && !loading;
@@ -237,15 +237,15 @@ export default function SubmitPage() {
         <PageBackLink />
         <PageIntro
           badge="Submit"
-          title="Share your confession"
-          description="Keep it anonymous and clear. A moderator reviews every submission before publishing."
+          title="Share what is on your mind"
+          description="Write freely, stay anonymous, and we will review your submission before it goes live."
         />
 
         <Card className="border-border/70 bg-card/70 shadow-none backdrop-blur-sm">
           <CardHeader>
             <CardTitle className="text-xl font-semibold tracking-tight sm:text-2xl">Write your confession</CardTitle>
             <CardDescription>
-              Be direct, avoid personal identifiers, and submit when ready.
+              Be clear, skip personal identifiers, and submit when you are ready.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -264,7 +264,7 @@ export default function SubmitPage() {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between gap-3">
                     <Label htmlFor="confession" className="text-sm font-medium">
-                      Your confession
+                      Your message
                     </Label>
                     <span
                       id="confession-count"
@@ -286,7 +286,7 @@ export default function SubmitPage() {
                     maxLength={CHAR_LIMIT}
                     rows={10}
                     className="min-h-52 resize-none border-border/70 bg-background text-sm leading-6 shadow-none"
-                    placeholder="What has been on your mind?"
+                    placeholder="What have you been carrying lately?"
                     required
                     aria-describedby="confession-help confession-count"
                   />
@@ -297,7 +297,7 @@ export default function SubmitPage() {
 
                 <div className="space-y-2">
                     <Label htmlFor="music" className="text-sm font-medium">
-                      Song for this confession
+                      Song that fits this confession
                     </Label>
                     <Input
                       id="music"
@@ -305,22 +305,22 @@ export default function SubmitPage() {
                       value={music}
                       onChange={(event) => setMusic(event.target.value)}
                       maxLength={120}
-                      placeholder="Artist - Song"
+                      placeholder="Artist - Track"
                       className="h-10 border-border/70 bg-background shadow-none"
                     />
-                    <p className="text-xs text-muted-foreground">Optional.</p>
+                    <p className="text-xs text-muted-foreground">Optional, but welcome.</p>
                 </div>
 
                 <div className="rounded-lg border border-border/70 p-4">
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div className="space-y-1">
-                      <p className="text-sm font-medium">Draft</p>
+                      <p className="text-sm font-medium">Drafts</p>
                       <p className="text-xs text-muted-foreground">
                         {draftError
-                          ? "Local storage is unavailable on this device."
+                          ? "Local storage is not available on this device."
                           : hasDraft && saveDraft
                             ? "Draft saved on this device."
-                            : "Auto-save available while you write."}
+                            : "Auto-save is available while you write."}
                       </p>
                     </div>
                     <div className="flex w-full flex-wrap items-center justify-end gap-2 sm:w-auto sm:flex-nowrap">
@@ -332,11 +332,11 @@ export default function SubmitPage() {
                         disabled={draftError}
                         className="w-full sm:w-auto"
                       >
-                        {saveDraft ? "Auto-save on" : "Auto-save off"}
+                        {saveDraft ? "Auto-save enabled" : "Auto-save disabled"}
                       </Button>
                       {hasDraft && (
                         <Button type="button" variant="ghost" size="sm" onClick={clearDraft} className="w-full sm:w-auto">
-                          Clear draft
+                          Remove draft
                         </Button>
                       )}
                     </div>

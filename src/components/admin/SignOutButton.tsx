@@ -44,12 +44,12 @@ export default function SignOutButton() {
       variant="ghost"
       onClick={handleSignOut}
       disabled={loading}
-      title="Sign out"
-      aria-label="Sign out"
+      title="Log out"
+      aria-label="Log out"
       className="shrink-0 rounded-lg"
     >
       {loading ? <Loader className="h-4 w-4 animate-spin" /> : <LogOut className="h-4 w-4" />}
-      <span className="hidden sm:inline">Sign out</span>
+      <span className="hidden sm:inline">Log out</span>
     </Button>
   );
 }

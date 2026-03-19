@@ -86,7 +86,7 @@ export default function AdminStatsBar({ initialStats }: { initialStats: AdminSta
       animationDelayClassName: "",
     },
     {
-      label: "Pending",
+      label: "In review",
       value: stats.pending,
       valueClassName: "text-warning",
       dotClassName: "bg-warning",
@@ -100,7 +100,7 @@ export default function AdminStatsBar({ initialStats }: { initialStats: AdminSta
       animationDelayClassName: "animation-delay-200",
     },
     {
-      label: "Rejected",
+      label: "Declined",
       value: stats.rejected,
       valueClassName: "text-muted-foreground",
       dotClassName: "bg-muted-foreground/40",

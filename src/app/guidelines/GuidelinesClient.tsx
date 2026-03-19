@@ -18,28 +18,28 @@ import { PageReveal } from "@/components/Reveal";
 import { PageBackLink, PageIntro, PageShell } from "@/components/PageScaffold";
 
 const privacyPoints = [
-  "No login is required to submit a confession.",
-  "We store confession text, optional music tag, and moderation metadata.",
+  "You can submit without creating an account.",
+  "We store your confession text, optional music tag, and moderation-related metadata.",
   "Only moderators can access the review queue.",
-  "Abuse protections run to keep the platform safe.",
+  "Safety protections run in the background to reduce abuse.",
 ];
 
 const allowed = [
   "Personal reflections, emotions, and life experiences.",
-  "Supportive and empathetic messages.",
-  "Lighthearted, respectful confessions.",
+  "Supportive, empathetic messages.",
+  "Lighthearted confessions shared respectfully.",
 ];
 
 const disallowed = [
   "Hate speech, slurs, and harassment.",
-  "Doxxing, threats, and exposure of private details.",
+  "Doxxing, threats, or sharing private information.",
   "Violent, sexual, illegal, or spam content.",
 ];
 
 const privacyNotes = [
-  "Local drafts stay on your device when auto-save is enabled.",
-  "Public posts do not include your identity.",
-  "Repeated abuse may trigger temporary submission blocks.",
+  "When auto-save is enabled, drafts stay on your device.",
+  "Published posts never include your identity.",
+  "Repeated abuse may lead to temporary submission limits.",
 ];
 
 export default function GuidelinesClient() {
@@ -49,8 +49,8 @@ export default function GuidelinesClient() {
       <PageBackLink className="mb-5" />
       <PageIntro
         badge="Privacy and Guidelines"
-        title="Simple safety rules"
-        description="This platform is anonymous, moderated, and designed to reduce abuse."
+        title="Clear rules that protect everyone"
+        description="This space is anonymous and moderated so people can share safely and respectfully."
       />
 
       <section className="mt-8 grid gap-6 md:grid-cols-2" aria-labelledby="privacy-heading">
@@ -76,7 +76,7 @@ export default function GuidelinesClient() {
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent/10">
               <Shield className="h-5 w-5 text-accent" />
             </div>
-            <CardTitle className="text-lg font-bold">Extra notes</CardTitle>
+            <CardTitle className="text-lg font-bold">Good to know</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-sm leading-6 text-muted-foreground">
             {privacyNotes.map((item) => (
@@ -96,7 +96,7 @@ export default function GuidelinesClient() {
               <ShieldCheck className="h-3.5 w-3.5" />
               Allowed
             </Badge>
-            <CardTitle id="allowed-heading" className="text-lg font-bold">Content we welcome</CardTitle>
+            <CardTitle id="allowed-heading" className="text-lg font-bold">What we welcome</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4 text-sm leading-6 text-muted-foreground">
             {allowed.map((item) => (
@@ -114,7 +114,7 @@ export default function GuidelinesClient() {
               <AlertTriangle className="h-3.5 w-3.5" />
               Not Allowed
             </Badge>
-            <CardTitle id="disallowed-heading" className="text-lg font-bold">Content we reject</CardTitle>
+            <CardTitle id="disallowed-heading" className="text-lg font-bold">What we remove</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4 text-sm leading-6 text-muted-foreground">
             {disallowed.map((item) => (

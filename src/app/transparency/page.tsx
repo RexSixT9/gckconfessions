@@ -28,25 +28,25 @@ export default async function TransparencyPage() {
     <PageShell>
       <PageIntro
         badge="Transparency"
-        title="Safety and moderation stats"
-        description="We publish queue and moderation activity to increase trust."
+        title="Moderation and safety snapshot"
+        description="We share queue and moderation activity so the community can see how the system is handled."
       />
 
       {!data ? (
         <Card className="mt-6 border-border/70 bg-card/70 shadow-none backdrop-blur-sm">
           <CardContent className="py-10 text-center text-sm text-muted-foreground">
-            Stats are temporarily unavailable. Please try again later.
+            These stats are unavailable right now. Please check back shortly.
           </CardContent>
         </Card>
       ) : (
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {[
-            ["Pending", data.queue.pending],
+            ["Awaiting review", data.queue.pending],
             ["Approved", data.queue.approved],
             ["Rejected", data.queue.rejected],
             ["Published", data.queue.published],
-            ["Moderation actions", data.moderationActions],
-            ["Audit events", data.totalAuditEvents],
+            ["Moderator actions", data.moderationActions],
+            ["Audit log entries", data.totalAuditEvents],
           ].map(([label, value]) => (
             <Card key={label as string} className="border-border/70 bg-card/70 shadow-none backdrop-blur-sm">
               <CardHeader>
@@ -58,7 +58,7 @@ export default async function TransparencyPage() {
             </Card>
           ))}
           <p className="col-span-full text-xs text-muted-foreground lg:col-span-3">
-            Last updated: {new Date(data.generatedAt).toLocaleString()}
+            Last refreshed: {new Date(data.generatedAt).toLocaleString()}
           </p>
         </div>
       )}

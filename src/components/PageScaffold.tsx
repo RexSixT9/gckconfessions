@@ -38,7 +38,7 @@ export function PageShell({ children, className, containerClassName }: PageShell
   );
 }
 
-export function PageBackLink({ href = "/", label = "Back to home", className }: PageBackLinkProps) {
+export function PageBackLink({ href = "/", label = "Back home", className }: PageBackLinkProps) {
   return (
     <Button
       variant="ghost"

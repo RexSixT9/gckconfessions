@@ -34,12 +34,12 @@ function StatusBadge({ status }: { status?: string }) {
     },
     rejected: {
       icon: <X className="h-3 w-3" />,
-      label: "Rejected",
+      label: "Declined",
       cls: "border-border bg-secondary text-muted-foreground",
     },
     pending: {
       icon: <Clock className="h-3 w-3" />,
-      label: "Pending",
+      label: "In review",
       cls: "badge-warning",
     },
   };
@@ -170,14 +170,14 @@ export default function AdminList() {
       }
 
       const data = await response.json();
-      if (!response.ok) throw new Error(data.error || "Failed to load.");
+      if (!response.ok) throw new Error(data.error || "Could not load submissions.");
 
       setItems(data.confessions ?? []);
       setTotalCount(data.total ?? 0);
       setTotalPages(data.totalPages ?? 1);
     } catch (error) {
       if (!silent) {
-        setNotice({ type: "error", message: error instanceof Error ? error.message : "Load failed." });
+        setNotice({ type: "error", message: error instanceof Error ? error.message : "Could not load submissions." });
         setItems([]);
       }
     } finally {
@@ -333,7 +333,7 @@ export default function AdminList() {
           const d = (await res.json().catch(() => ({}))) as { error?: string };
           throw new Error(d.error ?? "Delete failed.");
         }
-        toast.success("Deleted successfully");
+        toast.success("Submission deleted");
         window.dispatchEvent(new Event("admin-data-updated"));
         void fetchItems({ silent: true });
       } catch (err) {
@@ -343,7 +343,7 @@ export default function AdminList() {
           setTotalPages(Math.max(1, Math.ceil(next / PAGE_SIZE)));
           return next;
         });
-        setNotice({ type: "error", message: err instanceof Error ? err.message : "Delete failed." });
+        setNotice({ type: "error", message: err instanceof Error ? err.message : "Could not delete submission." });
       } finally {
         setProcessingId(null);
       }
@@ -374,7 +374,7 @@ export default function AdminList() {
           <input
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
-            placeholder="Search confessions or songs..."
+            placeholder="Search submissions or songs..."
             className="input-base w-full py-2 pl-9 pr-9 text-sm"
           />
           {searchInput && (
@@ -396,7 +396,7 @@ export default function AdminList() {
           className="btn-ghost btn-sm w-full justify-center border border-border hover:border-accent/40 sm:w-auto"
         >
           <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
-          <span className="sm:hidden">Reload</span>
+          <span className="sm:hidden">Refresh</span>
         </button>
       </motion.div>
 
@@ -411,7 +411,7 @@ export default function AdminList() {
         <div className="-mx-1 overflow-x-auto px-1 sm:mx-0 sm:px-0">
           <div className="inline-flex items-center gap-0.5 rounded-lg border border-border bg-secondary p-0.5">
             {(["all", "shared", "not-shared"] as const).map((f) => {
-              const labels: Record<string, string> = { all: "All", shared: "Shared", "not-shared": "Not shared" };
+              const labels: Record<string, string> = { all: "All", shared: "Published", "not-shared": "Unpublished" };
               return (
                 <button
                   key={f}
@@ -449,12 +449,12 @@ export default function AdminList() {
         </div>
 
         <span className="text-xs tabular-nums text-muted-foreground sm:ml-auto">
-          {totalCount} result{totalCount !== 1 ? "s" : ""}
+          {totalCount} item{totalCount !== 1 ? "s" : ""}
         </span>
         {refreshing && !loading && (
           <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground sm:ml-2">
             <Loader className="h-3 w-3 animate-spin" />
-            Updating
+            Refreshing
           </span>
         )}
       </motion.div>
@@ -501,8 +501,8 @@ export default function AdminList() {
             <MessageSquare className="h-5 w-5 text-accent" />
           </div>
           <div>
-            <p className="text-sm font-semibold text-foreground">Nothing here</p>
-            <p className="mt-0.5 text-xs text-muted-foreground">No confessions match the current filters.</p>
+            <p className="text-sm font-semibold text-foreground">No submissions yet</p>
+            <p className="mt-0.5 text-xs text-muted-foreground">Nothing matches your current filters.</p>
           </div>
         </div>
       )}
@@ -532,7 +532,7 @@ export default function AdminList() {
                     {item.posted && (
                       <span className="inline-flex items-center gap-1 rounded-full border border-action-publish/30 bg-action-publish/10 px-2 py-0.5 text-[11px] font-semibold text-action-publish">
                         <Share2 className="h-3 w-3" />
-                        Shared
+                        Published
                       </span>
                     )}
                   </div>
@@ -557,7 +557,7 @@ export default function AdminList() {
                     <button
                       type="button"
                       onClick={() => handleCopy(item.message, msgId)}
-                      title="Copy message"
+                      title="Copy confession"
                       className="absolute right-2 top-2 rounded-lg border border-border bg-card p-1 text-muted-foreground opacity-100 transition hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 sm:opacity-0 sm:group-hover:opacity-100"
                     >
                       {copiedId === msgId
@@ -575,7 +575,7 @@ export default function AdminList() {
                         <button
                           type="button"
                           onClick={() => handleCopy(item.music!, musId)}
-                          title="Copy song"
+                          title="Copy track"
                           className="shrink-0 rounded-lg p-0.5 text-muted-foreground opacity-100 transition hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 sm:opacity-0 sm:group-hover/mus:opacity-100"
                         >
                           {copiedId === musId
@@ -600,7 +600,7 @@ export default function AdminList() {
                           item._id,
                           (i) => ({ ...i, status: "approved" as const }),
                           () => patch(item._id, { status: "approved" }),
-                          "Confession approved",
+                          "Submission approved",
                         )}
                         disabled={busy}
                       >
@@ -613,12 +613,12 @@ export default function AdminList() {
                           item._id,
                           (i) => ({ ...i, status: "rejected" as const, posted: false }),
                           () => patch(item._id, { status: "rejected" }),
-                          "Confession rejected",
+                          "Submission declined",
                         )}
                         disabled={busy}
                       >
                         {busy ? <Loader className="h-3.5 w-3.5 animate-spin" /> : <X className="h-3.5 w-3.5" />}
-                        Reject
+                        Decline
                       </ActionBtn>
                     </>
                   )}
@@ -630,20 +630,20 @@ export default function AdminList() {
                         item._id,
                         (i) => ({ ...i, posted: !i.posted }),
                         () => patch(item._id, { posted: !item.posted }),
-                        item.posted ? "Removed from public feed" : "Shared successfully",
+                        item.posted ? "Removed from the public feed" : "Published to the public feed",
                       )}
                       disabled={busy}
                     >
                       {busy ? <Loader className="h-3.5 w-3.5 animate-spin" /> : <Share2 className="h-3.5 w-3.5" />}
-                      <span className="sm:hidden">{item.posted ? "Unshare" : "Share"}</span>
-                      <span className="hidden sm:inline">{item.posted ? "Unshare" : "Share to Instagram"}</span>
+                      <span className="sm:hidden">{item.posted ? "Unpublish" : "Publish"}</span>
+                      <span className="hidden sm:inline">{item.posted ? "Unpublish" : "Publish"}</span>
                     </ActionBtn>
                   )}
 
                   {item.status === "rejected" && (
                     <span className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs text-muted-foreground">
                       <X className="h-3.5 w-3.5" />
-                      Rejected
+                      Declined
                     </span>
                   )}
 
@@ -664,7 +664,7 @@ export default function AdminList() {
                       <div className="flex items-center gap-2">
                         <AlertCircle className="h-4 w-4 shrink-0 text-destructive" />
                         <p className="flex-1 text-xs font-medium text-destructive">
-                          Delete this confession?
+                          Delete this submission?
                         </p>
                       </div>
                       <div className="flex items-center gap-2 sm:ml-auto sm:shrink-0">

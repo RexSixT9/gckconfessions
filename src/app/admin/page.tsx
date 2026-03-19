@@ -51,10 +51,10 @@ export default async function AdminPage() {
               Admin Panel
             </Badge>
             <h1 className="text-[clamp(1.7rem,5.6vw,2.25rem)] font-black tracking-tight text-foreground text-balance">
-              Confession Review
+              Review submissions
             </h1>
             <p className="mt-2 text-sm text-muted-foreground">
-              Review, approve, reject, and manage submissions.
+              Review incoming confessions, approve or reject them, and manage what gets published.
             </p>
           </div>
           <SignOutButton />
