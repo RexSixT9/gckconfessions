@@ -1314,6 +1314,11 @@ html[data-campaign="kindness-week"] {
   min-width: 0 !important;
   max-width: 340px !important;
   width: min(calc(100vw - 1.5rem), 340px) !important;
+  border: 1px solid hsl(var(--border) / 0.6) !important;
+  background: hsl(var(--background) / 0.9) !important;
+  box-shadow: 0 10px 28px -12px hsl(var(--foreground) / 0.28) !important;
+  backdrop-filter: blur(18px) saturate(130%) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(130%) !important;
   animation: toast-in 180ms cubic-bezier(0.16, 1, 0.3, 1) both !important;
 }
 
@@ -1333,53 +1338,35 @@ html[data-campaign="kindness-week"] {
   margin-top: 1px !important;
 }
 
-/* ── Icon — inherits semantic colour from type overrides below ── */
+/* ── Icon ── */
 [data-sonner-toast] [data-icon] svg {
   width: 15px !important;
   height: 15px !important;
 }
-
-/* ── Type-specific left border accent + icon colour ── */
-[data-type="success"][data-sonner-toast] {
-  border-left: 3px solid hsl(var(--success)) !important;
-}
-[data-type="success"][data-sonner-toast] [data-icon] {
-  color: hsl(var(--success)) !important;
+[data-sonner-toast] [data-icon] {
+  color: hsl(var(--foreground) / 0.72) !important;
 }
 
-[data-type="error"][data-sonner-toast] {
-  border-left: 3px solid hsl(var(--destructive)) !important;
+/* Keep all toast types visually unified (no semantic color coding). */
+[data-type][data-sonner-toast] {
+  border-left: 1px solid hsl(var(--border) / 0.6) !important;
 }
-[data-type="error"][data-sonner-toast] [data-icon] {
-  color: hsl(var(--destructive)) !important;
-}
-
-[data-type="warning"][data-sonner-toast] {
-  border-left: 3px solid hsl(var(--warning)) !important;
-}
-[data-type="warning"][data-sonner-toast] [data-icon] {
-  color: hsl(var(--warning)) !important;
-}
-
-[data-type="info"][data-sonner-toast] {
-  border-left: 3px solid hsl(var(--accent)) !important;
-}
-[data-type="info"][data-sonner-toast] [data-icon] {
-  color: hsl(var(--accent)) !important;
+[data-type][data-sonner-toast] [data-icon] {
+  color: hsl(var(--foreground) / 0.72) !important;
 }
 
 /* ── Action button ── */
 [data-sonner-toast] [data-button] {
-  border-radius: 8px !important;
+  border-radius: 10px !important;
   font-size: 0.75rem !important;
   font-weight: 600 !important;
   padding: 4px 12px !important;
   height: auto !important;
-  background: hsl(var(--accent)) !important;
-  color: hsl(var(--accent-foreground)) !important;
-  border: 1px solid hsl(var(--accent) / 0.3) !important;
+  background: hsl(var(--background) / 0.74) !important;
+  color: hsl(var(--foreground)) !important;
+  border: 1px solid hsl(var(--border) / 0.65) !important;
   transition: all 0.15s !important;
 }
 [data-sonner-toast] [data-button]:hover {
-  background: hsl(var(--accent) / 0.9) !important;
+  background: hsl(var(--background) / 0.94) !important;
 }
