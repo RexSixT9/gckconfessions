@@ -67,7 +67,7 @@ export default async function AdminPage() {
         {/*  Main list  */}
         <ScrollReveal delay={0.06} y={12}>
           <Card className="animate-blur-in border-border/70 bg-card/70 shadow-none backdrop-blur-sm animation-delay-400">
-            <CardContent className="p-6 sm:p-8">
+            <CardContent className="p-4 sm:p-6 lg:p-8">
               <AdminList />
             </CardContent>
           </Card>

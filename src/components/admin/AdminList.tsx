@@ -364,10 +364,10 @@ export default function AdminList() {
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
-        className="flex flex-col gap-3 sm:flex-row sm:items-center"
+        className="min-w-0-children flex flex-col gap-3 sm:flex-row sm:items-center"
       >
         {/* Search */}
-        <form onSubmit={handleSearch} className="relative flex-1">
+        <form onSubmit={handleSearch} className="relative min-w-0 flex-1">
           <span className="pointer-events-none absolute inset-y-0 left-0 flex w-8 items-center justify-center text-muted-foreground">
             <Search className="h-3.5 w-3.5" />
           </span>
@@ -393,7 +393,7 @@ export default function AdminList() {
           type="button"
           onClick={() => void fetchItems({ silent: items.length > 0 })}
           disabled={loading}
-          className="btn-ghost btn-sm shrink-0 border border-border hover:border-accent/40"
+          className="btn-ghost btn-sm w-full justify-center border border-border hover:border-accent/40 sm:w-auto"
         >
           <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
           <span className="sm:hidden">Reload</span>
@@ -405,7 +405,7 @@ export default function AdminList() {
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3, delay: 0.05, ease: [0.16, 1, 0.3, 1] }}
-        className="flex flex-col gap-3 border-b border-border pb-4 sm:flex-row sm:flex-wrap sm:items-center"
+        className="min-w-0-children flex flex-col gap-3 border-b border-border pb-4 sm:flex-row sm:flex-wrap sm:items-center"
       >
         {/* Share filter */}
         <div className="-mx-1 overflow-x-auto px-1 sm:mx-0 sm:px-0">
@@ -465,7 +465,7 @@ export default function AdminList() {
           {notice.type === "error"
             ? <AlertCircle className="h-4 w-4 shrink-0" />
             : <CheckCircle2 className="h-4 w-4 shrink-0" />}
-          <p className="flex-1 font-medium">{notice.message}</p>
+          <p className="flex-1 font-medium" data-wrap="anywhere">{notice.message}</p>
           <button type="button" onClick={() => setNotice(null)} className="rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40">
             <X className="h-3.5 w-3.5 opacity-50 transition hover:opacity-100" />
           </button>
@@ -536,7 +536,7 @@ export default function AdminList() {
                       </span>
                     )}
                   </div>
-                  <time className="shrink-0 text-[11px] tabular-nums text-muted-foreground">
+                  <time className="shrink-0 text-right text-[10px] tabular-nums text-muted-foreground xs:text-[11px]">
                     {item.createdAt
                       ? new Date(item.createdAt).toLocaleString("en-US", {
                         month: "short", day: "numeric",
@@ -591,7 +591,7 @@ export default function AdminList() {
                 <div className="mx-3 border-t border-border sm:mx-5" />
 
                 {/* Actions */}
-                <div className="flex flex-wrap items-center gap-2 px-3 py-3 sm:px-5">
+                <div className="min-w-0-children flex flex-wrap items-center gap-2 px-3 py-3 sm:px-5">
                   {item.status === "pending" && (
                     <>
                       <ActionBtn
@@ -650,7 +650,7 @@ export default function AdminList() {
                   {/* Delete - available for all statuses */}
                   <ActionBtn
                     variant="danger"
-                    className="ml-auto"
+                    className="w-full sm:ml-auto sm:w-auto"
                     onClick={() => setDeleteConfirmId(item._id)}
                     disabled={busy}
                   >
@@ -697,16 +697,16 @@ export default function AdminList() {
 
       {/* -- Pagination ---------------------------------- */}
       {!loading && totalPages > 1 && (
-        <div className="flex items-center justify-between gap-3 pt-1">
+        <div className="flex flex-col items-stretch gap-3 pt-1 sm:flex-row sm:items-center sm:justify-between">
           <span className="text-xs tabular-nums text-muted-foreground">
             Page {page} / {totalPages}
           </span>
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 sm:justify-end">
             <button
               type="button"
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page <= 1 || loading}
-              className="btn-ghost btn-sm border border-border hover:border-accent/40"
+              className="btn-ghost btn-sm flex-1 border border-border hover:border-accent/40 sm:flex-none"
             >
               <ChevronLeft className="h-3 w-3" />
               Prev
@@ -715,7 +715,7 @@ export default function AdminList() {
               type="button"
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page >= totalPages || loading}
-              className="btn-ghost btn-sm border border-border hover:border-accent/40"
+              className="btn-ghost btn-sm flex-1 border border-border hover:border-accent/40 sm:flex-none"
             >
               Next
               <ChevronRight className="h-3 w-3" />

@@ -884,6 +884,38 @@ body {
   padding-bottom: env(safe-area-inset-bottom);
 }
 
+/* Prevent common horizontal overflow sources across all pages. */
+img,
+video,
+canvas,
+svg,
+iframe {
+  max-width: 100%;
+}
+
+img,
+video,
+canvas,
+iframe {
+  height: auto;
+}
+
+/* Allow long tokens (URLs, IDs, unbroken strings) to wrap instead of breaking layouts. */
+p,
+li,
+label,
+td,
+th,
+[data-wrap="anywhere"] {
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+/* Flex and grid children can overflow without explicit min-width reset. */
+.min-w-0-children > * {
+  min-width: 0;
+}
+
 a,
 button,
 [role="button"] {
@@ -976,6 +1008,21 @@ select {
   .btn-secondary,
   .btn-ghost {
     -webkit-tap-highlight-color: hsl(var(--accent) / 0.1);
+  }
+}
+
+/* Ultra-small screens (older phones, split view) */
+@media (max-width: 360px) {
+  .btn-primary,
+  .btn-secondary,
+  .btn-ghost,
+  .btn-sm {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .input-base {
+    font-size: 0.9375rem;
   }
 }
 

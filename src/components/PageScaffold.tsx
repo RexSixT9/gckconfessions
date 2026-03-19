@@ -25,10 +25,10 @@ type PageIntroProps = {
 
 export function PageShell({ children, className, containerClassName }: PageShellProps) {
   return (
-    <main className={cn("flex-1 bg-background", className)}>
+    <main className={cn("flex-1 overflow-x-clip bg-background", className)}>
       <div
         className={cn(
-          "mx-auto w-full max-w-5xl px-4 pb-14 pt-6 sm:px-6 sm:pb-16 sm:pt-10",
+          "mx-auto w-full max-w-5xl px-4 pb-12 pt-5 sm:px-6 sm:pb-16 sm:pt-9 pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))]",
           containerClassName
         )}
       >

@@ -323,18 +323,19 @@ export default function SubmitPage() {
                             : "Auto-save available while you write."}
                       </p>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex w-full flex-wrap items-center justify-end gap-2 sm:w-auto sm:flex-nowrap">
                       <Button
                         type="button"
                         variant={saveDraft ? "secondary" : "outline"}
                         size="sm"
                         onClick={() => setSaveDraft((prev) => !prev)}
                         disabled={draftError}
+                        className="w-full sm:w-auto"
                       >
                         {saveDraft ? "Auto-save on" : "Auto-save off"}
                       </Button>
                       {hasDraft && (
-                        <Button type="button" variant="ghost" size="sm" onClick={clearDraft}>
+                        <Button type="button" variant="ghost" size="sm" onClick={clearDraft} className="w-full sm:w-auto">
                           Clear draft
                         </Button>
                       )}

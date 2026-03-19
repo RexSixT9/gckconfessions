@@ -384,7 +384,7 @@ export default function HomePage() {
   }
 
   return (
-    <main className="flex-1 bg-background">
+    <main className="flex-1 overflow-x-clip bg-background">
       <section
         id="home-hero"
         aria-labelledby="hero-title"
@@ -399,7 +399,7 @@ export default function HomePage() {
         </div>
 
         <div className="flex flex-1 items-center">
-          <div className="mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-12 px-4 py-4 sm:px-6 lg:grid-cols-2 lg:gap-16 lg:px-8">
+          <div className="min-w-0-children mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-12 px-4 py-4 sm:px-6 lg:grid-cols-2 lg:gap-16 lg:px-8">
             <motion.div
               variants={heroStaggerContainer}
               initial="hidden"
@@ -571,7 +571,7 @@ export default function HomePage() {
       <section className="snap-section mx-auto w-full max-w-7xl px-4 py-9 sm:px-6 sm:py-12 lg:px-8" aria-labelledby="explore-heading">
         <ScrollReveal y={12} duration={0.38}>
           <div className="rounded-2xl border border-border/60 bg-card/55 p-5 backdrop-blur-sm sm:p-6">
-            <div className="mb-3 flex items-center justify-between gap-3">
+            <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
               <h2 id="explore-heading" className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Explore</h2>
               <Badge variant="outline" className="h-8 border-border/70 px-3">Moderated feed</Badge>
             </div>
@@ -695,7 +695,7 @@ export default function HomePage() {
             <div className="pointer-events-none absolute -left-16 -top-16 h-64 w-64 rounded-full bg-white/8 blur-3xl" />
             <div className="pointer-events-none absolute -bottom-16 -right-16 h-72 w-72 rounded-full bg-white/8 blur-3xl" />
 
-            <div className="relative z-10 px-8 py-18 text-center sm:py-24">
+            <div className="relative z-10 px-4 py-14 text-center sm:px-8 sm:py-24">
               <Badge className="mb-6 h-8 border border-white/20 bg-white/10 px-3.5 text-white hover:bg-white/10">Start now</Badge>
               <h2 className="mx-auto max-w-[16ch] text-[clamp(2rem,6vw,3.8rem)] font-black leading-[1.04] tracking-tight text-white">
                 Say what matters.
@@ -709,7 +709,7 @@ export default function HomePage() {
                 <motion.div whileHover={reduceHeavyMotion ? undefined : { y: -2, scale: 1.01 }} whileTap={{ scale: 0.98 }}>
                   <Button
                     size="lg"
-                    className="group h-auto rounded-full bg-white px-9 py-4 text-sm font-semibold text-black shadow-xl transition-all hover:bg-zinc-200"
+                    className="group h-auto w-full rounded-full bg-white px-7 py-4 text-sm font-semibold text-black shadow-xl transition-all hover:bg-zinc-200 sm:w-auto sm:px-9"
                     render={<Link href="/submit" />}
                   >
                     <>
@@ -723,7 +723,7 @@ export default function HomePage() {
                   <Button
                     size="lg"
                     variant="outline"
-                    className="h-auto rounded-full border-white/30 bg-white/5 px-9 py-4 text-sm font-semibold text-white backdrop-blur-sm hover:border-white/45 hover:bg-white/10"
+                    className="h-auto w-full rounded-full border-white/30 bg-white/5 px-7 py-4 text-sm font-semibold text-white backdrop-blur-sm hover:border-white/45 hover:bg-white/10 sm:w-auto sm:px-9"
                     render={<Link href="/guidelines" />}
                   >
                     Read safety guidelines

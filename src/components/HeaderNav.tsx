@@ -66,11 +66,11 @@ export default function HeaderNav() {
         )}
       >
         <div className="relative px-3 pb-1.5 pt-2 sm:px-4">
-          <div className="relative mx-auto flex max-w-5xl items-center justify-between overflow-hidden rounded-2xl border border-border/60 bg-background/90 px-3.5 py-2.5 shadow-sm backdrop-blur-xl sm:px-5">
+          <div className="relative mx-auto flex max-w-5xl items-center justify-between gap-2 overflow-hidden rounded-2xl border border-border/60 bg-background/90 px-3 py-2.5 shadow-sm backdrop-blur-xl sm:px-5">
             {/* Logo */}
             <Link
               href="/"
-              className="group flex items-center gap-2 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+              className="group flex min-w-0 items-center gap-2 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
               aria-label="GCK Confessions Home"
             >
               <motion.span
@@ -80,7 +80,7 @@ export default function HeaderNav() {
               >
                 <Heart className="h-3.5 w-3.5 text-accent-foreground" strokeWidth={2.5} />
               </motion.span>
-              <span className="text-sm font-semibold tracking-tight">GCK Confessions</span>
+              <span className="truncate text-sm font-semibold tracking-tight">GCK Confessions</span>
             </Link>
 
             <div className="flex items-center gap-2 sm:gap-3">
