@@ -439,7 +439,7 @@ export default function HomePage() {
               </motion.p>
 
               <motion.div variants={heroFadeUp} className="mt-5 flex flex-wrap justify-center gap-2 md:justify-start">
-                {["No login", "Human moderation", "Identity hidden"].map((item) => (
+                {["No signup", "Human moderation", "Identity hidden"].map((item) => (
                   <span
                     key={item}
                     className="rounded-full border border-border/60 bg-card/60 px-3 py-1 text-xs font-medium text-foreground/85 backdrop-blur-sm"
@@ -516,19 +516,25 @@ export default function HomePage() {
           initial={{ opacity: 0, y: 10 }}
           animate={canStartMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
           transition={{ duration: 0.55, delay: 1.05, ease: "easeOut" }}
-          className="absolute bottom-[max(0.65rem,env(safe-area-inset-bottom))] left-1/2 hidden -translate-x-1/2 flex-col items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground/65 transition-colors hover:text-muted-foreground/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 lg:flex"
+          className="absolute bottom-[max(0.75rem,env(safe-area-inset-bottom))] left-1/2 hidden -translate-x-1/2 flex-col items-center gap-1.5 text-[10px] font-medium uppercase tracking-[0.2em] text-muted-foreground/55 transition-colors hover:text-foreground/75 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 lg:flex"
           aria-label="Scroll to next section"
           aria-controls="highlights"
         >
-          <span className="rounded-full border border-border/60 bg-card/55 px-3 py-1 backdrop-blur-sm">Scroll</span>
-          <span className="relative flex h-10 w-6 items-start justify-center rounded-full border border-border/60 bg-card/40 p-1 backdrop-blur-sm">
-            <motion.span
-              animate={reduceHeavyMotion ? { y: 0, opacity: 0.8 } : { y: [0, 12, 0], opacity: [0.65, 1, 0.65] }}
-              transition={reduceHeavyMotion ? undefined : { duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
-              className="h-2 w-2 rounded-full bg-foreground/70"
-            />
-            <ChevronDown className="absolute -bottom-4 h-3 w-3 text-muted-foreground/70" />
-          </span>
+          <span>Scroll</span>
+          <motion.span
+            aria-hidden
+            animate={reduceHeavyMotion ? { opacity: 0.7 } : { opacity: [0.35, 0.75, 0.35] }}
+            transition={reduceHeavyMotion ? undefined : { duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+            className="h-6 w-px bg-border/80"
+          />
+          <motion.span
+            aria-hidden
+            animate={reduceHeavyMotion ? { y: 0, opacity: 0.75 } : { y: [0, 5, 0], opacity: [0.55, 1, 0.55] }}
+            transition={reduceHeavyMotion ? undefined : { duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+            className="flex items-center justify-center"
+          >
+            <ChevronDown className="h-3.5 w-3.5" />
+          </motion.span>
         </motion.button>
       </section>
 
@@ -545,9 +551,9 @@ export default function HomePage() {
               <CardContent className="space-y-4">
                 <div className="grid gap-3 sm:grid-cols-3">
                   {[
-                    { label: "Daily confessions", value: "Growing" },
-                    { label: "Review queue", value: "Human" },
-                    { label: "Identity exposure", value: "None" },
+                    { label: "Submissions", value: "Open daily" },
+                    { label: "Review queue", value: "Human verified" },
+                    { label: "Identity exposure", value: "No account required" },
                   ].map((item) => (
                     <div key={item.label} className="rounded-xl border border-border/70 bg-background/70 p-3">
                       <p className="text-[11px] uppercase tracking-wide text-muted-foreground">{item.label}</p>
@@ -572,6 +578,17 @@ export default function HomePage() {
             <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">
               Browse community stories, understand what others are carrying, and share when you are ready.
             </p>
+            <div className="mt-4 flex flex-wrap items-center gap-2.5">
+              <Button size="sm" variant="brand" className="h-9 rounded-full px-4" render={<Link href="/submit" />}>
+                <>
+                  Share yours
+                  <ArrowRight className="ml-1 h-3.5 w-3.5" />
+                </>
+              </Button>
+              <Button size="sm" variant="outline" className="h-9 rounded-full border-border/70 px-4" render={<Link href="/transparency" />}>
+                Transparency
+              </Button>
+            </div>
           </div>
         </ScrollReveal>
       </section>
@@ -696,7 +713,7 @@ export default function HomePage() {
                     render={<Link href="/submit" />}
                   >
                     <>
-                      Write now
+                      Write a confession
                       <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                     </>
                   </Button>
@@ -709,7 +726,7 @@ export default function HomePage() {
                     className="h-auto rounded-full border-white/30 bg-white/5 px-9 py-4 text-sm font-semibold text-white backdrop-blur-sm hover:border-white/45 hover:bg-white/10"
                     render={<Link href="/guidelines" />}
                   >
-                    Read guidelines
+                    Read safety guidelines
                   </Button>
                 </motion.div>
               </div>

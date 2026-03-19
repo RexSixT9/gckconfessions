@@ -83,8 +83,24 @@ export default function HeaderNav() {
               <span className="text-sm font-semibold tracking-tight">GCK Confessions</span>
             </Link>
 
-            {/* Theme toggle only */}
-            <ThemeToggle />
+            <div className="flex items-center gap-2 sm:gap-3">
+              <nav aria-label="Primary" className="hidden items-center gap-1 sm:flex">
+                <Link
+                  href="/submit"
+                  className="rounded-md px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors duration-200 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+                >
+                  Submit
+                </Link>
+                <Link
+                  href="/guidelines"
+                  className="rounded-md px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors duration-200 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+                >
+                  Guidelines
+                </Link>
+              </nav>
+
+              <ThemeToggle />
+            </div>
           </div>
         </div>
       </header>
