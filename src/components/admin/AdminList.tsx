@@ -67,7 +67,7 @@ function ActionBtn({
   className?: string;
 }) {
   const base =
-    "inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-medium transition-all active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40";
+    "focus-ring inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-medium transition-all active:scale-95 disabled:cursor-not-allowed disabled:opacity-40";
   const variants: Record<string, string> = {
     ghost:
       "border-border bg-transparent text-foreground hover:border-accent/40 hover:text-accent",
@@ -125,6 +125,7 @@ export default function AdminList() {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [liveMessage, setLiveMessage] = useState("");
   const inFlightRef = useRef(false);
 
   const router = useRouter();
@@ -247,9 +248,11 @@ export default function AdminList() {
       updater: (item: ConfessionItem) => ConfessionItem,
       action: () => Promise<unknown>,
       successMsg: string,
+      actionLabel: string,
     ) => {
       setNotice(null);
       setProcessingId(id);
+      setLiveMessage(`${actionLabel} in progress.`);
 
       let snapshot: ConfessionItem[] = [];
       let removedCount = 0;
@@ -278,6 +281,7 @@ export default function AdminList() {
       try {
         await action();
         toast.success(successMsg);
+        setLiveMessage(successMsg);
         window.dispatchEvent(new Event("admin-data-updated"));
         void fetchItems({ silent: true });
       } catch (err) {
@@ -290,7 +294,9 @@ export default function AdminList() {
             return next;
           });
         }
-        toast.error(err instanceof Error ? err.message : "Action failed");
+        const errorMessage = err instanceof Error ? err.message : "Action failed";
+        toast.error(errorMessage);
+        setLiveMessage(errorMessage);
       } finally {
         setProcessingId(null);
       }
@@ -304,6 +310,7 @@ export default function AdminList() {
       setNotice(null);
       setProcessingId(id);
       setDeleteConfirmId(null);
+      setLiveMessage("Delete in progress.");
 
       let snapshot: ConfessionItem[] = [];
 
@@ -334,6 +341,7 @@ export default function AdminList() {
           throw new Error(d.error ?? "Delete failed.");
         }
         toast.success("Submission deleted");
+        setLiveMessage("Submission deleted.");
         window.dispatchEvent(new Event("admin-data-updated"));
         void fetchItems({ silent: true });
       } catch (err) {
@@ -343,7 +351,9 @@ export default function AdminList() {
           setTotalPages(Math.max(1, Math.ceil(next / PAGE_SIZE)));
           return next;
         });
-        setNotice({ type: "error", message: err instanceof Error ? err.message : "Could not delete submission." });
+        const errorMessage = err instanceof Error ? err.message : "Could not delete submission.";
+        setNotice({ type: "error", message: errorMessage });
+        setLiveMessage(errorMessage);
       } finally {
         setProcessingId(null);
       }
@@ -358,6 +368,9 @@ export default function AdminList() {
 
   return (
     <div className="space-y-5">
+      <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+        {liveMessage}
+      </p>
 
       {/* -- Toolbar ------------------------------------- */}
       <motion.div
@@ -381,7 +394,7 @@ export default function AdminList() {
             <button
               type="button"
               onClick={() => { setSearchInput(""); setQuery(""); }}
-              className="absolute inset-y-0 right-0 flex w-9 items-center justify-center text-muted-foreground transition hover:text-foreground"
+              className="focus-ring absolute inset-y-0 right-0 flex w-9 items-center justify-center rounded-md text-muted-foreground transition hover:text-foreground"
             >
               <X className="h-3.5 w-3.5" />
             </button>
@@ -393,7 +406,7 @@ export default function AdminList() {
           type="button"
           onClick={() => void fetchItems({ silent: items.length > 0 })}
           disabled={loading}
-          className="btn-ghost btn-sm w-full justify-center border border-border hover:border-accent/40 sm:w-auto"
+          className="focus-ring btn-ghost btn-sm w-full justify-center border border-border hover:border-accent/40 sm:w-auto"
         >
           <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
           <span className="sm:hidden">Refresh</span>
@@ -417,7 +430,7 @@ export default function AdminList() {
                   key={f}
                   type="button"
                   onClick={() => setFilter(f)}
-                  className={`shrink-0 rounded-md px-2.5 py-1.5 text-xs font-medium transition sm:py-1 ${filter === f
+                  className={`focus-ring shrink-0 rounded-md px-2.5 py-1.5 text-xs font-medium transition sm:py-1 ${filter === f
                     ? "bg-card text-foreground shadow-sm"
                     : "text-muted-foreground hover:text-foreground"
                     }`}
@@ -437,7 +450,7 @@ export default function AdminList() {
                 key={s}
                 type="button"
                 onClick={() => setStatusFilter(s)}
-                className={`shrink-0 rounded-md px-2.5 py-1.5 text-xs font-medium transition sm:py-1 ${statusFilter === s
+                className={`focus-ring shrink-0 rounded-md px-2.5 py-1.5 text-xs font-medium transition sm:py-1 ${statusFilter === s
                   ? "bg-card text-foreground shadow-sm"
                   : "text-muted-foreground hover:text-foreground"
                   }`}
@@ -466,7 +479,7 @@ export default function AdminList() {
             ? <AlertCircle className="h-4 w-4 shrink-0" />
             : <CheckCircle2 className="h-4 w-4 shrink-0" />}
           <p className="flex-1 font-medium" data-wrap="anywhere">{notice.message}</p>
-          <button type="button" onClick={() => setNotice(null)} className="rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40">
+          <button type="button" onClick={() => setNotice(null)} className="focus-ring rounded-lg">
             <X className="h-3.5 w-3.5 opacity-50 transition hover:opacity-100" />
           </button>
         </div>
@@ -558,7 +571,7 @@ export default function AdminList() {
                       type="button"
                       onClick={() => handleCopy(item.message, msgId)}
                       title="Copy confession"
-                      className="absolute right-2 top-2 rounded-lg border border-border bg-card p-1 text-muted-foreground opacity-100 transition hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 sm:opacity-0 sm:group-hover:opacity-100"
+                      className="focus-ring absolute right-2 top-2 rounded-lg border border-border bg-card p-1 text-muted-foreground opacity-100 transition hover:text-accent sm:opacity-0 sm:group-hover:opacity-100"
                     >
                       {copiedId === msgId
                         ? <Check className="h-3 w-3 text-action-accept" />
@@ -576,7 +589,7 @@ export default function AdminList() {
                           type="button"
                           onClick={() => handleCopy(item.music!, musId)}
                           title="Copy track"
-                          className="shrink-0 rounded-lg p-0.5 text-muted-foreground opacity-100 transition hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 sm:opacity-0 sm:group-hover/mus:opacity-100"
+                          className="focus-ring shrink-0 rounded-lg p-0.5 text-muted-foreground opacity-100 transition hover:text-accent sm:opacity-0 sm:group-hover/mus:opacity-100"
                         >
                           {copiedId === musId
                             ? <Check className="h-3 w-3 text-action-accept" />
@@ -601,6 +614,7 @@ export default function AdminList() {
                           (i) => ({ ...i, status: "approved" as const }),
                           () => patch(item._id, { status: "approved" }),
                           "Submission approved",
+                          "Approve",
                         )}
                         disabled={busy}
                       >
@@ -614,6 +628,7 @@ export default function AdminList() {
                           (i) => ({ ...i, status: "rejected" as const, posted: false }),
                           () => patch(item._id, { status: "rejected" }),
                           "Submission declined",
+                          "Decline",
                         )}
                         disabled={busy}
                       >
@@ -631,6 +646,7 @@ export default function AdminList() {
                         (i) => ({ ...i, posted: !i.posted }),
                         () => patch(item._id, { posted: !item.posted }),
                         item.posted ? "Removed from the public feed" : "Published to the public feed",
+                        item.posted ? "Unpublish" : "Publish",
                       )}
                       disabled={busy}
                     >
@@ -670,7 +686,7 @@ export default function AdminList() {
                       <div className="flex items-center gap-2 sm:ml-auto sm:shrink-0">
                         <button
                           type="button"
-                          className="flex-1 rounded-lg border border-destructive/40 bg-destructive/15 px-2.5 py-1.5 text-xs font-semibold text-destructive transition hover:bg-destructive/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/40 active:scale-95 sm:flex-none sm:py-1"
+                          className="focus-ring flex-1 rounded-lg border border-destructive/40 bg-destructive/15 px-2.5 py-1.5 text-xs font-semibold text-destructive transition hover:bg-destructive/25 active:scale-95 sm:flex-none sm:py-1"
                           disabled={busy}
                           onClick={() => void handleDeleteConfirm(item._id)}
                         >
@@ -678,7 +694,7 @@ export default function AdminList() {
                         </button>
                         <button
                           type="button"
-                          className="flex-1 rounded-lg border border-border px-2.5 py-1.5 text-xs font-medium text-muted-foreground transition hover:bg-secondary hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/30 active:scale-95 sm:flex-none sm:py-1"
+                          className="focus-ring flex-1 rounded-lg border border-border px-2.5 py-1.5 text-xs font-medium text-muted-foreground transition hover:bg-secondary hover:text-foreground active:scale-95 sm:flex-none sm:py-1"
                           onClick={() => setDeleteConfirmId(null)}
                         >
                           Cancel
@@ -706,7 +722,7 @@ export default function AdminList() {
               type="button"
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page <= 1 || loading}
-              className="btn-ghost btn-sm flex-1 border border-border hover:border-accent/40 sm:flex-none"
+              className="focus-ring btn-ghost btn-sm flex-1 border border-border hover:border-accent/40 sm:flex-none"
             >
               <ChevronLeft className="h-3 w-3" />
               Prev
@@ -715,7 +731,7 @@ export default function AdminList() {
               type="button"
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page >= totalPages || loading}
-              className="btn-ghost btn-sm flex-1 border border-border hover:border-accent/40 sm:flex-none"
+              className="focus-ring btn-ghost btn-sm flex-1 border border-border hover:border-accent/40 sm:flex-none"
             >
               Next
               <ChevronRight className="h-3 w-3" />

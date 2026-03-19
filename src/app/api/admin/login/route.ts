@@ -7,6 +7,7 @@ import { signAdminToken } from "@/lib/auth";
 import { rotateCsrfCookie } from "@/lib/csrf";
 import { writeAuditLog } from "@/lib/audit";
 import {
+  checkLoginBurstLimit,
   checkLoginIdentityLimit,
   checkLoginLimit,
   clearLoginFailures,
@@ -24,7 +25,8 @@ import {
   MAX_PASSWORD_LENGTH,
   SESSION_ACTIVITY_COOKIE,
 } from "@/lib/constants";
-import { isSameOrigin, isValidEmail } from "@/lib/requestUtils";
+import { getRequestFingerprint, isSameOrigin, isValidEmail } from "@/lib/requestUtils";
+import { adminLoginSchema } from "@/lib/validation";
 import Admin from "@/models/Admin";
 const DUMMY_PASSWORD_HASH = "$2a$10$CwTycUXWue0Thq9StjUM0uJ8n9f5M5w7x1YgnSUQoqBYwygJyI072";
 
@@ -51,6 +53,7 @@ export async function POST(request: Request) {
     }
 
     const ip = getClientIp(request);
+    const fingerprint = getRequestFingerprint(request, ip);
     const blocked = getBlockedIps();
 
     if (blocked.includes(ip)) {
@@ -61,29 +64,35 @@ export async function POST(request: Request) {
     if (!payload) {
       return apiError(400, "INVALID_JSON", "Invalid request payload.");
     }
-    const email =
-      typeof payload.email === "string"
-        ? payload.email.toLowerCase().trim()
-        : "";
+
+    const parsed = adminLoginSchema.safeParse(payload);
+    if (!parsed.success) {
+      return apiError(400, "VALIDATION_ERROR", "Email and password are required.");
+    }
+
+    const email = parsed.data.email.toLowerCase().trim();
     // Do NOT trim passwords — whitespace may be intentional
-    const password = typeof payload.password === "string" ? payload.password : "";
+    const password = parsed.data.password;
 
     const rateKey = `login:${ip}`;
+    const ipBackoffKey = `login-ip:${ip}`;
     const identityKey = `login-account:${email || "unknown"}`;
-    const backoffSeconds = getLoginBackoff(identityKey);
+    const burstKey = `login-burst:${fingerprint}`;
+    const backoffSeconds = Math.max(getLoginBackoff(identityKey), getLoginBackoff(ipBackoffKey));
     if (backoffSeconds > 0) {
       return apiError(429, "RATE_LIMIT", "Too many login attempts. Try again later.", {
         "Retry-After": String(backoffSeconds),
       });
     }
 
-    const [rate, identityRate] = await Promise.all([
+    const [rate, identityRate, burstRate] = await Promise.all([
       checkLoginLimit(rateKey),
       checkLoginIdentityLimit(identityKey),
+      checkLoginBurstLimit(burstKey),
     ]);
 
-    if (!rate.allowed || !identityRate.allowed) {
-      const retrySource = rate.allowed ? identityRate : rate;
+    if (!rate.allowed || !identityRate.allowed || !burstRate.allowed) {
+      const retrySource = !rate.allowed ? rate : !identityRate.allowed ? identityRate : burstRate;
       return apiError(
         429,
         "RATE_LIMIT",
@@ -136,7 +145,9 @@ export async function POST(request: Request) {
       }
 
       const retryAfter = registerLoginFailure(identityKey);
-      if (retryAfter >= 120) {
+      const retryAfterByIp = registerLoginFailure(ipBackoffKey);
+      const effectiveRetryAfter = Math.max(retryAfter, retryAfterByIp);
+      if (effectiveRetryAfter >= 120) {
         await writeAuditLog({
           action: "security_alert",
           request,
@@ -144,7 +155,8 @@ export async function POST(request: Request) {
           meta: {
             type: "failed_login_spike",
             identityKey,
-            retryAfter,
+            retryAfter: effectiveRetryAfter,
+            fingerprint,
           },
         }).catch(() => {
           // Alert path should not block response
@@ -152,11 +164,12 @@ export async function POST(request: Request) {
       }
 
       return apiError(401, "UNAUTHORIZED", "Invalid email or password.", {
-        "Retry-After": String(retryAfter),
+        "Retry-After": String(effectiveRetryAfter),
       });
     }
 
     clearLoginFailures(identityKey);
+    clearLoginFailures(ipBackoffKey);
 
     const token = await signAdminToken({
       sub: String(admin._id ?? ""),

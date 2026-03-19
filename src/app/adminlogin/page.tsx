@@ -23,6 +23,15 @@ export default function AdminLoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [isChecking, setIsChecking] = useState(true);
+  const [retryAfterSeconds, setRetryAfterSeconds] = useState(0);
+
+  useEffect(() => {
+    if (retryAfterSeconds <= 0) return;
+    const timer = window.setInterval(() => {
+      setRetryAfterSeconds((prev) => (prev > 1 ? prev - 1 : 0));
+    }, 1000);
+    return () => window.clearInterval(timer);
+  }, [retryAfterSeconds]);
 
   // Check if user is already logged in on mount
   useEffect(() => {
@@ -53,7 +62,7 @@ export default function AdminLoginPage() {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (loading) return;
+    if (loading || retryAfterSeconds > 0) return;
 
     const normalizedEmail = email.trim().toLowerCase();
 
@@ -82,6 +91,10 @@ export default function AdminLoginPage() {
       });
 
       const data = await response.json();
+      const retryAfterHeader = Number(response.headers.get("Retry-After") ?? "0");
+      if (Number.isFinite(retryAfterHeader) && retryAfterHeader > 0) {
+        setRetryAfterSeconds(Math.max(0, Math.floor(retryAfterHeader)));
+      }
 
       if (!response.ok) {
         throw new Error(data.error || "Could not sign you in.");
@@ -209,7 +222,7 @@ export default function AdminLoginPage() {
                 type="submit"
                 variant="brand"
                 size="touch"
-                disabled={loading || !email.trim() || password.length < MIN_PASSWORD_LENGTH}
+                disabled={loading || retryAfterSeconds > 0 || !email.trim() || password.length < MIN_PASSWORD_LENGTH}
                 className="mt-2 w-full rounded-xl font-semibold shadow-none"
               >
                 {loading ? (
@@ -224,6 +237,11 @@ export default function AdminLoginPage() {
                   </>
                 )}
               </Button>
+              {retryAfterSeconds > 0 ? (
+                <p className="text-center text-xs text-muted-foreground" aria-live="polite">
+                  Too many attempts. Try again in {retryAfterSeconds}s.
+                </p>
+              ) : null}
             </form>
             </CardContent>
           </Card>

@@ -1,6 +1,7 @@
 import Filter from "bad-words";
 
 const filter = new Filter();
+export const SANITIZATION_POLICY_VERSION = "2026-03-19.v1";
 
 export function sanitizeText(input: string, maxLength = 500) {
   let cleaned = input.replace(/<[^>]*>/g, "");
@@ -12,6 +13,39 @@ export function sanitizeText(input: string, maxLength = 500) {
   }
 
   return cleaned;
+}
+
+export function normalizeForSimilarity(input: string, maxLength = 500) {
+  const base = sanitizeText(input, maxLength).toLowerCase();
+  return base
+    .replace(/[^a-z0-9\s]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function toTokenSet(input: string) {
+  const tokens = input.split(" ").filter((t) => t.length > 1);
+  return new Set(tokens);
+}
+
+export function getTextSimilarityScore(a: string, b: string) {
+  const left = normalizeForSimilarity(a);
+  const right = normalizeForSimilarity(b);
+  if (!left || !right) return 0;
+  if (left === right) return 1;
+
+  const aSet = toTokenSet(left);
+  const bSet = toTokenSet(right);
+  if (aSet.size === 0 || bSet.size === 0) return 0;
+
+  let intersection = 0;
+  for (const token of aSet) {
+    if (bSet.has(token)) intersection += 1;
+  }
+
+  const union = aSet.size + bSet.size - intersection;
+  if (union <= 0) return 0;
+  return intersection / union;
 }
 
 export function sanitizeOutputText(input: string, maxLength = 500) {

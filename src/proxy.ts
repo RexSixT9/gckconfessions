@@ -3,8 +3,58 @@ import { verifyAdminToken } from "@/lib/auth";
 import { COOKIE_NAME, SESSION_ACTIVITY_COOKIE } from "@/lib/constants";
 import { clearSessionCookies, isSessionIdle, touchSessionActivity } from "@/lib/session";
 
+function buildCsp(nonce: string) {
+  const vercelPreviewOrigins = process.env.VERCEL_ENV === "preview" ? ["https://vercel.live"] : [];
+  const connectSrc = ["'self'", ...vercelPreviewOrigins].join(" ");
+
+  return [
+    "default-src 'self'",
+    `script-src 'self' 'nonce-${nonce}'`,
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+    "img-src 'self' data: blob: https:",
+    "font-src 'self' data: https://fonts.gstatic.com",
+    `connect-src ${connectSrc}`,
+    "object-src 'none'",
+    "frame-ancestors 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+    "upgrade-insecure-requests",
+  ].join("; ");
+}
+
+function applySecurityHeaders(response: NextResponse, nonce: string) {
+  const cspHeaderKey = process.env.CSP_ENFORCE === "true"
+    ? "Content-Security-Policy"
+    : "Content-Security-Policy-Report-Only";
+
+  response.headers.set(cspHeaderKey, buildCsp(nonce));
+  response.headers.set("x-nonce", nonce);
+
+  if (process.env.CSP_ENFORCE !== "true") {
+    response.headers.set(
+      "Report-To",
+      '{"group":"csp-endpoint","max_age":10886400,"endpoints":[{"url":"/api/security/csp-report"}]}'
+    );
+    response.headers.set("Reporting-Endpoints", 'csp-endpoint="/api/security/csp-report"');
+  }
+
+  return response;
+}
+
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const nonce = btoa(crypto.randomUUID());
+
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set("x-nonce", nonce);
+
+  const nextResponse = () =>
+    applySecurityHeaders(
+      NextResponse.next({
+        request: { headers: requestHeaders },
+      }),
+      nonce
+    );
 
   // Use precise matching: /admin starts /admin/ or is exactly /admin.
   // This avoids /adminlogin being caught by a naive startsWith("/admin") check.
@@ -18,11 +68,11 @@ export async function proxy(request: NextRequest) {
   const isAdminCheckApi = pathname === "/api/admin/check";
 
   if (isAdminLogin || isAdminLoginApi || isAdminSetupApi || isAdminCheckApi) {
-    return NextResponse.next();
+    return nextResponse();
   }
 
   if (isConfessionApi && request.method === "POST") {
-    return NextResponse.next();
+    return nextResponse();
   }
 
   if (isAdminPage || isAdminApi || isConfessionApi) {
@@ -33,10 +83,10 @@ export async function proxy(request: NextRequest) {
       if (isAdminPage) {
         const loginUrl = request.nextUrl.clone();
         loginUrl.pathname = "/adminlogin";
-        return NextResponse.redirect(loginUrl);
+        return applySecurityHeaders(NextResponse.redirect(loginUrl), nonce);
       }
 
-      return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+      return applySecurityHeaders(NextResponse.json({ error: "Unauthorized." }, { status: 401 }), nonce);
     }
 
     try {
@@ -46,12 +96,12 @@ export async function proxy(request: NextRequest) {
           loginUrl.pathname = "/adminlogin";
           const response = NextResponse.redirect(loginUrl);
           clearSessionCookies(response);
-          return response;
+          return applySecurityHeaders(response, nonce);
         }
 
         const response = NextResponse.json({ error: "Session expired due to inactivity." }, { status: 401 });
         clearSessionCookies(response);
-        return response;
+        return applySecurityHeaders(response, nonce);
       }
 
       const payload = await verifyAdminToken(token);
@@ -59,23 +109,25 @@ export async function proxy(request: NextRequest) {
         throw new Error("Invalid token");
       }
 
-      const response = NextResponse.next();
+      const response = NextResponse.next({
+        request: { headers: requestHeaders },
+      });
       touchSessionActivity(response);
-      return response;
+      return applySecurityHeaders(response, nonce);
     } catch {
       if (isAdminPage) {
         const loginUrl = request.nextUrl.clone();
         loginUrl.pathname = "/adminlogin";
-        return NextResponse.redirect(loginUrl);
+        return applySecurityHeaders(NextResponse.redirect(loginUrl), nonce);
       }
 
-      return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+      return applySecurityHeaders(NextResponse.json({ error: "Unauthorized." }, { status: 401 }), nonce);
     }
   }
 
-  return NextResponse.next();
+  return nextResponse();
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/api/admin/:path*", "/api/confessions", "/api/confessions/:path*"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
 };

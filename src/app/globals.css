@@ -33,9 +33,9 @@
   --accent-foreground: 0 0% 100%;
   --success: 142 71% 45%;
   --success-foreground: 0 0% 100%;
-  --warning: 38 92% 50%;
+  --warning: 38 92% 32%;
   --warning-foreground: 0 0% 100%;
-  --destructive: 0 84% 60%;
+  --destructive: 0 72% 43%;
   --destructive-foreground: 0 0% 100%;
   --border: 350 18% 88%;
   --input: 350 18% 92%;
@@ -1078,6 +1078,11 @@ a:focus-visible {
   outline: none;
   border-radius: 4px;
   box-shadow: 0 0 0 2px hsl(var(--background)), 0 0 0 4px hsl(var(--ring) / 0.4);
+}
+
+.focus-ring:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px hsl(var(--background)), 0 0 0 4px hsl(var(--ring) / 0.45);
 }
 
 /* ─────────────────────────────────────────

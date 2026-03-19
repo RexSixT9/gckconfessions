@@ -8,7 +8,15 @@ import { writeAuditLog } from "@/lib/audit";
 import { isbot } from "isbot";
 import { verifyAdminToken } from "@/lib/auth";
 import { COOKIE_NAME } from "@/lib/constants";
-import { filterProfanity, sanitizeOutputText, sanitizeText, validateConfessionSubmission } from "@/lib/moderation";
+import {
+  filterProfanity,
+  getTextSimilarityScore,
+  normalizeForSimilarity,
+  sanitizeOutputText,
+  sanitizeText,
+  SANITIZATION_POLICY_VERSION,
+  validateConfessionSubmission,
+} from "@/lib/moderation";
 import { getRequestFingerprint, isSameOrigin } from "@/lib/requestUtils";
 import {
   checkSubmissionBurstLimit,
@@ -19,6 +27,7 @@ import {
   getRateLimitHeaders,
 } from "@/lib/rateLimit";
 import { MAX_MESSAGE_LENGTH, MAX_MUSIC_LENGTH } from "@/lib/constants";
+import { confessionSubmitSchema } from "@/lib/validation";
 import Confession from "@/models/Confession";
 
 type ConfessionResponse = {
@@ -237,9 +246,14 @@ export async function POST(request: Request) {
       return apiError(400, "INVALID_JSON", "Invalid request payload.");
     }
 
-    const rawMessage = String(body.message ?? "");
-    const rawMusic = String(body.music ?? "");
-    const website = String(body.website ?? "").trim();
+    const parsed = confessionSubmitSchema.safeParse(body);
+    if (!parsed.success) {
+      return apiError(400, "VALIDATION_ERROR", "Invalid submission payload.");
+    }
+
+    const rawMessage = parsed.data.message;
+    const rawMusic = parsed.data.music;
+    const website = parsed.data.website.trim();
 
     if (website) {
       return apiError(400, "VALIDATION_ERROR", "Submission rejected.");
@@ -248,6 +262,7 @@ export async function POST(request: Request) {
     const message = sanitizeText(rawMessage, MAX_MESSAGE_LENGTH);
     const music = sanitizeText(rawMusic, MAX_MUSIC_LENGTH);
     const moderated = filterProfanity(message);
+    const normalizedMessage = normalizeForSimilarity(moderated.clean, MAX_MESSAGE_LENGTH);
 
     const validation = validateConfessionSubmission(message);
     if (!validation.valid) {
@@ -262,16 +277,48 @@ export async function POST(request: Request) {
     const messageHash = createHash("sha256")
       .update(message.toLowerCase())
       .digest("hex");
+    const messageNormalizedHash = createHash("sha256")
+      .update(normalizedMessage)
+      .digest("hex");
     const duplicateWindowMs = 30 * 60 * 1000;
-    const recentDuplicate = await Confession.findOne({
-      messageHash,
-      createdAt: { $gte: new Date(Date.now() - duplicateWindowMs) },
-    })
-      .select({ _id: 1 })
-      .lean();
+    const duplicateSince = new Date(Date.now() - duplicateWindowMs);
+    const [recentDuplicate, recentNormalizedDuplicate, recentCandidates] = await Promise.all([
+      Confession.findOne({
+        messageHash,
+        createdAt: { $gte: duplicateSince },
+      })
+        .select({ _id: 1 })
+        .lean(),
+      Confession.findOne({
+        messageNormalizedHash,
+        createdAt: { $gte: duplicateSince },
+      })
+        .select({ _id: 1 })
+        .lean(),
+      Confession.find({
+        createdAt: { $gte: duplicateSince },
+      })
+        .sort({ createdAt: -1 })
+        .limit(60)
+        .select({ _id: 1, message: 1 })
+        .lean<Array<{ _id: unknown; message?: string }>>(),
+    ]);
 
-    if (recentDuplicate) {
+    if (recentDuplicate || recentNormalizedDuplicate) {
       return apiError(429, "RATE_LIMIT", "Duplicate submission detected. Please wait.", {
+        "Retry-After": "1800",
+      });
+    }
+
+    const mostSimilar = recentCandidates
+      .map((item) => ({
+        id: String(item._id),
+        score: getTextSimilarityScore(normalizedMessage, item.message ?? ""),
+      }))
+      .sort((a, b) => b.score - a.score)[0];
+
+    if (mostSimilar && mostSimilar.score >= 0.9) {
+      return apiError(429, "RATE_LIMIT", "Very similar submission detected. Please wait before posting again.", {
         "Retry-After": "1800",
       });
     }
@@ -279,6 +326,8 @@ export async function POST(request: Request) {
     const confession = await Confession.create({
       message: moderated.clean,
       messageHash,
+      messageNormalizedHash,
+      sanitizationVersion: SANITIZATION_POLICY_VERSION,
       music,
     });
 
@@ -291,6 +340,8 @@ export async function POST(request: Request) {
           moderationChanged: moderated.clean !== message,
           musicIncluded: Boolean(music),
           fingerprint,
+          sanitizationVersion: SANITIZATION_POLICY_VERSION,
+          similarityScore: mostSimilar?.score ?? 0,
         },
       });
     } catch (logError) {

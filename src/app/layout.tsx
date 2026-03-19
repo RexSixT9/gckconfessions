@@ -1,16 +1,15 @@
 import type { Metadata, Viewport } from "next";
+import { headers } from "next/headers";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
 import { ThemeProvider } from "next-themes";
 import { MotionProvider } from "@/components/MotionProvider";
 import HeaderNav from "@/components/HeaderNav";
 import Footer from "@/components/Footer";
-import { CursorEffects } from "@/components/CursorEffects";
 import { SonnerToaster } from "@/components/SonnerToaster";
 import PageTransition from "@/components/PageTransition";
 import PWARegister from "@/components/PWARegister";
-import AppPreloader from "@/components/AppPreloader";
-import ScrollProgressBar from "@/components/ScrollProgressBar";
+import ClientVisualEffects from "@/components/ClientVisualEffects";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -27,7 +26,16 @@ const geistMono = Geist_Mono({
   preload: true,
 });
 
+const metadataBase = (() => {
+  try {
+    return new URL(process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000");
+  } catch {
+    return new URL("http://localhost:3000");
+  }
+})();
+
 export const metadata: Metadata = {
+  metadataBase,
   title: {
     default: "GCK Confessions",
     template: "%s | GCK Confessions",
@@ -40,11 +48,21 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
+  alternates: {
+    canonical: "/",
+  },
   openGraph: {
     title: "GCK Confessions",
     description: "Share what is on your mind anonymously in a community moderated for safety.",
+    url: "/",
+    siteName: "GCK Confessions",
     type: "website",
     locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "GCK Confessions",
+    description: "An anonymous, moderated space for students to share honestly.",
   },
   manifest: "/manifest.webmanifest",
 };
@@ -60,12 +78,14 @@ export const viewport: Viewport = {
   ],
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   const campaignVariant = process.env.NEXT_PUBLIC_CAMPAIGN_VARIANT || "default";
+  const headerStore = await headers();
+  const nonce = headerStore.get("x-nonce") ?? undefined;
 
   return (
     <html lang="en" suppressHydrationWarning data-campaign={campaignVariant}>
@@ -75,6 +95,7 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         {/* Inline theme script to prevent flash */}
         <script
+          nonce={nonce}
           dangerouslySetInnerHTML={{
             __html: `try{const t=localStorage.getItem('theme')||(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.classList.toggle('dark',t==='dark')}catch(e){}`,
           }}
@@ -97,12 +118,8 @@ export default function RootLayout({
           storageKey="theme"
         >
           <MotionProvider>
-            <AppPreloader />
             <PWARegister />
-            <ScrollProgressBar />
-
-            {/* ── Cursor Effects ── */}
-            <CursorEffects />
+            <ClientVisualEffects />
 
             {/* ── Toast notifications ── */}
             <SonnerToaster />

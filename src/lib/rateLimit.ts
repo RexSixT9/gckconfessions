@@ -78,6 +78,15 @@ const loginLimiter = new RateLimiterMemory({
 });
 
 /**
+ * Fingerprint burst limiter for admin login endpoint.
+ */
+const loginBurstLimiter = new RateLimiterMemory({
+  points: process.env.NODE_ENV === "production" ? 10 : 80,
+  duration: 60,
+  blockDuration: process.env.NODE_ENV === "production" ? 15 * 60 : 0,
+});
+
+/**
  * Email-scoped login limiter slows credential stuffing against a single admin account.
  */
 const loginIdentityLimiter = new RateLimiterMemory({
@@ -206,6 +215,10 @@ export function checkLoginLimit(key: string) {
 
 export function checkLoginIdentityLimit(key: string) {
   return consume(loginIdentityLimiter, key);
+}
+
+export function checkLoginBurstLimit(key: string) {
+  return consume(loginBurstLimiter, key);
 }
 
 export function checkSetupLimit(key: string) {
