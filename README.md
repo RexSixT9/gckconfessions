@@ -30,13 +30,9 @@ npm run build
 npm run test:e2e
 ```
 
-## Performance assertions (Lighthouse CI)
+## Performance checks
 
-```bash
-npm run perf:assert
-```
-
-The Lighthouse assertions currently enforce thresholds for LCP, CLS, and TBT in `lighthouserc.json`.
+Lighthouse CI tooling was removed from this repo. Run Lighthouse manually from browser DevTools or your CI environment if you still want performance audits.
 
 ## Security operations
 
