@@ -3,8 +3,7 @@ import GuidelinesClient from "./GuidelinesClient";
 
 export const metadata: Metadata = {
   title: "Privacy & Guidelines — GCK Confessions",
-  description:
-    "How privacy is handled and which community rules keep GCK Confessions safe for everyone.",
+  description: "Privacy basics and posting rules for safe, anonymous sharing.",
 };
 
 export default function GuidelinesPage() {

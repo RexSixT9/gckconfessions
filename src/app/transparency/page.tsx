@@ -28,20 +28,20 @@ export default async function TransparencyPage() {
     <PageShell>
       <PageIntro
         badge="Transparency"
-        title="Moderation and safety snapshot"
-        description="We share queue and moderation activity so the community can see how the system is handled."
+        title="Moderation snapshot"
+        description="Live counts for review activity and moderation actions."
       />
 
       {!data ? (
         <Card className="mt-6 border-border/70 bg-card/70 shadow-none backdrop-blur-sm">
           <CardContent className="py-10 text-center text-sm text-muted-foreground">
-            These stats are unavailable right now. Please check back shortly.
+            Stats are unavailable right now. Please try again shortly.
           </CardContent>
         </Card>
       ) : (
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {[
-            ["Awaiting review", data.queue.pending],
+            ["Pending review", data.queue.pending],
             ["Approved", data.queue.approved],
             ["Rejected", data.queue.rejected],
             ["Published", data.queue.published],
@@ -59,6 +59,9 @@ export default async function TransparencyPage() {
           ))}
           <p className="col-span-full text-xs text-muted-foreground lg:col-span-3">
             Last refreshed: {new Date(data.generatedAt).toLocaleString()}
+          </p>
+          <p className="col-span-full text-xs text-muted-foreground lg:col-span-3">
+            These are aggregate counts only and do not expose user identity.
           </p>
         </div>
       )}

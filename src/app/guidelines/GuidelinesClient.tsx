@@ -18,28 +18,28 @@ import { PageReveal } from "@/components/Reveal";
 import { PageBackLink, PageIntro, PageShell } from "@/components/PageScaffold";
 
 const privacyPoints = [
-  "You can submit without creating an account.",
-  "We store your confession text, optional music tag, and moderation-related metadata.",
+  "No account is required to submit.",
+  "We store your message, optional music tag, and moderation logs.",
   "Only moderators can access the review queue.",
-  "Safety protections run in the background to reduce abuse.",
+  "Rate limits and abuse checks help protect the form.",
 ];
 
 const allowed = [
-  "Personal reflections, emotions, and life experiences.",
-  "Supportive, empathetic messages.",
-  "Lighthearted confessions shared respectfully.",
+  "Personal reflections and honest experiences.",
+  "Supportive, respectful messages.",
+  "Light and harmless confessions.",
 ];
 
 const disallowed = [
-  "Hate speech, slurs, and harassment.",
-  "Doxxing, threats, or sharing private information.",
+  "Hate speech, slurs, or harassment.",
+  "Threats, doxxing, or private information.",
   "Violent, sexual, illegal, or spam content.",
 ];
 
 const privacyNotes = [
-  "When auto-save is enabled, drafts stay on your device.",
-  "Published posts never include your identity.",
-  "Repeated abuse may lead to temporary submission limits.",
+  "If autosave is on, drafts stay on your device.",
+  "Published posts do not include your identity.",
+  "Repeated abuse may trigger temporary limits.",
 ];
 
 export default function GuidelinesClient() {
@@ -49,8 +49,8 @@ export default function GuidelinesClient() {
       <PageBackLink className="mb-5" />
       <PageIntro
         badge="Privacy and Guidelines"
-        title="Clear rules that protect everyone"
-        description="This space is anonymous and moderated so people can share safely and respectfully."
+        title="Simple rules, safer sharing"
+        description="Anonymous posting with clear moderation rules."
       />
 
       <section className="mt-8 grid gap-6 md:grid-cols-2" aria-labelledby="privacy-heading">
