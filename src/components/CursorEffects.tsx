@@ -23,6 +23,7 @@ const TRAIL_FRAME_MS = 90;
 const TRAIL_MAX_DOTS = 4;
 const TRAIL_FADE_STEP = 0.07;
 const MOVE_PULSE_INTERVAL_MS = 450;
+const MAX_PULSES = 4;
 
 export function CursorEffects() {
   const [trails, setTrails] = useState<TrailDot[]>([]);
@@ -42,6 +43,8 @@ export function CursorEffects() {
     if (prefersReducedMotion()) return;
     // Check if touch device
     if (isTouchDevice()) return;
+    // Desktop cursor effects should only run for fine pointers.
+    if (!window.matchMedia('(pointer: fine)').matches) return;
 
     function fadeTrails() {
       let shouldContinue = false;
@@ -79,14 +82,14 @@ export function CursorEffects() {
         borderOpacity: config.borderOpacity,
       };
 
-      setPulses((prev) => [...prev, newPulse]);
+      setPulses((prev) => [...prev, newPulse].slice(-MAX_PULSES));
 
       window.setTimeout(() => {
         setPulses((prev) => prev.filter((p) => p.id !== newPulse.id));
       }, config.durationMs + 60);
     };
 
-    const handleMouseMove = (e: MouseEvent) => {
+    const handleMouseMove = (e: PointerEvent) => {
       const now = Date.now();
       if (!isCursorVisibleRef.current) {
         isCursorVisibleRef.current = true;
@@ -126,7 +129,7 @@ export function CursorEffects() {
       }
     };
 
-    const handleClick = (e: MouseEvent) => {
+    const handleClick = (e: PointerEvent) => {
       spawnPulse(e.clientX, e.clientY, {
         size: 30,
         durationMs: 740,
@@ -146,14 +149,14 @@ export function CursorEffects() {
       setIsCursorVisible(true);
     };
 
-    window.addEventListener('mousemove', handleMouseMove, { passive: true });
-    window.addEventListener('click', handleClick);
+    window.addEventListener('pointermove', handleMouseMove, { passive: true });
+    window.addEventListener('pointerdown', handleClick, { passive: true });
     window.addEventListener('mouseout', handleMouseLeaveWindow);
     window.addEventListener('mouseover', handleMouseEnterWindow);
 
     return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('click', handleClick);
+      window.removeEventListener('pointermove', handleMouseMove);
+      window.removeEventListener('pointerdown', handleClick);
       window.removeEventListener('mouseout', handleMouseLeaveWindow);
       window.removeEventListener('mouseover', handleMouseEnterWindow);
       if (rafIdRef.current) {
