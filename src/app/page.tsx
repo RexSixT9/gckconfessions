@@ -37,6 +37,16 @@ import { isLowEndDevice } from "@/lib/motionConfig";
 
 const EASE_OUT: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
+const sectionReveal = {
+  hidden: { opacity: 0, y: 22, filter: "blur(4px)" },
+  show: {
+    opacity: 1,
+    y: 0,
+    filter: "blur(0px)",
+    transition: { duration: 0.55, ease: EASE_OUT },
+  },
+};
+
 const highlights = [
   {
     icon: Users,
@@ -300,9 +310,15 @@ export default function HomePage() {
     typeof window !== "undefined" ? window.matchMedia("(min-width: 768px)").matches : false
   );
   const [isLowEnd] = useState(() => (typeof window !== "undefined" ? isLowEndDevice() : false));
+  const heroRef = useRef<HTMLElement | null>(null);
   const highlightsRef = useRef<HTMLElement | null>(null);
   const stepsRef = useRef<HTMLElement | null>(null);
   const reduceHeavyMotion = shouldReduceMotion || isLowEnd;
+
+  const { scrollYProgress: heroProgress } = useScroll({
+    target: heroRef,
+    offset: ["start start", "end start"],
+  });
 
   const { scrollYProgress: highlightsProgress } = useScroll({
     target: highlightsRef,
@@ -317,6 +333,13 @@ export default function HomePage() {
     stiffness: 120,
     damping: 24,
   });
+
+  const heroParallaxY = useSpring(useTransform(heroProgress, [0, 1], [0, 44]), {
+    stiffness: 110,
+    damping: 24,
+  });
+  const heroParallaxOpacity = useTransform(heroProgress, [0, 0.85, 1], [1, 1, 0.7]);
+
   const stepsParallax = useSpring(useTransform(stepsProgress, [0, 1], [14, -14]), {
     stiffness: 120,
     damping: 24,
@@ -387,6 +410,7 @@ export default function HomePage() {
     <main className="flex-1 overflow-x-clip bg-background">
       <section
         id="home-hero"
+        ref={heroRef}
         aria-labelledby="hero-title"
         className="snap-section relative flex min-h-[88vh] flex-col items-center justify-center overflow-hidden border-b border-border/50 py-14 md:min-h-[calc(100dvh-var(--header-height))] md:py-0"
       >
@@ -398,7 +422,17 @@ export default function HomePage() {
           <div className="hero-beam-extra opacity-45" />
         </div>
 
-        <div className="flex flex-1 items-center">
+        <motion.div
+          style={
+            reduceHeavyMotion
+              ? undefined
+              : {
+                  y: heroParallaxY,
+                  opacity: heroParallaxOpacity,
+                }
+          }
+          className="flex flex-1 items-center"
+        >
           <div className="min-w-0-children mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-12 px-4 py-4 sm:px-6 lg:grid-cols-2 lg:gap-16 lg:px-8">
             <motion.div
               variants={heroStaggerContainer}
@@ -440,12 +474,21 @@ export default function HomePage() {
 
               <motion.div variants={heroFadeUp} className="mt-5 flex flex-wrap justify-center gap-2 md:justify-start">
                 {["No sign-up", "Human review", "Anonymous"].map((item) => (
-                  <span
+                  <motion.span
                     key={item}
+                    initial={reduceHeavyMotion ? undefined : { opacity: 0, y: 8 }}
+                    animate={
+                      canStartMotion
+                        ? { opacity: 1, y: 0 }
+                        : reduceHeavyMotion
+                          ? undefined
+                          : { opacity: 0, y: 8 }
+                    }
+                    transition={reduceHeavyMotion ? undefined : { duration: 0.35, ease: EASE_OUT }}
                     className="rounded-full border border-border/60 bg-card/60 px-3 py-1 text-xs font-medium text-foreground/85 backdrop-blur-sm"
                   >
                     {item}
-                  </span>
+                  </motion.span>
                 ))}
               </motion.div>
 
@@ -508,7 +551,7 @@ export default function HomePage() {
               <FloatingConfessionCard reduceMotion={reduceHeavyMotion} />
             </motion.div>
           </div>
-        </div>
+        </motion.div>
 
         <motion.button
           type="button"
@@ -538,7 +581,14 @@ export default function HomePage() {
         </motion.button>
       </section>
 
-      <section className="snap-section mx-auto w-full max-w-7xl px-4 py-9 sm:px-6 sm:py-12 lg:px-8" aria-labelledby="community-pulse-heading">
+      <motion.section
+        initial={reduceHeavyMotion ? undefined : "hidden"}
+        whileInView={reduceHeavyMotion ? undefined : "show"}
+        viewport={{ once: true, amount: 0.22 }}
+        variants={sectionReveal}
+        className="snap-section mx-auto w-full max-w-7xl px-4 py-9 sm:px-6 sm:py-12 lg:px-8"
+        aria-labelledby="community-pulse-heading"
+      >
         <ScrollReveal y={12} duration={0.36}>
           <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
             <Card className="border-border/60 bg-card/65 backdrop-blur-sm">
@@ -566,9 +616,16 @@ export default function HomePage() {
             <MiniTestimonialSlider reduceMotion={reduceHeavyMotion} />
           </div>
         </ScrollReveal>
-      </section>
+      </motion.section>
 
-      <section className="snap-section mx-auto w-full max-w-7xl px-4 py-9 sm:px-6 sm:py-12 lg:px-8" aria-labelledby="explore-heading">
+      <motion.section
+        initial={reduceHeavyMotion ? undefined : "hidden"}
+        whileInView={reduceHeavyMotion ? undefined : "show"}
+        viewport={{ once: true, amount: 0.25 }}
+        variants={sectionReveal}
+        className="snap-section mx-auto w-full max-w-7xl px-4 py-9 sm:px-6 sm:py-12 lg:px-8"
+        aria-labelledby="explore-heading"
+      >
         <ScrollReveal y={12} duration={0.38}>
           <div className="rounded-2xl border border-border/60 bg-card/55 p-5 backdrop-blur-sm sm:p-6">
             <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
@@ -591,7 +648,7 @@ export default function HomePage() {
             </div>
           </div>
         </ScrollReveal>
-      </section>
+      </motion.section>
 
       <Separator className="mx-auto w-full max-w-7xl opacity-55" />
 
@@ -687,7 +744,13 @@ export default function HomePage() {
         </div>
       </motion.section>
 
-      <section className="snap-section mx-auto w-full max-w-7xl px-4 pb-14 sm:px-6 sm:pb-20 lg:px-8">
+      <motion.section
+        initial={reduceHeavyMotion ? undefined : "hidden"}
+        whileInView={reduceHeavyMotion ? undefined : "show"}
+        viewport={{ once: true, amount: 0.25 }}
+        variants={sectionReveal}
+        className="snap-section mx-auto w-full max-w-7xl px-4 pb-14 sm:px-6 sm:pb-20 lg:px-8"
+      >
         <ScrollReveal y={16} duration={0.45}>
           <div className="relative overflow-hidden rounded-3xl border border-border/60">
             <div className="absolute inset-0 bg-linear-to-br from-zinc-950 via-zinc-900 to-zinc-950 dark:from-zinc-900 dark:via-zinc-950 dark:to-black" />
@@ -733,7 +796,7 @@ export default function HomePage() {
             </div>
           </div>
         </ScrollReveal>
-      </section>
+      </motion.section>
     </main>
   );
 }
