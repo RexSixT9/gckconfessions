@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { prefersReducedMotion, isTouchDevice } from '@/lib/motionConfig';
+import SmoothCursorFollower from '@/components/SmoothCursorFollower';
 
 interface TrailDot {
   id: number;
@@ -28,15 +29,12 @@ const MAX_PULSES = 4;
 export function CursorEffects() {
   const [trails, setTrails] = useState<TrailDot[]>([]);
   const [pulses, setPulses] = useState<PulseRipple[]>([]);
-  const [isCursorVisible, setIsCursorVisible] = useState(false);
   const trailIdRef = useRef(0);
   const pulseIdRef = useRef(0);
   const lastMoveTimeRef = useRef(0);
   const lastPulseTimeRef = useRef(0);
   const rafIdRef = useRef<number | undefined>(undefined);
   const isActiveRef = useRef(false);
-  const isCursorVisibleRef = useRef(false);
-  const glowRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     // Check for reduced motion preference
@@ -91,14 +89,6 @@ export function CursorEffects() {
 
     const handleMouseMove = (e: PointerEvent) => {
       const now = Date.now();
-      if (!isCursorVisibleRef.current) {
-        isCursorVisibleRef.current = true;
-        setIsCursorVisible(true);
-      }
-
-      if (glowRef.current) {
-        glowRef.current.style.transform = `translate(${e.clientX}px, ${e.clientY}px) translate(-50%, -50%)`;
-      }
 
       if (now - lastMoveTimeRef.current < TRAIL_FRAME_MS) return;
       lastMoveTimeRef.current = now;
@@ -137,28 +127,12 @@ export function CursorEffects() {
       });
     };
 
-    const handleMouseLeaveWindow = (e: MouseEvent) => {
-      if (e.relatedTarget === null) {
-        isCursorVisibleRef.current = false;
-        setIsCursorVisible(false);
-      }
-    };
-
-    const handleMouseEnterWindow = () => {
-      isCursorVisibleRef.current = true;
-      setIsCursorVisible(true);
-    };
-
     window.addEventListener('pointermove', handleMouseMove, { passive: true });
     window.addEventListener('pointerdown', handleClick, { passive: true });
-    window.addEventListener('mouseout', handleMouseLeaveWindow);
-    window.addEventListener('mouseover', handleMouseEnterWindow);
 
     return () => {
       window.removeEventListener('pointermove', handleMouseMove);
       window.removeEventListener('pointerdown', handleClick);
-      window.removeEventListener('mouseout', handleMouseLeaveWindow);
-      window.removeEventListener('mouseover', handleMouseEnterWindow);
       if (rafIdRef.current) {
         cancelAnimationFrame(rafIdRef.current);
       }
@@ -167,15 +141,7 @@ export function CursorEffects() {
 
   return (
     <>
-      <div
-        ref={glowRef}
-        className="pointer-events-none fixed z-9997 h-6 w-6 rounded-full border border-accent/30 bg-accent/8 mix-blend-screen transition-opacity duration-200"
-        style={{
-          opacity: isCursorVisible ? 1 : 0,
-          transform: 'translate(-100px, -100px)',
-          willChange: 'transform, opacity',
-        }}
-      />
+      <SmoothCursorFollower />
 
       {/* Cursor Trail Dots */}
       {trails.map((trail, index) => (
