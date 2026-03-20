@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import dynamic from "next/dynamic";
+import { useMotionRuntime } from "@/components/MotionProvider";
 import { isLowEndDevice, prefersReducedMotion } from "@/lib/motionConfig";
 
 const CursorEffects = dynamic(
@@ -12,10 +13,18 @@ const ScrollProgressBar = dynamic(() => import("@/components/ScrollProgressBar")
 const AppPreloader = dynamic(() => import("@/components/AppPreloader"), { ssr: false });
 
 export default function ClientVisualEffects() {
+  const { setAppReady } = useMotionRuntime();
+
   const allowHeavyVisuals = useMemo(() => {
     if (typeof window === "undefined") return false;
     return !prefersReducedMotion() && !isLowEndDevice();
   }, []);
+
+  useEffect(() => {
+    if (!allowHeavyVisuals) {
+      setAppReady(true);
+    }
+  }, [allowHeavyVisuals, setAppReady]);
 
   return (
     <>
