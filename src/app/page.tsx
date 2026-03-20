@@ -513,7 +513,7 @@ export default function HomePage() {
                     size="lg"
                     variant="outline"
                     className="h-auto gap-2 rounded-full border-border/60 px-8 py-4 text-sm backdrop-blur-sm transition-all hover:border-foreground/35 hover:bg-card/60"
-                    onClick={() => scrollToSection("how-it-works")}
+                    render={<Link href="/#how-it-works" />}
                   >
                     <>
                       How it works
