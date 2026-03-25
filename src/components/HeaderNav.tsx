@@ -65,7 +65,7 @@ export default function HeaderNav() {
           isHidden && "-translate-y-full"
         )}
       >
-        <div className="relative border-b border-border/70 bg-background/90 px-3 py-2.5 backdrop-blur-xl sm:px-4 max-[430px]:px-2.5 max-[430px]:py-2">
+        <div className="relative border-b border-border/70 bg-background/90 px-3 py-2.5 backdrop-blur-xl sm:px-4 max-[430px]:px-2.5 max-[430px]:py-2 max-[359px]:px-2 max-[359px]:py-1.5">
           <div className="relative mx-auto flex w-full max-w-6xl items-center justify-between gap-2 sm:px-1">
             {/* Logo */}
             <Link
@@ -76,14 +76,14 @@ export default function HeaderNav() {
               <motion.span
                 whileTap={{ scale: 0.94 }}
                 transition={{ duration: 0.12 }}
-                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-accent/45 bg-accent/12 max-[430px]:h-7 max-[430px]:w-7"
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-accent/45 bg-accent/12 max-[430px]:h-7 max-[430px]:w-7 max-[359px]:h-6.5 max-[359px]:w-6.5"
               >
-                <Cpu className="h-4 w-4 text-accent max-[430px]:h-3.5 max-[430px]:w-3.5" strokeWidth={2} />
+                <Cpu className="h-4 w-4 text-accent max-[430px]:h-3.5 max-[430px]:w-3.5 max-[359px]:h-3 max-[359px]:w-3" strokeWidth={2} />
               </motion.span>
-              <span className="truncate text-[0.72rem] font-semibold uppercase tracking-[0.13em] max-[430px]:text-[0.64rem] max-[430px]:tracking-[0.11em]">GCK Confessions</span>
+              <span className="truncate text-[0.72rem] font-semibold uppercase tracking-[0.13em] max-[430px]:text-[0.64rem] max-[430px]:tracking-[0.11em] max-[359px]:text-[0.58rem]">GCK Confessions</span>
             </Link>
 
-            <div className="flex items-center gap-2 sm:gap-3 max-[430px]:gap-1.5">
+            <div className="flex items-center gap-2 sm:gap-3 max-[430px]:gap-1.5 max-[359px]:gap-1">
               <nav aria-label="Primary" className="hidden items-center gap-1 sm:flex">
                 <Link
                   href="/submit"

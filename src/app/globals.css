@@ -1021,6 +1021,16 @@ select {
   .input-base {
     font-size: 0.9375rem;
   }
+
+  html {
+    font-size: 15px;
+  }
+
+  [data-slot="button"] {
+    min-height: 40px;
+    font-size: 0.66rem;
+    letter-spacing: 0.05em;
+  }
 }
 
 /* Large desktops and 4K displays */
@@ -1060,6 +1070,22 @@ select {
   }
 }
 
+/* Landscape phones: reduce vertical pressure and prevent cramped controls */
+@media (max-height: 500px) and (orientation: landscape) {
+  html {
+    scroll-padding-top: calc(var(--header-height, 3.5rem) + 1rem);
+  }
+
+  [data-slot="button"] {
+    min-height: 40px;
+    padding-block: 0.35rem;
+  }
+
+  [data-sonner-toast] {
+    --offset: 8px;
+  }
+}
+
 /* Desktop-specific enhancements — rotating border handled by ::after */
 
 /* Better text readability on all devices */
@@ -1076,6 +1102,12 @@ h1, h2, h3, h4 {
   font-family: var(--font-barlow-condensed), var(--font-space-grotesk), system-ui, sans-serif;
   letter-spacing: 0.02em;
   text-transform: uppercase;
+}
+
+@media (max-width: 430px) {
+  h1, h2, h3, h4 {
+    letter-spacing: 0.015em;
+  }
 }
 
 /* Natural text wrap for paragraphs and labels */

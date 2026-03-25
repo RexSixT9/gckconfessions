@@ -249,7 +249,7 @@ export default function SubmitPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={onSubmit} className="space-y-7 max-[430px]:space-y-5">
+            <form onSubmit={onSubmit} className="space-y-7 max-[430px]:space-y-5 max-[359px]:space-y-4">
                 <input
                   type="text"
                   name="website"
@@ -269,7 +269,7 @@ export default function SubmitPage() {
                     <span
                       id="confession-count"
                       className={cn(
-                        "text-[0.68rem] tabular-nums uppercase tracking-widest text-muted-foreground max-[430px]:text-[0.62rem]",
+                        "text-[0.68rem] tabular-nums uppercase tracking-widest text-muted-foreground max-[430px]:text-[0.62rem] max-[359px]:text-[0.56rem]",
                         charCount > CHAR_LIMIT * 0.9 && "font-medium text-destructive"
                       )}
                       role="status"
@@ -285,12 +285,12 @@ export default function SubmitPage() {
                     onChange={(event) => setMessage(event.target.value)}
                     maxLength={CHAR_LIMIT}
                     rows={10}
-                    className="min-h-56 resize-none rounded-md border-border bg-background text-sm leading-6 shadow-none max-[430px]:min-h-48 max-[430px]:text-[0.92rem]"
+                    className="min-h-56 resize-none rounded-md border-border bg-background text-sm leading-6 shadow-none max-[430px]:min-h-48 max-[430px]:text-[0.92rem] max-[359px]:min-h-44 max-[359px]:text-[0.84rem]"
                     placeholder="Type your confession..."
                     required
                     aria-describedby="confession-help confession-count"
                   />
-                  <p id="confession-help" className="text-[0.75rem] text-muted-foreground" aria-live="polite">
+                  <p id="confession-help" className="text-[0.75rem] text-muted-foreground max-[359px]:text-[0.68rem]" aria-live="polite">
                     {guidanceText}
                   </p>
                 </div>
@@ -306,16 +306,16 @@ export default function SubmitPage() {
                       onChange={(event) => setMusic(event.target.value)}
                       maxLength={120}
                       placeholder="Artist - Track"
-                      className="h-11 rounded-md border-border bg-background shadow-none max-[430px]:h-10.5"
+                      className="h-11 rounded-md border-border bg-background shadow-none max-[430px]:h-10.5 max-[359px]:h-10"
                     />
-                    <p className="text-[0.75rem] text-muted-foreground">Artist - Track (optional)</p>
+                    <p className="text-[0.75rem] text-muted-foreground max-[359px]:text-[0.68rem]">Artist - Track (optional)</p>
                 </div>
 
-                <div className="rounded-md border border-border p-4 max-[430px]:p-3.5">
+                <div className="rounded-md border border-border p-4 max-[430px]:p-3.5 max-[359px]:p-3">
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div className="space-y-1">
-                      <p className="text-[0.72rem] font-semibold uppercase tracking-[0.12em]">Draft Buffer</p>
-                      <p className="text-[0.75rem] text-muted-foreground">
+                      <p className="text-[0.72rem] font-semibold uppercase tracking-[0.12em] max-[359px]:text-[0.64rem]">Draft Buffer</p>
+                      <p className="text-[0.75rem] text-muted-foreground max-[359px]:text-[0.68rem]">
                         {draftError
                           ? "Local storage is not available on this device."
                           : hasDraft && saveDraft
@@ -346,7 +346,7 @@ export default function SubmitPage() {
                 <Separator />
 
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <Button type="submit" variant="brand" size="touch" className="w-full gap-2 sm:w-auto" disabled={!canSubmit}>
+                  <Button type="submit" variant="brand" size="touch" className="w-full gap-2 sm:w-auto max-[359px]:h-10 max-[359px]:text-[0.67rem]" disabled={!canSubmit}>
                     {loading ? (
                       <>
                         <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground/40 border-t-primary-foreground" />
