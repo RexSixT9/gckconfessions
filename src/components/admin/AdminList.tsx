@@ -124,7 +124,6 @@ export default function AdminList() {
   const [page, setPage] = useState(1);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [processingId, setProcessingId] = useState<string | null>(null);
-  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [liveMessage, setLiveMessage] = useState("");
   const inFlightRef = useRef(false);
 
@@ -309,7 +308,6 @@ export default function AdminList() {
     async (id: string) => {
       setNotice(null);
       setProcessingId(id);
-      setDeleteConfirmId(null);
       setLiveMessage("Delete in progress.");
 
       let snapshot: ConfessionItem[] = [];
@@ -359,6 +357,17 @@ export default function AdminList() {
       }
     },
     [fetchItems, router],
+  );
+
+  const handleDeleteRequest = useCallback(
+    (id: string) => {
+      const confirmed = window.confirm(
+        "Delete this submission permanently? This action cannot be undone."
+      );
+      if (!confirmed) return;
+      void handleDeleteConfirm(id);
+    },
+    [handleDeleteConfirm],
   );
 
   const handleSearch = useCallback(
@@ -667,41 +676,12 @@ export default function AdminList() {
                   <ActionBtn
                     variant="danger"
                     className="w-full sm:ml-auto sm:w-auto"
-                    onClick={() => setDeleteConfirmId(item._id)}
+                    onClick={() => handleDeleteRequest(item._id)}
                     disabled={busy}
                   >
                     {busy ? <Loader className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
                     Delete
                   </ActionBtn>
-
-                  {/* Delete confirmation dialog */}
-                  {deleteConfirmId === item._id && (
-                    <div className="mt-2 flex w-full flex-col gap-2 rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2.5 dark:border-destructive/25 dark:bg-destructive/8 sm:flex-row sm:items-center">
-                      <div className="flex items-center gap-2">
-                        <AlertCircle className="h-4 w-4 shrink-0 text-destructive" />
-                        <p className="flex-1 text-xs font-medium text-destructive">
-                          Delete this submission?
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-2 sm:ml-auto sm:shrink-0">
-                        <button
-                          type="button"
-                          className="focus-ring flex-1 rounded-lg border border-destructive/40 bg-destructive/15 px-2.5 py-1.5 text-xs font-semibold text-destructive transition hover:bg-destructive/25 active:scale-95 sm:flex-none sm:py-1"
-                          disabled={busy}
-                          onClick={() => void handleDeleteConfirm(item._id)}
-                        >
-                          Confirm
-                        </button>
-                        <button
-                          type="button"
-                          className="focus-ring flex-1 rounded-lg border border-border px-2.5 py-1.5 text-xs font-medium text-muted-foreground transition hover:bg-secondary hover:text-foreground active:scale-95 sm:flex-none sm:py-1"
-                          onClick={() => setDeleteConfirmId(null)}
-                        >
-                          Cancel
-                        </button>
-                      </div>
-                    </div>
-                  )}
                 </div>
 
               </CursorGlowCard>
