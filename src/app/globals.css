@@ -1203,9 +1203,9 @@ a:focus-visible {
   background: linear-gradient(
     90deg,
     transparent,
-    hsl(338 78% 52% / 0.09) 25%,
-    hsl(338 78% 52% / 0.20) 50%,
-    hsl(338 78% 52% / 0.09) 75%,
+    hsl(var(--accent) / 0.09) 25%,
+    hsl(var(--accent) / 0.2) 50%,
+    hsl(var(--accent) / 0.09) 75%,
     transparent
   );
   animation: beam-sweep 8s ease-in-out infinite;
@@ -1222,9 +1222,9 @@ a:focus-visible {
   background: linear-gradient(
     90deg,
     transparent,
-    hsl(350 80% 60% / 0.06) 30%,
-    hsl(350 80% 60% / 0.14) 50%,
-    hsl(350 80% 60% / 0.06) 70%,
+    hsl(var(--accent) / 0.06) 30%,
+    hsl(var(--accent) / 0.14) 50%,
+    hsl(var(--accent) / 0.06) 70%,
     transparent
   );
   animation: beam-sweep 14s ease-in-out infinite;
@@ -1249,9 +1249,9 @@ a:focus-visible {
   background: linear-gradient(
     90deg,
     transparent,
-    hsl(338 78% 52% / 0.06) 20%,
-    hsl(338 78% 52% / 0.13) 50%,
-    hsl(338 78% 52% / 0.06) 80%,
+    hsl(var(--accent) / 0.06) 20%,
+    hsl(var(--accent) / 0.13) 50%,
+    hsl(var(--accent) / 0.06) 80%,
     transparent
   );
   animation: beam-sweep-reverse 19s ease-in-out infinite;
@@ -1268,9 +1268,9 @@ a:focus-visible {
   background: linear-gradient(
     90deg,
     transparent,
-    hsl(350 70% 55% / 0.04) 20%,
-    hsl(350 70% 55% / 0.09) 50%,
-    hsl(350 70% 55% / 0.04) 80%,
+    hsl(var(--accent) / 0.04) 20%,
+    hsl(var(--accent) / 0.09) 50%,
+    hsl(var(--accent) / 0.04) 80%,
     transparent
   );
   animation: beam-slow 32s ease-in-out infinite;
@@ -1394,15 +1394,15 @@ a:focus-visible {
 
 /* Campaign/event visual variants without changing core theme tokens */
 html[data-campaign="awareness"] {
-  --accent: 12 82% 52%;
+  --accent: 340 98% 53%;
 }
 
 html[data-campaign="exam-season"] {
-  --accent: 220 78% 54%;
+  --accent: 342 94% 56%;
 }
 
 html[data-campaign="kindness-week"] {
-  --accent: 156 56% 44%;
+  --accent: 336 90% 50%;
 }
 
 /* ─────────────────────────────────────────

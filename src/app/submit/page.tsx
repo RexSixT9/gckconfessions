@@ -166,7 +166,7 @@ export default function SubmitPage() {
       particleCount: 120,
       spread: 70,
       origin: { y: 0.65 },
-      colors: ["#06b6d4", "#22d3ee", "#67e8f9", "#e2f8ff"],
+      colors: ["#FD105E", "#FF4A86", "#FF7AA8", "#FFFFFF"],
       disableForReducedMotion: true,
     });
   }, []);
