@@ -50,13 +50,13 @@ export default function HomePage() {
       <section className="grid gap-10 border-b border-border/60 pb-14 pt-2 sm:pb-20 lg:grid-cols-[1.25fr_0.75fr] lg:items-end max-[430px]:gap-7 max-[430px]:pb-10 max-[430px]:pt-1 max-[359px]:gap-6 max-[359px]:pb-8">
         <div className="space-y-6 max-[430px]:space-y-5 max-[359px]:space-y-4">
           <Badge variant="secondary" className="w-fit rounded-sm px-3 py-1 text-[0.62rem] font-semibold uppercase tracking-[0.14em] max-[359px]:px-2.5 max-[359px]:text-[0.56rem]">
-            Private | Minimal | Moderated
+            Private | Anonymous | Moderated
           </Badge>
-          <h1 className="max-w-[16ch] text-[clamp(1.65rem,8.3vw,5rem)] font-semibold leading-[0.9] tracking-[0.04em] max-[430px]:leading-[0.94] max-[359px]:text-[1.52rem] max-[359px]:leading-[0.98]">
-            STUDENT CONFESSIONS, BUILT LIKE A CLEAN TERMINAL.
+          <h1 className="max-w-[17ch] text-[clamp(1.65rem,8.3vw,5rem)] font-semibold leading-[0.92] tracking-[0.03em] max-[430px]:leading-[0.96] max-[359px]:text-[1.52rem] max-[359px]:leading-none">
+            Student confessions shared safely and anonymously.
           </h1>
           <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base max-[430px]:text-[0.92rem] max-[359px]:text-[0.84rem]">
-            A minimalist space for honest campus thoughts. Submit anonymously, get reviewed by humans, and keep the conversation focused.
+            Share what matters without exposing your identity. Every submission is reviewed before posting to keep the space respectful and useful.
           </p>
           <div className="flex flex-wrap gap-3 max-[430px]:flex-col max-[430px]:gap-2.5 max-[359px]:gap-2">
             <Button size="touch" variant="brand" className="max-[430px]:w-full max-[359px]:h-10 max-[359px]:text-[0.67rem]" render={<Link href="/submit" />}>
@@ -96,7 +96,7 @@ export default function HomePage() {
       <section className="py-12 sm:py-16 max-[430px]:py-10 max-[359px]:py-8">
         <div className="mb-8 flex flex-wrap items-center justify-between gap-3 max-[430px]:mb-6 max-[359px]:mb-5">
           <h2 className="text-[clamp(1.4rem,4vw,2.25rem)] font-semibold tracking-[0.04em]">Core Principles</h2>
-          <Badge variant="outline" className="rounded-sm px-3 py-1 text-[0.62rem] uppercase tracking-[0.14em]">Dark Tech Minimalism</Badge>
+          <Badge variant="outline" className="rounded-sm px-3 py-1 text-[0.62rem] uppercase tracking-[0.14em]">Trusted Student Space</Badge>
         </div>
         <div className="grid gap-4 md:grid-cols-3 max-[430px]:gap-3">
           {corePillars.map(({ icon: Icon, title, description }) => (

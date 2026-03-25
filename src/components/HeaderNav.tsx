@@ -76,11 +76,11 @@ export default function HeaderNav() {
               <motion.span
                 whileTap={{ scale: 0.94 }}
                 transition={{ duration: 0.12 }}
-                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-accent/45 bg-accent/12 max-[430px]:h-7 max-[430px]:w-7 max-[359px]:h-6.5 max-[359px]:w-6.5"
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-accent/55 bg-accent/14 text-accent max-[430px]:h-8 max-[430px]:w-8 max-[359px]:h-7 max-[359px]:w-7"
               >
-                <Cpu className="h-4 w-4 text-accent max-[430px]:h-3.5 max-[430px]:w-3.5 max-[359px]:h-3 max-[359px]:w-3" strokeWidth={2} />
+                <Cpu className="h-4 w-4 max-[430px]:h-4 max-[430px]:w-4 max-[359px]:h-3.5 max-[359px]:w-3.5" strokeWidth={2.2} />
               </motion.span>
-              <span className="truncate text-[0.72rem] font-semibold uppercase tracking-[0.13em] max-[430px]:text-[0.64rem] max-[430px]:tracking-[0.11em] max-[359px]:text-[0.58rem]">GCK Confessions</span>
+              <span className="truncate text-[0.72rem] font-semibold uppercase tracking-[0.13em] text-foreground max-[430px]:text-[0.68rem] max-[430px]:tracking-[0.11em] max-[359px]:text-[0.62rem]">GCK Confessions</span>
             </Link>
 
             <div className="flex items-center gap-2 sm:gap-3 max-[430px]:gap-1.5 max-[359px]:gap-1">
