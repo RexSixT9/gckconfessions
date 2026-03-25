@@ -346,7 +346,7 @@ export default function SubmitPage() {
                 <Separator />
 
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <Button type="submit" variant="brand" size="touch" className="w-full gap-2 rounded-xl bg-[#6d28d9] text-white hover:bg-[#5b21b6] max-[359px]:h-10 max-[359px]:text-[0.67rem]" disabled={!canSubmit}>
+                  <Button type="submit" variant="brand" size="touch" className="w-full gap-2 rounded-xl bg-[#FD105E] text-white hover:bg-[#E20E55] max-[359px]:h-10 max-[359px]:text-[0.67rem]" disabled={!canSubmit}>
                     {loading ? (
                       <>
                         <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground/40 border-t-primary-foreground" />

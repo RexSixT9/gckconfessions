@@ -222,7 +222,7 @@ export default function AdminLoginPage() {
                 variant="brand"
                 size="touch"
                 disabled={loading || retryAfterSeconds > 0 || !email.trim() || password.length < MIN_PASSWORD_LENGTH}
-                className="mt-2 w-full rounded-xl bg-[#6d28d9] font-semibold text-white shadow-none hover:bg-[#5b21b6]"
+                className="mt-2 w-full rounded-xl bg-[#FD105E] font-semibold text-white shadow-none hover:bg-[#E20E55]"
               >
                 {loading ? (
                   <>

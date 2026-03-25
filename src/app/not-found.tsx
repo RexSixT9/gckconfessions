@@ -66,7 +66,7 @@ export default function NotFoundPage() {
                 onClick={() => router.push("/")}
                 variant="brand"
                 size="touch"
-                className="group w-full gap-2 rounded-xl bg-[#6d28d9] text-white hover:bg-[#5b21b6] sm:w-auto"
+                className="group w-full gap-2 rounded-xl bg-[#FD105E] text-white hover:bg-[#E20E55] sm:w-auto"
               >
                 <Home className="h-4 w-4" />
                 Back to home
