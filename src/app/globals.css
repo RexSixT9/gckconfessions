@@ -15,71 +15,71 @@
 }
 
 :root {
-  /* Light mode - cool monochrome + electric cyan accents */
+  /* Light mode - dark + pink + white */
   --header-height: 3.5rem;
-  --background: 210 30% 97%;
-  --foreground: 218 28% 10%;
+  --background: 0 0% 100%;
+  --foreground: 0 0% 20%;
   --card: 0 0% 100%;
-  --card-foreground: 218 28% 10%;
+  --card-foreground: 0 0% 20%;
   --popover: 0 0% 100%;
-  --popover-foreground: 218 28% 10%;
-  --primary: 218 30% 11%;
-  --primary-foreground: 210 30% 98%;
-  --secondary: 210 20% 93%;
-  --secondary-foreground: 218 22% 16%;
-  --muted: 210 20% 91%;
-  --muted-foreground: 218 14% 39%;
-  --accent: 188 100% 45%;
-  --accent-foreground: 220 38% 8%;
+  --popover-foreground: 0 0% 20%;
+  --primary: 0 0% 20%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 0 0% 95%;
+  --secondary-foreground: 0 0% 20%;
+  --muted: 0 0% 94%;
+  --muted-foreground: 0 0% 38%;
+  --accent: 340 98% 53%;
+  --accent-foreground: 0 0% 100%;
   --success: 142 71% 45%;
   --success-foreground: 0 0% 100%;
   --warning: 38 92% 32%;
   --warning-foreground: 0 0% 100%;
   --destructive: 0 72% 43%;
   --destructive-foreground: 0 0% 100%;
-  --border: 214 21% 81%;
-  --input: 214 24% 90%;
-  --ring: 188 100% 45%;
+  --border: 0 0% 86%;
+  --input: 0 0% 92%;
+  --ring: 340 98% 53%;
   --radius: 1rem;
   /* Light Mode - Action button colors */
   --action-accept: 142 71% 45%;
   --action-accept-foreground: 0 0% 100%;
-  --action-publish: 194 96% 44%;
-  --action-publish-foreground: 220 38% 8%;
+  --action-publish: 340 98% 53%;
+  --action-publish-foreground: 0 0% 100%;
   --action-reject: 0 84% 60%;
   --action-reject-foreground: 0 0% 100%;
 }
 
 .dark {
-  /* Dark mode - deep graphite + electric cyan accents */
-  --background: 215 36% 8%;
-  --foreground: 210 30% 95%;
-  --card: 215 29% 11%;
-  --card-foreground: 210 30% 95%;
-  --popover: 215 29% 11%;
-  --popover-foreground: 210 30% 95%;
-  --primary: 210 30% 95%;
-  --primary-foreground: 215 36% 8%;
-  --secondary: 216 22% 16%;
-  --secondary-foreground: 210 30% 95%;
-  --muted: 216 20% 16%;
-  --muted-foreground: 210 12% 67%;
-  --accent: 188 100% 58%;
-  --accent-foreground: 215 42% 8%;
+  /* Dark mode - #333333 base + #474747 surfaces + pink accent */
+  --background: 0 0% 20%;
+  --foreground: 0 0% 100%;
+  --card: 0 0% 28%;
+  --card-foreground: 0 0% 100%;
+  --popover: 0 0% 28%;
+  --popover-foreground: 0 0% 100%;
+  --primary: 0 0% 100%;
+  --primary-foreground: 0 0% 20%;
+  --secondary: 0 0% 28%;
+  --secondary-foreground: 0 0% 100%;
+  --muted: 0 0% 24%;
+  --muted-foreground: 0 0% 78%;
+  --accent: 340 98% 53%;
+  --accent-foreground: 0 0% 100%;
   --success: 142 65% 55%;
   --success-foreground: 0 0% 100%;
   --warning: 38 100% 60%;
   --warning-foreground: 0 0% 5%;
   --destructive: 0 80% 55%;
   --destructive-foreground: 0 0% 100%;
-  --border: 216 18% 25%;
-  --input: 216 18% 23%;
-  --ring: 188 100% 58%;
+  --border: 0 0% 34%;
+  --input: 0 0% 31%;
+  --ring: 340 98% 53%;
   /* Action button colors */
   --action-accept: 142 65% 55%;
   --action-accept-foreground: 0 0% 100%;
-  --action-publish: 194 96% 56%;
-  --action-publish-foreground: 215 42% 8%;
+  --action-publish: 340 98% 53%;
+  --action-publish-foreground: 0 0% 100%;
   --action-reject: 0 80% 55%;
   --action-reject-foreground: 0 0% 100%;
 }
@@ -991,6 +991,13 @@ select {
     min-height: 44px;
   }
 
+  [data-slot="button"] {
+    min-height: 44px;
+    padding-inline: 0.9rem;
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+  }
+
   /* Improve mobile tap highlight for interactive elements */
   button,
   [role="button"],
@@ -1013,6 +1020,17 @@ select {
 
   .input-base {
     font-size: 0.9375rem;
+  }
+}
+
+/* Large desktops and 4K displays */
+@media (min-width: 1536px) {
+  html {
+    font-size: 17px;
+  }
+
+  body {
+    line-height: 1.5;
   }
 }
 
