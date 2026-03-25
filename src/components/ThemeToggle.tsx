@@ -27,12 +27,12 @@ export default function ThemeToggle() {
       onClick={() => setTheme(isDark ? "light" : "dark")}
       aria-label={`Switch to ${isDark ? "light" : "dark"} mode`}
       title={`Switch to ${isDark ? "light" : "dark"} mode`}
-      className="rounded-xl border border-border text-foreground hover:border-accent/60 hover:bg-accent/12 hover:text-accent focus-visible:ring-ring/60 max-[430px]:size-8"
+      className="size-8 rounded-xl border border-border/90 bg-card/85 text-foreground shadow-sm hover:border-foreground/30 hover:bg-muted/55 hover:text-foreground focus-visible:ring-ring/60 max-[430px]:size-8"
     >
       {isDark ? (
-        <Sun className="h-4 w-4 transition-transform duration-200 rotate-0 scale-100 max-[430px]:h-[1.05rem] max-[430px]:w-[1.05rem]" />
+        <Sun className="h-[1.05rem] w-[1.05rem] transition-transform duration-200 rotate-0 scale-100" strokeWidth={2.1} />
       ) : (
-        <Moon className="h-4 w-4 transition-transform duration-200 rotate-0 scale-100 max-[430px]:h-[1.05rem] max-[430px]:w-[1.05rem]" />
+        <Moon className="h-[1.05rem] w-[1.05rem] transition-transform duration-200 rotate-0 scale-100" strokeWidth={2.1} />
       )}
     </Button>
   );

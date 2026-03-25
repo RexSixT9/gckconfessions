@@ -231,7 +231,7 @@ export default function AdminLoginPage() {
                   </>
                 ) : (
                   <>
-                    🚀 Sign in
+                    Sign in
                     <ArrowRight className="h-4 w-4" />
                   </>
                 )}

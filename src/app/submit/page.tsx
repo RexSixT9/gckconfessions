@@ -354,7 +354,6 @@ export default function SubmitPage() {
                       </>
                     ) : (
                       <>
-                        🚀
                         <Send className="h-4 w-4" />
                         Submit confession
                       </>

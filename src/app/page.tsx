@@ -50,8 +50,9 @@ export default function HomePage() {
       <div className="font-mono">
       <section className="grid gap-10 border-b border-border/60 pb-14 pt-2 sm:pb-20 lg:grid-cols-[1.25fr_0.75fr] lg:items-end max-[430px]:gap-7 max-[430px]:pb-10 max-[430px]:pt-1 max-[359px]:gap-6 max-[359px]:pb-8">
         <div className="space-y-6 max-[430px]:space-y-5 max-[359px]:space-y-4">
-          <Badge variant="secondary" className="w-fit rounded-full px-3 py-1 text-[0.62rem] font-semibold uppercase tracking-[0.12em] max-[359px]:px-2.5 max-[359px]:text-[0.56rem]">
-            <span aria-hidden>🟢</span>&nbsp;Live Moderation
+          <Badge variant="secondary" className="inline-flex w-fit items-center gap-1.5 rounded-full px-3 py-1 text-[0.62rem] font-semibold uppercase tracking-[0.12em] max-[359px]:px-2.5 max-[359px]:text-[0.56rem]">
+            <ShieldCheck className="h-3.5 w-3.5" />
+            Live Moderation
           </Badge>
           <h1 className="max-w-[17ch] text-[clamp(1.65rem,8.3vw,5rem)] font-semibold leading-[0.92] tracking-[0.03em] max-[430px]:leading-[0.96] max-[359px]:text-[1.52rem] max-[359px]:leading-none">
             Student confessions shared safely and anonymously.
@@ -60,9 +61,10 @@ export default function HomePage() {
             Share what matters without exposing your identity. Every submission is reviewed before posting to keep the space respectful and useful.
           </p>
           <div className="flex flex-wrap gap-3 max-[430px]:flex-col max-[430px]:gap-2.5 max-[359px]:gap-2">
-            <Button size="touch" variant="brand" className="w-full rounded-xl bg-[#6d28d9] text-white hover:bg-[#5b21b6] max-[359px]:h-10 max-[359px]:text-[0.67rem]" render={<Link href="/submit" />}>
+            <Button size="touch" variant="brand" className="w-full rounded-xl bg-[#FD105E] text-white hover:bg-[#E20E55] max-[359px]:h-10 max-[359px]:text-[0.67rem]" render={<Link href="/submit" />}>
               <>
-                🚀 Submit Now
+                <Send className="h-4 w-4" />
+                Submit Now
                 <ArrowRight className="h-4 w-4" />
               </>
             </Button>
@@ -77,9 +79,18 @@ export default function HomePage() {
             <CardTitle className="text-sm font-semibold uppercase tracking-[0.13em] text-muted-foreground max-[359px]:text-[0.7rem] max-[359px]:tracking-widest">System Status</CardTitle>
             <CardDescription className="text-sm text-foreground max-[359px]:text-[0.8rem]">Anonymous posting pipeline is active.</CardDescription>
             <div className="flex flex-wrap gap-2 pt-1">
-              <Badge variant="outline" className="rounded-full px-2.5 py-0.5 text-[0.58rem] uppercase tracking-widest">🔒 Anonymous</Badge>
-              <Badge variant="outline" className="rounded-full px-2.5 py-0.5 text-[0.58rem] uppercase tracking-widest">🛡 Human Review</Badge>
-              <Badge variant="outline" className="rounded-full px-2.5 py-0.5 text-[0.58rem] uppercase tracking-widest">⚡ Fast Queue</Badge>
+              <Badge variant="outline" className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[0.58rem] uppercase tracking-widest">
+                <Lock className="h-3 w-3" />
+                Anonymous
+              </Badge>
+              <Badge variant="outline" className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[0.58rem] uppercase tracking-widest">
+                <ShieldCheck className="h-3 w-3" />
+                Human Review
+              </Badge>
+              <Badge variant="outline" className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[0.58rem] uppercase tracking-widest">
+                <Grid2X2 className="h-3 w-3" />
+                Fast Queue
+              </Badge>
             </div>
           </CardHeader>
           <CardContent className="space-y-3 text-xs uppercase tracking-[0.12em] text-muted-foreground max-[359px]:space-y-2.5 max-[359px]:p-4 max-[359px]:pt-0 max-[359px]:text-[0.62rem]">
@@ -147,9 +158,10 @@ export default function HomePage() {
               <h2 className="text-[clamp(1.5rem,4vw,2.4rem)] font-semibold tracking-[0.04em] max-[359px]:text-[1.25rem]">Say It Clearly. Stay Anonymous.</h2>
               <p className="max-w-2xl text-sm text-muted-foreground max-[359px]:text-[0.82rem]">Open the submit form and share your thought in one pass.</p>
             </div>
-            <Button size="touch" variant="brand" className="w-full rounded-xl bg-[#6d28d9] text-white hover:bg-[#5b21b6] max-[359px]:h-10 max-[359px]:text-[0.67rem]" render={<Link href="/submit" />}>
+            <Button size="touch" variant="brand" className="w-full rounded-xl bg-[#FD105E] text-white hover:bg-[#E20E55] max-[359px]:h-10 max-[359px]:text-[0.67rem]" render={<Link href="/submit" />}>
               <>
-                🚀 Open Submit Form
+                <Send className="h-4 w-4" />
+                Open Submit Form
                 <ArrowRight className="h-4 w-4" />
               </>
             </Button>
