@@ -72,20 +72,20 @@ export default function HomePage() {
         </div>
 
         <Card className="border-border/70 bg-card/70 shadow-none">
-          <CardHeader className="space-y-3">
-            <CardTitle className="text-sm font-semibold uppercase tracking-[0.13em] text-muted-foreground">System Status</CardTitle>
-            <CardDescription className="text-sm text-foreground">Anonymous posting pipeline is active.</CardDescription>
+          <CardHeader className="space-y-3 max-[359px]:space-y-2.5 max-[359px]:p-4">
+            <CardTitle className="text-sm font-semibold uppercase tracking-[0.13em] text-muted-foreground max-[359px]:text-[0.7rem] max-[359px]:tracking-widest">System Status</CardTitle>
+            <CardDescription className="text-sm text-foreground max-[359px]:text-[0.8rem]">Anonymous posting pipeline is active.</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-3 text-xs uppercase tracking-[0.12em] text-muted-foreground">
-            <div className="flex items-center justify-between rounded-md border border-border bg-background px-3 py-2">
+          <CardContent className="space-y-3 text-xs uppercase tracking-[0.12em] text-muted-foreground max-[359px]:space-y-2.5 max-[359px]:p-4 max-[359px]:pt-0 max-[359px]:text-[0.62rem]">
+            <div className="flex items-center justify-between rounded-md border border-border bg-background px-3 py-2 max-[359px]:px-2.5 max-[359px]:py-1.5">
               <span>Auth</span>
               <span className="text-foreground">Not Required</span>
             </div>
-            <div className="flex items-center justify-between rounded-md border border-border bg-background px-3 py-2">
+            <div className="flex items-center justify-between rounded-md border border-border bg-background px-3 py-2 max-[359px]:px-2.5 max-[359px]:py-1.5">
               <span>Review</span>
               <span className="text-foreground">Human</span>
             </div>
-            <div className="flex items-center justify-between rounded-md border border-border bg-background px-3 py-2">
+            <div className="flex items-center justify-between rounded-md border border-border bg-background px-3 py-2 max-[359px]:px-2.5 max-[359px]:py-1.5">
               <span>Publishing</span>
               <span className="text-foreground">Queued</span>
             </div>
@@ -101,12 +101,12 @@ export default function HomePage() {
         <div className="grid gap-4 md:grid-cols-3 max-[430px]:gap-3">
           {corePillars.map(({ icon: Icon, title, description }) => (
             <Card key={title} className="border-border/70 bg-card/65 shadow-none">
-              <CardHeader className="space-y-4">
-                <span className="flex h-10 w-10 items-center justify-center rounded-md border border-accent/40 bg-accent/10 text-accent">
-                  <Icon className="h-5 w-5" />
+              <CardHeader className="space-y-4 max-[359px]:space-y-3 max-[359px]:p-4">
+                <span className="flex h-10 w-10 items-center justify-center rounded-md border border-accent/40 bg-accent/10 text-accent max-[359px]:h-8 max-[359px]:w-8">
+                  <Icon className="h-5 w-5 max-[359px]:h-4 max-[359px]:w-4" />
                 </span>
-                <CardTitle className="text-[0.82rem] font-semibold uppercase tracking-[0.11em]">{title}</CardTitle>
-                <CardDescription className="text-sm leading-relaxed text-muted-foreground">{description}</CardDescription>
+                <CardTitle className="text-[0.82rem] font-semibold uppercase tracking-[0.11em] max-[359px]:text-[0.72rem] max-[359px]:tracking-[0.08em]">{title}</CardTitle>
+                <CardDescription className="text-sm leading-relaxed text-muted-foreground max-[359px]:text-[0.82rem]">{description}</CardDescription>
               </CardHeader>
             </Card>
           ))}
@@ -118,15 +118,15 @@ export default function HomePage() {
         <div className="grid gap-4 md:grid-cols-3 max-[430px]:gap-3">
           {processSteps.map(({ step, icon: Icon, title, description }) => (
             <Card key={step} className="border-border/70 bg-card/70 shadow-none">
-              <CardHeader className="space-y-3">
+              <CardHeader className="space-y-3 max-[359px]:space-y-2.5 max-[359px]:p-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-3xl font-semibold tabular-nums text-muted-foreground/45">{step}</span>
-                  <span className="flex h-9 w-9 items-center justify-center rounded-md border border-border bg-background text-foreground/80">
-                    <Icon className="h-4 w-4" />
+                  <span className="text-3xl font-semibold tabular-nums text-muted-foreground/45 max-[359px]:text-[1.45rem]">{step}</span>
+                  <span className="flex h-9 w-9 items-center justify-center rounded-md border border-border bg-background text-foreground/80 max-[359px]:h-8 max-[359px]:w-8">
+                    <Icon className="h-4 w-4 max-[359px]:h-3.5 max-[359px]:w-3.5" />
                   </span>
                 </div>
-                <CardTitle className="text-[0.82rem] font-semibold uppercase tracking-[0.11em]">{title}</CardTitle>
-                <CardDescription className="text-sm leading-relaxed text-muted-foreground">{description}</CardDescription>
+                <CardTitle className="text-[0.82rem] font-semibold uppercase tracking-[0.11em] max-[359px]:text-[0.72rem] max-[359px]:tracking-[0.08em]">{title}</CardTitle>
+                <CardDescription className="text-sm leading-relaxed text-muted-foreground max-[359px]:text-[0.82rem]">{description}</CardDescription>
               </CardHeader>
             </Card>
           ))}
@@ -138,10 +138,10 @@ export default function HomePage() {
           <CardContent className="flex flex-col items-start gap-5 p-6 sm:p-8 md:flex-row md:items-center md:justify-between max-[430px]:gap-4 max-[430px]:p-4">
             <div className="space-y-2">
               <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-accent">Ready To Post</p>
-              <h2 className="text-[clamp(1.5rem,4vw,2.4rem)] font-semibold tracking-[0.04em]">Say It Clearly. Stay Anonymous.</h2>
-              <p className="max-w-2xl text-sm text-muted-foreground">Open the submit form and share your thought in one pass.</p>
+              <h2 className="text-[clamp(1.5rem,4vw,2.4rem)] font-semibold tracking-[0.04em] max-[359px]:text-[1.25rem]">Say It Clearly. Stay Anonymous.</h2>
+              <p className="max-w-2xl text-sm text-muted-foreground max-[359px]:text-[0.82rem]">Open the submit form and share your thought in one pass.</p>
             </div>
-            <Button size="touch" variant="brand" className="max-[430px]:w-full" render={<Link href="/submit" />}>
+            <Button size="touch" variant="brand" className="max-[430px]:w-full max-[359px]:h-10 max-[359px]:text-[0.67rem]" render={<Link href="/submit" />}>
               <>
                 Open Submit Form
                 <ArrowRight className="h-4 w-4" />
