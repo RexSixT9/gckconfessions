@@ -28,12 +28,12 @@ export default async function TransparencyPage() {
     <PageShell>
       <PageIntro
         badge="Transparency"
-        title="Moderation snapshot"
-        description="Live counts for review activity and moderation actions."
+        title="Moderation Snapshot"
+        description="Live aggregate counters from the moderation pipeline."
       />
 
       {!data ? (
-        <Card className="mt-6 border-border/70 bg-card/70 shadow-none backdrop-blur-sm">
+        <Card className="mt-6 border-border/70 bg-card shadow-none">
           <CardContent className="py-10 text-center text-sm text-muted-foreground">
             Stats are unavailable right now. Please try again shortly.
           </CardContent>
@@ -48,12 +48,12 @@ export default async function TransparencyPage() {
             ["Moderator actions", data.moderationActions],
             ["Audit log entries", data.totalAuditEvents],
           ].map(([label, value]) => (
-            <Card key={label as string} className="border-border/70 bg-card/70 shadow-none backdrop-blur-sm">
-              <CardHeader>
-                <CardTitle className="text-sm text-muted-foreground">{label}</CardTitle>
+            <Card key={label as string} className="border-border/70 bg-card shadow-none">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-muted-foreground">{label}</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-[clamp(1.5rem,5vw,1.85rem)] font-black tabular-nums">{value as number}</p>
+                <p className="text-[clamp(1.6rem,5vw,2rem)] font-semibold tabular-nums tracking-[0.03em]">{value as number}</p>
               </CardContent>
             </Card>
           ))}

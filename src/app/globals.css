@@ -15,71 +15,71 @@
 }
 
 :root {
-  /* Light Mode - Dark Pink + White */
+  /* Light mode - cool monochrome + electric cyan accents */
   --header-height: 3.5rem;
-  --background: 0 0% 100%;
-  --foreground: 350 30% 12%;
+  --background: 210 30% 97%;
+  --foreground: 218 28% 10%;
   --card: 0 0% 100%;
-  --card-foreground: 350 30% 12%;
+  --card-foreground: 218 28% 10%;
   --popover: 0 0% 100%;
-  --popover-foreground: 350 30% 12%;
-  --primary: 350 30% 12%;
-  --primary-foreground: 0 0% 100%;
-  --secondary: 350 30% 96%;
-  --secondary-foreground: 350 20% 18%;
-  --muted: 350 24% 94%;
-  --muted-foreground: 350 12% 45%;
-  --accent: 338 78% 42%;
-  --accent-foreground: 0 0% 100%;
+  --popover-foreground: 218 28% 10%;
+  --primary: 218 30% 11%;
+  --primary-foreground: 210 30% 98%;
+  --secondary: 210 20% 93%;
+  --secondary-foreground: 218 22% 16%;
+  --muted: 210 20% 91%;
+  --muted-foreground: 218 14% 39%;
+  --accent: 188 100% 45%;
+  --accent-foreground: 220 38% 8%;
   --success: 142 71% 45%;
   --success-foreground: 0 0% 100%;
   --warning: 38 92% 32%;
   --warning-foreground: 0 0% 100%;
   --destructive: 0 72% 43%;
   --destructive-foreground: 0 0% 100%;
-  --border: 350 18% 88%;
-  --input: 350 18% 92%;
-  --ring: 338 78% 42%;
+  --border: 214 21% 81%;
+  --input: 214 24% 90%;
+  --ring: 188 100% 45%;
   --radius: 1rem;
   /* Light Mode - Action button colors */
   --action-accept: 142 71% 45%;
   --action-accept-foreground: 0 0% 100%;
-  --action-publish: 217 91% 60%;
-  --action-publish-foreground: 0 0% 100%;
+  --action-publish: 194 96% 44%;
+  --action-publish-foreground: 220 38% 8%;
   --action-reject: 0 84% 60%;
   --action-reject-foreground: 0 0% 100%;
 }
 
 .dark {
-  /* Dark Mode - Deep Pink */
-  --background: 350 20% 6%;
-  --foreground: 0 0% 96%;
-  --card: 350 18% 10%;
-  --card-foreground: 0 0% 96%;
-  --popover: 350 18% 10%;
-  --popover-foreground: 0 0% 96%;
-  --primary: 0 0% 96%;
-  --primary-foreground: 350 20% 6%;
-  --secondary: 350 16% 16%;
-  --secondary-foreground: 0 0% 96%;
-  --muted: 350 16% 16%;
-  --muted-foreground: 0 0% 62%;
-  --accent: 338 78% 52%;
-  --accent-foreground: 0 0% 100%;
+  /* Dark mode - deep graphite + electric cyan accents */
+  --background: 215 36% 8%;
+  --foreground: 210 30% 95%;
+  --card: 215 29% 11%;
+  --card-foreground: 210 30% 95%;
+  --popover: 215 29% 11%;
+  --popover-foreground: 210 30% 95%;
+  --primary: 210 30% 95%;
+  --primary-foreground: 215 36% 8%;
+  --secondary: 216 22% 16%;
+  --secondary-foreground: 210 30% 95%;
+  --muted: 216 20% 16%;
+  --muted-foreground: 210 12% 67%;
+  --accent: 188 100% 58%;
+  --accent-foreground: 215 42% 8%;
   --success: 142 65% 55%;
   --success-foreground: 0 0% 100%;
   --warning: 38 100% 60%;
   --warning-foreground: 0 0% 5%;
   --destructive: 0 80% 55%;
   --destructive-foreground: 0 0% 100%;
-  --border: 350 16% 22%;
-  --input: 350 16% 22%;
-  --ring: 338 78% 52%;
+  --border: 216 18% 25%;
+  --input: 216 18% 23%;
+  --ring: 188 100% 58%;
   /* Action button colors */
   --action-accept: 142 65% 55%;
   --action-accept-foreground: 0 0% 100%;
-  --action-publish: 217 85% 65%;
-  --action-publish-foreground: 0 0% 100%;
+  --action-publish: 194 96% 56%;
+  --action-publish-foreground: 215 42% 8%;
   --action-reject: 0 80% 55%;
   --action-reject-foreground: 0 0% 100%;
 }
@@ -275,16 +275,7 @@
    Gradient text — accent shimmer
 ───────────────────────────────────────── */
 .grad-text-accent {
-  background: linear-gradient(
-    135deg,
-    hsl(var(--accent)) 0%,
-    hsl(338 90% 60%) 55%,
-    hsl(var(--accent) / 0.75) 100%
-  );
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: transparent;
+  color: hsl(var(--accent));
 }
 
 /* ─────────────────────────────────────────
@@ -296,8 +287,7 @@
 
 @media (hover: hover) and (pointer: fine) {
   .btn-glow:hover {
-    box-shadow: 0 0 18px hsl(var(--accent) / 0.45),
-                0 0 40px hsl(var(--accent) / 0.18);
+    box-shadow: 0 0 0 1px hsl(var(--accent) / 0.28);
   }
 }
 
@@ -872,7 +862,7 @@ html {
 body {
   background-color: hsl(var(--background));
   color: hsl(var(--foreground));
-  font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+  font-family: var(--font-space-grotesk), system-ui, -apple-system, sans-serif;
   color-scheme: light dark;
   min-height: 100svh;
   overflow-x: hidden;
@@ -1026,6 +1016,32 @@ select {
   }
 }
 
+/* Narrow mobile polish (360px-430px): tighten rhythm and preserve readability */
+@media (min-width: 360px) and (max-width: 430px) {
+  html {
+    scroll-padding-top: calc(var(--header-height, 3.5rem) + 1.35rem);
+  }
+
+  h1, h2, h3, h4 {
+    letter-spacing: 0.015em;
+  }
+
+  p,
+  li,
+  label {
+    line-height: 1.55;
+  }
+
+  [data-slot="button"] {
+    letter-spacing: 0.06em;
+  }
+
+  [data-sonner-toast] {
+    width: min(calc(100vw - 1rem), 320px) !important;
+    padding: 10px 12px !important;
+  }
+}
+
 /* Desktop-specific enhancements — rotating border handled by ::after */
 
 /* Better text readability on all devices */
@@ -1039,6 +1055,9 @@ body {
 /* Balance long headings to avoid orphans */
 h1, h2, h3, h4 {
   text-wrap: balance;
+  font-family: var(--font-barlow-condensed), var(--font-space-grotesk), system-ui, sans-serif;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
 }
 
 /* Natural text wrap for paragraphs and labels */
@@ -1358,7 +1377,7 @@ html[data-campaign="kindness-week"] {
 
 /* ── Base toast shell ── */
 [data-sonner-toast] {
-  font-family: var(--font-geist-sans), system-ui, sans-serif !important;
+  font-family: var(--font-space-grotesk), system-ui, sans-serif !important;
   font-size: 0.8125rem !important;
   line-height: 1.45 !important;
   padding: 11px 14px !important;

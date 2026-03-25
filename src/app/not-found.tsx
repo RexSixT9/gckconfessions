@@ -36,11 +36,11 @@ export default function NotFoundPage() {
       <PageReveal className="w-full max-w-lg" y={12} duration={0.35}>
         <section className="text-center">
           <div className="space-y-3">
-            <Badge className="gap-1 bg-accent/10 text-accent hover:bg-accent/10">
+            <Badge className="gap-1 rounded-sm border border-accent/35 bg-accent/10 px-3 py-1 text-[0.64rem] uppercase tracking-[0.12em] text-accent hover:bg-accent/10">
               <Search className="h-3.5 w-3.5" />
               Not Found
             </Badge>
-            <h1 className="text-5xl font-black tracking-tight">404</h1>
+            <h1 className="text-5xl font-semibold tracking-[0.06em]">404</h1>
             <p className="text-sm text-muted-foreground sm:text-base">
               We could not find the page you were looking for.
             </p>
@@ -48,7 +48,7 @@ export default function NotFoundPage() {
 
           <div className="mt-6 space-y-5">
             {autoRedirect && countdown > 0 && (
-              <div className="rounded-xl border border-border/60 bg-muted/25 p-3.5 text-sm text-muted-foreground">
+              <div className="rounded-md border border-border/70 bg-muted/25 p-3.5 text-sm text-muted-foreground">
                 Taking you back home in <span className="font-semibold text-accent">{countdown}</span> second
                 {countdown !== 1 ? "s" : ""}.
                 <button
@@ -64,15 +64,18 @@ export default function NotFoundPage() {
             <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
               <Button
                 onClick={() => router.push("/")}
-                className="group h-auto w-full gap-2 rounded-xl px-6 py-3 text-sm font-semibold sm:w-auto"
+                variant="brand"
+                size="touch"
+                className="group w-full gap-2 sm:w-auto"
               >
                 <Home className="h-4 w-4" />
                 Back to home
               </Button>
               <Button
-                variant="outline"
+                variant="ghost"
                 onClick={() => router.back()}
-                className="group h-auto w-full gap-2 rounded-xl border-border/70 bg-background px-6 py-3 text-sm hover:border-accent/40 hover:bg-accent/5 sm:w-auto"
+                size="touch"
+                className="group w-full gap-2 sm:w-auto"
               >
                 <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-0.5" />
                 Previous page

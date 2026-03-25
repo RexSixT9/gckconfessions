@@ -45,13 +45,13 @@ export default async function AdminPage() {
       <PageReveal y={10} duration={0.4}>
 
         {/*  Page header  */}
-        <div className="mb-8 flex animate-slide-down flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <Badge variant="secondary" className="mb-3 uppercase tracking-wider">
+            <Badge variant="secondary" className="mb-3 rounded-sm px-3 py-1 text-[0.62rem] uppercase tracking-[0.14em]">
               Admin Panel
             </Badge>
-            <h1 className="text-[clamp(1.7rem,5.6vw,2.25rem)] font-black tracking-tight text-foreground text-balance">
-              Review submissions
+            <h1 className="text-[clamp(1.9rem,5.6vw,2.8rem)] font-semibold tracking-[0.04em] text-foreground text-balance">
+              Review Queue
             </h1>
             <p className="mt-2 text-sm text-muted-foreground">
               Review incoming confessions, approve or reject them, and manage what gets published.
@@ -66,7 +66,7 @@ export default async function AdminPage() {
 
         {/*  Main list  */}
         <ScrollReveal delay={0.06} y={12}>
-          <Card className="animate-blur-in border-border/70 bg-card/70 shadow-none backdrop-blur-sm animation-delay-400">
+          <Card className="border-border/70 bg-card shadow-none">
             <CardContent className="p-4 sm:p-6 lg:p-8">
               <AdminList />
             </CardContent>

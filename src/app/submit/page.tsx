@@ -166,7 +166,7 @@ export default function SubmitPage() {
       particleCount: 120,
       spread: 70,
       origin: { y: 0.65 },
-      colors: ["#c02051", "#e84d84", "#f9a8c9", "#ffffff"],
+      colors: ["#06b6d4", "#22d3ee", "#67e8f9", "#e2f8ff"],
       disableForReducedMotion: true,
     });
   }, []);
@@ -232,24 +232,24 @@ export default function SubmitPage() {
   const canSubmit = Boolean(message.trim()) && !loading;
 
   return (
-    <PageShell containerClassName="max-w-3xl">
+    <PageShell containerClassName="max-w-4xl">
       <PageReveal>
         <PageBackLink />
         <PageIntro
           badge="Submit"
-          title="Share what is on your mind"
-          description="Write freely, stay anonymous, and we will review your submission before it goes live."
+          title="Transmit Your Confession"
+          description="Write clearly, stay anonymous, and submit to the review queue."
         />
 
-        <Card className="border-border/70 bg-card/70 shadow-none backdrop-blur-sm">
+        <Card className="border-border/70 bg-card shadow-none">
           <CardHeader>
-            <CardTitle className="text-xl font-semibold tracking-tight sm:text-2xl">Write your confession</CardTitle>
+            <CardTitle className="text-[clamp(1.3rem,3.8vw,2rem)] font-semibold tracking-[0.04em]">Compose message</CardTitle>
             <CardDescription>
-              Be clear, skip personal identifiers, and submit when you are ready.
+              Keep it honest, remove personal identifiers, then send.
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={onSubmit} className="space-y-6">
+            <form onSubmit={onSubmit} className="space-y-7 max-[430px]:space-y-5">
                 <input
                   type="text"
                   name="website"
@@ -264,12 +264,12 @@ export default function SubmitPage() {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between gap-3">
                     <Label htmlFor="confession" className="text-sm font-medium">
-                      Your message
+                      Message
                     </Label>
                     <span
                       id="confession-count"
                       className={cn(
-                        "text-xs tabular-nums text-muted-foreground",
+                        "text-[0.68rem] tabular-nums uppercase tracking-widest text-muted-foreground max-[430px]:text-[0.62rem]",
                         charCount > CHAR_LIMIT * 0.9 && "font-medium text-destructive"
                       )}
                       role="status"
@@ -285,19 +285,19 @@ export default function SubmitPage() {
                     onChange={(event) => setMessage(event.target.value)}
                     maxLength={CHAR_LIMIT}
                     rows={10}
-                    className="min-h-52 resize-none border-border/70 bg-background text-sm leading-6 shadow-none"
-                    placeholder="What have you been carrying lately?"
+                    className="min-h-56 resize-none rounded-md border-border bg-background text-sm leading-6 shadow-none max-[430px]:min-h-48 max-[430px]:text-[0.92rem]"
+                    placeholder="Type your confession..."
                     required
                     aria-describedby="confession-help confession-count"
                   />
-                  <p id="confession-help" className="text-xs text-muted-foreground" aria-live="polite">
+                  <p id="confession-help" className="text-[0.75rem] text-muted-foreground" aria-live="polite">
                     {guidanceText}
                   </p>
                 </div>
 
                 <div className="space-y-2">
                     <Label htmlFor="music" className="text-sm font-medium">
-                      Song that fits this confession
+                      Optional soundtrack
                     </Label>
                     <Input
                       id="music"
@@ -306,16 +306,16 @@ export default function SubmitPage() {
                       onChange={(event) => setMusic(event.target.value)}
                       maxLength={120}
                       placeholder="Artist - Track"
-                      className="h-10 border-border/70 bg-background shadow-none"
+                      className="h-11 rounded-md border-border bg-background shadow-none max-[430px]:h-10.5"
                     />
-                    <p className="text-xs text-muted-foreground">Optional, but welcome.</p>
+                    <p className="text-[0.75rem] text-muted-foreground">Artist - Track (optional)</p>
                 </div>
 
-                <div className="rounded-lg border border-border/70 p-4">
+                <div className="rounded-md border border-border p-4 max-[430px]:p-3.5">
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div className="space-y-1">
-                      <p className="text-sm font-medium">Drafts</p>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-[0.72rem] font-semibold uppercase tracking-[0.12em]">Draft Buffer</p>
+                      <p className="text-[0.75rem] text-muted-foreground">
                         {draftError
                           ? "Local storage is not available on this device."
                           : hasDraft && saveDraft
@@ -346,7 +346,7 @@ export default function SubmitPage() {
                 <Separator />
 
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <Button type="submit" size="lg" className="h-auto w-full gap-2 rounded-xl px-6 py-3 text-sm font-semibold sm:w-auto" disabled={!canSubmit}>
+                  <Button type="submit" variant="brand" size="touch" className="w-full gap-2 sm:w-auto" disabled={!canSubmit}>
                     {loading ? (
                       <>
                         <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground/40 border-t-primary-foreground" />

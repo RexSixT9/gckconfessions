@@ -10,27 +10,27 @@ export default function AdminLoading() {
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
           className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between"
         >
           <div className="space-y-3">
-            <Skeleton className="h-5 w-24 rounded-full" />
-            <Skeleton className="h-10 w-56 rounded-xl" />
+            <Skeleton className="h-5 w-24 rounded-sm" />
+            <Skeleton className="h-10 w-56 rounded-md" />
             <Skeleton className="h-4 w-[min(72vw,20rem)] rounded-lg" />
           </div>
-          <Skeleton className="h-9 w-28 rounded-lg" />
+          <Skeleton className="h-9 w-28 rounded-md" />
         </motion.div>
 
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.04, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 0.2, delay: 0.04, ease: [0.16, 1, 0.3, 1] }}
           className="mb-8 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4"
         >
           {[1, 2, 3, 4].map((i) => (
             <div
               key={i}
-              className="overflow-hidden rounded-xl border border-border/70 bg-card/80 px-4 py-4 sm:px-6 sm:py-5"
+              className="overflow-hidden rounded-md border border-border/70 bg-card px-4 py-4 sm:px-6 sm:py-5"
             >
               <Skeleton className="mb-3 h-4 w-16 rounded-md" />
               <Skeleton className="h-9 w-14 rounded-lg" />
@@ -41,8 +41,8 @@ export default function AdminLoading() {
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.32, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
-          className="overflow-hidden rounded-2xl border border-border/70 bg-card p-6 sm:p-8"
+          transition={{ duration: 0.22, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
+          className="overflow-hidden rounded-md border border-border/70 bg-card p-6 sm:p-8"
         >
           <div className="mb-5 flex flex-col gap-3 sm:flex-row">
             <Skeleton className="h-9 flex-1 rounded-xl" />

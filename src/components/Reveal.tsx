@@ -21,8 +21,8 @@ export function PageReveal({
   children,
   className,
   delay = 0,
-  y = 16,
-  duration = 0.45,
+  y = 8,
+  duration = 0.24,
 }: RevealProps) {
   const { isAppReady, shouldReduceMotion } = useMotionRuntime();
   const [isMobile, setIsMobile] = useState(() =>
@@ -37,8 +37,7 @@ export function PageReveal({
     return () => media.removeEventListener("change", onChange);
   }, []);
 
-  const effectiveY = shouldReduceMotion ? 0 : isMobile ? Math.min(y, 10) : y;
-  const effectiveDuration = shouldReduceMotion ? 0.01 : isMobile ? Math.min(duration, 0.35) : duration;
+  const effectiveDuration = shouldReduceMotion ? 0.01 : isMobile ? Math.min(duration, 0.2) : duration;
 
   if (shouldReduceMotion) {
     return <div className={className}>{children}</div>;
@@ -46,8 +45,8 @@ export function PageReveal({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: effectiveY }}
-      animate={isAppReady ? { opacity: 1, y: 0 } : { opacity: 0, y: effectiveY }}
+      initial={{ opacity: 0 }}
+      animate={isAppReady ? { opacity: 1 } : { opacity: 0 }}
       transition={{ duration: effectiveDuration, delay, ease: [0.16, 1, 0.3, 1] }}
       className={cn(className)}
     >
@@ -60,8 +59,8 @@ export function ScrollReveal({
   children,
   className,
   delay = 0,
-  y = 20,
-  duration = 0.45,
+  y = 8,
+  duration = 0.24,
 }: RevealProps) {
   const ref = useRef<HTMLDivElement | null>(null);
   const { isAppReady, shouldReduceMotion } = useMotionRuntime();
@@ -102,14 +101,13 @@ export function ScrollReveal({
   }
 
   const visible = isAppReady && inView;
-  const effectiveY = isMobile || isLowEnd ? Math.min(y, 12) : y;
-  const effectiveDuration = isMobile || isLowEnd ? Math.min(duration, 0.35) : duration;
+  const effectiveDuration = isMobile || isLowEnd ? Math.min(duration, 0.2) : duration;
 
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y: effectiveY }}
-      animate={visible ? { opacity: 1, y: 0 } : { opacity: 0, y: effectiveY }}
+      initial={{ opacity: 0 }}
+      animate={visible ? { opacity: 1 } : { opacity: 0 }}
       transition={{ duration: effectiveDuration, delay, ease: [0.16, 1, 0.3, 1] }}
       className={cn(className)}
     >

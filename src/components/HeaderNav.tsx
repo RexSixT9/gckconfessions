@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Heart } from "lucide-react";
+import { Cpu } from "lucide-react";
 import { motion } from "framer-motion";
 import ThemeToggle from "@/components/ThemeToggle";
 import { cn } from "@/lib/cn";
@@ -61,12 +61,12 @@ export default function HeaderNav() {
       <header
         ref={headerRef}
         className={cn(
-          "sticky top-0 z-50 animate-fade-in transition-transform duration-300",
+          "sticky top-0 z-50 animate-fade-in transition-transform duration-200",
           isHidden && "-translate-y-full"
         )}
       >
-        <div className="relative px-3 pb-1.5 pt-2 sm:px-4">
-          <div className="relative mx-auto flex max-w-5xl items-center justify-between gap-2 overflow-hidden rounded-2xl border border-border/60 bg-background/90 px-3 py-2.5 shadow-sm backdrop-blur-xl sm:px-5">
+        <div className="relative border-b border-border/70 bg-background/90 px-3 py-2.5 backdrop-blur-xl sm:px-4 max-[430px]:px-2.5 max-[430px]:py-2">
+          <div className="relative mx-auto flex w-full max-w-6xl items-center justify-between gap-2 sm:px-1">
             {/* Logo */}
             <Link
               href="/"
@@ -74,26 +74,26 @@ export default function HeaderNav() {
               aria-label="GCK Confessions Home"
             >
               <motion.span
-                whileTap={{ scale: 0.88 }}
+                whileTap={{ scale: 0.94 }}
                 transition={{ duration: 0.12 }}
-                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-accent shadow-sm transition-shadow duration-200 group-hover:shadow-accent/30 group-hover:shadow-md"
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-accent/45 bg-accent/12 max-[430px]:h-7 max-[430px]:w-7"
               >
-                <Heart className="h-3.5 w-3.5 text-accent-foreground" strokeWidth={2.5} />
+                <Cpu className="h-4 w-4 text-accent max-[430px]:h-3.5 max-[430px]:w-3.5" strokeWidth={2} />
               </motion.span>
-              <span className="truncate text-sm font-semibold tracking-tight">GCK Confessions</span>
+              <span className="truncate text-[0.72rem] font-semibold uppercase tracking-[0.13em] max-[430px]:text-[0.64rem] max-[430px]:tracking-[0.11em]">GCK Confessions</span>
             </Link>
 
-            <div className="flex items-center gap-2 sm:gap-3">
+            <div className="flex items-center gap-2 sm:gap-3 max-[430px]:gap-1.5">
               <nav aria-label="Primary" className="hidden items-center gap-1 sm:flex">
                 <Link
                   href="/submit"
-                  className="rounded-md px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors duration-200 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+                  className="rounded-md border border-transparent px-3 py-2 text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-muted-foreground transition-colors duration-200 hover:border-border hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
                 >
                   Share
                 </Link>
                 <Link
                   href="/guidelines"
-                  className="rounded-md px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors duration-200 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+                  className="rounded-md border border-transparent px-3 py-2 text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-muted-foreground transition-colors duration-200 hover:border-border hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
                 >
                   Rules
                 </Link>

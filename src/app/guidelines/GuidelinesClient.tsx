@@ -49,17 +49,17 @@ export default function GuidelinesClient() {
       <PageBackLink className="mb-5" />
       <PageIntro
         badge="Privacy and Guidelines"
-        title="Simple rules, safer sharing"
-        description="Anonymous posting with clear moderation rules."
+        title="Rules For Safe Anonymous Posting"
+        description="Minimal policy set. Clear moderation boundaries."
       />
 
       <section className="mt-8 grid gap-6 md:grid-cols-2" aria-labelledby="privacy-heading">
-        <Card className="border-border/70 bg-card/70 shadow-none backdrop-blur-sm">
+        <Card className="border-border/70 bg-card shadow-none">
           <CardHeader className="space-y-3 pb-4">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent/10">
+            <div className="flex h-10 w-10 items-center justify-center rounded-md border border-accent/40 bg-accent/10">
               <Lock className="h-5 w-5 text-accent" />
             </div>
-            <CardTitle id="privacy-heading" className="text-lg font-bold">Privacy</CardTitle>
+            <CardTitle id="privacy-heading" className="text-[0.82rem] font-semibold uppercase tracking-[0.11em]">Privacy</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-sm leading-6 text-muted-foreground">
             {privacyPoints.map((point) => (
@@ -71,12 +71,12 @@ export default function GuidelinesClient() {
           </CardContent>
         </Card>
 
-        <Card className="border-border/70 bg-card/70 shadow-none backdrop-blur-sm">
+        <Card className="border-border/70 bg-card shadow-none">
           <CardHeader className="space-y-3 pb-4">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent/10">
+            <div className="flex h-10 w-10 items-center justify-center rounded-md border border-accent/40 bg-accent/10">
               <Shield className="h-5 w-5 text-accent" />
             </div>
-            <CardTitle className="text-lg font-bold">Good to know</CardTitle>
+            <CardTitle className="text-[0.82rem] font-semibold uppercase tracking-[0.11em]">Good to know</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-sm leading-6 text-muted-foreground">
             {privacyNotes.map((item) => (
@@ -90,13 +90,13 @@ export default function GuidelinesClient() {
       </section>
 
           <section className="mt-8 grid gap-6 md:grid-cols-2" aria-labelledby="allowed-heading">
-          <Card className="border-border/70 bg-card/70 shadow-none backdrop-blur-sm">
+          <Card className="border-border/70 bg-card shadow-none">
           <CardHeader className="space-y-3 pb-4">
             <Badge variant="outline" className="w-fit gap-1.5 border-action-accept/30 bg-action-accept/5 text-action-accept">
               <ShieldCheck className="h-3.5 w-3.5" />
               Allowed
             </Badge>
-            <CardTitle id="allowed-heading" className="text-lg font-bold">What we welcome</CardTitle>
+            <CardTitle id="allowed-heading" className="text-[0.82rem] font-semibold uppercase tracking-[0.11em]">What we welcome</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4 text-sm leading-6 text-muted-foreground">
             {allowed.map((item) => (
@@ -108,13 +108,13 @@ export default function GuidelinesClient() {
           </CardContent>
           </Card>
 
-          <Card className="border-border/70 bg-card/70 shadow-none backdrop-blur-sm">
+          <Card className="border-border/70 bg-card shadow-none">
           <CardHeader className="space-y-3 pb-4">
             <Badge variant="outline" className="w-fit gap-1.5 border-destructive/30 bg-destructive/5 text-destructive">
               <AlertTriangle className="h-3.5 w-3.5" />
               Not Allowed
             </Badge>
-            <CardTitle id="disallowed-heading" className="text-lg font-bold">What we remove</CardTitle>
+            <CardTitle id="disallowed-heading" className="text-[0.82rem] font-semibold uppercase tracking-[0.11em]">What we remove</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4 text-sm leading-6 text-muted-foreground">
             {disallowed.map((item) => (

@@ -132,18 +132,17 @@ export default function AdminLoginPage() {
   return (
     <main className="relative flex flex-1 bg-background" aria-labelledby="admin-login-title">
       <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
-        <div className="absolute -left-20 top-10 h-72 w-72 rounded-full bg-accent/10 blur-3xl" />
-        <div className="absolute -right-24 bottom-0 h-80 w-80 rounded-full bg-accent/10 blur-3xl" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--border)/0.28)_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--border)/0.28)_1px,transparent_1px)] bg-size-[36px_36px] opacity-45" />
       </div>
 
       <PageReveal className="mx-auto flex w-full max-w-5xl items-center justify-center px-4 py-8 sm:px-6 sm:py-12" y={8} duration={0.4}>
         <div className="w-full max-w-sm">
-          <Card className="border-border/70 bg-card/75 shadow-none backdrop-blur-sm">
+          <Card className="border-border/70 bg-card shadow-none">
             <CardHeader className="space-y-3 pb-2 text-center">
-              <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl border border-border/70 bg-background/70">
-                <ShieldCheck className="h-6 w-6 text-foreground" />
+              <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-md border border-accent/40 bg-accent/10">
+                <ShieldCheck className="h-6 w-6 text-accent" />
               </span>
-              <CardTitle id="admin-login-title" className="text-2xl font-black tracking-tight">Admin sign in</CardTitle>
+              <CardTitle id="admin-login-title" className="text-[clamp(1.35rem,4vw,1.9rem)] font-semibold tracking-[0.04em]">Admin Sign In</CardTitle>
               <CardDescription>Use your admin credentials to open moderation tools</CardDescription>
             </CardHeader>
 
@@ -151,7 +150,7 @@ export default function AdminLoginPage() {
             <form className="space-y-5" onSubmit={handleSubmit} aria-busy={loading}>
               {/* Email */}
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                <Label htmlFor="email" className="text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
                   Email
                 </Label>
                 <div className="relative">
@@ -172,14 +171,14 @@ export default function AdminLoginPage() {
                     maxLength={254}
                     required
                     disabled={loading}
-                    className="h-10 border-border/70 bg-background pl-9 shadow-none"
+                    className="h-11 rounded-md border-border bg-background pl-9 shadow-none"
                   />
                 </div>
               </div>
 
               {/* Password */}
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                <Label htmlFor="password" className="text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
                   Password
                 </Label>
                 <div className="relative">
@@ -201,7 +200,7 @@ export default function AdminLoginPage() {
                     minLength={MIN_PASSWORD_LENGTH}
                     required
                     disabled={loading}
-                    className="h-10 border-border/70 bg-background pl-9 pr-10 shadow-none"
+                    className="h-11 rounded-md border-border bg-background pl-9 pr-10 shadow-none"
                   />
                   <Button
                     type="button"
@@ -223,7 +222,7 @@ export default function AdminLoginPage() {
                 variant="brand"
                 size="touch"
                 disabled={loading || retryAfterSeconds > 0 || !email.trim() || password.length < MIN_PASSWORD_LENGTH}
-                className="mt-2 w-full rounded-xl font-semibold shadow-none"
+                className="mt-2 w-full font-semibold shadow-none"
               >
                 {loading ? (
                   <>
