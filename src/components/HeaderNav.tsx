@@ -80,10 +80,10 @@ export default function HeaderNav() {
               >
                 <Cpu className="h-4 w-4 max-[430px]:h-4 max-[430px]:w-4 max-[359px]:h-3.5 max-[359px]:w-3.5" strokeWidth={2.2} />
               </motion.span>
-              <span className="truncate font-mono text-[0.72rem] font-semibold uppercase tracking-[0.13em] text-foreground max-[430px]:text-[0.68rem] max-[430px]:tracking-[0.11em] max-[359px]:text-[0.62rem]">GCK Confessions</span>
+              <span className="truncate font-mono text-[0.72rem] font-semibold uppercase tracking-[0.13em] text-foreground max-[430px]:text-[0.68rem] max-[430px]:tracking-[0.11em] max-[359px]:hidden">GCK Confessions</span>
             </Link>
 
-            <div className="flex items-center gap-2 sm:gap-3 max-[430px]:gap-1.5 max-[359px]:gap-1">
+            <div className="ml-auto flex shrink-0 items-center gap-2 sm:gap-3 max-[430px]:gap-1.5 max-[359px]:gap-1">
               <nav aria-label="Primary" className="hidden items-center gap-1 sm:flex">
                 <Link
                   href="/submit"
@@ -99,6 +99,9 @@ export default function HeaderNav() {
                 </Link>
               </nav>
 
+              <span className="hidden text-[0.62rem] font-semibold uppercase tracking-[0.12em] text-muted-foreground md:inline">
+                Theme
+              </span>
               <ThemeToggle />
             </div>
           </div>
