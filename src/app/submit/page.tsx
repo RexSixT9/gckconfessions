@@ -241,7 +241,7 @@ export default function SubmitPage() {
           description="Write clearly, stay anonymous, and submit to the review queue."
         />
 
-        <Card className="border-border/70 bg-card shadow-none">
+        <Card className="rounded-2xl border-border/70 bg-card shadow-none">
           <CardHeader>
             <CardTitle className="text-[clamp(1.3rem,3.8vw,2rem)] font-semibold tracking-[0.04em]">Compose message</CardTitle>
             <CardDescription>
@@ -311,7 +311,7 @@ export default function SubmitPage() {
                     <p className="text-[0.75rem] text-muted-foreground max-[359px]:text-[0.68rem]">Artist - Track (optional)</p>
                 </div>
 
-                <div className="rounded-md border border-border p-4 max-[430px]:p-3.5 max-[359px]:p-3">
+                <div className="rounded-xl border border-border p-4 max-[430px]:p-3.5 max-[359px]:p-3">
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div className="space-y-1">
                       <p className="text-[0.72rem] font-semibold uppercase tracking-[0.12em] max-[359px]:text-[0.64rem]">Draft Buffer</p>
@@ -346,7 +346,7 @@ export default function SubmitPage() {
                 <Separator />
 
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <Button type="submit" variant="brand" size="touch" className="w-full gap-2 sm:w-auto max-[359px]:h-10 max-[359px]:text-[0.67rem]" disabled={!canSubmit}>
+                  <Button type="submit" variant="brand" size="touch" className="w-full gap-2 rounded-xl bg-[#6d28d9] text-white hover:bg-[#5b21b6] max-[359px]:h-10 max-[359px]:text-[0.67rem]" disabled={!canSubmit}>
                     {loading ? (
                       <>
                         <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground/40 border-t-primary-foreground" />
@@ -354,6 +354,7 @@ export default function SubmitPage() {
                       </>
                     ) : (
                       <>
+                        🚀
                         <Send className="h-4 w-4" />
                         Submit confession
                       </>

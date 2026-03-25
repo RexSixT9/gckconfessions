@@ -33,7 +33,7 @@ export default async function TransparencyPage() {
       />
 
       {!data ? (
-        <Card className="mt-6 border-border/70 bg-card shadow-none">
+        <Card className="mt-6 rounded-2xl border-border/70 bg-card shadow-none">
           <CardContent className="py-10 text-center text-sm text-muted-foreground">
             Stats are unavailable right now. Please try again shortly.
           </CardContent>
@@ -48,7 +48,7 @@ export default async function TransparencyPage() {
             ["Moderator actions", data.moderationActions],
             ["Audit log entries", data.totalAuditEvents],
           ].map(([label, value]) => (
-            <Card key={label as string} className="border-border/70 bg-card shadow-none">
+            <Card key={label as string} className="rounded-2xl border-border/70 bg-card shadow-none">
               <CardHeader className="pb-2">
                 <CardTitle className="text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-muted-foreground">{label}</CardTitle>
               </CardHeader>

@@ -47,7 +47,7 @@ export default async function AdminPage() {
         {/*  Page header  */}
         <div className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <Badge variant="secondary" className="mb-3 rounded-sm px-3 py-1 text-[0.62rem] uppercase tracking-[0.14em]">
+            <Badge variant="secondary" className="mb-3 rounded-full px-3 py-1 text-[0.62rem] uppercase tracking-[0.12em]">
               Admin Panel
             </Badge>
             <h1 className="text-[clamp(1.9rem,5.6vw,2.8rem)] font-semibold tracking-[0.04em] text-foreground text-balance">
@@ -66,7 +66,7 @@ export default async function AdminPage() {
 
         {/*  Main list  */}
         <ScrollReveal delay={0.06} y={12}>
-          <Card className="border-border/70 bg-card shadow-none">
+          <Card className="rounded-2xl border-border/70 bg-card shadow-none">
             <CardContent className="p-4 sm:p-6 lg:p-8">
               <AdminList />
             </CardContent>

@@ -130,16 +130,16 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <main className="relative flex flex-1 bg-background" aria-labelledby="admin-login-title">
+    <main className="relative flex flex-1 bg-background font-mono" aria-labelledby="admin-login-title">
       <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--border)/0.28)_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--border)/0.28)_1px,transparent_1px)] bg-size-[36px_36px] opacity-45" />
       </div>
 
       <PageReveal className="mx-auto flex w-full max-w-5xl items-center justify-center px-4 py-8 sm:px-6 sm:py-12" y={8} duration={0.4}>
         <div className="w-full max-w-sm">
-          <Card className="border-border/70 bg-card shadow-none">
+          <Card className="rounded-2xl border-border/70 bg-card shadow-none">
             <CardHeader className="space-y-3 pb-2 text-center">
-              <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-md border border-accent/40 bg-accent/10">
+              <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl border border-accent/40 bg-accent/10">
                 <ShieldCheck className="h-6 w-6 text-accent" />
               </span>
               <CardTitle id="admin-login-title" className="text-[clamp(1.35rem,4vw,1.9rem)] font-semibold tracking-[0.04em]">Admin Sign In</CardTitle>
@@ -171,7 +171,7 @@ export default function AdminLoginPage() {
                     maxLength={254}
                     required
                     disabled={loading}
-                    className="h-11 rounded-md border-border bg-background pl-9 shadow-none"
+                    className="h-11 rounded-xl border-border bg-background pl-9 shadow-none"
                   />
                 </div>
               </div>
@@ -200,7 +200,7 @@ export default function AdminLoginPage() {
                     minLength={MIN_PASSWORD_LENGTH}
                     required
                     disabled={loading}
-                    className="h-11 rounded-md border-border bg-background pl-9 pr-10 shadow-none"
+                    className="h-11 rounded-xl border-border bg-background pl-9 pr-10 shadow-none"
                   />
                   <Button
                     type="button"
@@ -208,7 +208,7 @@ export default function AdminLoginPage() {
                     size="icon-sm"
                     onClick={() => setShowPassword(!showPassword)}
                     disabled={loading}
-                    className="absolute right-1 top-1/2 -translate-y-1/2 rounded-md text-muted-foreground"
+                    className="absolute right-1 top-1/2 -translate-y-1/2 rounded-xl text-muted-foreground"
                     aria-label={showPassword ? "Hide password" : "Show password"}
                   >
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -222,7 +222,7 @@ export default function AdminLoginPage() {
                 variant="brand"
                 size="touch"
                 disabled={loading || retryAfterSeconds > 0 || !email.trim() || password.length < MIN_PASSWORD_LENGTH}
-                className="mt-2 w-full font-semibold shadow-none"
+                className="mt-2 w-full rounded-xl bg-[#6d28d9] font-semibold text-white shadow-none hover:bg-[#5b21b6]"
               >
                 {loading ? (
                   <>
@@ -231,7 +231,7 @@ export default function AdminLoginPage() {
                   </>
                 ) : (
                   <>
-                    Sign in
+                    🚀 Sign in
                     <ArrowRight className="h-4 w-4" />
                   </>
                 )}

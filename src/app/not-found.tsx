@@ -32,11 +32,11 @@ export default function NotFoundPage() {
   }, [autoRedirect, router]);
 
   return (
-    <main className="flex flex-1 items-center justify-center bg-background px-4 py-8 sm:px-6">
+    <main className="flex flex-1 items-center justify-center bg-background px-4 py-8 font-mono sm:px-6">
       <PageReveal className="w-full max-w-lg" y={12} duration={0.35}>
         <section className="text-center">
           <div className="space-y-3">
-            <Badge className="gap-1 rounded-sm border border-accent/35 bg-accent/10 px-3 py-1 text-[0.64rem] uppercase tracking-[0.12em] text-accent hover:bg-accent/10">
+            <Badge className="gap-1 rounded-full border border-accent/35 bg-accent/10 px-3 py-1 text-[0.64rem] uppercase tracking-[0.12em] text-accent hover:bg-accent/10">
               <Search className="h-3.5 w-3.5" />
               Not Found
             </Badge>
@@ -48,7 +48,7 @@ export default function NotFoundPage() {
 
           <div className="mt-6 space-y-5">
             {autoRedirect && countdown > 0 && (
-              <div className="rounded-md border border-border/70 bg-muted/25 p-3.5 text-sm text-muted-foreground">
+              <div className="rounded-xl border border-border/70 bg-muted/25 p-3.5 text-sm text-muted-foreground">
                 Taking you back home in <span className="font-semibold text-accent">{countdown}</span> second
                 {countdown !== 1 ? "s" : ""}.
                 <button
@@ -66,7 +66,7 @@ export default function NotFoundPage() {
                 onClick={() => router.push("/")}
                 variant="brand"
                 size="touch"
-                className="group w-full gap-2 sm:w-auto"
+                className="group w-full gap-2 rounded-xl bg-[#6d28d9] text-white hover:bg-[#5b21b6] sm:w-auto"
               >
                 <Home className="h-4 w-4" />
                 Back to home
@@ -75,7 +75,7 @@ export default function NotFoundPage() {
                 variant="ghost"
                 onClick={() => router.back()}
                 size="touch"
-                className="group w-full gap-2 sm:w-auto"
+                className="group w-full gap-2 rounded-xl border border-border bg-card/70 text-foreground hover:bg-card sm:w-auto"
               >
                 <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-0.5" />
                 Previous page
