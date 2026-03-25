@@ -49,6 +49,7 @@ yarn-error.log*
 # vercel
 .vercel
 *.exe
+# docs
 /docs
 
 # typescript
