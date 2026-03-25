@@ -77,9 +77,9 @@ export default function HomePage() {
             <CardTitle className="text-sm font-semibold uppercase tracking-[0.13em] text-muted-foreground max-[359px]:text-[0.7rem] max-[359px]:tracking-widest">System Status</CardTitle>
             <CardDescription className="text-sm text-foreground max-[359px]:text-[0.8rem]">Anonymous posting pipeline is active.</CardDescription>
             <div className="flex flex-wrap gap-2 pt-1">
-              <Badge variant="outline" className="rounded-full px-2.5 py-0.5 text-[0.58rem] uppercase tracking-[0.1em]">🔒 Anonymous</Badge>
-              <Badge variant="outline" className="rounded-full px-2.5 py-0.5 text-[0.58rem] uppercase tracking-[0.1em]">🛡 Human Review</Badge>
-              <Badge variant="outline" className="rounded-full px-2.5 py-0.5 text-[0.58rem] uppercase tracking-[0.1em]">⚡ Fast Queue</Badge>
+              <Badge variant="outline" className="rounded-full px-2.5 py-0.5 text-[0.58rem] uppercase tracking-widest">🔒 Anonymous</Badge>
+              <Badge variant="outline" className="rounded-full px-2.5 py-0.5 text-[0.58rem] uppercase tracking-widest">🛡 Human Review</Badge>
+              <Badge variant="outline" className="rounded-full px-2.5 py-0.5 text-[0.58rem] uppercase tracking-widest">⚡ Fast Queue</Badge>
             </div>
           </CardHeader>
           <CardContent className="space-y-3 text-xs uppercase tracking-[0.12em] text-muted-foreground max-[359px]:space-y-2.5 max-[359px]:p-4 max-[359px]:pt-0 max-[359px]:text-[0.62rem]">

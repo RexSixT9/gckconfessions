@@ -80,20 +80,20 @@ export default function HeaderNav() {
               >
                 <Cpu className="h-4 w-4 max-[430px]:h-4 max-[430px]:w-4 max-[359px]:h-3.5 max-[359px]:w-3.5" strokeWidth={2.2} />
               </motion.span>
-              <span className="truncate text-[0.72rem] font-semibold uppercase tracking-[0.13em] text-foreground max-[430px]:text-[0.68rem] max-[430px]:tracking-[0.11em] max-[359px]:text-[0.62rem]">GCK Confessions</span>
+              <span className="truncate font-mono text-[0.72rem] font-semibold uppercase tracking-[0.13em] text-foreground max-[430px]:text-[0.68rem] max-[430px]:tracking-[0.11em] max-[359px]:text-[0.62rem]">GCK Confessions</span>
             </Link>
 
             <div className="flex items-center gap-2 sm:gap-3 max-[430px]:gap-1.5 max-[359px]:gap-1">
               <nav aria-label="Primary" className="hidden items-center gap-1 sm:flex">
                 <Link
                   href="/submit"
-                  className="rounded-md border border-transparent px-3 py-2 text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-muted-foreground transition-colors duration-200 hover:border-border hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+                  className="rounded-md border border-transparent px-3 py-2 font-mono text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-muted-foreground transition-colors duration-200 hover:border-border hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
                 >
                   Share
                 </Link>
                 <Link
                   href="/guidelines"
-                  className="rounded-md border border-transparent px-3 py-2 text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-muted-foreground transition-colors duration-200 hover:border-border hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+                  className="rounded-md border border-transparent px-3 py-2 font-mono text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-muted-foreground transition-colors duration-200 hover:border-border hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
                 >
                   Rules
                 </Link>
