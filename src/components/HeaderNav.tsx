@@ -99,9 +99,6 @@ export default function HeaderNav() {
                 </Link>
               </nav>
 
-              <span className="hidden text-[0.62rem] font-semibold uppercase tracking-[0.12em] text-muted-foreground md:inline">
-                Theme
-              </span>
               <ThemeToggle />
             </div>
           </div>

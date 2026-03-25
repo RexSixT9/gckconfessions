@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Heart } from "lucide-react";
+import { Cpu } from "lucide-react";
 import { useMotionRuntime } from "@/components/MotionProvider";
 
 const MIN_VISIBLE_MS = 650;
@@ -99,7 +99,7 @@ export default function AppPreloader() {
                   animate={{ scale: [1, 1.16], opacity: [0.35, 0] }}
                   transition={{ duration: 1.5, repeat: Infinity, ease: "easeOut" }}
                 />
-                <Heart className="h-5 w-5 text-accent" strokeWidth={2.3} />
+                <Cpu className="h-5 w-5 text-accent" strokeWidth={2.3} />
               </motion.div>
               <div>
                 <p className="text-sm font-semibold tracking-tight text-foreground">GCK Confessions</p>
