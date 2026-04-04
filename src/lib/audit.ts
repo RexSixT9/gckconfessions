@@ -1,7 +1,7 @@
 import { createHash } from "crypto";
 import AuditLog from "@/models/AuditLog";
 import { getClientIp } from "@/lib/rateLimit";
-import { hashIp } from "@/lib/requestUtils";
+import { getClientContext, getRequestFingerprint, hashIp, type ClientContext } from "@/lib/requestUtils";
 import { deliverAuditEvent, deliverSecurityAlert, type DeliveryOutcome } from "@/lib/alerts";
 import { safeLogError } from "@/lib/api";
 
@@ -99,12 +99,88 @@ function getForwardedForCount(value: string | null) {
     .filter(Boolean).length;
 }
 
-function getRequestContext(request: Request, url: URL) {
+function parseBooleanHint(value: string | null) {
+  if (!value) return "unknown";
+  if (value.includes("?1") || value === "1" || value.toLowerCase() === "true") return "true";
+  if (value.includes("?0") || value === "0" || value.toLowerCase() === "false") return "false";
+  return "unknown";
+}
+
+function parsePositiveNumber(value: string | null) {
+  if (!value) return 0;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : 0;
+}
+
+function hasAutomationMarkers(userAgent: string) {
+  return /headless|selenium|playwright|puppeteer|phantomjs|webdriver|curl\//i.test(userAgent);
+}
+
+function getRequestAnomalyFlags({
+  request,
+  clientContext,
+  queryKeyCount,
+  forwardedForCount,
+  contentLength,
+  secChUaMobile,
+}: {
+  request: Request;
+  clientContext: ClientContext;
+  queryKeyCount: number;
+  forwardedForCount: number;
+  contentLength: number;
+  secChUaMobile: string;
+}) {
+  const flags: string[] = [];
+
+  if (clientContext.deviceType === "bot") flags.push("ua_bot_signature");
+  if (hasAutomationMarkers(clientContext.userAgent)) flags.push("automation_signature");
+  if (forwardedForCount > 2) flags.push("multi_hop_forwarding");
+  if (queryKeyCount > 12) flags.push("high_query_key_count");
+  if (contentLength > 80_000) flags.push("large_payload");
+
+  const hasFetchMetadata = Boolean(
+    request.headers.get("sec-fetch-site") ||
+      request.headers.get("sec-fetch-mode") ||
+      request.headers.get("sec-fetch-dest")
+  );
+
+  if (clientContext.deviceType !== "bot" && clientContext.browser !== "api-client" && !hasFetchMetadata) {
+    flags.push("missing_fetch_metadata");
+  }
+
+  if (secChUaMobile === "true" && clientContext.deviceType === "desktop") {
+    flags.push("mobile_hint_ua_mismatch");
+  }
+  if (secChUaMobile === "false" && (clientContext.deviceType === "mobile" || clientContext.deviceType === "tablet")) {
+    flags.push("desktop_hint_ua_mismatch");
+  }
+
+  return flags.slice(0, 12);
+}
+
+function getRequestContext(request: Request, url: URL, ip: string, clientContext: ClientContext) {
   const queryKeys = getUniqueQueryKeys(url);
   const forwardedForCount = getForwardedForCount(request.headers.get("x-forwarded-for"));
+  const contentLength = parseContentLength(request.headers.get("content-length"));
+  const secChUaMobile = parseBooleanHint(request.headers.get("sec-ch-ua-mobile"));
+  const deviceMemoryGb = parsePositiveNumber(request.headers.get("device-memory"));
+  const dpr = parsePositiveNumber(request.headers.get("dpr"));
+  const viewportWidth = parsePositiveNumber(request.headers.get("viewport-width"));
+  const headerFingerprint = getRequestFingerprint(request, ip);
+  const anomalyFlags = getRequestAnomalyFlags({
+    request,
+    clientContext,
+    queryKeyCount: queryKeys.length,
+    forwardedForCount,
+    contentLength,
+    secChUaMobile,
+  });
 
   return {
     requestContextVersion: 1,
+    fingerprintVersion: 1,
+    headerFingerprint,
     protocol: url.protocol.replace(":", ""),
     host: url.host,
     origin: toOrigin(request.headers.get("origin")),
@@ -112,17 +188,35 @@ function getRequestContext(request: Request, url: URL) {
     queryKeyCount: queryKeys.length,
     queryKeys,
     contentType: trimHeader(request.headers.get("content-type"), 80),
-    contentLength: parseContentLength(request.headers.get("content-length")),
+    contentLength,
     acceptLanguage: getPrimaryLanguage(request.headers.get("accept-language")),
     secFetchSite: trimHeader(request.headers.get("sec-fetch-site"), 24),
     secFetchMode: trimHeader(request.headers.get("sec-fetch-mode"), 24),
     secFetchDest: trimHeader(request.headers.get("sec-fetch-dest"), 24),
-    secChUaMobile: trimHeader(request.headers.get("sec-ch-ua-mobile"), 16),
+    secChUaMobile,
     secChUaPlatform: trimHeader(request.headers.get("sec-ch-ua-platform"), 32),
+    secChUaModel: trimHeader(request.headers.get("sec-ch-ua-model"), 80),
+    secChUaArch: trimHeader(request.headers.get("sec-ch-ua-arch"), 32),
+    secChUaBitness: trimHeader(request.headers.get("sec-ch-ua-bitness"), 16),
+    secChUaPlatformVersion: trimHeader(request.headers.get("sec-ch-ua-platform-version"), 24),
+    secChUaFullVersionList: trimHeader(request.headers.get("sec-ch-ua-full-version-list"), 160),
+    secChUaFormFactors: trimHeader(request.headers.get("sec-ch-ua-form-factors"), 80),
+    secChUaWow64: parseBooleanHint(request.headers.get("sec-ch-ua-wow64")),
+    deviceMemoryGb,
+    dpr,
+    viewportWidth,
+    deviceType: clientContext.deviceType,
+    browser: clientContext.browser,
+    os: clientContext.os,
+    model: clientContext.model,
+    platform: clientContext.platform,
+    isKnownApiClient: clientContext.browser === "api-client",
     hasAuthorizationHeader: Boolean(request.headers.get("authorization")),
     hasCookieHeader: Boolean(request.headers.get("cookie")),
     forwardedForCount,
     isForwarded: forwardedForCount > 0,
+    anomalyFlags,
+    anomalyScore: anomalyFlags.length,
   };
 }
 
@@ -239,11 +333,12 @@ export async function writeAuditLog({
   meta = {},
 }: AuditParams) {
   const ip = getClientIp(request);
+  const clientContext = getClientContext(request, ip);
   const ipHash = hashIp(ip);
   const url = new URL(request.url);
   const requestId = createRequestId(request, ip);
-  const userAgent = (request.headers.get("user-agent") ?? "").slice(0, 512);
-  const requestContext = getRequestContext(request, url);
+  const userAgent = clientContext.userAgent;
+  const requestContext = getRequestContext(request, url, ip, clientContext);
 
   const created = await AuditLog.create({
     action,

@@ -27,6 +27,26 @@ function applySecurityHeaders(response: NextResponse, nonce: string) {
     ? "Content-Security-Policy"
     : "Content-Security-Policy-Report-Only";
 
+  // Ask browsers for safe client hints to improve anti-abuse telemetry on backend actions.
+  response.headers.set(
+    "Accept-CH",
+    [
+      "Sec-CH-UA",
+      "Sec-CH-UA-Mobile",
+      "Sec-CH-UA-Platform",
+      "Sec-CH-UA-Model",
+      "Sec-CH-UA-Platform-Version",
+      "Sec-CH-UA-Arch",
+      "Sec-CH-UA-Bitness",
+      "Sec-CH-UA-Full-Version-List",
+      "Sec-CH-UA-Form-Factors",
+      "Sec-CH-UA-WoW64",
+      "Device-Memory",
+      "DPR",
+      "Viewport-Width",
+    ].join(", ")
+  );
+
   response.headers.set(cspHeaderKey, buildCsp(nonce));
   response.headers.set("x-nonce", nonce);
 
