@@ -28,9 +28,55 @@ type AuditEventDeliveryPayload = {
 
 const ALERT_TIMEOUT_MS = Number(process.env.SECURITY_ALERT_TIMEOUT_MS ?? 5000);
 const ALERT_MAX_RETRIES = Number(process.env.SECURITY_ALERT_MAX_RETRIES ?? 2);
+const REDACTED = "[REDACTED]";
+const REDACT_KEYS = [
+  "password",
+  "pass",
+  "token",
+  "jwt",
+  "setupkey",
+  "secret",
+  "authorization",
+  "cookie",
+  "csrf",
+  "apikey",
+  "webhook",
+];
 
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function shouldRedactKey(key: string) {
+  const normalized = key.toLowerCase();
+  return REDACT_KEYS.some((entry) => normalized.includes(entry));
+}
+
+function redactMetaValue(value: unknown, depth = 0): unknown {
+  if (depth > 4) return "[TRUNCATED]";
+
+  if (Array.isArray(value)) {
+    return value.slice(0, 25).map((item) => redactMetaValue(item, depth + 1));
+  }
+
+  if (value && typeof value === "object") {
+    const source = value as Record<string, unknown>;
+    const output: Record<string, unknown> = {};
+    for (const [key, nested] of Object.entries(source)) {
+      output[key] = shouldRedactKey(key) ? REDACTED : redactMetaValue(nested, depth + 1);
+    }
+    return output;
+  }
+
+  if (typeof value === "string") {
+    return value.length > 240 ? `${value.slice(0, 240)}...[TRUNCATED]` : value;
+  }
+
+  return value;
+}
+
+function redactMeta(meta: Record<string, unknown>) {
+  return redactMetaValue(meta, 0) as Record<string, unknown>;
 }
 
 async function fetchWithTimeout(input: RequestInfo | URL, init: RequestInit, timeoutMs: number) {
@@ -151,6 +197,7 @@ async function sendEmailAlert(payload: SecurityAlertDeliveryPayload) {
 }
 
 function createDiscordEmbed(payload: AuditEventDeliveryPayload) {
+  const sanitizedMeta = redactMeta(payload.meta);
   const summary = [
     `Action: ${payload.action}`,
     `Request ID: ${payload.requestId}`,
@@ -167,7 +214,7 @@ function createDiscordEmbed(payload: AuditEventDeliveryPayload) {
     fields: [
       {
         name: "Meta",
-        value: "```json\n" + JSON.stringify(payload.meta, null, 2).slice(0, 1000) + "\n```",
+        value: "```json\n" + JSON.stringify(sanitizedMeta, null, 2).slice(0, 1000) + "\n```",
       },
       {
         name: "User Agent",

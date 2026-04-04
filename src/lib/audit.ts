@@ -1,6 +1,7 @@
 import { createHash } from "crypto";
 import AuditLog from "@/models/AuditLog";
 import { getClientIp } from "@/lib/rateLimit";
+import { hashIp } from "@/lib/requestUtils";
 import { deliverAuditEvent, deliverSecurityAlert } from "@/lib/alerts";
 import { safeLogError } from "@/lib/api";
 
@@ -25,6 +26,7 @@ type AuditAction =
   | "admin_stats_viewed"
   | "confessions_viewed"
   | "admins_viewed"
+  | "audit_dashboard_viewed"
   | "security_alert";
 
 type AuditParams = {
@@ -93,6 +95,7 @@ export async function writeAuditLog({
   meta = {},
 }: AuditParams) {
   const ip = getClientIp(request);
+  const ipHash = hashIp(ip);
   const url = new URL(request.url);
   const requestId = createRequestId(request, ip);
   const userAgent = (request.headers.get("user-agent") ?? "").slice(0, 512);
@@ -102,6 +105,7 @@ export async function writeAuditLog({
     adminEmail,
     confessionId,
     ip,
+    ipHash,
     userAgent,
     requestId,
     meta: toSerializableMeta({

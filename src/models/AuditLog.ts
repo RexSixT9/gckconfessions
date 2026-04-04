@@ -38,6 +38,7 @@ const AuditLogSchema = new Schema(
         "admin_stats_viewed",
         "confessions_viewed",
         "admins_viewed",
+        "audit_dashboard_viewed",
         "security_alert",
       ],
       index: true,
@@ -45,6 +46,7 @@ const AuditLogSchema = new Schema(
     adminEmail: { type: String, default: "", index: true, immutable: true },
     confessionId: { type: Schema.Types.ObjectId, ref: "Confession", immutable: true },
     ip: { type: String, default: "", index: true, immutable: true },
+    ipHash: { type: String, default: "", index: true, immutable: true },
     userAgent: { type: String, default: "", immutable: true },
     requestId: { type: String, default: "", index: true, immutable: true },
     meta: { type: Schema.Types.Mixed, default: {} },
@@ -61,6 +63,7 @@ const AuditLogSchema = new Schema(
 AuditLogSchema.index({ createdAt: -1 });
 AuditLogSchema.index({ action: 1, createdAt: -1 });
 AuditLogSchema.index({ ip: 1, createdAt: -1 });
+AuditLogSchema.index({ action: 1, adminEmail: 1, ipHash: 1, createdAt: -1 });
 // TTL index: auto-delete audit logs after 90 days for privacy
 AuditLogSchema.index({ createdAt: 1 }, { expireAfterSeconds: 7776000 });
 
