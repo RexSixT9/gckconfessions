@@ -354,7 +354,7 @@ async function fetchWithTimeout(input: RequestInfo | URL, init: RequestInit, tim
 }
 
 function parseRetryAfterMs(value: string | null) {
-  if (!value) return null;
+  if (!value) return undefined;
 
   const seconds = Number(value);
   if (Number.isFinite(seconds) && seconds >= 0) {
@@ -366,7 +366,7 @@ function parseRetryAfterMs(value: string | null) {
     return Math.max(100, dateMs - Date.now());
   }
 
-  return null;
+  return undefined;
 }
 
 async function withRetry(taskName: string, fn: () => Promise<void>, options: RetryOptions) {
