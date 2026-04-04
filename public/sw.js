@@ -1,5 +1,14 @@
 const CACHE_NAME = "gck-v3-cache-v2";
-const APP_SHELL = ["/", "/submit", "/guidelines"];
+const APP_SHELL = [
+  "/",
+  "/submit",
+  "/guidelines",
+  "/manifest.webmanifest",
+  "/icons/icon-192.png",
+  "/icons/icon-512.png",
+  "/icons/icon-512-maskable.png",
+  "/icons/apple-touch-icon.png",
+];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -71,4 +80,10 @@ self.addEventListener("fetch", (event) => {
         .catch(() => Response.error());
     })
   );
+});
+
+self.addEventListener("message", (event) => {
+  if (event.data?.type === "SKIP_WAITING") {
+    self.skipWaiting();
+  }
 });

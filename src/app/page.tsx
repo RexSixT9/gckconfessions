@@ -405,9 +405,14 @@ export default function HomePage() {
     const section = document.getElementById(sectionId);
     if (!section) return;
 
-    section.scrollIntoView({
+    const rootStyles = getComputedStyle(document.documentElement);
+    const headerHeight = Number.parseFloat(rootStyles.getPropertyValue("--header-height")) || 56;
+    const top = section.getBoundingClientRect().top + window.scrollY - headerHeight - 16;
+
+    window.history.replaceState(null, "", `#${sectionId}`);
+    window.scrollTo({
+      top,
       behavior: reduceHeavyMotion ? "auto" : "smooth",
-      block: "start",
     });
   }
 
@@ -664,7 +669,7 @@ export default function HomePage() {
         aria-labelledby="highlights-heading"
         ref={highlightsRef}
         style={{ y: reduceHeavyMotion || enableSnap ? 0 : highlightsParallax }}
-        className="snap-section mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 sm:py-14 lg:px-8 lg:py-16"
+        className="snap-section scroll-mt-[calc(var(--header-height,3.5rem)+1rem)] mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 sm:py-14 lg:px-8 lg:py-16"
       >
         <div className="w-full">
           <div className="mb-10 text-center">
@@ -709,7 +714,7 @@ export default function HomePage() {
         aria-labelledby="how-it-works-heading"
         ref={stepsRef}
         style={{ y: reduceHeavyMotion || enableSnap ? 0 : stepsParallax }}
-        className="snap-section mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 sm:py-14 lg:px-8 lg:py-16"
+        className="snap-section scroll-mt-[calc(var(--header-height,3.5rem)+1rem)] mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 sm:py-14 lg:px-8 lg:py-16"
       >
         <div className="w-full">
           <div className="mb-10 text-center">
