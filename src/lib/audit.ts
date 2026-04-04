@@ -61,6 +61,71 @@ function toSerializableMeta(meta: Record<string, unknown>) {
   }
 }
 
+function trimHeader(value: string | null, max = 160) {
+  if (!value) return "";
+  return value.slice(0, max);
+}
+
+function toOrigin(value: string | null) {
+  if (!value) return "";
+  try {
+    return new URL(value).origin;
+  } catch {
+    return "";
+  }
+}
+
+function parseContentLength(value: string | null) {
+  if (!value) return 0;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : 0;
+}
+
+function getPrimaryLanguage(value: string | null) {
+  if (!value) return "";
+  return value.split(",")[0]?.trim().slice(0, 24) ?? "";
+}
+
+function getUniqueQueryKeys(url: URL) {
+  const keys = Array.from(new Set(Array.from(url.searchParams.keys())));
+  return keys.slice(0, 25);
+}
+
+function getForwardedForCount(value: string | null) {
+  if (!value) return 0;
+  return value
+    .split(",")
+    .map((part) => part.trim())
+    .filter(Boolean).length;
+}
+
+function getRequestContext(request: Request, url: URL) {
+  const queryKeys = getUniqueQueryKeys(url);
+  const forwardedForCount = getForwardedForCount(request.headers.get("x-forwarded-for"));
+
+  return {
+    requestContextVersion: 1,
+    protocol: url.protocol.replace(":", ""),
+    host: url.host,
+    origin: toOrigin(request.headers.get("origin")),
+    referrerOrigin: toOrigin(request.headers.get("referer") ?? request.headers.get("referrer")),
+    queryKeyCount: queryKeys.length,
+    queryKeys,
+    contentType: trimHeader(request.headers.get("content-type"), 80),
+    contentLength: parseContentLength(request.headers.get("content-length")),
+    acceptLanguage: getPrimaryLanguage(request.headers.get("accept-language")),
+    secFetchSite: trimHeader(request.headers.get("sec-fetch-site"), 24),
+    secFetchMode: trimHeader(request.headers.get("sec-fetch-mode"), 24),
+    secFetchDest: trimHeader(request.headers.get("sec-fetch-dest"), 24),
+    secChUaMobile: trimHeader(request.headers.get("sec-ch-ua-mobile"), 16),
+    secChUaPlatform: trimHeader(request.headers.get("sec-ch-ua-platform"), 32),
+    hasAuthorizationHeader: Boolean(request.headers.get("authorization")),
+    hasCookieHeader: Boolean(request.headers.get("cookie")),
+    forwardedForCount,
+    isForwarded: forwardedForCount > 0,
+  };
+}
+
 function createRequestId(request: Request, ip: string) {
   return createHash("sha256")
     .update(`${request.method}|${new URL(request.url).pathname}|${ip}|${request.headers.get("user-agent") ?? ""}`)
@@ -178,6 +243,7 @@ export async function writeAuditLog({
   const url = new URL(request.url);
   const requestId = createRequestId(request, ip);
   const userAgent = (request.headers.get("user-agent") ?? "").slice(0, 512);
+  const requestContext = getRequestContext(request, url);
 
   const created = await AuditLog.create({
     action,
@@ -189,6 +255,7 @@ export async function writeAuditLog({
     requestId,
     meta: toSerializableMeta({
       ...meta,
+      requestContext,
       route: url.pathname,
       method: request.method,
       requestId,
@@ -196,7 +263,10 @@ export async function writeAuditLog({
     }),
   });
 
-  const serializableMeta = toSerializableMeta(meta);
+  const serializableMeta = toSerializableMeta({
+    ...meta,
+    requestContext,
+  });
 
   if (INTERNAL_DELIVERY_ACTIONS.has(action)) {
     return created;
