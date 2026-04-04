@@ -39,6 +39,9 @@ export type DeliveryOutcome = {
 
 const ALERT_TIMEOUT_MS = Number(process.env.SECURITY_ALERT_TIMEOUT_MS ?? 5000);
 const ALERT_MAX_RETRIES = Number(process.env.SECURITY_ALERT_MAX_RETRIES ?? 2);
+const AUDIT_WEBHOOK_TIMEOUT_MS = Number(process.env.AUDIT_WEBHOOK_TIMEOUT_MS ?? 1800);
+const AUDIT_WEBHOOK_MAX_RETRIES = Number(process.env.AUDIT_WEBHOOK_MAX_RETRIES ?? 1);
+const AUDIT_WEBHOOK_BACKOFF_MS = Number(process.env.AUDIT_WEBHOOK_BACKOFF_MS ?? 120);
 const REDACTED = "[REDACTED]";
 const DISCORD_COLORS = {
   critical: 0xff3b30,
@@ -71,6 +74,21 @@ type WebhookVisual = {
   colorInt: number;
   colorHex: string;
 };
+
+type RetryOptions = {
+  maxRetries: number;
+  baseBackoffMs?: number;
+};
+
+class RetryableDeliveryError extends Error {
+  retryAfterMs?: number;
+
+  constructor(message: string, retryAfterMs?: number) {
+    super(message);
+    this.name = "RetryableDeliveryError";
+    this.retryAfterMs = retryAfterMs;
+  }
+}
 
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -335,21 +353,44 @@ async function fetchWithTimeout(input: RequestInfo | URL, init: RequestInit, tim
   }
 }
 
-async function withRetry(taskName: string, fn: () => Promise<void>) {
+function parseRetryAfterMs(value: string | null) {
+  if (!value) return null;
+
+  const seconds = Number(value);
+  if (Number.isFinite(seconds) && seconds >= 0) {
+    return Math.max(100, Math.round(seconds * 1000));
+  }
+
+  const dateMs = Date.parse(value);
+  if (Number.isFinite(dateMs)) {
+    return Math.max(100, dateMs - Date.now());
+  }
+
+  return null;
+}
+
+async function withRetry(taskName: string, fn: () => Promise<void>, options: RetryOptions) {
+  const baseBackoffMs = options.baseBackoffMs ?? 250;
   let attempt = 0;
   let lastError: unknown = null;
 
-  while (attempt <= ALERT_MAX_RETRIES) {
+  while (attempt <= options.maxRetries) {
     try {
       await fn();
       return;
     } catch (error) {
       lastError = error;
-      if (attempt === ALERT_MAX_RETRIES) {
+      if (attempt === options.maxRetries) {
         break;
       }
-      // Backoff: 250ms, 500ms, 1000ms...
-      await sleep(250 * 2 ** attempt);
+
+      const retryAfterMs =
+        error instanceof RetryableDeliveryError && typeof error.retryAfterMs === "number"
+          ? error.retryAfterMs
+          : null;
+
+      // Backoff: base, base*2, base*4... unless endpoint gives Retry-After.
+      await sleep(retryAfterMs ?? baseBackoffMs * 2 ** attempt);
     }
     attempt += 1;
   }
@@ -426,9 +467,15 @@ async function sendWebhookAlert(payload: SecurityAlertDeliveryPayload) {
     );
 
     if (!response.ok) {
+      if (response.status >= 500 || response.status === 429) {
+        throw new RetryableDeliveryError(
+          `Webhook alert delivery failed with status ${response.status}`,
+          parseRetryAfterMs(response.headers.get("retry-after"))
+        );
+      }
       throw new Error(`Webhook alert delivery failed with status ${response.status}`);
     }
-  });
+  }, { maxRetries: ALERT_MAX_RETRIES, baseBackoffMs: 250 });
 }
 
 async function sendEmailAlert(payload: SecurityAlertDeliveryPayload) {
@@ -458,9 +505,15 @@ async function sendEmailAlert(payload: SecurityAlertDeliveryPayload) {
     );
 
     if (!response.ok) {
+      if (response.status >= 500 || response.status === 429) {
+        throw new RetryableDeliveryError(
+          `Email alert delivery failed with status ${response.status}`,
+          parseRetryAfterMs(response.headers.get("retry-after"))
+        );
+      }
       throw new Error(`Email alert delivery failed with status ${response.status}`);
     }
-  });
+  }, { maxRetries: ALERT_MAX_RETRIES, baseBackoffMs: 300 });
 }
 
 function createDiscordEmbed(payload: AuditEventDeliveryPayload) {
@@ -526,13 +579,19 @@ async function sendDiscordAuditWebhook(payload: AuditEventDeliveryPayload) {
           embeds: [createDiscordEmbed(payload)],
         }),
       },
-      ALERT_TIMEOUT_MS
+      AUDIT_WEBHOOK_TIMEOUT_MS
     );
 
     if (!response.ok) {
+      if (response.status === 429 || response.status >= 500) {
+        throw new RetryableDeliveryError(
+          `Discord audit delivery failed with status ${response.status}`,
+          parseRetryAfterMs(response.headers.get("retry-after"))
+        );
+      }
       throw new Error(`Discord audit delivery failed with status ${response.status}`);
     }
-  });
+  }, { maxRetries: AUDIT_WEBHOOK_MAX_RETRIES, baseBackoffMs: AUDIT_WEBHOOK_BACKOFF_MS });
 }
 
 export async function deliverSecurityAlert(payload: SecurityAlertDeliveryPayload): Promise<DeliveryOutcome[]> {
