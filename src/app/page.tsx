@@ -314,6 +314,7 @@ export default function HomePage() {
   const highlightsRef = useRef<HTMLElement | null>(null);
   const stepsRef = useRef<HTMLElement | null>(null);
   const reduceHeavyMotion = shouldReduceMotion || isLowEnd;
+  const enableSnap = isDesktop && !reduceHeavyMotion;
 
   const { scrollYProgress: heroProgress } = useScroll({
     target: heroRef,
@@ -363,12 +364,11 @@ export default function HomePage() {
 
   useEffect(() => {
     const root = document.documentElement;
-    const enableSnap = isDesktop && !reduceHeavyMotion;
     root.classList.toggle("home-snap", enableSnap);
     return () => {
       root.classList.remove("home-snap");
     };
-  }, [isDesktop, reduceHeavyMotion]);
+  }, [enableSnap]);
 
   const heroStaggerContainer = useMemo(
     () => ({
@@ -656,7 +656,7 @@ export default function HomePage() {
         id="highlights"
         aria-labelledby="highlights-heading"
         ref={highlightsRef}
-        style={{ y: reduceHeavyMotion ? 0 : highlightsParallax }}
+        style={{ y: reduceHeavyMotion || enableSnap ? 0 : highlightsParallax }}
         className="snap-section mx-auto flex min-h-dvh w-full max-w-7xl items-center px-4 py-12 sm:px-6 sm:py-14 lg:px-8"
       >
         <div className="w-full">
@@ -701,7 +701,7 @@ export default function HomePage() {
         id="how-it-works"
         aria-labelledby="how-it-works-heading"
         ref={stepsRef}
-        style={{ y: reduceHeavyMotion ? 0 : stepsParallax }}
+        style={{ y: reduceHeavyMotion || enableSnap ? 0 : stepsParallax }}
         className="snap-section mx-auto flex min-h-dvh w-full max-w-7xl items-center px-4 py-12 sm:px-6 sm:py-14 lg:px-8"
       >
         <div className="w-full">

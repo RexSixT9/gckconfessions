@@ -25,7 +25,9 @@ export async function signAdminToken(payload: AdminTokenPayload) {
 }
 
 export async function verifyAdminToken(token: string) {
-  const { payload } = await jwtVerify(token, secretKey);
+  const { payload } = await jwtVerify(token, secretKey, {
+    algorithms: ["HS256"],
+  });
 
   return {
     sub: typeof payload.sub === "string" ? payload.sub : "",

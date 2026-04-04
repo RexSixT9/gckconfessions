@@ -17,7 +17,9 @@ export async function POST(request: Request) {
     }
 
     if (!(await validateCsrf(request))) {
-      return apiError(403, "INVALID_CSRF", "Invalid CSRF token.");
+      const response = apiError(403, "INVALID_CSRF", "Invalid CSRF token.");
+      clearSessionCookies(response);
+      return response;
     }
 
     // Arcjet protection

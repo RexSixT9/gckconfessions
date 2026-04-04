@@ -83,10 +83,14 @@ export async function proxy(request: NextRequest) {
       if (isAdminPage) {
         const loginUrl = request.nextUrl.clone();
         loginUrl.pathname = "/adminlogin";
-        return applySecurityHeaders(NextResponse.redirect(loginUrl), nonce);
+        const response = NextResponse.redirect(loginUrl);
+        clearSessionCookies(response);
+        return applySecurityHeaders(response, nonce);
       }
 
-      return applySecurityHeaders(NextResponse.json({ error: "Unauthorized." }, { status: 401 }), nonce);
+      const response = NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+      clearSessionCookies(response);
+      return applySecurityHeaders(response, nonce);
     }
 
     try {
@@ -118,10 +122,14 @@ export async function proxy(request: NextRequest) {
       if (isAdminPage) {
         const loginUrl = request.nextUrl.clone();
         loginUrl.pathname = "/adminlogin";
-        return applySecurityHeaders(NextResponse.redirect(loginUrl), nonce);
+        const response = NextResponse.redirect(loginUrl);
+        clearSessionCookies(response);
+        return applySecurityHeaders(response, nonce);
       }
 
-      return applySecurityHeaders(NextResponse.json({ error: "Unauthorized." }, { status: 401 }), nonce);
+      const response = NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+      clearSessionCookies(response);
+      return applySecurityHeaders(response, nonce);
     }
   }
 

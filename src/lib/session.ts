@@ -10,9 +10,10 @@ import {
 import { signAdminToken, type AdminTokenPayload } from "@/lib/auth";
 
 export function isSessionIdle(lastActivityValue: string | undefined) {
-  if (!lastActivityValue) return false;
+  // Fail closed: missing activity marker should not keep a privileged session alive.
+  if (!lastActivityValue) return true;
   const lastMs = Number(lastActivityValue);
-  if (!Number.isFinite(lastMs) || lastMs <= 0) return false;
+  if (!Number.isFinite(lastMs) || lastMs <= 0) return true;
   return Date.now() - lastMs > ADMIN_IDLE_TIMEOUT_SECONDS * 1000;
 }
 
