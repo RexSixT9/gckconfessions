@@ -12,10 +12,19 @@
 
 # testing
 /coverage
+**/coverage/
 /playwright-report/
+**/playwright-report/
+/blob-report/
+**/blob-report/
 /test-results/
 **/test-results/
 /.lighthouseci/
+**/.lighthouseci/
+**/.playwright/
+**/.nyc_output/
+**/allure-results/
+**/allure-report/
 
 # next.js
 /.next/
@@ -24,6 +33,9 @@
 **/out/
 # SWC compiler cache (Next.js)
 /.swc/
+**/.swc/
+**/.turbo/
+**/.cache/
 
 # production
 /build
@@ -46,11 +58,16 @@ yarn-error.log*
 
 # local analysis/test artifacts
 build-output.txt
+**/build-output*.txt
 eslint-output*.txt
+**/eslint-output*.txt
 tsc-output*.txt
+**/tsc-output*.txt
 home-stress-report.json
 ui-audit.json
 tmp-*.js
+**/tmp-*.js
+**/tmp-*.ts
 
 # env files — ignore all .env* EXCEPT template/example files
 .env*

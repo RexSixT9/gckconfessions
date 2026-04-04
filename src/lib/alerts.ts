@@ -62,6 +62,16 @@ const REDACT_KEYS = [
   "webhook",
 ];
 
+type VisualTone = keyof typeof DISCORD_COLORS;
+
+type WebhookVisual = {
+  tone: VisualTone;
+  severity: "critical" | "high" | "medium" | "info" | "low";
+  badge: string;
+  colorInt: number;
+  colorHex: string;
+};
+
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -191,25 +201,25 @@ function createMetaJsonBlock(meta: Record<string, unknown>, maxChars = 900) {
   return "```json\n" + clipped + "\n```";
 }
 
-function resolveAuditActionColor(action: string) {
+function resolveAuditActionTone(action: string): VisualTone {
   switch (action) {
     case "security_alert":
-      return DISCORD_COLORS.critical;
+      return "critical";
 
     case "admin_login_failed":
     case "admin_setup_failed":
     case "audit_webhook_failed":
     case "security_alert_webhook_failed":
     case "security_alert_email_failed":
-      return DISCORD_COLORS.danger;
+      return "danger";
 
     case "status_changed":
     case "confession_updated":
     case "unpublished":
-      return DISCORD_COLORS.warning;
+      return "warning";
 
     case "admin_session_checked":
-      return DISCORD_COLORS.info;
+      return "info";
 
     case "admin_login":
     case "admin_logout":
@@ -220,23 +230,87 @@ function resolveAuditActionColor(action: string) {
     case "audit_webhook_delivered":
     case "security_alert_webhook_delivered":
     case "security_alert_email_delivered":
-      return DISCORD_COLORS.success;
+      return "success";
 
     case "admin_deleted":
     case "confession_deleted":
-      return DISCORD_COLORS.warning;
+      return "warning";
 
     default:
       if (action.endsWith("_failed")) {
-        return DISCORD_COLORS.danger;
+        return "danger";
       }
       if (action.endsWith("_delivered") || action.endsWith("_completed") || action.endsWith("_created")) {
-        return DISCORD_COLORS.success;
+        return "success";
       }
       if (action.endsWith("_updated") || action.endsWith("_deleted")) {
-        return DISCORD_COLORS.warning;
+        return "warning";
       }
-      return DISCORD_COLORS.neutral;
+      return "neutral";
+  }
+}
+
+function resolveAuditActionColor(action: string) {
+  return DISCORD_COLORS[resolveAuditActionTone(action)];
+}
+
+function colorIntToHex(color: number) {
+  return `#${color.toString(16).padStart(6, "0").toUpperCase()}`;
+}
+
+function resolveWebhookVisual(action: string): WebhookVisual {
+  const tone = resolveAuditActionTone(action);
+  const colorInt = DISCORD_COLORS[tone];
+
+  switch (tone) {
+    case "critical":
+      return {
+        tone,
+        severity: "critical",
+        badge: "[CRITICAL]",
+        colorInt,
+        colorHex: colorIntToHex(colorInt),
+      };
+    case "danger":
+      return {
+        tone,
+        severity: "high",
+        badge: "[HIGH]",
+        colorInt,
+        colorHex: colorIntToHex(colorInt),
+      };
+    case "warning":
+      return {
+        tone,
+        severity: "medium",
+        badge: "[MEDIUM]",
+        colorInt,
+        colorHex: colorIntToHex(colorInt),
+      };
+    case "info":
+      return {
+        tone,
+        severity: "info",
+        badge: "[INFO]",
+        colorInt,
+        colorHex: colorIntToHex(colorInt),
+      };
+    case "success":
+      return {
+        tone,
+        severity: "low",
+        badge: "[LOW]",
+        colorInt,
+        colorHex: colorIntToHex(colorInt),
+      };
+    default:
+      return {
+        tone,
+        severity: "info",
+        badge: "[INFO]",
+        colorInt,
+        colorHex: colorIntToHex(colorInt),
+      };
   }
 }
 
@@ -294,9 +368,12 @@ function getAlertRecipients() {
 function createEmailText(payload: SecurityAlertDeliveryPayload) {
   const sanitizedMeta = redactMeta(payload.meta);
   const highlights = createMetaHighlights(sanitizedMeta, 12);
+  const visual = resolveWebhookVisual(payload.action);
 
   return [
     "Security alert triggered",
+    `${visual.badge} Severity: ${visual.severity}`,
+    `Color: ${visual.colorHex}`,
     `Audit ID: ${payload.auditId}`,
     `Action: ${payload.action}`,
     `Route: ${payload.method} ${payload.route}`,
@@ -319,6 +396,7 @@ async function sendWebhookAlert(payload: SecurityAlertDeliveryPayload) {
 
   const sanitizedMeta = redactMeta(payload.meta);
   const metaHighlights = createMetaHighlights(sanitizedMeta, 12);
+  const visual = resolveWebhookVisual(payload.action);
 
   const authHeader = process.env.SECURITY_ALERT_WEBHOOK_AUTH;
   await withRetry("Webhook alert delivery", async () => {
@@ -333,6 +411,10 @@ async function sendWebhookAlert(payload: SecurityAlertDeliveryPayload) {
         body: JSON.stringify({
           ...payload,
           meta: sanitizedMeta,
+          severity: visual.severity,
+          colorHex: visual.colorHex,
+          colorInt: visual.colorInt,
+          badge: visual.badge,
           metaHighlights,
           metaStyled: {
             highlights: metaHighlights,
@@ -384,6 +466,7 @@ async function sendEmailAlert(payload: SecurityAlertDeliveryPayload) {
 function createDiscordEmbed(payload: AuditEventDeliveryPayload) {
   const sanitizedMeta = redactMeta(payload.meta);
   const metaHighlights = createMetaHighlights(sanitizedMeta, 8);
+  const visual = resolveWebhookVisual(payload.action);
   const summary = [
     `Action: ${payload.action}`,
     `Request ID: ${payload.requestId}`,
@@ -393,11 +476,15 @@ function createDiscordEmbed(payload: AuditEventDeliveryPayload) {
   ].join("\n");
 
   return {
-    title: "Audit Event",
+    title: `${visual.badge} Audit Event`,
     description: summary,
     color: resolveAuditActionColor(payload.action),
     timestamp: payload.createdAt,
     fields: [
+      {
+        name: "Severity",
+        value: `${visual.severity} (${visual.colorHex})`,
+      },
       {
         name: "Meta Highlights",
         value: metaHighlights.length > 0 ? metaHighlights.join("\n") : "- (empty)",
