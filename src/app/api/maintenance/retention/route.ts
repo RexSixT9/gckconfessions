@@ -10,6 +10,17 @@ function authorized(request: Request) {
   return Boolean(expected && provided && provided === expected);
 }
 
+function parseActionList(value: string) {
+  return Array.from(
+    new Set(
+      value
+        .split(",")
+        .map((entry) => entry.trim())
+        .filter(Boolean)
+    )
+  );
+}
+
 export async function POST(request: Request) {
   try {
     if (!authorized(request)) {
@@ -23,26 +34,41 @@ export async function POST(request: Request) {
     const staleRejectedDays = Number(process.env.RETENTION_REJECTED_DAYS || 90);
     const staleAuditDays = Number(process.env.RETENTION_AUDIT_DAYS || staleRejectedDays);
     const staleAuditHighVolumeDays = Number(process.env.RETENTION_AUDIT_HIGH_VOLUME_DAYS || 14);
-    const highVolumeActions = (process.env.RETENTION_AUDIT_HIGH_VOLUME_ACTIONS || "admin_session_checked")
-      .split(",")
-      .map((entry) => entry.trim())
-      .filter(Boolean);
+    const staleAuditAnomalyDays = Number(process.env.RETENTION_AUDIT_ANOMALY_DAYS || 7);
+
+    const highVolumeActions = parseActionList(
+      process.env.RETENTION_AUDIT_HIGH_VOLUME_ACTIONS || "admin_session_checked"
+    );
+    const anomalyActions = parseActionList(
+      process.env.RETENTION_AUDIT_ANOMALY_ACTIONS ||
+        "security_alert,admin_login_failed,admin_setup_failed,audit_webhook_failed,security_alert_webhook_failed,security_alert_email_failed"
+    );
+
+    // Keep buckets non-overlapping so each deleted record is counted once.
+    const anomalyActionSet = new Set(anomalyActions);
+    const highVolumeWithoutAnomaly = highVolumeActions.filter((action) => !anomalyActionSet.has(action));
+    const standardExcludedActions = Array.from(new Set([...anomalyActions, ...highVolumeWithoutAnomaly]));
 
     const stalePendingBefore = new Date(now - stalePendingDays * 24 * 60 * 60 * 1000);
     const staleRejectedBefore = new Date(now - staleRejectedDays * 24 * 60 * 60 * 1000);
     const staleAuditBefore = new Date(now - staleAuditDays * 24 * 60 * 60 * 1000);
     const staleAuditHighVolumeBefore = new Date(now - staleAuditHighVolumeDays * 24 * 60 * 60 * 1000);
+    const staleAuditAnomalyBefore = new Date(now - staleAuditAnomalyDays * 24 * 60 * 60 * 1000);
 
-    const [pendingRes, rejectedRes, deletedBackupRes, auditHighVolumeRes, auditStandardRes] = await Promise.all([
+    const [pendingRes, rejectedRes, deletedBackupRes, auditAnomalyRes, auditHighVolumeRes, auditStandardRes] = await Promise.all([
       Confession.deleteMany({ status: "pending", createdAt: { $lt: stalePendingBefore } }),
       Confession.deleteMany({ status: "rejected", createdAt: { $lt: staleRejectedBefore } }),
       DeletedConfession.deleteMany({ deletedAt: { $lt: staleRejectedBefore } }),
       AuditLog.collection.deleteMany({
-        action: { $in: highVolumeActions },
+        action: { $in: anomalyActions },
+        createdAt: { $lt: staleAuditAnomalyBefore },
+      }),
+      AuditLog.collection.deleteMany({
+        action: { $in: highVolumeWithoutAnomaly },
         createdAt: { $lt: staleAuditHighVolumeBefore },
       }),
       AuditLog.collection.deleteMany({
-        action: { $nin: highVolumeActions },
+        action: { $nin: standardExcludedActions },
         createdAt: { $lt: staleAuditBefore },
       }),
     ]);
@@ -53,9 +79,18 @@ export async function POST(request: Request) {
         pending: pendingRes.deletedCount,
         rejected: rejectedRes.deletedCount,
         deletedBackups: deletedBackupRes.deletedCount,
+        auditLogsAnomaly: auditAnomalyRes.deletedCount,
         auditLogsHighVolume: auditHighVolumeRes.deletedCount,
         auditLogsStandard: auditStandardRes.deletedCount,
-        auditLogsTotal: auditHighVolumeRes.deletedCount + auditStandardRes.deletedCount,
+        auditLogsTotal:
+          auditAnomalyRes.deletedCount +
+          auditHighVolumeRes.deletedCount +
+          auditStandardRes.deletedCount,
+      },
+      retention: {
+        auditDays: staleAuditDays,
+        auditHighVolumeDays: staleAuditHighVolumeDays,
+        auditAnomalyDays: staleAuditAnomalyDays,
       },
     });
   } catch (error) {
