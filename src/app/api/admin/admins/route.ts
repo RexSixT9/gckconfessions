@@ -17,7 +17,7 @@ import Admin from "@/models/Admin";
  * GET /api/admin/admins
  * List all admin accounts (id + email + createdAt). Password hashes are never returned.
  */
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get(COOKIE_NAME)?.value;
@@ -40,6 +40,18 @@ export async function GET() {
         isSelf: String(a._id) === caller.sub,
       })),
     });
+
+    await writeAuditLog({
+      action: "admins_viewed",
+      request,
+      adminEmail: caller.email,
+      meta: {
+        totalAdmins: admins.length,
+      },
+    }).catch((error) => {
+      safeLogError("AuditLog write failed (admin list)", error);
+    });
+
     await ensureCsrfCookie(response);
     return response;
   } catch (error) {

@@ -4,9 +4,10 @@ import { ensureCsrfCookie } from "@/lib/csrf";
 import { verifyAdminToken } from "@/lib/auth";
 import { COOKIE_NAME } from "@/lib/constants";
 import { apiError, apiOk, safeLogError } from "@/lib/api";
+import { writeAuditLog } from "@/lib/audit";
 import Confession from "@/models/Confession";
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get(COOKIE_NAME)?.value;
@@ -15,8 +16,8 @@ export async function GET() {
       return apiError(401, "UNAUTHORIZED", "Unauthorized.");
     }
 
-    const payload = await verifyAdminToken(token);
-    if (!payload.sub) {
+    const admin = await verifyAdminToken(token);
+    if (!admin.sub) {
       return apiError(401, "UNAUTHORIZED", "Unauthorized.");
     }
 
@@ -37,6 +38,21 @@ export async function GET() {
       200,
       { "Cache-Control": "no-store" }
     );
+
+    await writeAuditLog({
+      action: "admin_stats_viewed",
+      request,
+      adminEmail: admin.email,
+      meta: {
+        pending,
+        approved,
+        rejected,
+        total: pending + approved + rejected,
+      },
+    }).catch((error) => {
+      safeLogError("AuditLog write failed (admin stats)", error);
+    });
+
     await ensureCsrfCookie(response);
     return response;
   } catch (error) {

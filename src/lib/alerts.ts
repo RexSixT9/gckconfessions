@@ -13,6 +13,19 @@ type SecurityAlertDeliveryPayload = {
   meta: Record<string, unknown>;
 };
 
+type AuditEventDeliveryPayload = {
+  auditId: string;
+  action: string;
+  requestId: string;
+  route: string;
+  method: string;
+  ip: string;
+  userAgent: string;
+  adminEmail: string;
+  createdAt: string;
+  meta: Record<string, unknown>;
+};
+
 const ALERT_TIMEOUT_MS = Number(process.env.SECURITY_ALERT_TIMEOUT_MS ?? 5000);
 const ALERT_MAX_RETRIES = Number(process.env.SECURITY_ALERT_MAX_RETRIES ?? 2);
 
@@ -137,6 +150,67 @@ async function sendEmailAlert(payload: SecurityAlertDeliveryPayload) {
   });
 }
 
+function createDiscordEmbed(payload: AuditEventDeliveryPayload) {
+  const summary = [
+    `Action: ${payload.action}`,
+    `Request ID: ${payload.requestId}`,
+    `Route: ${payload.method} ${payload.route}`,
+    `Admin: ${payload.adminEmail || "(none)"}`,
+    `IP: ${payload.ip}`,
+  ].join("\n");
+
+  return {
+    title: "Audit Event",
+    description: summary,
+    color: payload.action === "security_alert" ? 0xff3b30 : 0x2b8a3e,
+    timestamp: payload.createdAt,
+    fields: [
+      {
+        name: "Meta",
+        value: "```json\n" + JSON.stringify(payload.meta, null, 2).slice(0, 1000) + "\n```",
+      },
+      {
+        name: "User Agent",
+        value: payload.userAgent ? payload.userAgent.slice(0, 1000) : "(empty)",
+      },
+      {
+        name: "Audit ID",
+        value: payload.auditId,
+      },
+    ],
+  };
+}
+
+async function sendDiscordAuditWebhook(payload: AuditEventDeliveryPayload) {
+  const url = process.env.DISCORD_AUDIT_WEBHOOK_URL;
+  if (!url) return;
+
+  const username = process.env.DISCORD_AUDIT_WEBHOOK_USERNAME || "GCK Audit";
+  const avatarUrl = process.env.DISCORD_AUDIT_WEBHOOK_AVATAR_URL || undefined;
+
+  await withRetry("Discord audit webhook delivery", async () => {
+    const response = await fetchWithTimeout(
+      url,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username,
+          avatar_url: avatarUrl,
+          embeds: [createDiscordEmbed(payload)],
+        }),
+      },
+      ALERT_TIMEOUT_MS
+    );
+
+    if (!response.ok) {
+      throw new Error(`Discord audit delivery failed with status ${response.status}`);
+    }
+  });
+}
+
 export async function deliverSecurityAlert(payload: SecurityAlertDeliveryPayload) {
   const results = await Promise.allSettled([
     sendWebhookAlert(payload),
@@ -146,6 +220,18 @@ export async function deliverSecurityAlert(payload: SecurityAlertDeliveryPayload
   for (const result of results) {
     if (result.status === "rejected") {
       safeLogError("Security alert delivery failed", result.reason);
+    }
+  }
+}
+
+export async function deliverAuditEvent(payload: AuditEventDeliveryPayload) {
+  const result = await Promise.allSettled([
+    sendDiscordAuditWebhook(payload),
+  ]);
+
+  for (const item of result) {
+    if (item.status === "rejected") {
+      safeLogError("Audit event delivery failed", item.reason);
     }
   }
 }

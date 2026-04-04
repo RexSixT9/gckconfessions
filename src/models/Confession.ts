@@ -14,6 +14,15 @@ const ConfessionSchema = new Schema(
       default: "pending",
     },
     posted: { type: Boolean, default: false },
+    submitterIpHash: { type: String, default: "", index: true },
+    submitterFingerprint: { type: String, default: "", index: true },
+    submitterUserAgent: { type: String, default: "" },
+    submitterDeviceType: { type: String, default: "unknown", index: true },
+    submitterBrowser: { type: String, default: "unknown" },
+    submitterOs: { type: String, default: "unknown" },
+    submitterModel: { type: String, default: "unknown" },
+    submitterPlatform: { type: String, default: "unknown" },
+    submitterSecChUa: { type: String, default: "" },
   },
   { timestamps: true }
 );

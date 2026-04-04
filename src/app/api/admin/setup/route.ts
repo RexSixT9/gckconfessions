@@ -2,6 +2,7 @@ import bcrypt from "bcryptjs";
 import { connectToDatabase } from "@/lib/mongodb";
 import { aj } from "@/lib/arcjet";
 import { apiError, apiOk, isJsonContentType, parseJsonObject, safeLogError } from "@/lib/api";
+import { writeAuditLog } from "@/lib/audit";
 import { validatePasswordPolicy } from "@/lib/moderation";
 import { BCRYPT_ROUNDS, MAX_EMAIL_LENGTH } from "@/lib/constants";
 import { checkSetupLimit, getBlockedIps, getClientIp, getRateLimitHeaders } from "@/lib/rateLimit";
@@ -71,6 +72,14 @@ export async function POST(request: Request) {
     }
 
     if (!safeCompare(providedKey, setupKey)) {
+      await writeAuditLog({
+        action: "admin_setup_failed",
+        request,
+        adminEmail: email,
+        meta: { reason: "invalid_setup_key" },
+      }).catch((error) => {
+        safeLogError("AuditLog write failed (setup invalid key)", error);
+      });
       return apiError(401, "UNAUTHORIZED", "Invalid setup key.");
     }
 
@@ -78,11 +87,30 @@ export async function POST(request: Request) {
 
     const existing = await Admin.findOne({ email }).select({ _id: 1 }).lean();
     if (existing) {
+      await writeAuditLog({
+        action: "admin_setup_failed",
+        request,
+        adminEmail: email,
+        meta: { reason: "admin_already_exists" },
+      }).catch((error) => {
+        safeLogError("AuditLog write failed (setup existing admin)", error);
+      });
       return apiError(409, "CONFLICT", "An admin with that email already exists.");
     }
 
     const passwordHash = await bcrypt.hash(password, BCRYPT_ROUNDS);
     await Admin.create({ email, passwordHash });
+
+    await writeAuditLog({
+      action: "admin_setup_completed",
+      request,
+      adminEmail: email,
+      meta: {
+        via: "setup_endpoint",
+      },
+    }).catch((error) => {
+      safeLogError("AuditLog write failed (setup success)", error);
+    });
 
     return apiOk({ ok: true }, 201);
   } catch (error) {

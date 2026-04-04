@@ -17,7 +17,7 @@ import {
   SANITIZATION_POLICY_VERSION,
   validateConfessionSubmission,
 } from "@/lib/moderation";
-import { getRequestFingerprint, isSameOrigin } from "@/lib/requestUtils";
+import { getClientContext, getRequestFingerprint, isSameOrigin } from "@/lib/requestUtils";
 import {
   checkSubmissionBurstLimit,
   checkSubmissionLimit,
@@ -99,8 +99,10 @@ export async function GET(request: Request) {
       return apiError(401, "UNAUTHORIZED", "Unauthorized.");
     }
 
+    let adminEmail = "";
     try {
-      await verifyAdminToken(token);
+      const admin = await verifyAdminToken(token);
+      adminEmail = admin.email;
     } catch {
       return apiError(401, "UNAUTHORIZED", "Unauthorized.");
     }
@@ -164,6 +166,26 @@ export async function GET(request: Request) {
         "Cache-Control": "no-store",
       }
     );
+
+    await writeAuditLog({
+      action: "confessions_viewed",
+      request,
+      adminEmail,
+      meta: {
+        filters: {
+          query: query ? query.slice(0, 80) : "",
+          status,
+          posted,
+        },
+        page,
+        limit,
+        total,
+        returned: confessions.length,
+      },
+    }).catch((error) => {
+      safeLogError("AuditLog write failed (confession list)", error);
+    });
+
     await ensureCsrfCookie(response);
     return response;
   } catch (error) {
@@ -213,6 +235,7 @@ export async function POST(request: Request) {
     }
 
     const fingerprint = getRequestFingerprint(request, ip);
+    const clientContext = getClientContext(request, ip);
     const rateKey = `submit:${ip}:${fingerprint}`;
     const rate = await checkSubmissionLimit(rateKey);
     const burst = await checkSubmissionBurstLimit(`submit-burst:${fingerprint}`);
@@ -329,6 +352,15 @@ export async function POST(request: Request) {
       messageNormalizedHash,
       sanitizationVersion: SANITIZATION_POLICY_VERSION,
       music,
+      submitterIpHash: clientContext.ipHash,
+      submitterFingerprint: fingerprint,
+      submitterUserAgent: clientContext.userAgent,
+      submitterDeviceType: clientContext.deviceType,
+      submitterBrowser: clientContext.browser,
+      submitterOs: clientContext.os,
+      submitterModel: clientContext.model,
+      submitterPlatform: clientContext.platform,
+      submitterSecChUa: clientContext.secChUa,
     });
 
     try {
@@ -340,6 +372,12 @@ export async function POST(request: Request) {
           moderationChanged: moderated.clean !== message,
           musicIncluded: Boolean(music),
           fingerprint,
+          ipHash: clientContext.ipHash,
+          deviceType: clientContext.deviceType,
+          browser: clientContext.browser,
+          os: clientContext.os,
+          model: clientContext.model,
+          platform: clientContext.platform,
           sanitizationVersion: SANITIZATION_POLICY_VERSION,
           similarityScore: mostSimilar?.score ?? 0,
         },

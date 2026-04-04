@@ -1,7 +1,7 @@
 import { createHash } from "crypto";
 import AuditLog from "@/models/AuditLog";
 import { getClientIp } from "@/lib/rateLimit";
-import { deliverSecurityAlert } from "@/lib/alerts";
+import { deliverAuditEvent, deliverSecurityAlert } from "@/lib/alerts";
 import { safeLogError } from "@/lib/api";
 
 const SECURITY_ALERT_DEDUPE_WINDOW_MS = Number(process.env.SECURITY_ALERT_DEDUPE_WINDOW_MS ?? 60_000);
@@ -11,6 +11,9 @@ type AuditAction =
   | "admin_login"
   | "admin_login_failed"
   | "admin_logout"
+  | "admin_session_checked"
+  | "admin_setup_completed"
+  | "admin_setup_failed"
   | "admin_created"
   | "admin_deleted"
   | "confession_created"
@@ -19,6 +22,9 @@ type AuditAction =
   | "status_changed"
   | "published"
   | "unpublished"
+  | "admin_stats_viewed"
+  | "confessions_viewed"
+  | "admins_viewed"
   | "security_alert";
 
 type AuditParams = {
@@ -107,8 +113,24 @@ export async function writeAuditLog({
     }),
   });
 
+  const serializableMeta = toSerializableMeta(meta);
+
+  void deliverAuditEvent({
+    auditId: String(created._id),
+    action,
+    requestId,
+    route: url.pathname,
+    method: request.method,
+    ip,
+    userAgent,
+    adminEmail,
+    createdAt: new Date().toISOString(),
+    meta: serializableMeta,
+  }).catch((error) => {
+    safeLogError("Audit event delivery error", error);
+  });
+
   if (action === "security_alert") {
-    const serializableMeta = toSerializableMeta(meta);
     const dedupeKey = createSecurityAlertDedupeKey(
       url.pathname,
       request.method,

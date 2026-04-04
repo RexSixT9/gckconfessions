@@ -71,3 +71,75 @@ export function getRequestFingerprint(request: Request, ip: string): string {
     .digest("hex")
     .slice(0, 24);
 }
+
+type DeviceType = "mobile" | "tablet" | "desktop" | "bot" | "unknown";
+
+export type ClientContext = {
+  ipHash: string;
+  userAgent: string;
+  deviceType: DeviceType;
+  browser: string;
+  os: string;
+  model: string;
+  platform: string;
+  secChUa: string;
+};
+
+function normalizeHeaderValue(value: string | null, maxLen = 120) {
+  if (!value) return "";
+  return value.replace(/\s+/g, " ").trim().slice(0, maxLen);
+}
+
+function detectDeviceType(userAgent: string): DeviceType {
+  const ua = userAgent.toLowerCase();
+  if (!ua) return "unknown";
+  if (/bot|crawler|spider|slurp|headless/.test(ua)) return "bot";
+  if (/ipad|tablet|kindle|silk/.test(ua)) return "tablet";
+  if (/mobile|iphone|ipod|android/.test(ua)) return "mobile";
+  if (/windows|macintosh|linux|x11|cros/.test(ua)) return "desktop";
+  return "unknown";
+}
+
+function detectBrowser(userAgent: string) {
+  const ua = userAgent;
+  if (/Edg\//.test(ua)) return "edge";
+  if (/OPR\//.test(ua) || /Opera\//.test(ua)) return "opera";
+  if (/Chrome\//.test(ua) && !/Edg\//.test(ua)) return "chrome";
+  if (/Firefox\//.test(ua)) return "firefox";
+  if (/Safari\//.test(ua) && !/Chrome\//.test(ua)) return "safari";
+  if (/PostmanRuntime|curl\//i.test(ua)) return "api-client";
+  return "unknown";
+}
+
+function detectOs(userAgent: string) {
+  const ua = userAgent;
+  if (/Windows NT/i.test(ua)) return "windows";
+  if (/Android/i.test(ua)) return "android";
+  if (/iPhone|iPad|iPod/i.test(ua)) return "ios";
+  if (/Mac OS X|Macintosh/i.test(ua)) return "macos";
+  if (/Linux|X11/i.test(ua)) return "linux";
+  if (/CrOS/i.test(ua)) return "chromeos";
+  return "unknown";
+}
+
+export function hashIp(ip: string) {
+  return createHash("sha256").update(ip).digest("hex").slice(0, 24);
+}
+
+export function getClientContext(request: Request, ip: string): ClientContext {
+  const userAgent = normalizeHeaderValue(request.headers.get("user-agent"), 512);
+  const secChUa = normalizeHeaderValue(request.headers.get("sec-ch-ua"));
+  const model = normalizeHeaderValue(request.headers.get("sec-ch-ua-model"), 80) || "unknown";
+  const platform = normalizeHeaderValue(request.headers.get("sec-ch-ua-platform"), 80) || "unknown";
+
+  return {
+    ipHash: hashIp(ip),
+    userAgent,
+    deviceType: detectDeviceType(userAgent),
+    browser: detectBrowser(userAgent),
+    os: detectOs(userAgent),
+    model,
+    platform,
+    secChUa,
+  };
+}
