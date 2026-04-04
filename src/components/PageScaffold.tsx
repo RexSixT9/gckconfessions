@@ -43,6 +43,7 @@ export function PageBackLink({ href = "/", label = "Back home", className }: Pag
     <Button
       variant="ghost"
       size="sm"
+      nativeButton={false}
       render={<Link href={href} />}
       className={cn(
         "group mb-6 gap-2 rounded-xl border border-border/60 bg-card/55 px-4 py-2 backdrop-blur-sm transition-all hover:border-accent/40 hover:bg-accent/5",

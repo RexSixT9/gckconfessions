@@ -1,0 +1,122 @@
+[
+  {
+    "path": "/",
+    "viewport": "mobile",
+    "status": "ok",
+    "overflowPx": 0,
+    "consoleErrors": [
+      "The Content Security Policy directive 'upgrade-insecure-requests' is ignored when delivered in a report-only policy."
+    ],
+    "requestFailures": []
+  },
+  {
+    "path": "/submit",
+    "viewport": "mobile",
+    "status": "ok",
+    "overflowPx": 0,
+    "consoleErrors": [
+      "The Content Security Policy directive 'upgrade-insecure-requests' is ignored when delivered in a report-only policy."
+    ],
+    "requestFailures": []
+  },
+  {
+    "path": "/guidelines",
+    "viewport": "mobile",
+    "status": "ok",
+    "overflowPx": 0,
+    "consoleErrors": [
+      "The Content Security Policy directive 'upgrade-insecure-requests' is ignored when delivered in a report-only policy."
+    ],
+    "requestFailures": []
+  },
+  {
+    "path": "/transparency",
+    "viewport": "mobile",
+    "status": "ok",
+    "overflowPx": 0,
+    "consoleErrors": [
+      "The Content Security Policy directive 'upgrade-insecure-requests' is ignored when delivered in a report-only policy."
+    ],
+    "requestFailures": []
+  },
+  {
+    "path": "/adminlogin",
+    "viewport": "mobile",
+    "status": "ok",
+    "overflowPx": 0,
+    "consoleErrors": [
+      "The Content Security Policy directive 'upgrade-insecure-requests' is ignored when delivered in a report-only policy."
+    ],
+    "requestFailures": []
+  },
+  {
+    "path": "/admin",
+    "viewport": "mobile",
+    "status": "ok",
+    "overflowPx": 0,
+    "consoleErrors": [
+      "The Content Security Policy directive 'upgrade-insecure-requests' is ignored when delivered in a report-only policy."
+    ],
+    "requestFailures": []
+  },
+  {
+    "path": "/",
+    "viewport": "desktop",
+    "status": "ok",
+    "overflowPx": 0,
+    "consoleErrors": [
+      "The Content Security Policy directive 'upgrade-insecure-requests' is ignored when delivered in a report-only policy."
+    ],
+    "requestFailures": []
+  },
+  {
+    "path": "/submit",
+    "viewport": "desktop",
+    "status": "ok",
+    "overflowPx": 0,
+    "consoleErrors": [
+      "The Content Security Policy directive 'upgrade-insecure-requests' is ignored when delivered in a report-only policy."
+    ],
+    "requestFailures": []
+  },
+  {
+    "path": "/guidelines",
+    "viewport": "desktop",
+    "status": "ok",
+    "overflowPx": 0,
+    "consoleErrors": [
+      "The Content Security Policy directive 'upgrade-insecure-requests' is ignored when delivered in a report-only policy."
+    ],
+    "requestFailures": []
+  },
+  {
+    "path": "/transparency",
+    "viewport": "desktop",
+    "status": "ok",
+    "overflowPx": 0,
+    "consoleErrors": [
+      "The Content Security Policy directive 'upgrade-insecure-requests' is ignored when delivered in a report-only policy."
+    ],
+    "requestFailures": []
+  },
+  {
+    "path": "/adminlogin",
+    "viewport": "desktop",
+    "status": "ok",
+    "overflowPx": 0,
+    "consoleErrors": [
+      "The Content Security Policy directive 'upgrade-insecure-requests' is ignored when delivered in a report-only policy."
+    ],
+    "requestFailures": []
+  },
+  {
+    "path": "/admin",
+    "viewport": "desktop",
+    "status": "ok",
+    "overflowPx": 0,
+    "consoleErrors": [
+      "The Content Security Policy directive 'upgrade-insecure-requests' is ignored when delivered in a report-only policy."
+    ],
+    "requestFailures": []
+  }
+]

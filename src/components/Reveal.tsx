@@ -25,9 +25,7 @@ export function PageReveal({
   duration = 0.45,
 }: RevealProps) {
   const { isAppReady, shouldReduceMotion } = useMotionRuntime();
-  const [isMobile, setIsMobile] = useState(() =>
-    typeof window !== "undefined" ? window.matchMedia("(max-width: 640px)").matches : false
-  );
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     const media = window.matchMedia("(max-width: 640px)");
@@ -65,9 +63,7 @@ export function ScrollReveal({
 }: RevealProps) {
   const ref = useRef<HTMLDivElement | null>(null);
   const { isAppReady, shouldReduceMotion } = useMotionRuntime();
-  const [isMobile, setIsMobile] = useState(() =>
-    typeof window !== "undefined" ? window.matchMedia("(max-width: 640px)").matches : false
-  );
+  const [isMobile, setIsMobile] = useState(false);
   const [isLowEnd] = useState(() => (typeof window !== "undefined" ? isLowEndDevice() : false));
 
   useEffect(() => {

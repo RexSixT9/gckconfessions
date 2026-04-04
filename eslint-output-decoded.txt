@@ -1,0 +1,39 @@
+﻿﻿
+> gckconfessions@0.1.0 lint
+> eslint
+
+
+E:\gckconfessions\src\components\CursorEffects.tsx
+  44:48  error  Error: Cannot access variable before it is declared
+
+`fadeTrails` is accessed before it is declared, which prevents the earlier access from updating when this value changes over time.
+
+E:\gckconfessions\src\components\CursorEffects.tsx:44:48
+  42 |
+  43 |     if (shouldContinue) {
+> 44 |       rafIdRef.current = requestAnimationFrame(fadeTrails);
+     |                                                ^^^^^^^^^^ `fadeTrails` accessed before it is declared
+  45 |       return;
+  46 |     }
+  47 |
+
+E:\gckconfessions\src\components\CursorEffects.tsx:29:3
+  27 |   const isActiveRef = useRef(false);
+  28 |
+> 29 |   const fadeTrails = useCallback(() => {
+     |   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 30 |     let shouldContinue = false;
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 31 |     setTrails((prev) => {
+     ΓÇª
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 48 |     isActiveRef.current = false;
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 49 |   }, []);
+     | ^^^^^^^^^^ `fadeTrails` is declared here
+  50 |
+  51 |   useEffect(() => {
+  52 |     // Check for reduced motion preference  react-hooks/immutability
+
+Γ£û 1 problem (1 error, 0 warnings)
+
