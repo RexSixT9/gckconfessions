@@ -1,0 +1,53 @@
+[
+  {
+    "viewport": "mobile",
+    "status": "ok",
+    "baseOverflow": 0,
+    "stressOverflow": 0,
+    "overflowNodes": [
+      {
+        "tag": "DIV",
+        "cls": "pointer-events-none absolute inset-0 -z-10 overflow-hidden",
+        "overflow": 96
+      },
+      {
+        "tag": "DIV",
+        "cls": "relative overflow-hidden rounded-3xl border border-border/60",
+        "overflow": 64
+      }
+    ]
+  },
+  {
+    "viewport": "desktop",
+    "status": "ok",
+    "baseOverflow": 0,
+    "stressOverflow": 0,
+    "overflowNodes": [
+      {
+        "tag": "DIV",
+        "cls": "pointer-events-none absolute inset-0 -z-10 overflow-hidden",
+        "overflow": 96
+      },
+      {
+        "tag": "DIV",
+        "cls": "flex flex-1 items-center",
+        "overflow": 43
+      },
+      {
+        "tag": "DIV",
+        "cls": "min-w-0-children mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-12 px-4 py-4 sm:px-6 lg:grid-cols-2 lg:gap-1",
+        "overflow": 43
+      },
+      {
+        "tag": "DIV",
+        "cls": "relative hidden lg:flex lg:items-center lg:justify-center",
+        "overflow": 56
+      },
+      {
+        "tag": "DIV",
+        "cls": "relative overflow-hidden rounded-3xl border border-border/60",
+        "overflow": 64
+      }
+    ]
+  }
+]

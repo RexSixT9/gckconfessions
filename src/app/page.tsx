@@ -449,10 +449,10 @@ export default function HomePage() {
               <motion.div variants={heroFadeUp} className="mt-5">
                 <h1
                   id="hero-title"
-                  className="mx-auto max-w-[16ch] text-[clamp(2rem,8vw,4.4rem)] font-black leading-[1.03] tracking-tight text-balance md:mx-0 md:max-w-[15ch]"
+                  className="mx-auto min-w-0 max-w-[16ch] wrap-break-word text-[clamp(2rem,8vw,4.4rem)] font-black leading-[1.03] tracking-tight text-balance md:mx-0 md:max-w-[15ch]"
                 >
                   <span className="block text-foreground">Speak freely here.</span>
-                  <span className="block max-w-[22ch] text-foreground/75">
+                  <span className="block max-w-[22ch] wrap-break-word text-foreground/75">
                     <TypewriterText
                       phrases={heroTypingPhrases}
                       typingSpeed={isDesktop ? 50 : 55}
@@ -466,7 +466,7 @@ export default function HomePage() {
                 </h1>
               </motion.div>
 
-              <motion.p variants={heroFadeUp} className="mx-auto mt-5 max-w-lg text-sm leading-relaxed text-muted-foreground sm:text-base md:mx-0">
+              <motion.p variants={heroFadeUp} className="mx-auto mt-5 max-w-lg wrap-break-word text-sm leading-relaxed text-muted-foreground sm:text-base md:mx-0">
                 Share your thoughts anonymously.
                 Every post is reviewed before publishing.
               </motion.p>
@@ -631,7 +631,7 @@ export default function HomePage() {
               <h2 id="explore-heading" className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Explore</h2>
               <Badge variant="outline" className="h-8 border-border/70 px-3">Reviewed posts</Badge>
             </div>
-            <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">
+            <p className="max-w-2xl wrap-break-word text-sm leading-relaxed text-muted-foreground">
               Read approved posts and share when ready.
             </p>
             <div className="mt-4 flex flex-wrap items-center gap-2.5">
@@ -664,8 +664,8 @@ export default function HomePage() {
               <Sparkles className="h-3.5 w-3.5" />
               Why this works
             </Badge>
-            <h2 id="highlights-heading" className="mx-auto max-w-[18ch] text-2xl font-black leading-[1.08] tracking-tight sm:text-3xl">Simple, clear, and safe</h2>
-            <p className="mx-auto mt-2 max-w-[54ch] text-sm text-muted-foreground sm:text-base">
+            <h2 id="highlights-heading" className="mx-auto min-w-0 max-w-[18ch] wrap-break-word text-2xl font-black leading-[1.08] tracking-tight sm:text-3xl">Simple, clear, and safe</h2>
+            <p className="mx-auto mt-2 max-w-[54ch] wrap-break-word text-sm text-muted-foreground sm:text-base">
               Minimal design with clear safety rules.
             </p>
           </div>
@@ -708,8 +708,8 @@ export default function HomePage() {
             <Badge variant="secondary" className="mb-3 h-8 px-3.5 uppercase tracking-wider">
               How it works
             </Badge>
-            <h2 id="how-it-works-heading" className="mx-auto max-w-[18ch] text-2xl font-black leading-[1.08] tracking-tight sm:text-3xl">Three simple steps</h2>
-            <p className="mx-auto mt-2 max-w-[42ch] text-sm text-muted-foreground">
+            <h2 id="how-it-works-heading" className="mx-auto min-w-0 max-w-[18ch] wrap-break-word text-2xl font-black leading-[1.08] tracking-tight sm:text-3xl">Three simple steps</h2>
+            <p className="mx-auto mt-2 max-w-[42ch] wrap-break-word text-sm text-muted-foreground">
               Write, submit, and wait for review.
             </p>
           </div>
@@ -759,11 +759,11 @@ export default function HomePage() {
 
             <div className="relative z-10 px-4 py-14 text-center sm:px-8 sm:py-24">
               <Badge className="mb-6 h-8 border border-white/20 bg-white/10 px-3.5 text-white hover:bg-white/10">You can start now</Badge>
-              <h2 className="mx-auto max-w-[16ch] text-[clamp(2rem,6vw,3.8rem)] font-black leading-[1.04] tracking-tight text-white">
+              <h2 className="mx-auto min-w-0 max-w-[16ch] wrap-break-word text-[clamp(2rem,6vw,3.8rem)] font-black leading-[1.04] tracking-tight text-white">
                 Share what you want to say.
-                <span className="block text-zinc-300">Keep it simple. Keep it anonymous.</span>
+                <span className="block wrap-break-word text-zinc-300">Keep it simple. Keep it anonymous.</span>
               </h2>
-              <p className="mx-auto mt-5 max-w-[56ch] text-sm leading-relaxed text-zinc-400 sm:text-base">
+              <p className="mx-auto mt-5 max-w-[56ch] wrap-break-word text-sm leading-relaxed text-zinc-400 sm:text-base">
                 A simple space for honest student confessions.
               </p>
 
