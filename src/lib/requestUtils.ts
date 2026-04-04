@@ -73,6 +73,7 @@ export function getRequestFingerprint(request: Request, ip: string): string {
 }
 
 type DeviceType = "mobile" | "tablet" | "desktop" | "bot" | "unknown";
+type ManufacturerConfidence = "high" | "medium" | "low";
 
 export type ClientContext = {
   ipHash: string;
@@ -82,12 +83,20 @@ export type ClientContext = {
   os: string;
   model: string;
   platform: string;
+  manufacturer: string;
+  manufacturerConfidence: ManufacturerConfidence;
   secChUa: string;
 };
 
 function normalizeHeaderValue(value: string | null, maxLen = 120) {
   if (!value) return "";
   return value.replace(/\s+/g, " ").trim().slice(0, maxLen);
+}
+
+function normalizeClientHint(value: string | null, maxLen = 120) {
+  const normalized = normalizeHeaderValue(value, maxLen);
+  if (!normalized) return "";
+  return normalized.replace(/^"+|"+$/g, "");
 }
 
 function detectDeviceType(userAgent: string): DeviceType {
@@ -122,6 +131,67 @@ function detectOs(userAgent: string) {
   return "unknown";
 }
 
+function detectManufacturer({
+  userAgent,
+  model,
+  platform,
+}: {
+  userAgent: string;
+  model: string;
+  platform: string;
+}) {
+  const ua = userAgent.toLowerCase();
+  const m = model.toLowerCase();
+  const p = platform.toLowerCase();
+  const combined = `${m} ${ua} ${p}`;
+
+  const highConfidencePatterns: Array<{ pattern: RegExp; manufacturer: string }> = [
+    { pattern: /iphone|ipad|ipod|apple/, manufacturer: "apple" },
+    { pattern: /\bsm-|samsung|galaxy/, manufacturer: "samsung" },
+    { pattern: /pixel|google/, manufacturer: "google" },
+    { pattern: /huawei/, manufacturer: "huawei" },
+    { pattern: /honor/, manufacturer: "honor" },
+    { pattern: /xiaomi|\bmi\b|redmi|poco/, manufacturer: "xiaomi" },
+    { pattern: /oneplus/, manufacturer: "oneplus" },
+    { pattern: /oppo/, manufacturer: "oppo" },
+    { pattern: /realme/, manufacturer: "realme" },
+    { pattern: /vivo/, manufacturer: "vivo" },
+    { pattern: /motorola|\bmoto\b/, manufacturer: "motorola" },
+    { pattern: /nokia/, manufacturer: "nokia" },
+    { pattern: /infinix/, manufacturer: "infinix" },
+    { pattern: /tecno/, manufacturer: "tecno" },
+    { pattern: /itel/, manufacturer: "itel" },
+  ];
+
+  for (const entry of highConfidencePatterns) {
+    if (entry.pattern.test(combined)) {
+      return {
+        manufacturer: entry.manufacturer,
+        manufacturerConfidence: "high" as ManufacturerConfidence,
+      };
+    }
+  }
+
+  if (p === "android") {
+    return {
+      manufacturer: "android-oem-unknown",
+      manufacturerConfidence: "medium" as ManufacturerConfidence,
+    };
+  }
+
+  if (p === "ios" || p === "macos") {
+    return {
+      manufacturer: "apple",
+      manufacturerConfidence: "medium" as ManufacturerConfidence,
+    };
+  }
+
+  return {
+    manufacturer: "unknown",
+    manufacturerConfidence: "low" as ManufacturerConfidence,
+  };
+}
+
 export function hashIp(ip: string) {
   return createHash("sha256").update(ip).digest("hex").slice(0, 24);
 }
@@ -129,8 +199,9 @@ export function hashIp(ip: string) {
 export function getClientContext(request: Request, ip: string): ClientContext {
   const userAgent = normalizeHeaderValue(request.headers.get("user-agent"), 512);
   const secChUa = normalizeHeaderValue(request.headers.get("sec-ch-ua"));
-  const model = normalizeHeaderValue(request.headers.get("sec-ch-ua-model"), 80) || "unknown";
-  const platform = normalizeHeaderValue(request.headers.get("sec-ch-ua-platform"), 80) || "unknown";
+  const model = normalizeClientHint(request.headers.get("sec-ch-ua-model"), 80) || "unknown";
+  const platform = normalizeClientHint(request.headers.get("sec-ch-ua-platform"), 80) || "unknown";
+  const manufacturerResult = detectManufacturer({ userAgent, model, platform });
 
   return {
     ipHash: hashIp(ip),
@@ -140,6 +211,8 @@ export function getClientContext(request: Request, ip: string): ClientContext {
     os: detectOs(userAgent),
     model,
     platform,
+    manufacturer: manufacturerResult.manufacturer,
+    manufacturerConfidence: manufacturerResult.manufacturerConfidence,
     secChUa,
   };
 }

@@ -37,7 +37,8 @@ export async function POST(request: Request) {
     const staleAuditAnomalyDays = Number(process.env.RETENTION_AUDIT_ANOMALY_DAYS || 7);
 
     const highVolumeActions = parseActionList(
-      process.env.RETENTION_AUDIT_HIGH_VOLUME_ACTIONS || "admin_session_checked"
+      process.env.RETENTION_AUDIT_HIGH_VOLUME_ACTIONS ||
+        "admin_session_checked,audit_webhook_delivered,security_alert_webhook_delivered,security_alert_email_delivered"
     );
     const anomalyActions = parseActionList(
       process.env.RETENTION_AUDIT_ANOMALY_ACTIONS ||

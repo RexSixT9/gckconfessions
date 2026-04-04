@@ -210,6 +210,8 @@ function getRequestContext(request: Request, url: URL, ip: string, clientContext
     os: clientContext.os,
     model: clientContext.model,
     platform: clientContext.platform,
+    manufacturer: clientContext.manufacturer,
+    manufacturerConfidence: clientContext.manufacturerConfidence,
     isKnownApiClient: clientContext.browser === "api-client",
     hasAuthorizationHeader: Boolean(request.headers.get("authorization")),
     hasCookieHeader: Boolean(request.headers.get("cookie")),

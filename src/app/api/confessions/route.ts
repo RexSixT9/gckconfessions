@@ -343,6 +343,8 @@ export async function POST(request: Request) {
       submitterOs: clientContext.os,
       submitterModel: clientContext.model,
       submitterPlatform: clientContext.platform,
+      submitterManufacturer: clientContext.manufacturer,
+      submitterManufacturerConfidence: clientContext.manufacturerConfidence,
       submitterSecChUa: clientContext.secChUa,
     });
 
@@ -361,6 +363,8 @@ export async function POST(request: Request) {
           os: clientContext.os,
           model: clientContext.model,
           platform: clientContext.platform,
+          manufacturer: clientContext.manufacturer,
+          manufacturerConfidence: clientContext.manufacturerConfidence,
           sanitizationVersion: SANITIZATION_POLICY_VERSION,
           similarityScore: mostSimilar?.score ?? 0,
         },

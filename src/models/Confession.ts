@@ -22,6 +22,8 @@ const ConfessionSchema = new Schema(
     submitterOs: { type: String, default: "unknown" },
     submitterModel: { type: String, default: "unknown" },
     submitterPlatform: { type: String, default: "unknown" },
+    submitterManufacturer: { type: String, default: "unknown" },
+    submitterManufacturerConfidence: { type: String, default: "low" },
     submitterSecChUa: { type: String, default: "" },
   },
   { timestamps: true }
