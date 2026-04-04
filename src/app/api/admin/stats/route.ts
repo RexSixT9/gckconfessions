@@ -4,7 +4,6 @@ import { ensureCsrfCookie } from "@/lib/csrf";
 import { verifyAdminToken } from "@/lib/auth";
 import { COOKIE_NAME } from "@/lib/constants";
 import { apiError, apiOk, safeLogError } from "@/lib/api";
-import { writeAuditLog } from "@/lib/audit";
 import Confession from "@/models/Confession";
 
 export async function GET(request: Request) {
@@ -39,19 +38,7 @@ export async function GET(request: Request) {
       { "Cache-Control": "no-store" }
     );
 
-    await writeAuditLog({
-      action: "admin_stats_viewed",
-      request,
-      adminEmail: admin.email,
-      meta: {
-        pending,
-        approved,
-        rejected,
-        total: pending + approved + rejected,
-      },
-    }).catch((error) => {
-      safeLogError("AuditLog write failed (admin stats)", error);
-    });
+    // Intentionally disabled for now to reduce high-volume "viewed" audit noise.
 
     await ensureCsrfCookie(response);
     return response;

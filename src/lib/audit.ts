@@ -2,7 +2,7 @@ import { createHash } from "crypto";
 import AuditLog from "@/models/AuditLog";
 import { getClientIp } from "@/lib/rateLimit";
 import { hashIp } from "@/lib/requestUtils";
-import { deliverAuditEvent, deliverSecurityAlert } from "@/lib/alerts";
+import { deliverAuditEvent, deliverSecurityAlert, type DeliveryOutcome } from "@/lib/alerts";
 import { safeLogError } from "@/lib/api";
 
 const SECURITY_ALERT_DEDUPE_WINDOW_MS = Number(process.env.SECURITY_ALERT_DEDUPE_WINDOW_MS ?? 60_000);
@@ -23,11 +23,18 @@ type AuditAction =
   | "status_changed"
   | "published"
   | "unpublished"
+  // Retained for compatibility with historical records; route-level writes are disabled for now.
   | "admin_stats_viewed"
   | "confessions_viewed"
   | "admins_viewed"
   | "audit_dashboard_viewed"
-  | "security_alert";
+  | "security_alert"
+  | "audit_webhook_delivered"
+  | "audit_webhook_failed"
+  | "security_alert_webhook_delivered"
+  | "security_alert_webhook_failed"
+  | "security_alert_email_delivered"
+  | "security_alert_email_failed";
 
 type AuditParams = {
   action: AuditAction;
@@ -36,6 +43,15 @@ type AuditParams = {
   confessionId?: string;
   meta?: Record<string, unknown>;
 };
+
+const INTERNAL_DELIVERY_ACTIONS = new Set<AuditAction>([
+  "audit_webhook_delivered",
+  "audit_webhook_failed",
+  "security_alert_webhook_delivered",
+  "security_alert_webhook_failed",
+  "security_alert_email_delivered",
+  "security_alert_email_failed",
+]);
 
 function toSerializableMeta(meta: Record<string, unknown>) {
   try {
@@ -87,6 +103,69 @@ function shouldDeliverSecurityAlert(dedupeKey: string) {
   return true;
 }
 
+function mapDeliveryOutcomeToAction(outcome: DeliveryOutcome): AuditAction {
+  switch (outcome.channel) {
+    case "audit_event_discord_webhook":
+      return outcome.delivered ? "audit_webhook_delivered" : "audit_webhook_failed";
+    case "security_alert_webhook":
+      return outcome.delivered ? "security_alert_webhook_delivered" : "security_alert_webhook_failed";
+    case "security_alert_email":
+      return outcome.delivered ? "security_alert_email_delivered" : "security_alert_email_failed";
+  }
+}
+
+async function writeDeliveryAuditLogs({
+  outcomes,
+  sourceAction,
+  adminEmail,
+  confessionId,
+  ip,
+  ipHash,
+  userAgent,
+  requestId,
+  route,
+  method,
+}: {
+  outcomes: DeliveryOutcome[];
+  sourceAction: AuditAction;
+  adminEmail: string;
+  confessionId?: string;
+  ip: string;
+  ipHash: string;
+  userAgent: string;
+  requestId: string;
+  route: string;
+  method: string;
+}) {
+  const writes = outcomes.map((outcome) =>
+    AuditLog.create({
+      action: mapDeliveryOutcomeToAction(outcome),
+      adminEmail,
+      confessionId,
+      ip,
+      ipHash,
+      userAgent,
+      requestId,
+      meta: toSerializableMeta({
+        sourceAction,
+        deliveryChannel: outcome.channel,
+        delivered: outcome.delivered,
+        deliveryError: outcome.error ? String(outcome.error).slice(0, 600) : "",
+        route,
+        method,
+        loggedAt: new Date().toISOString(),
+      }),
+    })
+  );
+
+  const results = await Promise.allSettled(writes);
+  for (const result of results) {
+    if (result.status === "rejected") {
+      safeLogError("Audit delivery result write failed", result.reason);
+    }
+  }
+}
+
 export async function writeAuditLog({
   action,
   request,
@@ -119,6 +198,10 @@ export async function writeAuditLog({
 
   const serializableMeta = toSerializableMeta(meta);
 
+  if (INTERNAL_DELIVERY_ACTIONS.has(action)) {
+    return created;
+  }
+
   void deliverAuditEvent({
     auditId: String(created._id),
     action,
@@ -130,8 +213,23 @@ export async function writeAuditLog({
     adminEmail,
     createdAt: new Date().toISOString(),
     meta: serializableMeta,
-  }).catch((error) => {
-    safeLogError("Audit event delivery error", error);
+  })
+    .then((outcomes) =>
+      writeDeliveryAuditLogs({
+        outcomes,
+        sourceAction: action,
+        adminEmail,
+        confessionId,
+        ip,
+        ipHash,
+        userAgent,
+        requestId,
+        route: url.pathname,
+        method: request.method,
+      })
+    )
+    .catch((error) => {
+      safeLogError("Audit event delivery error", error);
   });
 
   if (action === "security_alert") {
@@ -158,9 +256,24 @@ export async function writeAuditLog({
       adminEmail,
       createdAt: new Date().toISOString(),
       meta: serializableMeta,
-    }).catch((error) => {
-      safeLogError("Security alert delivery error", error);
-    });
+    })
+      .then((outcomes) =>
+        writeDeliveryAuditLogs({
+          outcomes,
+          sourceAction: action,
+          adminEmail,
+          confessionId,
+          ip,
+          ipHash,
+          userAgent,
+          requestId,
+          route: url.pathname,
+          method: request.method,
+        })
+      )
+      .catch((error) => {
+        safeLogError("Security alert delivery error", error);
+      });
   }
 
   return created;

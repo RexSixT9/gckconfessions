@@ -26,9 +26,28 @@ type AuditEventDeliveryPayload = {
   meta: Record<string, unknown>;
 };
 
+type DeliveryChannel =
+  | "security_alert_webhook"
+  | "security_alert_email"
+  | "audit_event_discord_webhook";
+
+export type DeliveryOutcome = {
+  channel: DeliveryChannel;
+  delivered: boolean;
+  error?: string;
+};
+
 const ALERT_TIMEOUT_MS = Number(process.env.SECURITY_ALERT_TIMEOUT_MS ?? 5000);
 const ALERT_MAX_RETRIES = Number(process.env.SECURITY_ALERT_MAX_RETRIES ?? 2);
 const REDACTED = "[REDACTED]";
+const DISCORD_COLORS = {
+  critical: 0xff3b30,
+  danger: 0xe03131,
+  warning: 0xf08c00,
+  info: 0x1c7ed6,
+  success: 0x2f9e44,
+  neutral: 0x495057,
+} as const;
 const REDACT_KEYS = [
   "password",
   "pass",
@@ -77,6 +96,62 @@ function redactMetaValue(value: unknown, depth = 0): unknown {
 
 function redactMeta(meta: Record<string, unknown>) {
   return redactMetaValue(meta, 0) as Record<string, unknown>;
+}
+
+function resolveAuditActionColor(action: string) {
+  switch (action) {
+    case "security_alert":
+      return DISCORD_COLORS.critical;
+
+    case "admin_login_failed":
+    case "admin_setup_failed":
+    case "audit_webhook_failed":
+    case "security_alert_webhook_failed":
+    case "security_alert_email_failed":
+      return DISCORD_COLORS.danger;
+
+    case "status_changed":
+    case "confession_updated":
+    case "unpublished":
+      return DISCORD_COLORS.warning;
+
+    case "admin_session_checked":
+      return DISCORD_COLORS.info;
+
+    case "admin_login":
+    case "admin_logout":
+    case "admin_setup_completed":
+    case "admin_created":
+    case "confession_created":
+    case "published":
+    case "audit_webhook_delivered":
+    case "security_alert_webhook_delivered":
+    case "security_alert_email_delivered":
+      return DISCORD_COLORS.success;
+
+    case "admin_deleted":
+    case "confession_deleted":
+      return DISCORD_COLORS.warning;
+
+    default:
+      if (action.endsWith("_failed")) {
+        return DISCORD_COLORS.danger;
+      }
+      if (action.endsWith("_delivered") || action.endsWith("_completed") || action.endsWith("_created")) {
+        return DISCORD_COLORS.success;
+      }
+      if (action.endsWith("_updated") || action.endsWith("_deleted")) {
+        return DISCORD_COLORS.warning;
+      }
+      return DISCORD_COLORS.neutral;
+  }
+}
+
+function reasonToMessage(reason: unknown) {
+  if (reason instanceof Error) {
+    return reason.message;
+  }
+  return String(reason);
 }
 
 async function fetchWithTimeout(input: RequestInfo | URL, init: RequestInit, timeoutMs: number) {
@@ -209,7 +284,7 @@ function createDiscordEmbed(payload: AuditEventDeliveryPayload) {
   return {
     title: "Audit Event",
     description: summary,
-    color: payload.action === "security_alert" ? 0xff3b30 : 0x2b8a3e,
+    color: resolveAuditActionColor(payload.action),
     timestamp: payload.createdAt,
     fields: [
       {
@@ -258,27 +333,52 @@ async function sendDiscordAuditWebhook(payload: AuditEventDeliveryPayload) {
   });
 }
 
-export async function deliverSecurityAlert(payload: SecurityAlertDeliveryPayload) {
+export async function deliverSecurityAlert(payload: SecurityAlertDeliveryPayload): Promise<DeliveryOutcome[]> {
   const results = await Promise.allSettled([
     sendWebhookAlert(payload),
     sendEmailAlert(payload),
   ]);
+
+  const normalized: DeliveryOutcome[] = [
+    {
+      channel: "security_alert_webhook",
+      delivered: results[0]?.status === "fulfilled",
+      ...(results[0]?.status === "rejected" ? { error: reasonToMessage(results[0].reason) } : {}),
+    },
+    {
+      channel: "security_alert_email",
+      delivered: results[1]?.status === "fulfilled",
+      ...(results[1]?.status === "rejected" ? { error: reasonToMessage(results[1].reason) } : {}),
+    },
+  ];
 
   for (const result of results) {
     if (result.status === "rejected") {
       safeLogError("Security alert delivery failed", result.reason);
     }
   }
+
+  return normalized;
 }
 
-export async function deliverAuditEvent(payload: AuditEventDeliveryPayload) {
+export async function deliverAuditEvent(payload: AuditEventDeliveryPayload): Promise<DeliveryOutcome[]> {
   const result = await Promise.allSettled([
     sendDiscordAuditWebhook(payload),
   ]);
+
+  const normalized: DeliveryOutcome[] = [
+    {
+      channel: "audit_event_discord_webhook",
+      delivered: result[0]?.status === "fulfilled",
+      ...(result[0]?.status === "rejected" ? { error: reasonToMessage(result[0].reason) } : {}),
+    },
+  ];
 
   for (const item of result) {
     if (item.status === "rejected") {
       safeLogError("Audit event delivery failed", item.reason);
     }
   }
+
+  return normalized;
 }

@@ -167,24 +167,7 @@ export async function GET(request: Request) {
       }
     );
 
-    await writeAuditLog({
-      action: "confessions_viewed",
-      request,
-      adminEmail,
-      meta: {
-        filters: {
-          query: query ? query.slice(0, 80) : "",
-          status,
-          posted,
-        },
-        page,
-        limit,
-        total,
-        returned: confessions.length,
-      },
-    }).catch((error) => {
-      safeLogError("AuditLog write failed (confession list)", error);
-    });
+    // Intentionally disabled for now to reduce high-volume "viewed" audit noise.
 
     await ensureCsrfCookie(response);
     return response;

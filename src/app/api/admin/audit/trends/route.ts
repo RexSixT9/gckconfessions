@@ -3,7 +3,6 @@ import { connectToDatabase } from "@/lib/mongodb";
 import { verifyAdminToken } from "@/lib/auth";
 import { COOKIE_NAME } from "@/lib/constants";
 import { apiError, apiOk, safeLogError } from "@/lib/api";
-import { writeAuditLog } from "@/lib/audit";
 import AuditLog from "@/models/AuditLog";
 
 type Interval = "hour" | "day";
@@ -118,20 +117,7 @@ export async function GET(request: Request) {
       },
     ]);
 
-    await writeAuditLog({
-      action: "audit_dashboard_viewed",
-      request,
-      adminEmail: admin.email,
-      meta: {
-        dashboard: "trends",
-        days,
-        interval,
-        actionsFilterCount: actions.length,
-        adminEmailFiltered: Boolean(adminEmailFilter),
-      },
-    }).catch((error) => {
-      safeLogError("AuditLog write failed (audit trends)", error);
-    });
+    // Intentionally disabled for now to reduce high-volume "viewed" audit noise.
 
     return apiOk({
       windowDays: days,

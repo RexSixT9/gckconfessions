@@ -41,16 +41,7 @@ export async function GET(request: Request) {
       })),
     });
 
-    await writeAuditLog({
-      action: "admins_viewed",
-      request,
-      adminEmail: caller.email,
-      meta: {
-        totalAdmins: admins.length,
-      },
-    }).catch((error) => {
-      safeLogError("AuditLog write failed (admin list)", error);
-    });
+    // Intentionally disabled for now to reduce high-volume "viewed" audit noise.
 
     await ensureCsrfCookie(response);
     return response;
