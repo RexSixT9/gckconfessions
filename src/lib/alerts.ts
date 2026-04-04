@@ -98,6 +98,26 @@ function redactMeta(meta: Record<string, unknown>) {
   return redactMetaValue(meta, 0) as Record<string, unknown>;
 }
 
+function toOneLine(value: unknown, maxLen = 140) {
+  if (value === null || value === undefined) return "(null)";
+  if (typeof value === "string") return value.length > maxLen ? `${value.slice(0, maxLen)}...` : value;
+  if (typeof value === "number" || typeof value === "boolean") return String(value);
+  if (Array.isArray(value)) return `[array:${value.length}]`;
+  if (typeof value === "object") return "[object]";
+  return String(value);
+}
+
+function createMetaHighlights(meta: Record<string, unknown>, maxEntries = 10) {
+  const entries = Object.entries(meta).slice(0, maxEntries);
+  return entries.map(([key, value]) => `- ${key}: ${toOneLine(value)}`);
+}
+
+function createMetaJsonBlock(meta: Record<string, unknown>, maxChars = 900) {
+  const pretty = JSON.stringify(meta, null, 2);
+  const clipped = pretty.length > maxChars ? `${pretty.slice(0, maxChars)}\n...[TRUNCATED]` : pretty;
+  return "```json\n" + clipped + "\n```";
+}
+
 function resolveAuditActionColor(action: string) {
   switch (action) {
     case "security_alert":
@@ -199,6 +219,9 @@ function getAlertRecipients() {
 }
 
 function createEmailText(payload: SecurityAlertDeliveryPayload) {
+  const sanitizedMeta = redactMeta(payload.meta);
+  const highlights = createMetaHighlights(sanitizedMeta, 12);
+
   return [
     "Security alert triggered",
     `Audit ID: ${payload.auditId}`,
@@ -209,14 +232,20 @@ function createEmailText(payload: SecurityAlertDeliveryPayload) {
     `Admin: ${payload.adminEmail || "(none)"}`,
     `Created At: ${payload.createdAt}`,
     "",
+    "Meta Highlights:",
+    ...(highlights.length > 0 ? highlights : ["- (empty)"]),
+    "",
     "Meta:",
-    JSON.stringify(payload.meta, null, 2),
+    JSON.stringify(sanitizedMeta, null, 2),
   ].join("\n");
 }
 
 async function sendWebhookAlert(payload: SecurityAlertDeliveryPayload) {
   const url = process.env.SECURITY_ALERT_WEBHOOK_URL;
   if (!url) return;
+
+  const sanitizedMeta = redactMeta(payload.meta);
+  const metaHighlights = createMetaHighlights(sanitizedMeta, 12);
 
   const authHeader = process.env.SECURITY_ALERT_WEBHOOK_AUTH;
   await withRetry("Webhook alert delivery", async () => {
@@ -228,7 +257,15 @@ async function sendWebhookAlert(payload: SecurityAlertDeliveryPayload) {
           "Content-Type": "application/json",
           ...(authHeader ? { Authorization: authHeader } : {}),
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          ...payload,
+          meta: sanitizedMeta,
+          metaHighlights,
+          metaStyled: {
+            highlights: metaHighlights,
+            json: createMetaJsonBlock(sanitizedMeta, 1000),
+          },
+        }),
       },
       ALERT_TIMEOUT_MS
     );
@@ -273,6 +310,7 @@ async function sendEmailAlert(payload: SecurityAlertDeliveryPayload) {
 
 function createDiscordEmbed(payload: AuditEventDeliveryPayload) {
   const sanitizedMeta = redactMeta(payload.meta);
+  const metaHighlights = createMetaHighlights(sanitizedMeta, 8);
   const summary = [
     `Action: ${payload.action}`,
     `Request ID: ${payload.requestId}`,
@@ -288,8 +326,12 @@ function createDiscordEmbed(payload: AuditEventDeliveryPayload) {
     timestamp: payload.createdAt,
     fields: [
       {
-        name: "Meta",
-        value: "```json\n" + JSON.stringify(sanitizedMeta, null, 2).slice(0, 1000) + "\n```",
+        name: "Meta Highlights",
+        value: metaHighlights.length > 0 ? metaHighlights.join("\n") : "- (empty)",
+      },
+      {
+        name: "Meta JSON",
+        value: createMetaJsonBlock(sanitizedMeta, 950),
       },
       {
         name: "User Agent",
