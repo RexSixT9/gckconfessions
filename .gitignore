@@ -1,8 +1,7 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-.md*
 
 # dependencies
-/node_modules
+**/node_modules/
 /.pnp
 .pnp.*
 .yarn/*
@@ -15,11 +14,14 @@
 /coverage
 /playwright-report/
 /test-results/
+**/test-results/
 /.lighthouseci/
 
 # next.js
 /.next/
 /out/
+**/.next/
+**/out/
 # SWC compiler cache (Next.js)
 /.swc/
 
@@ -40,6 +42,15 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+*.log
+
+# local analysis/test artifacts
+build-output.txt
+eslint-output*.txt
+tsc-output*.txt
+home-stress-report.json
+ui-audit.json
+tmp-*.js
 
 # env files — ignore all .env* EXCEPT template/example files
 .env*
