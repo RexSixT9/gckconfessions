@@ -946,6 +946,36 @@ select {
   transition: border-color 150ms ease, box-shadow 150ms ease;
 }
 
+/* Keep long values from stretching form controls or card blocks. */
+input,
+textarea,
+[data-slot="input"],
+[data-slot="textarea"] {
+  min-width: 0;
+  max-width: 100%;
+}
+
+textarea,
+[data-slot="textarea"] {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+[data-slot="card"],
+[data-slot="card-header"],
+[data-slot="card-content"],
+[data-slot="card-title"],
+[data-slot="card-description"] {
+  min-width: 0;
+}
+
+[data-slot="card-title"],
+[data-slot="card-description"],
+[data-slot="card-content"] {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0ms !important;

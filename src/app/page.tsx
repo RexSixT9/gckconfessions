@@ -303,13 +303,9 @@ function MiniTestimonialSlider({ reduceMotion = false }: { reduceMotion?: boolea
 export default function HomePage() {
   const { isAppReady, shouldReduceMotion } = useMotionRuntime();
   const canStartMotion = isAppReady || shouldReduceMotion;
-  const [isDesktop, setIsDesktop] = useState(() =>
-    typeof window !== "undefined" ? window.matchMedia("(min-width: 1024px)").matches : false
-  );
-  const [isTablet, setIsTablet] = useState(() =>
-    typeof window !== "undefined" ? window.matchMedia("(min-width: 768px)").matches : false
-  );
-  const [isLowEnd] = useState(() => (typeof window !== "undefined" ? isLowEndDevice() : false));
+  const [isDesktop, setIsDesktop] = useState(false);
+  const [isTablet, setIsTablet] = useState(false);
+  const [isLowEnd, setIsLowEnd] = useState(false);
   const heroRef = useRef<HTMLElement | null>(null);
   const highlightsRef = useRef<HTMLElement | null>(null);
   const stepsRef = useRef<HTMLElement | null>(null);
@@ -349,6 +345,9 @@ export default function HomePage() {
   useEffect(() => {
     const media = window.matchMedia("(min-width: 1024px)");
     const tabletMedia = window.matchMedia("(min-width: 768px)");
+    setIsDesktop(media.matches);
+    setIsTablet(tabletMedia.matches);
+    setIsLowEnd(isLowEndDevice());
 
     const onChange = (event: MediaQueryListEvent) => setIsDesktop(event.matches);
     const onTabletChange = (event: MediaQueryListEvent) => setIsTablet(event.matches);
