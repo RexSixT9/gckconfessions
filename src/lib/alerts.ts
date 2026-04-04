@@ -102,14 +102,87 @@ function toOneLine(value: unknown, maxLen = 140) {
   if (value === null || value === undefined) return "(null)";
   if (typeof value === "string") return value.length > maxLen ? `${value.slice(0, maxLen)}...` : value;
   if (typeof value === "number" || typeof value === "boolean") return String(value);
-  if (Array.isArray(value)) return `[array:${value.length}]`;
+  if (Array.isArray(value)) {
+    const preview = value
+      .slice(0, 3)
+      .map((entry) => (typeof entry === "string" || typeof entry === "number" || typeof entry === "boolean" ? String(entry) : "[obj]"))
+      .join(", ");
+    return value.length > 3 ? `[${preview}, ...] (${value.length})` : `[${preview}] (${value.length})`;
+  }
   if (typeof value === "object") return "[object]";
   return String(value);
 }
 
+const META_HIGHLIGHT_PRIORITY: Array<{ path: string; label: string }> = [
+  { path: "type", label: "type" },
+  { path: "sourceAction", label: "sourceAction" },
+  { path: "deliveryChannel", label: "deliveryChannel" },
+  { path: "delivered", label: "delivered" },
+  { path: "anomalyScore", label: "anomalyScore" },
+  { path: "deviceType", label: "deviceType" },
+  { path: "browser", label: "browser" },
+  { path: "os", label: "os" },
+  { path: "model", label: "model" },
+  { path: "manufacturer", label: "manufacturer" },
+  { path: "manufacturerConfidence", label: "manufacturerConfidence" },
+  { path: "requestContext.anomalyScore", label: "request.anomalyScore" },
+  { path: "requestContext.deviceType", label: "request.deviceType" },
+  { path: "requestContext.browser", label: "request.browser" },
+  { path: "requestContext.os", label: "request.os" },
+  { path: "requestContext.model", label: "request.model" },
+  { path: "requestContext.manufacturer", label: "request.manufacturer" },
+  { path: "requestContext.manufacturerConfidence", label: "request.manufacturerConfidence" },
+  { path: "requestContext.origin", label: "request.origin" },
+  { path: "requestContext.referrerOrigin", label: "request.referrerOrigin" },
+  { path: "requestContext.secFetchSite", label: "request.secFetchSite" },
+  { path: "requestContext.secFetchMode", label: "request.secFetchMode" },
+];
+
+function getPathValue(source: Record<string, unknown>, path: string): unknown {
+  const parts = path.split(".");
+  let current: unknown = source;
+
+  for (const part of parts) {
+    if (!current || typeof current !== "object") {
+      return undefined;
+    }
+    current = (current as Record<string, unknown>)[part];
+  }
+
+  return current;
+}
+
+function isEmptyHighlightValue(value: unknown) {
+  return value === undefined || value === "";
+}
+
 function createMetaHighlights(meta: Record<string, unknown>, maxEntries = 10) {
-  const entries = Object.entries(meta).slice(0, maxEntries);
-  return entries.map(([key, value]) => `- ${key}: ${toOneLine(value)}`);
+  const lines: string[] = [];
+  const usedTopLevelKeys = new Set<string>();
+
+  for (const entry of META_HIGHLIGHT_PRIORITY) {
+    const value = getPathValue(meta, entry.path);
+    if (isEmptyHighlightValue(value)) continue;
+    lines.push(`- ${entry.label}: ${toOneLine(value)}`);
+
+    if (!entry.path.includes(".")) {
+      usedTopLevelKeys.add(entry.path);
+    }
+
+    if (lines.length >= maxEntries) {
+      return lines;
+    }
+  }
+
+  for (const [key, value] of Object.entries(meta)) {
+    if (usedTopLevelKeys.has(key) || isEmptyHighlightValue(value)) continue;
+    lines.push(`- ${key}: ${toOneLine(value)}`);
+    if (lines.length >= maxEntries) {
+      break;
+    }
+  }
+
+  return lines;
 }
 
 function createMetaJsonBlock(meta: Record<string, unknown>, maxChars = 900) {
