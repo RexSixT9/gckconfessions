@@ -18,28 +18,28 @@ import { PageReveal } from "@/components/Reveal";
 import { PageBackLink, PageIntro, PageShell } from "@/components/PageScaffold";
 
 const privacyPoints = [
-  "No account is required to submit.",
-  "We store your message, optional music tag, and moderation logs.",
-  "Only moderators can access the review queue.",
-  "Rate limits and abuse checks help protect the form.",
+  "No account, username, or public profile is required to submit.",
+  "We store your message, optional music tag, moderation status, and anti-abuse security signals.",
+  "Only authorized moderators can access the review queue and moderation tools.",
+  "Rate limits and abuse checks protect the form from spam and automated misuse.",
 ];
 
 const allowed = [
-  "Personal reflections and honest experiences.",
-  "Supportive, respectful messages.",
-  "Light and harmless confessions.",
+  "Personal reflections, honest experiences, and thoughtful stories.",
+  "Supportive, respectful, and constructive messages.",
+  "Emotional confessions shared without targeting or exposing others.",
 ];
 
 const disallowed = [
-  "Hate speech, slurs, or harassment.",
-  "Threats, doxxing, or private information.",
-  "Violent, sexual, illegal, or spam content.",
+  "Hate speech, slurs, harassment, or degrading language.",
+  "Threats, doxxing, blackmail, or sharing private identifying information.",
+  "Sexual exploitation, explicit violence, illegal content, or spam.",
 ];
 
 const privacyNotes = [
-  "If autosave is on, drafts stay on your device.",
-  "Published posts do not include your identity.",
-  "Repeated abuse may trigger temporary limits.",
+  "If auto-save is enabled, drafts stay only on your device and can be removed anytime.",
+  "Published posts do not show your identity.",
+  "Security events and moderation records are retained only for operational and safety windows.",
 ];
 
 export default function GuidelinesClient() {
@@ -50,7 +50,7 @@ export default function GuidelinesClient() {
       <PageIntro
         badge="Privacy and Guidelines"
         title="Simple rules, safer sharing"
-        description="Anonymous posting with clear moderation rules."
+        description="How we protect anonymity, what we review, and what content can be published."
       />
 
       <section className="mt-8 grid gap-6 md:grid-cols-2" aria-labelledby="privacy-heading">
@@ -76,7 +76,7 @@ export default function GuidelinesClient() {
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent/10">
               <Shield className="h-5 w-5 text-accent" />
             </div>
-            <CardTitle className="text-lg font-bold">Good to know</CardTitle>
+            <CardTitle className="text-lg font-bold">Data and safety notes</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-sm leading-6 text-muted-foreground">
             {privacyNotes.map((item) => (

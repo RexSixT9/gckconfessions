@@ -3,8 +3,6 @@ import { PageIntro, PageShell } from "@/components/PageScaffold";
 
 type TransparencyData = {
   queue: { pending: number; approved: number; rejected: number; published: number };
-  moderationActions: number;
-  totalAuditEvents: number;
   generatedAt: string;
 };
 
@@ -29,7 +27,7 @@ export default async function TransparencyPage() {
       <PageIntro
         badge="Transparency"
         title="Moderation snapshot"
-        description="Live counts for review activity and moderation actions."
+        description="Live counts for the review queue and publishing outcomes."
       />
 
       {!data ? (
@@ -45,8 +43,6 @@ export default async function TransparencyPage() {
             ["Approved", data.queue.approved],
             ["Rejected", data.queue.rejected],
             ["Published", data.queue.published],
-            ["Moderator actions", data.moderationActions],
-            ["Audit log entries", data.totalAuditEvents],
           ].map(([label, value]) => (
             <Card key={label as string} className="border-border/70 bg-card/70 shadow-none backdrop-blur-sm">
               <CardHeader>

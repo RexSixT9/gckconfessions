@@ -103,7 +103,7 @@ export default function AppPreloader() {
               </motion.div>
               <div>
                 <p className="text-sm font-semibold tracking-tight text-foreground">GCK Confessions</p>
-                <p className="text-xs text-muted-foreground">Warming up moderation tools</p>
+                <p className="text-xs text-muted-foreground">Preparing your anonymous space</p>
               </div>
             </div>
 

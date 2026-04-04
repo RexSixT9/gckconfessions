@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import GuidelinesClient from "./GuidelinesClient";
 
 export const metadata: Metadata = {
-  title: "Privacy & Guidelines — GCK Confessions",
-  description: "Privacy basics and posting rules for safe, anonymous sharing.",
+  title: "Privacy and Guidelines — GCK Confessions",
+  description: "Anonymity, moderation standards, and posting rules for safe sharing.",
 };
 
 export default function GuidelinesPage() {

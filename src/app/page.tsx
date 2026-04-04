@@ -515,10 +515,12 @@ export default function HomePage() {
 
                 <motion.div whileHover={reduceHeavyMotion ? undefined : { y: -2, scale: 1.01 }} whileTap={{ scale: 0.98 }}>
                   <Button
+                    type="button"
                     size="lg"
                     variant="outline"
                     className="h-auto gap-2 rounded-full border-border/60 px-8 py-4 text-sm backdrop-blur-sm transition-all hover:border-foreground/35 hover:bg-card/60"
-                    render={<Link href="#how-it-works" />}
+                    onClick={() => scrollToSection("how-it-works")}
+                    aria-controls="how-it-works"
                   >
                     <>
                       How it works
