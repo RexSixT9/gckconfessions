@@ -305,12 +305,13 @@ export default function HomePage() {
   const canStartMotion = isAppReady || shouldReduceMotion;
   const [isDesktop, setIsDesktop] = useState(false);
   const [isTablet, setIsTablet] = useState(false);
+  const [isTallViewport, setIsTallViewport] = useState(false);
   const [isLowEnd, setIsLowEnd] = useState(false);
   const heroRef = useRef<HTMLElement | null>(null);
   const highlightsRef = useRef<HTMLElement | null>(null);
   const stepsRef = useRef<HTMLElement | null>(null);
   const reduceHeavyMotion = shouldReduceMotion || isLowEnd;
-  const enableSnap = isDesktop && !reduceHeavyMotion;
+  const enableSnap = isDesktop && isTallViewport && !reduceHeavyMotion;
 
   const { scrollYProgress: heroProgress } = useScroll({
     target: heroRef,
@@ -345,19 +346,24 @@ export default function HomePage() {
   useEffect(() => {
     const media = window.matchMedia("(min-width: 1024px)");
     const tabletMedia = window.matchMedia("(min-width: 768px)");
+    const tallViewportMedia = window.matchMedia("(min-height: 860px)");
     setIsDesktop(media.matches);
     setIsTablet(tabletMedia.matches);
+    setIsTallViewport(tallViewportMedia.matches);
     setIsLowEnd(isLowEndDevice());
 
     const onChange = (event: MediaQueryListEvent) => setIsDesktop(event.matches);
     const onTabletChange = (event: MediaQueryListEvent) => setIsTablet(event.matches);
+    const onTallViewportChange = (event: MediaQueryListEvent) => setIsTallViewport(event.matches);
 
     media.addEventListener("change", onChange);
     tabletMedia.addEventListener("change", onTabletChange);
+    tallViewportMedia.addEventListener("change", onTallViewportChange);
 
     return () => {
       media.removeEventListener("change", onChange);
       tabletMedia.removeEventListener("change", onTabletChange);
+      tallViewportMedia.removeEventListener("change", onTallViewportChange);
     };
   }, []);
 
@@ -656,7 +662,7 @@ export default function HomePage() {
         aria-labelledby="highlights-heading"
         ref={highlightsRef}
         style={{ y: reduceHeavyMotion || enableSnap ? 0 : highlightsParallax }}
-        className="snap-section mx-auto flex min-h-dvh w-full max-w-7xl items-center px-4 py-12 sm:px-6 sm:py-14 lg:px-8"
+        className="snap-section mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 sm:py-14 lg:px-8 lg:py-16"
       >
         <div className="w-full">
           <div className="mb-10 text-center">
@@ -701,7 +707,7 @@ export default function HomePage() {
         aria-labelledby="how-it-works-heading"
         ref={stepsRef}
         style={{ y: reduceHeavyMotion || enableSnap ? 0 : stepsParallax }}
-        className="snap-section mx-auto flex min-h-dvh w-full max-w-7xl items-center px-4 py-12 sm:px-6 sm:py-14 lg:px-8"
+        className="snap-section mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 sm:py-14 lg:px-8 lg:py-16"
       >
         <div className="w-full">
           <div className="mb-10 text-center">

@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ArrowRight, Loader, ShieldCheck, Mail, Eye, EyeOff, KeyRound } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,7 @@ function isValidEmail(email: string): boolean {
 
 export default function AdminLoginPage() {
   const router = useRouter();
+  const passwordInputRef = useRef<HTMLInputElement | null>(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -59,6 +60,27 @@ export default function AdminLoginPage() {
 
     checkAuth();
   }, [router]);
+
+  function togglePasswordVisibility() {
+    const input = passwordInputRef.current;
+    const selectionStart = input?.selectionStart ?? null;
+    const selectionEnd = input?.selectionEnd ?? null;
+
+    setShowPassword((prev) => !prev);
+
+    // Keep focus and cursor position stable when toggling input type.
+    window.requestAnimationFrame(() => {
+      const nextInput = passwordInputRef.current;
+      if (!nextInput) return;
+      nextInput.focus({ preventScroll: true });
+      if (selectionStart === null || selectionEnd === null) return;
+      try {
+        nextInput.setSelectionRange(selectionStart, selectionEnd);
+      } catch {
+        // Some browser/input combinations can reject selection updates.
+      }
+    });
+  }
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -102,6 +124,7 @@ export default function AdminLoginPage() {
 
       // Clear sensitive data from memory
       setPassword("");
+      setShowPassword(false);
 
       toast.success("Signed in", {
         description: "Welcome back. Taking you to the admin dashboard.",
@@ -110,8 +133,7 @@ export default function AdminLoginPage() {
         router.push("/admin");
       }, 300);
     } catch (error) {
-      // Clear password on error for security
-      setPassword("");
+      setShowPassword(false);
 
       toast.error("Sign-in failed", {
         description: error instanceof Error ? error.message : "Could not sign in. Please try again.",
@@ -187,6 +209,7 @@ export default function AdminLoginPage() {
                     <KeyRound className="h-4 w-4" />
                   </span>
                   <Input
+                    ref={passwordInputRef}
                     id="password"
                     name="password"
                     type={showPassword ? "text" : "password"}
@@ -207,12 +230,17 @@ export default function AdminLoginPage() {
                     type="button"
                     variant="ghost"
                     size="icon-sm"
-                    onClick={() => setShowPassword(!showPassword)}
+                    onMouseDown={(event) => event.preventDefault()}
+                    onClick={togglePasswordVisibility}
                     disabled={loading}
-                    className="absolute right-1 top-1/2 -translate-y-1/2 rounded-md text-muted-foreground"
+                    className="absolute right-1 top-1/2 h-8 w-8 -translate-y-1/2 rounded-md text-muted-foreground"
                     aria-label={showPassword ? "Hide password" : "Show password"}
+                    aria-controls="password"
+                    aria-pressed={showPassword}
+                    title={showPassword ? "Hide password" : "Show password"}
                   >
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    <span className="sr-only">{showPassword ? "Hide password" : "Show password"}</span>
                   </Button>
                 </div>
               </div>
