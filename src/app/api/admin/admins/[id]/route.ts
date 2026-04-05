@@ -1,16 +1,11 @@
-import { NextResponse } from "next/server";
 import mongoose from "mongoose";
-import { cookies } from "next/headers";
 import { connectToDatabase } from "@/lib/mongodb";
-import { aj } from "@/lib/arcjet";
 import { apiError, apiOk, safeLogError } from "@/lib/api";
-import { rotateCsrfCookie, validateCsrf } from "@/lib/csrf";
+import { rotateCsrfCookie } from "@/lib/csrf";
 import { writeAuditLog } from "@/lib/audit";
-import { verifyAdminToken } from "@/lib/auth";
-import { COOKIE_NAME } from "@/lib/constants";
-import { checkAdminActionLimit, getClientIp, getRateLimitHeaders } from "@/lib/rateLimit";
-import { isSameOrigin } from "@/lib/requestUtils";
-import { requiresReauth, rotateSessionCookie } from "@/lib/session";
+import { checkAdminActionLimit } from "@/lib/rateLimit";
+import { rotateSessionCookie } from "@/lib/session";
+import { runMutatingRouteGuard } from "@/lib/routeGuards";
 import Admin from "@/models/Admin";
 
 /**
@@ -25,41 +20,24 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    if (!isSameOrigin(request)) {
-      return apiError(403, "INVALID_ORIGIN", "Invalid origin.");
+    const guard = await runMutatingRouteGuard(request, {
+      requireCsrf: true,
+      useArcjet: true,
+      checkBlockedIp: true,
+      requireAdmin: true,
+      requireRecentAuth: true,
+      rateLimit: {
+        check: checkAdminActionLimit,
+        key: (ctx) => `admin-delete:${ctx.ip}`,
+        message: "Too many requests. Try again later.",
+      },
+    });
+    if (!guard.ok) {
+      return guard.response;
     }
 
-    if (!(await validateCsrf(request))) {
-      return apiError(403, "INVALID_CSRF", "Invalid CSRF token.");
-    }
-
-    let arcjetDecision;
-    try {
-      arcjetDecision = await aj.protect(request);
-    } catch (arcjetError) {
-      safeLogError("Arcjet error", arcjetError);
-      arcjetDecision = null;
-    }
-
-    if (arcjetDecision?.isDenied()) {
-      return apiError(403, "FORBIDDEN", "Request blocked.");
-    }
-
-    const cookieStore = await cookies();
-    const token = cookieStore.get(COOKIE_NAME)?.value;
-    if (!token) return apiError(401, "UNAUTHORIZED", "Unauthorized.");
-
-    const caller = await verifyAdminToken(token);
-    if (!caller.sub) return apiError(401, "UNAUTHORIZED", "Unauthorized.");
-    if (requiresReauth(caller.iat ?? 0)) {
-      return apiError(401, "REAUTH_REQUIRED", "Please sign in again before this sensitive action.");
-    }
-
-    const ip = getClientIp(request);
-    const rate = await checkAdminActionLimit(`admin-delete:${ip}`);
-    if (!rate.allowed) {
-      return apiError(429, "RATE_LIMIT", "Too many requests. Try again later.", getRateLimitHeaders(rate));
-    }
+    const caller = guard.ctx.admin;
+    if (!caller?.sub) return apiError(401, "UNAUTHORIZED", "Unauthorized.");
 
     const { id } = await params;
 

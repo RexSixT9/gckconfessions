@@ -1,17 +1,13 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import mongoose from "mongoose";
 import { connectToDatabase } from "@/lib/mongodb";
-import { aj } from "@/lib/arcjet";
-import { apiError, apiOk, isJsonContentType, parseJsonObject, safeLogError } from "@/lib/api";
-import { rotateCsrfCookie, validateCsrf } from "@/lib/csrf";
+import { apiError, apiOk, parseJsonObject, safeLogError } from "@/lib/api";
+import { rotateCsrfCookie } from "@/lib/csrf";
 import { writeAuditLog } from "@/lib/audit";
-import { verifyAdminToken } from "@/lib/auth";
-import { COOKIE_NAME } from "@/lib/constants";
-import { checkAdminActionLimit, getClientIp, getRateLimitHeaders } from "@/lib/rateLimit";
+import { checkAdminActionLimit } from "@/lib/rateLimit";
 import { sanitizeOutputText } from "@/lib/moderation";
-import { isSameOrigin } from "@/lib/requestUtils";
-import { requiresReauth, rotateSessionCookie } from "@/lib/session";
+import { rotateSessionCookie } from "@/lib/session";
+import { runMutatingRouteGuard } from "@/lib/routeGuards";
 import Confession from "@/models/Confession";
 import DeletedConfession from "@/models/DeletedConfession";
 
@@ -53,47 +49,26 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    if (!isSameOrigin(request)) {
-      return apiError(403, "INVALID_ORIGIN", "Invalid origin.");
+    const guard = await runMutatingRouteGuard(request, {
+      requireJson: true,
+      requireCsrf: true,
+      useArcjet: true,
+      checkBlockedIp: true,
+      requireAdmin: true,
+      rateLimit: {
+        check: checkAdminActionLimit,
+        key: (ctx) => `confession-patch:${ctx.ip}`,
+        message: "Too many requests. Try again later.",
+      },
+    });
+    if (!guard.ok) {
+      return guard.response;
     }
 
-    if (!(await validateCsrf(request))) {
-      return apiError(403, "INVALID_CSRF", "Invalid CSRF token.");
-    }
+    const admin = guard.ctx.admin;
+    const adminRate = guard.ctx.rateLimit;
+    if (!admin?.sub || !adminRate) return apiError(401, "UNAUTHORIZED", "Unauthorized.");
 
-    if (!isJsonContentType(request)) {
-      return apiError(415, "INVALID_CONTENT_TYPE", "Unsupported content type.");
-    }
-
-    let arcjetDecision;
-    try {
-      arcjetDecision = await aj.protect(request);
-    } catch (arcjetError) {
-      safeLogError("Arcjet error", arcjetError);
-      arcjetDecision = null;
-    }
-
-    if (arcjetDecision?.isDenied()) {
-      return apiError(403, "FORBIDDEN", "Request blocked.");
-    }
-
-    const cookieStore = await cookies();
-    const token = cookieStore.get(COOKIE_NAME)?.value;
-
-    if (!token) {
-      return apiError(401, "UNAUTHORIZED", "Unauthorized.");
-    }
-
-    const admin = await verifyAdminToken(token);
-
-    if (!admin.sub) {
-      return apiError(401, "UNAUTHORIZED", "Unauthorized.");
-    }
-
-    const adminRate = await checkAdminActionLimit(`confession-patch:${getClientIp(request)}`);
-    if (!adminRate.allowed) {
-      return apiError(429, "RATE_LIMIT", "Too many requests. Try again later.", getRateLimitHeaders(adminRate));
-    }
     if (adminRate.remaining <= 2) {
       await writeAuditLog({
         action: "security_alert",
@@ -230,45 +205,26 @@ export async function DELETE(
   let backupId: string | null = null;
 
   try {
-    if (!isSameOrigin(request)) {
-      return apiError(403, "INVALID_ORIGIN", "Invalid origin.");
+    const guard = await runMutatingRouteGuard(request, {
+      requireCsrf: true,
+      useArcjet: true,
+      checkBlockedIp: true,
+      requireAdmin: true,
+      requireRecentAuth: true,
+      rateLimit: {
+        check: checkAdminActionLimit,
+        key: (ctx) => `confession-delete:${ctx.ip}`,
+        message: "Too many requests. Try again later.",
+      },
+    });
+    if (!guard.ok) {
+      return guard.response;
     }
 
-    if (!(await validateCsrf(request))) {
-      return apiError(403, "INVALID_CSRF", "Invalid CSRF token.");
-    }
+    const admin = guard.ctx.admin;
+    const adminRate = guard.ctx.rateLimit;
+    if (!admin?.sub || !adminRate) return apiError(401, "UNAUTHORIZED", "Unauthorized.");
 
-    let arcjetDecision;
-    try {
-      arcjetDecision = await aj.protect(request);
-    } catch (arcjetError) {
-      safeLogError("Arcjet error", arcjetError);
-      arcjetDecision = null;
-    }
-
-    if (arcjetDecision?.isDenied()) {
-      return apiError(403, "FORBIDDEN", "Request blocked.");
-    }
-
-    const cookieStore = await cookies();
-    const token = cookieStore.get(COOKIE_NAME)?.value;
-
-    if (!token) {
-      return apiError(401, "UNAUTHORIZED", "Unauthorized.");
-    }
-
-    const admin = await verifyAdminToken(token);
-    if (!admin.sub) {
-      return apiError(401, "UNAUTHORIZED", "Unauthorized.");
-    }
-    if (requiresReauth(admin.iat ?? 0)) {
-      return apiError(401, "REAUTH_REQUIRED", "Please sign in again before this sensitive action.");
-    }
-
-    const adminRate = await checkAdminActionLimit(`confession-delete:${getClientIp(request)}`);
-    if (!adminRate.allowed) {
-      return apiError(429, "RATE_LIMIT", "Too many requests. Try again later.", getRateLimitHeaders(adminRate));
-    }
     if (adminRate.remaining <= 2) {
       await writeAuditLog({
         action: "security_alert",

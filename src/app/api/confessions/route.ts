@@ -1,8 +1,7 @@
 import { createHash } from "crypto";
 import { cookies } from "next/headers";
 import { connectToDatabase } from "@/lib/mongodb";
-import { aj } from "@/lib/arcjet";
-import { apiError, apiOk, isJsonContentType, parseJsonObject, safeLogError } from "@/lib/api";
+import { apiError, apiOk, parseJsonObject, safeLogError } from "@/lib/api";
 import { ensureCsrfCookie } from "@/lib/csrf";
 import { writeAuditLog } from "@/lib/audit";
 import { isbot } from "isbot";
@@ -17,18 +16,18 @@ import {
   SANITIZATION_POLICY_VERSION,
   validateConfessionSubmission,
 } from "@/lib/moderation";
-import { getClientContext, getRequestFingerprint, isSameOrigin } from "@/lib/requestUtils";
+import { getClientContext, getRequestFingerprint } from "@/lib/requestUtils";
 import {
   checkAdminReadLimit,
   checkSubmissionBurstLimit,
   checkSubmissionLimit,
   getAdaptiveRetryAfterSeconds,
-  getBlockedIps,
   getClientIp,
   getRateLimitHeaders,
 } from "@/lib/rateLimit";
 import { MAX_MESSAGE_LENGTH, MAX_MUSIC_LENGTH } from "@/lib/constants";
 import { confessionSubmitSchema } from "@/lib/validation";
+import { runMutatingRouteGuard } from "@/lib/routeGuards";
 import Confession from "@/models/Confession";
 
 type ConfessionResponse = {
@@ -219,37 +218,21 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    if (!isSameOrigin(request)) {
-      return apiError(403, "INVALID_ORIGIN", "Invalid origin.");
-    }
-
-    if (!isJsonContentType(request)) {
-      return apiError(415, "INVALID_CONTENT_TYPE", "Unsupported content type.");
-    }
-
     if (process.env.MAINTENANCE_MODE === "on") {
       return apiError(503, "SERVICE_UNAVAILABLE", "Submissions are temporarily paused.");
     }
 
-    let arcjetDecision;
-    try {
-      arcjetDecision = await aj.protect(request);
-    } catch (arcjetError) {
-      safeLogError("Arcjet error", arcjetError);
-      // Continue without Arcjet if it fails
-      arcjetDecision = null;
+    const guard = await runMutatingRouteGuard(request, {
+      requireJson: true,
+      useArcjet: true,
+      arcjetBlockedMessage: "Submission blocked.",
+      checkBlockedIp: true,
+    });
+    if (!guard.ok) {
+      return guard.response;
     }
 
-    if (arcjetDecision?.isDenied()) {
-      return apiError(403, "FORBIDDEN", "Submission blocked.");
-    }
-
-    const ip = getClientIp(request);
-    const blocked = getBlockedIps();
-
-    if (blocked.includes(ip)) {
-      return apiError(401, "UNAUTHORIZED", "Unauthorized.");
-    }
+    const ip = guard.ctx.ip;
 
     const userAgent = request.headers.get("user-agent") || "";
 

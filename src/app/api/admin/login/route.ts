@@ -1,8 +1,6 @@
-import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { connectToDatabase } from "@/lib/mongodb";
-import { aj } from "@/lib/arcjet";
-import { apiError, apiOk, isJsonContentType, parseJsonObject, safeLogError } from "@/lib/api";
+import { apiError, apiOk, parseJsonObject, safeLogError } from "@/lib/api";
 import { signAdminToken } from "@/lib/auth";
 import { rotateCsrfCookie } from "@/lib/csrf";
 import { writeAuditLog } from "@/lib/audit";
@@ -11,8 +9,6 @@ import {
   checkLoginIdentityLimit,
   checkLoginLimit,
   clearLoginFailures,
-  getBlockedIps,
-  getClientIp,
   getLoginBackoff,
   getRateLimitHeaders,
   registerLoginFailure,
@@ -25,40 +21,26 @@ import {
   MAX_PASSWORD_LENGTH,
   SESSION_ACTIVITY_COOKIE,
 } from "@/lib/constants";
-import { getRequestFingerprint, isSameOrigin, isValidEmail } from "@/lib/requestUtils";
+import { getRequestFingerprint, isValidEmail } from "@/lib/requestUtils";
 import { adminLoginSchema } from "@/lib/validation";
+import { runMutatingRouteGuard } from "@/lib/routeGuards";
 import Admin from "@/models/Admin";
 const DUMMY_PASSWORD_HASH = "$2a$10$CwTycUXWue0Thq9StjUM0uJ8n9f5M5w7x1YgnSUQoqBYwygJyI072";
 
 export async function POST(request: Request) {
   try {
-    if (!isSameOrigin(request)) {
-      return apiError(403, "INVALID_ORIGIN", "Invalid origin.");
+    const guard = await runMutatingRouteGuard(request, {
+      requireJson: true,
+      useArcjet: true,
+      arcjetBlockedMessage: "Login blocked.",
+      checkBlockedIp: true,
+    });
+    if (!guard.ok) {
+      return guard.response;
     }
 
-    if (!isJsonContentType(request)) {
-      return apiError(415, "INVALID_CONTENT_TYPE", "Unsupported content type.");
-    }
-
-    let arcjetDecision;
-    try {
-      arcjetDecision = await aj.protect(request);
-    } catch (arcjetError) {
-      safeLogError("Arcjet error", arcjetError);
-      arcjetDecision = null;
-    }
-
-    if (arcjetDecision?.isDenied()) {
-      return apiError(403, "FORBIDDEN", "Login blocked.");
-    }
-
-    const ip = getClientIp(request);
+    const ip = guard.ctx.ip;
     const fingerprint = getRequestFingerprint(request, ip);
-    const blocked = getBlockedIps();
-
-    if (blocked.includes(ip)) {
-      return apiError(401, "UNAUTHORIZED", "Unauthorized.");
-    }
 
     const payload = await parseJsonObject(request);
     if (!payload) {
@@ -78,7 +60,11 @@ export async function POST(request: Request) {
     const ipBackoffKey = `login-ip:${ip}`;
     const identityKey = `login-account:${email || "unknown"}`;
     const burstKey = `login-burst:${fingerprint}`;
-    const backoffSeconds = Math.max(getLoginBackoff(identityKey), getLoginBackoff(ipBackoffKey));
+    const [identityBackoff, ipBackoff] = await Promise.all([
+      getLoginBackoff(identityKey),
+      getLoginBackoff(ipBackoffKey),
+    ]);
+    const backoffSeconds = Math.max(identityBackoff, ipBackoff);
     if (backoffSeconds > 0) {
       return apiError(429, "RATE_LIMIT", "Too many login attempts. Try again later.", {
         "Retry-After": String(backoffSeconds),
@@ -144,8 +130,10 @@ export async function POST(request: Request) {
         safeLogError("Failed to log failed login attempt", logError);
       }
 
-      const retryAfter = registerLoginFailure(identityKey);
-      const retryAfterByIp = registerLoginFailure(ipBackoffKey);
+      const [retryAfter, retryAfterByIp] = await Promise.all([
+        registerLoginFailure(identityKey),
+        registerLoginFailure(ipBackoffKey),
+      ]);
       const effectiveRetryAfter = Math.max(retryAfter, retryAfterByIp);
       if (effectiveRetryAfter >= 120) {
         await writeAuditLog({
@@ -168,8 +156,10 @@ export async function POST(request: Request) {
       });
     }
 
-    clearLoginFailures(identityKey);
-    clearLoginFailures(ipBackoffKey);
+    await Promise.all([
+      clearLoginFailures(identityKey),
+      clearLoginFailures(ipBackoffKey),
+    ]);
 
     const token = await signAdminToken({
       sub: String(admin._id ?? ""),

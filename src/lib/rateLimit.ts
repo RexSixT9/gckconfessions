@@ -2,6 +2,7 @@ import { RateLimiterMemory, RateLimiterRedis } from "rate-limiter-flexible";
 import { MAX_LOGIN_ATTEMPTS } from "./constants";
 import { getRedisClient } from "./redis";
 import { safeLogError } from "./api";
+import { createHash } from "crypto";
 
 // Uses shared Redis-backed limiters when REDIS_URL is available.
 // Falls back to in-memory limiters locally or when Redis is not configured.
@@ -154,6 +155,15 @@ const adminReadLimiter = createLimiter("admin-read", {
 });
 
 /**
+ * Public aggregate endpoints (expensive grouped reads): 60 / minute in prod.
+ */
+const publicAggregateLimiter = createLimiter("public-aggregate", {
+  points: process.env.NODE_ENV === "production" ? 60 : 1000,
+  duration: 60,
+  blockDuration: process.env.NODE_ENV === "production" ? 60 : 0,
+});
+
+/**
  * CSP report endpoint limiter to reduce alert/audit flooding.
  */
 const cspReportLimiter = createLimiter("csp-report", {
@@ -172,18 +182,103 @@ const loginFailures = new Map<string, LoginFailureState>();
 const LOGIN_BACKOFF_BASE_SECONDS = 30;
 const LOGIN_BACKOFF_MAX_SECONDS = 20 * 60;
 const LOGIN_FAILURE_RESET_MS = 60 * 60 * 1000;
+const LOGIN_FAILURE_KEY_PREFIX = `${RATE_LIMIT_PREFIX}:login-failure`;
 
-export function getLoginBackoff(identity: string) {
+function getLoginFailureRedisKey(identity: string) {
+  const normalized = identity.trim().toLowerCase();
+  const hash = createHash("sha256").update(normalized || "unknown").digest("hex").slice(0, 40);
+  return `${LOGIN_FAILURE_KEY_PREFIX}:${hash}`;
+}
+
+function parseLoginFailureState(raw: string | null): LoginFailureState | null {
+  if (!raw) return null;
+
+  try {
+    const parsed = JSON.parse(raw) as Partial<LoginFailureState>;
+    if (
+      typeof parsed.count !== "number" ||
+      typeof parsed.lockedUntil !== "number" ||
+      typeof parsed.lastAttemptAt !== "number"
+    ) {
+      return null;
+    }
+
+    return {
+      count: parsed.count,
+      lockedUntil: parsed.lockedUntil,
+      lastAttemptAt: parsed.lastAttemptAt,
+    };
+  } catch {
+    return null;
+  }
+}
+
+function getMemoryLoginBackoff(identity: string) {
   const state = loginFailures.get(identity);
   if (!state) return 0;
-  if (Date.now() > state.lockedUntil) return 0;
+  if (Date.now() > state.lockedUntil) {
+    loginFailures.delete(identity);
+    return 0;
+  }
   return Math.max(1, Math.ceil((state.lockedUntil - Date.now()) / 1000));
 }
 
-export function registerLoginFailure(identity: string) {
-  const now = Date.now();
-  const current = loginFailures.get(identity);
+export async function getLoginBackoff(identity: string) {
+  const redis = getRedisClient();
+  if (!redis) return getMemoryLoginBackoff(identity);
 
+  const key = getLoginFailureRedisKey(identity);
+  try {
+    const state = parseLoginFailureState(await redis.get(key));
+    if (!state) {
+      await redis.del(key).catch(() => {});
+      return 0;
+    }
+    if (Date.now() > state.lockedUntil) {
+      await redis.del(key).catch(() => {});
+      return 0;
+    }
+    return Math.max(1, Math.ceil((state.lockedUntil - Date.now()) / 1000));
+  } catch (error) {
+    safeLogError("Login backoff read failed", error);
+    return getMemoryLoginBackoff(identity);
+  }
+}
+
+export async function registerLoginFailure(identity: string) {
+  const now = Date.now();
+  const redis = getRedisClient();
+
+  if (redis) {
+    const key = getLoginFailureRedisKey(identity);
+    try {
+      const current = parseLoginFailureState(await redis.get(key));
+      const baseCount = current && now - current.lastAttemptAt < LOGIN_FAILURE_RESET_MS ? current.count : 0;
+      const count = baseCount + 1;
+      const backoffSeconds = Math.min(
+        LOGIN_BACKOFF_MAX_SECONDS,
+        LOGIN_BACKOFF_BASE_SECONDS * 2 ** Math.max(0, count - 3)
+      );
+
+      const nextState: LoginFailureState = {
+        count,
+        lastAttemptAt: now,
+        lockedUntil: now + backoffSeconds * 1000,
+      };
+
+      const ttlSeconds = Math.max(
+        1,
+        Math.ceil(Math.max(LOGIN_FAILURE_RESET_MS, backoffSeconds * 1000) / 1000)
+      );
+
+      await redis.set(key, JSON.stringify(nextState), "EX", ttlSeconds);
+      return backoffSeconds;
+    } catch (error) {
+      safeLogError("Login backoff write failed", error);
+    }
+  }
+
+  const current = loginFailures.get(identity);
   const baseCount = current && now - current.lastAttemptAt < LOGIN_FAILURE_RESET_MS ? current.count : 0;
   const count = baseCount + 1;
   const backoffSeconds = Math.min(LOGIN_BACKOFF_MAX_SECONDS, LOGIN_BACKOFF_BASE_SECONDS * 2 ** Math.max(0, count - 3));
@@ -197,7 +292,18 @@ export function registerLoginFailure(identity: string) {
   return backoffSeconds;
 }
 
-export function clearLoginFailures(identity: string) {
+export async function clearLoginFailures(identity: string) {
+  const redis = getRedisClient();
+  if (redis) {
+    const key = getLoginFailureRedisKey(identity);
+    try {
+      await redis.del(key);
+      return;
+    } catch (error) {
+      safeLogError("Login backoff clear failed", error);
+    }
+  }
+
   loginFailures.delete(identity);
 }
 
@@ -282,6 +388,10 @@ export function checkAdminActionLimit(key: string) {
 
 export function checkAdminReadLimit(key: string) {
   return consume(adminReadLimiter, key);
+}
+
+export function checkPublicAggregateLimit(key: string) {
+  return consume(publicAggregateLimiter, key);
 }
 
 export function checkCspReportLimit(key: string) {

@@ -1,16 +1,16 @@
 import bcrypt from "bcryptjs";
 import { cookies } from "next/headers";
 import { connectToDatabase } from "@/lib/mongodb";
-import { aj } from "@/lib/arcjet";
-import { apiError, apiOk, isJsonContentType, parseJsonObject, safeLogError } from "@/lib/api";
-import { ensureCsrfCookie, rotateCsrfCookie, validateCsrf } from "@/lib/csrf";
+import { apiError, apiOk, parseJsonObject, safeLogError } from "@/lib/api";
+import { ensureCsrfCookie, rotateCsrfCookie } from "@/lib/csrf";
 import { writeAuditLog } from "@/lib/audit";
 import { verifyAdminToken } from "@/lib/auth";
 import { validatePasswordPolicy } from "@/lib/moderation";
 import { COOKIE_NAME, BCRYPT_ROUNDS, MAX_EMAIL_LENGTH } from "@/lib/constants";
-import { checkSetupLimit, getBlockedIps, getClientIp, getRateLimitHeaders } from "@/lib/rateLimit";
-import { isSameOrigin, isValidEmail, safeCompare } from "@/lib/requestUtils";
-import { requiresReauth, rotateSessionCookie } from "@/lib/session";
+import { checkSetupLimit } from "@/lib/rateLimit";
+import { isValidEmail, safeCompare } from "@/lib/requestUtils";
+import { rotateSessionCookie } from "@/lib/session";
+import { runMutatingRouteGuard } from "@/lib/routeGuards";
 import Admin from "@/models/Admin";
 
 /**
@@ -63,50 +63,25 @@ export async function GET(request: Request) {
  */
 export async function POST(request: Request) {
   try {
-    if (!isSameOrigin(request)) {
-      return apiError(403, "INVALID_ORIGIN", "Invalid origin.");
+    const guard = await runMutatingRouteGuard(request, {
+      requireJson: true,
+      requireCsrf: true,
+      useArcjet: true,
+      checkBlockedIp: true,
+      requireAdmin: true,
+      requireRecentAuth: true,
+      rateLimit: {
+        check: checkSetupLimit,
+        key: (ctx) => `admin-create:${ctx.ip}`,
+        message: "Too many requests. Try again later.",
+      },
+    });
+    if (!guard.ok) {
+      return guard.response;
     }
 
-    if (!(await validateCsrf(request))) {
-      return apiError(403, "INVALID_CSRF", "Invalid CSRF token.");
-    }
-
-    let arcjetDecision;
-    try {
-      arcjetDecision = await aj.protect(request);
-    } catch (arcjetError) {
-      safeLogError("Arcjet error", arcjetError);
-      arcjetDecision = null;
-    }
-
-    if (arcjetDecision?.isDenied()) {
-      return apiError(403, "FORBIDDEN", "Request blocked.");
-    }
-
-    const cookieStore = await cookies();
-    const token = cookieStore.get(COOKIE_NAME)?.value;
-    if (!token) return apiError(401, "UNAUTHORIZED", "Unauthorized.");
-
-    const caller = await verifyAdminToken(token);
-    if (!caller.sub) return apiError(401, "UNAUTHORIZED", "Unauthorized.");
-    if (requiresReauth(caller.iat ?? 0)) {
-      return apiError(401, "REAUTH_REQUIRED", "Please sign in again before this sensitive action.");
-    }
-
-    const ip = getClientIp(request);
-
-    if (getBlockedIps().includes(ip)) {
-      return apiError(401, "UNAUTHORIZED", "Unauthorized.");
-    }
-
-    const rate = await checkSetupLimit(`admin-create:${ip}`);
-    if (!rate.allowed) {
-      return apiError(429, "RATE_LIMIT", "Too many requests. Try again later.", getRateLimitHeaders(rate));
-    }
-
-    if (!isJsonContentType(request)) {
-      return apiError(415, "INVALID_CONTENT_TYPE", "Unsupported content type.");
-    }
+    const caller = guard.ctx.admin;
+    if (!caller) return apiError(401, "UNAUTHORIZED", "Unauthorized.");
 
     const setupKey = process.env.ADMIN_SETUP_KEY;
     if (!setupKey) {

@@ -1,38 +1,26 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { connectToDatabase } from "@/lib/mongodb";
-import { aj } from "@/lib/arcjet";
 import { apiError, safeLogError } from "@/lib/api";
-import { validateCsrf } from "@/lib/csrf";
 import { writeAuditLog } from "@/lib/audit";
 import { verifyAdminToken } from "@/lib/auth";
 import { COOKIE_NAME, COOKIE_OPTIONS } from "@/lib/constants";
-import { isSameOrigin } from "@/lib/requestUtils";
 import { clearSessionCookies } from "@/lib/session";
+import { runMutatingRouteGuard } from "@/lib/routeGuards";
 
 export async function POST(request: Request) {
   try {
-    if (!isSameOrigin(request)) {
-      return apiError(403, "INVALID_ORIGIN", "Invalid origin.");
-    }
-
-    if (!(await validateCsrf(request))) {
-      const response = apiError(403, "INVALID_CSRF", "Invalid CSRF token.");
-      clearSessionCookies(response);
-      return response;
-    }
-
-    // Arcjet protection
-    let arcjetDecision;
-    try {
-      arcjetDecision = await aj.protect(request);
-    } catch (arcjetError) {
-      safeLogError("Arcjet error", arcjetError);
-      arcjetDecision = null;
-    }
-
-    if (arcjetDecision?.isDenied()) {
-      return apiError(403, "FORBIDDEN", "Request blocked.");
+    const guard = await runMutatingRouteGuard(request, {
+      requireCsrf: true,
+      useArcjet: true,
+    });
+    if (!guard.ok) {
+      if (guard.response.status === 403) {
+        const response = guard.response as NextResponse;
+        clearSessionCookies(response);
+        return response;
+      }
+      return guard.response;
     }
 
     const cookieStore = await cookies();

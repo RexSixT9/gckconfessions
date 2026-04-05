@@ -1,47 +1,29 @@
 import bcrypt from "bcryptjs";
 import { connectToDatabase } from "@/lib/mongodb";
-import { aj } from "@/lib/arcjet";
-import { apiError, apiOk, isJsonContentType, parseJsonObject, safeLogError } from "@/lib/api";
+import { apiError, apiOk, parseJsonObject, safeLogError } from "@/lib/api";
 import { writeAuditLog } from "@/lib/audit";
 import { validatePasswordPolicy } from "@/lib/moderation";
 import { BCRYPT_ROUNDS, MAX_EMAIL_LENGTH } from "@/lib/constants";
-import { checkSetupLimit, getBlockedIps, getClientIp, getRateLimitHeaders } from "@/lib/rateLimit";
-import { isSameOrigin, isValidEmail, safeCompare } from "@/lib/requestUtils";
+import { checkSetupLimit } from "@/lib/rateLimit";
+import { isValidEmail, safeCompare } from "@/lib/requestUtils";
+import { runMutatingRouteGuard } from "@/lib/routeGuards";
 import Admin from "@/models/Admin";
 
 export async function POST(request: Request) {
   try {
-    if (!isSameOrigin(request)) {
-      return apiError(403, "INVALID_ORIGIN", "Invalid origin.");
-    }
-
-    if (!isJsonContentType(request)) {
-      return apiError(415, "INVALID_CONTENT_TYPE", "Unsupported content type.");
-    }
-
-    let arcjetDecision;
-    try {
-      arcjetDecision = await aj.protect(request);
-    } catch (arcjetError) {
-      safeLogError("Arcjet error", arcjetError);
-      arcjetDecision = null;
-    }
-
-    if (arcjetDecision?.isDenied()) {
-      return apiError(403, "FORBIDDEN", "Setup blocked.");
-    }
-
-    const ip = getClientIp(request);
-
-    if (getBlockedIps().includes(ip)) {
-      return apiError(401, "UNAUTHORIZED", "Unauthorized.");
-    }
-
-    const rate = await checkSetupLimit(`setup:${ip}`);
-    if (!rate.allowed) {
-      return apiError(429, "RATE_LIMIT", "Too many setup attempts. Try again later.", {
-        ...getRateLimitHeaders(rate),
-      });
+    const guard = await runMutatingRouteGuard(request, {
+      requireJson: true,
+      useArcjet: true,
+      arcjetBlockedMessage: "Setup blocked.",
+      checkBlockedIp: true,
+      rateLimit: {
+        check: checkSetupLimit,
+        key: (ctx) => `setup:${ctx.ip}`,
+        message: "Too many setup attempts. Try again later.",
+      },
+    });
+    if (!guard.ok) {
+      return guard.response;
     }
 
     const setupKey = process.env.ADMIN_SETUP_KEY;

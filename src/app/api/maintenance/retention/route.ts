@@ -1,13 +1,24 @@
 import { connectToDatabase } from "@/lib/mongodb";
 import { apiError, apiOk, safeLogError } from "@/lib/api";
+import { safeCompare } from "@/lib/requestUtils";
+import { runMutatingRouteGuard } from "@/lib/routeGuards";
 import Confession from "@/models/Confession";
 import DeletedConfession from "@/models/DeletedConfession";
 import AuditLog from "@/models/AuditLog";
 
+function readCronSecret(request: Request) {
+  const authHeader = request.headers.get("authorization")?.trim() ?? "";
+  if (authHeader.toLowerCase().startsWith("bearer ")) {
+    return authHeader.slice("bearer ".length).trim();
+  }
+
+  return request.headers.get("x-cron-secret")?.trim() ?? "";
+}
+
 function authorized(request: Request) {
-  const expected = process.env.CRON_SECRET;
-  const provided = request.headers.get("x-cron-secret");
-  return Boolean(expected && provided && provided === expected);
+  const expected = process.env.CRON_SECRET?.trim();
+  const provided = readCronSecret(request);
+  return Boolean(expected && provided && safeCompare(provided, expected));
 }
 
 function parseActionList(value: string) {
@@ -23,6 +34,15 @@ function parseActionList(value: string) {
 
 export async function POST(request: Request) {
   try {
+    const guard = await runMutatingRouteGuard(request, {
+      enforceOrigin: false,
+      useArcjet: false,
+      checkBlockedIp: true,
+    });
+    if (!guard.ok) {
+      return guard.response;
+    }
+
     if (!authorized(request)) {
       return apiError(401, "UNAUTHORIZED", "Unauthorized");
     }
