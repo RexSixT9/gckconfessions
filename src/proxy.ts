@@ -35,11 +35,11 @@ function isAdminIpAllowed(request: NextRequest) {
   return allowList.includes(clientIp);
 }
 
-function buildCsp(nonce: string) {
+function buildCsp(nonce: string, enforce: boolean) {
   const vercelPreviewOrigins = process.env.VERCEL_ENV === "preview" ? ["https://vercel.live"] : [];
   const connectSrc = ["'self'", ...vercelPreviewOrigins].join(" ");
 
-  return [
+  const directives = [
     "default-src 'self'",
     `script-src 'self' 'nonce-${nonce}'`,
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
@@ -50,12 +50,27 @@ function buildCsp(nonce: string) {
     "frame-ancestors 'none'",
     "base-uri 'self'",
     "form-action 'self'",
-    "upgrade-insecure-requests",
-  ].join("; ");
+  ];
+
+  if (enforce) {
+    directives.push("upgrade-insecure-requests");
+  }
+
+  return directives.join("; ");
+}
+
+function normalizePermissionsPolicy(policyValue: string) {
+  return policyValue
+    .split(",")
+    .map((directive) => directive.trim())
+    .filter((directive) => directive.length > 0)
+    .filter((directive) => !directive.toLowerCase().startsWith("browsing-topics"))
+    .join(", ");
 }
 
 function applySecurityHeaders(response: NextResponse, nonce: string) {
-  const cspHeaderKey = process.env.CSP_ENFORCE === "true"
+  const enforceCsp = process.env.CSP_ENFORCE === "true";
+  const cspHeaderKey = enforceCsp
     ? "Content-Security-Policy"
     : "Content-Security-Policy-Report-Only";
 
@@ -79,7 +94,7 @@ function applySecurityHeaders(response: NextResponse, nonce: string) {
     ].join(", ")
   );
 
-  response.headers.set(cspHeaderKey, buildCsp(nonce));
+  response.headers.set(cspHeaderKey, buildCsp(nonce, enforceCsp));
   response.headers.set("x-nonce", nonce);
   response.headers.set("Referrer-Policy", process.env.REFERRER_POLICY ?? "strict-origin-when-cross-origin");
   response.headers.set("X-Content-Type-Options", "nosniff");
@@ -88,11 +103,13 @@ function applySecurityHeaders(response: NextResponse, nonce: string) {
   response.headers.set("Cross-Origin-Opener-Policy", "same-origin");
   response.headers.set("Cross-Origin-Resource-Policy", "same-origin");
   response.headers.set("Origin-Agent-Cluster", "?1");
-  response.headers.set(
-    "Permissions-Policy",
+  const permissionsPolicyRaw =
     process.env.PERMISSIONS_POLICY ??
-      "camera=(), microphone=(), geolocation=(), browsing-topics=(), fullscreen=(self)"
-  );
+    "camera=(), microphone=(), geolocation=(), fullscreen=(self)";
+  const permissionsPolicy = normalizePermissionsPolicy(permissionsPolicyRaw);
+  if (permissionsPolicy) {
+    response.headers.set("Permissions-Policy", permissionsPolicy);
+  }
 
   if (process.env.NODE_ENV === "production") {
     response.headers.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains");

@@ -100,13 +100,6 @@ export default async function RootLayout({
         {/* Preconnect to speed up external resource loading */}
         <link rel="dns-prefetch" href="//fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        {/* Inline theme script to prevent flash */}
-        <script
-          nonce={nonce}
-          dangerouslySetInnerHTML={{
-            __html: `try{const t=localStorage.getItem('theme')||(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.classList.toggle('dark',t==='dark')}catch(e){}`,
-          }}
-        />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} bg-background text-foreground antialiased`}
@@ -123,6 +116,7 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
           storageKey="theme"
+          nonce={nonce}
         >
           <MotionProvider>
             <PWARegister />
