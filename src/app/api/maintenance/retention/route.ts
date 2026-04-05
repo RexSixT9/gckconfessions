@@ -36,7 +36,7 @@ export async function POST(request: Request) {
   try {
     const guard = await runMutatingRouteGuard(request, {
       enforceOrigin: false,
-      useArcjet: false,
+      useArcjet: true,
       checkBlockedIp: true,
     });
     if (!guard.ok) {

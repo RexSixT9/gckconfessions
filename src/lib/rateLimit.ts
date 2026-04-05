@@ -4,8 +4,9 @@ import { getRedisClient } from "./redis";
 import { safeLogError } from "./api";
 import { createHash } from "crypto";
 
-// Uses shared Redis-backed limiters when REDIS_URL is available.
-// Falls back to in-memory limiters locally or when Redis is not configured.
+// Uses shared Redis-backed limiters only when ENABLE_REDIS_RATE_LIMITS=true
+// and REDIS_URL is configured.
+// Falls back to in-memory limiters for Arcjet-only deployments.
 
 export type RateLimitResult = {
   allowed: boolean;

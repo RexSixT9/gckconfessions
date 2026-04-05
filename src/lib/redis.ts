@@ -5,6 +5,9 @@ let redisClient: Redis | null = null;
 let redisInitAttempted = false;
 
 export function getRedisClient() {
+  const redisEnabled = process.env.ENABLE_REDIS_RATE_LIMITS === "true";
+  if (!redisEnabled) return null;
+
   const redisUrl = process.env.REDIS_URL?.trim();
   if (!redisUrl) return null;
 

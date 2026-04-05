@@ -99,6 +99,10 @@ export async function runMutatingRouteGuard(
       arcjetDecision = await aj.protect(request);
     } catch (arcjetError) {
       safeLogError("Arcjet error", arcjetError);
+      return {
+        ok: false,
+        response: apiError(503, "SERVICE_UNAVAILABLE", "Request protection is temporarily unavailable."),
+      };
     }
 
     if (arcjetDecision?.isDenied()) {
