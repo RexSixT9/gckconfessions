@@ -19,6 +19,7 @@ import {
 } from "@/lib/moderation";
 import { getClientContext, getRequestFingerprint, isSameOrigin } from "@/lib/requestUtils";
 import {
+  checkAdminReadLimit,
   checkSubmissionBurstLimit,
   checkSubmissionLimit,
   getAdaptiveRetryAfterSeconds,
@@ -39,6 +40,12 @@ type ConfessionResponse = {
   createdAt?: string;
   updatedAt?: string;
 };
+
+function matchesIfNoneMatch(headerValue: string | null, etag: string) {
+  if (!headerValue) return false;
+  const candidates = headerValue.split(",").map((value) => value.trim());
+  return candidates.includes("*") || candidates.includes(etag);
+}
 
 function serializeConfession(item: {
   _id: unknown;
@@ -99,12 +106,18 @@ export async function GET(request: Request) {
       return apiError(401, "UNAUTHORIZED", "Unauthorized.");
     }
 
-    let adminEmail = "";
     try {
       const admin = await verifyAdminToken(token);
-      adminEmail = admin.email;
+      if (!admin.sub) {
+        return apiError(401, "UNAUTHORIZED", "Unauthorized.");
+      }
     } catch {
       return apiError(401, "UNAUTHORIZED", "Unauthorized.");
+    }
+
+    const readRate = await checkAdminReadLimit(`confession-list:${getClientIp(request)}`);
+    if (!readRate.allowed) {
+      return apiError(429, "RATE_LIMIT", "Too many requests. Try again later.", getRateLimitHeaders(readRate));
     }
 
     await connectToDatabase();
@@ -154,6 +167,31 @@ export async function GET(request: Request) {
 
     const confessions = data.map(serializeConfession);
 
+    const etagSource = {
+      query: query.toLowerCase(),
+      status: status || "all",
+      posted: posted || "all",
+      page,
+      limit,
+      total,
+      firstId: confessions[0]?._id ?? "",
+      firstUpdatedAt: confessions[0]?.updatedAt ?? "",
+      firstStatus: confessions[0]?.status ?? "",
+      firstPosted: confessions[0]?.posted ?? false,
+    };
+    const etag = `"${createHash("sha256").update(JSON.stringify(etagSource)).digest("base64url")}"`;
+
+    if (matchesIfNoneMatch(request.headers.get("if-none-match"), etag)) {
+      return new Response(null, {
+        status: 304,
+        headers: {
+          "Cache-Control": "private, no-store, max-age=0",
+          ETag: etag,
+          Vary: "Cookie, If-None-Match",
+        },
+      });
+    }
+
     const response = apiOk(
       {
         confessions,
@@ -163,7 +201,9 @@ export async function GET(request: Request) {
       },
       200,
       {
-        "Cache-Control": "no-store",
+        "Cache-Control": "private, no-store, max-age=0",
+        ETag: etag,
+        Vary: "Cookie, If-None-Match",
       }
     );
 

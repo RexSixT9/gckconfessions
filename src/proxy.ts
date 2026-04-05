@@ -3,6 +3,38 @@ import { verifyAdminToken } from "@/lib/auth";
 import { COOKIE_NAME, SESSION_ACTIVITY_COOKIE } from "@/lib/constants";
 import { clearSessionCookies, isSessionIdle, touchSessionActivity } from "@/lib/session";
 
+function normalizeIp(value: string | null) {
+  if (!value) return "unknown";
+  const candidate = value.split(",")[0]?.trim() ?? "unknown";
+  return candidate.slice(0, 64) || "unknown";
+}
+
+function getClientIp(request: NextRequest) {
+  const cfConnectingIp = request.headers.get("cf-connecting-ip");
+  if (cfConnectingIp) return normalizeIp(cfConnectingIp);
+
+  const vercelForwarded = request.headers.get("x-vercel-forwarded-for");
+  if (vercelForwarded) return normalizeIp(vercelForwarded);
+
+  const forwarded = request.headers.get("x-forwarded-for");
+  if (forwarded) return normalizeIp(forwarded);
+
+  return normalizeIp(request.headers.get("x-real-ip"));
+}
+
+function isAdminIpAllowed(request: NextRequest) {
+  const allowedRaw = process.env.ADMIN_IP_ALLOWLIST ?? "";
+  const allowList = allowedRaw
+    .split(",")
+    .map((entry) => entry.trim())
+    .filter(Boolean);
+
+  if (allowList.length === 0) return true;
+
+  const clientIp = getClientIp(request);
+  return allowList.includes(clientIp);
+}
+
 function buildCsp(nonce: string) {
   const vercelPreviewOrigins = process.env.VERCEL_ENV === "preview" ? ["https://vercel.live"] : [];
   const connectSrc = ["'self'", ...vercelPreviewOrigins].join(" ");
@@ -49,6 +81,22 @@ function applySecurityHeaders(response: NextResponse, nonce: string) {
 
   response.headers.set(cspHeaderKey, buildCsp(nonce));
   response.headers.set("x-nonce", nonce);
+  response.headers.set("Referrer-Policy", process.env.REFERRER_POLICY ?? "strict-origin-when-cross-origin");
+  response.headers.set("X-Content-Type-Options", "nosniff");
+  response.headers.set("X-Frame-Options", "DENY");
+  response.headers.set("X-Permitted-Cross-Domain-Policies", "none");
+  response.headers.set("Cross-Origin-Opener-Policy", "same-origin");
+  response.headers.set("Cross-Origin-Resource-Policy", "same-origin");
+  response.headers.set("Origin-Agent-Cluster", "?1");
+  response.headers.set(
+    "Permissions-Policy",
+    process.env.PERMISSIONS_POLICY ??
+      "camera=(), microphone=(), geolocation=(), browsing-topics=(), fullscreen=(self)"
+  );
+
+  if (process.env.NODE_ENV === "production") {
+    response.headers.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+  }
 
   if (process.env.CSP_ENFORCE !== "true") {
     response.headers.set(
@@ -86,6 +134,25 @@ export async function proxy(request: NextRequest) {
   const isAdminLoginApi = pathname === "/api/admin/login";
   const isAdminSetupApi = pathname === "/api/admin/setup";
   const isAdminCheckApi = pathname === "/api/admin/check";
+  const isAdminSurface =
+    isAdminPage ||
+    isAdminApi ||
+    isAdminLogin ||
+    isAdminLoginApi ||
+    isAdminSetupApi ||
+    isAdminCheckApi;
+
+  if (isAdminSurface && !isAdminIpAllowed(request)) {
+    if (isAdminApi || isAdminLoginApi || isAdminSetupApi || isAdminCheckApi) {
+      const response = NextResponse.json({ error: "Forbidden." }, { status: 403 });
+      clearSessionCookies(response);
+      return applySecurityHeaders(response, nonce);
+    }
+
+    const response = new NextResponse("Forbidden", { status: 403 });
+    clearSessionCookies(response);
+    return applySecurityHeaders(response, nonce);
+  }
 
   if (isAdminLogin || isAdminLoginApi || isAdminSetupApi || isAdminCheckApi) {
     return nextResponse();

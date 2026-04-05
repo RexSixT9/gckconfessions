@@ -32,14 +32,18 @@ export async function GET(request: Request) {
       .sort({ createdAt: 1 })
       .lean();
 
-    const response = apiOk({
-      admins: admins.map((a) => ({
-        _id: String(a._id),
-        email: a.email,
-        createdAt: (a as { createdAt?: Date }).createdAt?.toISOString() ?? null,
-        isSelf: String(a._id) === caller.sub,
-      })),
-    });
+    const response = apiOk(
+      {
+        admins: admins.map((a) => ({
+          _id: String(a._id),
+          email: a.email,
+          createdAt: (a as { createdAt?: Date }).createdAt?.toISOString() ?? null,
+          isSelf: String(a._id) === caller.sub,
+        })),
+      },
+      200,
+      { "Cache-Control": "private, no-store, max-age=0" }
+    );
 
     // Intentionally disabled for now to reduce high-volume "viewed" audit noise.
 

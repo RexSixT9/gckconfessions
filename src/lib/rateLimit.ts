@@ -1,9 +1,10 @@
-import { RateLimiterMemory } from "rate-limiter-flexible";
+import { RateLimiterMemory, RateLimiterRedis } from "rate-limiter-flexible";
 import { MAX_LOGIN_ATTEMPTS } from "./constants";
+import { getRedisClient } from "./redis";
+import { safeLogError } from "./api";
 
-// NOTE: RateLimiterMemory is per-process. In a serverless environment (e.g. Vercel)
-// each function instance has its own state. For shared cross-instance rate limiting,
-// replace with RateLimiterRedis / RateLimiterMongo pointing to your DB.
+// Uses shared Redis-backed limiters when REDIS_URL is available.
+// Falls back to in-memory limiters locally or when Redis is not configured.
 
 export type RateLimitResult = {
   allowed: boolean;
@@ -15,6 +16,36 @@ export type RateLimitResult = {
 };
 
 export type RateLimitHeaders = Record<string, string>;
+
+type LimiterLike = {
+  consume: (key: string) => Promise<{ remainingPoints: number; msBeforeNext?: number }>;
+};
+
+type LimiterOptions = {
+  points: number;
+  duration: number;
+  blockDuration?: number;
+};
+
+const RATE_LIMIT_PREFIX = `gck:${process.env.NODE_ENV === "production" ? "prod" : "dev"}`;
+
+function createLimiter(scope: string, options: LimiterOptions): LimiterLike {
+  const redis = getRedisClient();
+  const keyPrefix = `${RATE_LIMIT_PREFIX}:${scope}`;
+
+  if (redis) {
+    return new RateLimiterRedis({
+      storeClient: redis,
+      keyPrefix,
+      ...options,
+    });
+  }
+
+  return new RateLimiterMemory({
+    keyPrefix,
+    ...options,
+  });
+}
 
 // ─── IP helpers ──────────────────────────────────────────────────────────────
 
@@ -52,7 +83,7 @@ export function getBlockedIps(): string[] {
 // ─── Limiters ────────────────────────────────────────────────────────────────
 
 /** Public confession submissions: 3/5 min in prod */
-const submissionLimiter = new RateLimiterMemory({
+const submissionLimiter = createLimiter("submit", {
   points: process.env.NODE_ENV === "production" ? 3 : 10,
   duration: process.env.NODE_ENV === "production" ? 5 * 60 : 15 * 60,
   blockDuration: process.env.NODE_ENV === "production" ? 15 * 60 : 0,
@@ -61,7 +92,7 @@ const submissionLimiter = new RateLimiterMemory({
 /**
  * Burst limiter catches rapid-fire spikes (e.g. scripted flooding).
  */
-const burstSubmissionLimiter = new RateLimiterMemory({
+const burstSubmissionLimiter = createLimiter("submit-burst", {
   points: process.env.NODE_ENV === "production" ? 4 : 20,
   duration: 60,
   blockDuration: process.env.NODE_ENV === "production" ? 10 * 60 : 0,
@@ -71,7 +102,7 @@ const burstSubmissionLimiter = new RateLimiterMemory({
  * Admin login: uses MAX_LOGIN_ATTEMPTS constant.
  * 5 attempts per 15 min in prod; blocks for 15 min on exhaustion.
  */
-const loginLimiter = new RateLimiterMemory({
+const loginLimiter = createLimiter("login", {
   points: MAX_LOGIN_ATTEMPTS,
   duration: process.env.NODE_ENV === "production" ? 15 * 60 : 60 * 60,
   blockDuration: process.env.NODE_ENV === "production" ? 15 * 60 : 0,
@@ -80,7 +111,7 @@ const loginLimiter = new RateLimiterMemory({
 /**
  * Fingerprint burst limiter for admin login endpoint.
  */
-const loginBurstLimiter = new RateLimiterMemory({
+const loginBurstLimiter = createLimiter("login-burst", {
   points: process.env.NODE_ENV === "production" ? 10 : 80,
   duration: 60,
   blockDuration: process.env.NODE_ENV === "production" ? 15 * 60 : 0,
@@ -89,7 +120,7 @@ const loginBurstLimiter = new RateLimiterMemory({
 /**
  * Email-scoped login limiter slows credential stuffing against a single admin account.
  */
-const loginIdentityLimiter = new RateLimiterMemory({
+const loginIdentityLimiter = createLimiter("login-identity", {
   points: process.env.NODE_ENV === "production" ? 6 : 30,
   duration: process.env.NODE_ENV === "production" ? 15 * 60 : 60 * 60,
   blockDuration: process.env.NODE_ENV === "production" ? 20 * 60 : 0,
@@ -98,7 +129,7 @@ const loginIdentityLimiter = new RateLimiterMemory({
 /**
  * One-time setup endpoint: very strict (3 attempts / 30 min in prod).
  */
-const setupLimiter = new RateLimiterMemory({
+const setupLimiter = createLimiter("setup", {
   points: process.env.NODE_ENV === "production" ? 3 : 10,
   duration: process.env.NODE_ENV === "production" ? 30 * 60 : 60 * 60,
   blockDuration: process.env.NODE_ENV === "production" ? 60 * 60 : 0,
@@ -107,16 +138,25 @@ const setupLimiter = new RateLimiterMemory({
 /**
  * Admin management actions (create / delete admins): 10 / 10 min.
  */
-const adminActionLimiter = new RateLimiterMemory({
+const adminActionLimiter = createLimiter("admin-action", {
   points: process.env.NODE_ENV === "production" ? 10 : 50,
   duration: 10 * 60,
   blockDuration: process.env.NODE_ENV === "production" ? 5 * 60 : 0,
 });
 
 /**
+ * Admin read APIs (dashboards/list polling): 180 / minute in prod.
+ */
+const adminReadLimiter = createLimiter("admin-read", {
+  points: process.env.NODE_ENV === "production" ? 180 : 1500,
+  duration: 60,
+  blockDuration: process.env.NODE_ENV === "production" ? 60 : 0,
+});
+
+/**
  * CSP report endpoint limiter to reduce alert/audit flooding.
  */
-const cspReportLimiter = new RateLimiterMemory({
+const cspReportLimiter = createLimiter("csp-report", {
   points: process.env.NODE_ENV === "production" ? 30 : 300,
   duration: 60,
   blockDuration: process.env.NODE_ENV === "production" ? 2 * 60 : 0,
@@ -163,7 +203,7 @@ export function clearLoginFailures(identity: string) {
 
 // ─── Consume helper ───────────────────────────────────────────────────────────
 
-async function consume(limiter: RateLimiterMemory, key: string): Promise<RateLimitResult> {
+async function consume(limiter: LimiterLike, key: string): Promise<RateLimitResult> {
   try {
     const res = await limiter.consume(key);
     const msBeforeNext = res.msBeforeNext ?? 0;
@@ -174,13 +214,24 @@ async function consume(limiter: RateLimiterMemory, key: string): Promise<RateLim
       retryAfterSeconds: Math.ceil(msBeforeNext / 1000),
     };
   } catch (rej: unknown) {
-    const msBeforeNext =
+    const hasRateData =
       typeof rej === "object" &&
       rej !== null &&
       "msBeforeNext" in rej &&
-      typeof (rej as { msBeforeNext?: number }).msBeforeNext === "number"
-        ? (rej as { msBeforeNext: number }).msBeforeNext
-        : 0;
+      typeof (rej as { msBeforeNext?: number }).msBeforeNext === "number";
+
+    if (!hasRateData) {
+      // Fail open for limiter backend outages; auth and CSRF checks still apply.
+      safeLogError("Rate limiter backend error", rej);
+      return {
+        allowed: true,
+        remaining: Number.MAX_SAFE_INTEGER,
+        reset: Date.now() + 1000,
+        retryAfterSeconds: 1,
+      };
+    }
+
+    const msBeforeNext = (rej as { msBeforeNext: number }).msBeforeNext;
     return {
       allowed: false,
       remaining: 0,
@@ -227,6 +278,10 @@ export function checkSetupLimit(key: string) {
 
 export function checkAdminActionLimit(key: string) {
   return consume(adminActionLimiter, key);
+}
+
+export function checkAdminReadLimit(key: string) {
+  return consume(adminReadLimiter, key);
 }
 
 export function checkCspReportLimit(key: string) {

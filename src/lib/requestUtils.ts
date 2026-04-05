@@ -23,19 +23,43 @@ export function safeCompare(a: string, b: string): boolean {
 }
 
 /**
- * Validates that the request Origin header matches the server Host.
- * Returns true for same-origin or requests without an Origin (e.g. server-to-server).
+ * Validates Origin against trusted app origins.
+ * Returns true for requests without Origin (e.g. server-to-server/internal calls).
  */
 export function isSameOrigin(request: Request): boolean {
   const origin = request.headers.get("origin");
   if (!origin) return true;
 
-  const host = request.headers.get("host");
-  if (!host) return false;
+  const allowedOrigins = new Set<string>();
+
+  const configuredOrigins = (process.env.ALLOWED_ORIGINS ?? "")
+    .split(",")
+    .map((entry) => entry.trim())
+    .filter(Boolean);
+
+  for (const configuredOrigin of configuredOrigins) {
+    try {
+      allowedOrigins.add(new URL(configuredOrigin).origin.toLowerCase());
+    } catch {
+      // Ignore malformed entries to avoid breaking requests.
+    }
+  }
+
+  const forwardedHost = request.headers.get("x-forwarded-host") ?? request.headers.get("host");
+  const forwardedProtoRaw = request.headers.get("x-forwarded-proto") ?? (process.env.NODE_ENV === "production" ? "https" : "http");
+  const forwardedProto = forwardedProtoRaw.split(",")[0]?.trim() || "http";
+
+  if (forwardedHost) {
+    allowedOrigins.add(`${forwardedProto}://${forwardedHost}`.toLowerCase());
+    if (process.env.NODE_ENV !== "production") {
+      allowedOrigins.add(`http://${forwardedHost}`.toLowerCase());
+      allowedOrigins.add(`https://${forwardedHost}`.toLowerCase());
+    }
+  }
 
   try {
-    const originHost = new URL(origin).host;
-    return originHost === host;
+    const normalizedOrigin = new URL(origin).origin.toLowerCase();
+    return allowedOrigins.has(normalizedOrigin);
   } catch {
     return false;
   }

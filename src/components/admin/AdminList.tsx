@@ -126,7 +126,9 @@ export default function AdminList() {
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [liveMessage, setLiveMessage] = useState("");
-  const inFlightRef = useRef(false);
+  const abortRef = useRef<AbortController | null>(null);
+  const requestSeqRef = useRef(0);
+  const etagRef = useRef("");
 
   const router = useRouter();
 
@@ -137,9 +139,19 @@ export default function AdminList() {
     if (page > totalPages && totalPages > 0) setPage(totalPages);
   }, [page, totalPages]);
 
+  useEffect(() => {
+    return () => {
+      abortRef.current?.abort();
+    };
+  }, []);
+
   const fetchItems = useCallback(async (options?: { silent?: boolean }) => {
-    if (inFlightRef.current) return;
-    inFlightRef.current = true;
+    const requestId = requestSeqRef.current + 1;
+    requestSeqRef.current = requestId;
+
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
 
     const silent = Boolean(options?.silent);
 
@@ -159,10 +171,17 @@ export default function AdminList() {
       params.set("page", String(page));
       params.set("limit", String(PAGE_SIZE));
 
+      const headers: HeadersInit = {};
+      if (etagRef.current) {
+        headers["If-None-Match"] = etagRef.current;
+      }
+
       const response = await fetch(`/api/confessions?${params.toString()}`, {
         method: "GET",
         cache: "no-store",
         credentials: "same-origin",
+        headers,
+        signal: controller.signal,
       });
 
       if (response.status === 401) {
@@ -170,21 +189,41 @@ export default function AdminList() {
         return;
       }
 
-      const data = await response.json();
+      if (response.status === 304) {
+        return;
+      }
+
+      const data = (await response.json().catch(() => ({}))) as {
+        error?: string;
+        confessions?: ConfessionItem[];
+        total?: number;
+        totalPages?: number;
+      };
       if (!response.ok) throw new Error(data.error || "Could not load submissions.");
+      if (requestId !== requestSeqRef.current) return;
+
+      const nextEtag = response.headers.get("etag");
+      if (nextEtag) {
+        etagRef.current = nextEtag;
+      }
 
       setItems(data.confessions ?? []);
       setTotalCount(data.total ?? 0);
       setTotalPages(data.totalPages ?? 1);
     } catch (error) {
+      if (error instanceof Error && error.name === "AbortError") {
+        return;
+      }
+      if (requestId !== requestSeqRef.current) return;
+
       if (!silent) {
         setNotice({ type: "error", message: error instanceof Error ? error.message : "Could not load submissions." });
         setItems([]);
       }
     } finally {
+      if (requestId !== requestSeqRef.current) return;
       setLoading(false);
       setRefreshing(false);
-      inFlightRef.current = false;
     }
   }, [filter, statusFilter, query, page, router]);
 

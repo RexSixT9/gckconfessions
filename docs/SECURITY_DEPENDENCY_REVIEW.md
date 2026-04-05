@@ -5,6 +5,7 @@
    - jose
    - bcryptjs
    - rate-limiter-flexible
+   - ioredis
    - @arcjet/next
 2. Review transitive dependency diffs from Dependabot PRs.
 3. Run and inspect:

@@ -3,6 +3,7 @@ import { connectToDatabase } from "@/lib/mongodb";
 import { verifyAdminToken } from "@/lib/auth";
 import { COOKIE_NAME } from "@/lib/constants";
 import { apiError, apiOk, safeLogError } from "@/lib/api";
+import { checkAdminReadLimit, getClientIp, getRateLimitHeaders } from "@/lib/rateLimit";
 import AuditLog from "@/models/AuditLog";
 
 type Bucket = {
@@ -21,6 +22,11 @@ export async function GET(request: Request) {
 
     const admin = await verifyAdminToken(token);
     if (!admin.sub) return apiError(401, "UNAUTHORIZED", "Unauthorized.");
+
+    const rate = await checkAdminReadLimit(`audit-summary:${getClientIp(request)}`);
+    if (!rate.allowed) {
+      return apiError(429, "RATE_LIMIT", "Too many requests. Try again later.", getRateLimitHeaders(rate));
+    }
 
     await connectToDatabase();
 
@@ -89,11 +95,15 @@ export async function GET(request: Request) {
 
     // Intentionally disabled for now to reduce high-volume "viewed" audit noise.
 
-    return apiOk({
-      windowDays: days,
-      groupedByActionAdminIpHash: grouped,
-      totalsByAction,
-    });
+    return apiOk(
+      {
+        windowDays: days,
+        groupedByActionAdminIpHash: grouped,
+        totalsByAction,
+      },
+      200,
+      { "Cache-Control": "private, no-store, max-age=0" }
+    );
   } catch (error) {
     safeLogError("Audit summary error", error);
     return apiError(500, "SERVER_ERROR", "Failed to load audit summary.");

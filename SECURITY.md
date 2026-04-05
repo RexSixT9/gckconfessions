@@ -34,16 +34,24 @@
 ```
 X-Frame-Options: DENY
 X-Content-Type-Options: nosniff
-X-XSS-Protection: 1; mode=block
 Referrer-Policy: strict-origin-when-cross-origin
 Content-Security-Policy: (comprehensive policy)
 Permissions-Policy: camera=(), microphone=(), geolocation=()
+Cross-Origin-Opener-Policy: same-origin
+Cross-Origin-Resource-Policy: same-origin
+Origin-Agent-Cluster: ?1
+Strict-Transport-Security: max-age=31536000; includeSubDomains (production)
 ```
 
 ### ✅ CORS & Origin Validation
 - Same-origin checks on sensitive endpoints
+- Optional strict allowlist via `ALLOWED_ORIGINS`
 - Content-Type validation
 - Cloudflare/Vercel IP detection
+
+### ✅ Optional Network Hardening
+- Optional admin surface restriction via `ADMIN_IP_ALLOWLIST`
+- Optional strict `REFERRER_POLICY` and `PERMISSIONS_POLICY` overrides
 
 ## Data Protection
 

@@ -23,20 +23,42 @@ const POLL_MS = 12000;
 
 export default function AdminStatsBar({ initialStats }: { initialStats: AdminStats | null }) {
   const [stats, setStats] = useState<AdminStats | null>(initialStats);
-  const inFlightRef = useRef(false);
+  const abortRef = useRef<AbortController | null>(null);
+  const requestSeqRef = useRef(0);
+  const etagRef = useRef("");
 
   const fetchStats = useCallback(async () => {
-    if (inFlightRef.current) return;
-    inFlightRef.current = true;
+    const requestId = requestSeqRef.current + 1;
+    requestSeqRef.current = requestId;
+
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+
+    const headers: HeadersInit = {};
+    if (etagRef.current) {
+      headers["If-None-Match"] = etagRef.current;
+    }
 
     try {
       const response = await fetch("/api/admin/stats", {
         method: "GET",
         cache: "no-store",
         credentials: "same-origin",
+        headers,
+        signal: controller.signal,
       });
 
+      if (response.status === 304) return;
+
       if (!response.ok) return;
+      if (requestId !== requestSeqRef.current) return;
+
+      const nextEtag = response.headers.get("etag");
+      if (nextEtag) {
+        etagRef.current = nextEtag;
+      }
+
       const data = (await response.json()) as AdminStats;
       setStats({
         total: Number(data.total ?? 0),
@@ -44,10 +66,11 @@ export default function AdminStatsBar({ initialStats }: { initialStats: AdminSta
         approved: Number(data.approved ?? 0),
         rejected: Number(data.rejected ?? 0),
       });
-    } catch {
+    } catch (error) {
+      if (error instanceof Error && error.name === "AbortError") {
+        return;
+      }
       // Silent retry on next interval.
-    } finally {
-      inFlightRef.current = false;
     }
   }, []);
 
@@ -69,6 +92,7 @@ export default function AdminStatsBar({ initialStats }: { initialStats: AdminSta
     window.addEventListener("admin-data-updated", onDataUpdated as EventListener);
 
     return () => {
+      abortRef.current?.abort();
       window.clearInterval(interval);
       window.removeEventListener("focus", onFocus);
       window.removeEventListener("admin-data-updated", onDataUpdated as EventListener);
