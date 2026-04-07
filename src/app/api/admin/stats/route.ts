@@ -2,9 +2,9 @@ import { createHash } from "crypto";
 import { cookies } from "next/headers";
 import { connectToDatabase } from "@/lib/mongodb";
 import { ensureCsrfCookie } from "@/lib/csrf";
-import { verifyAdminToken } from "@/lib/auth";
+import { verifyAdminTokenSafe } from "@/lib/auth";
 import { COOKIE_NAME } from "@/lib/constants";
-import { apiError, apiOk, safeLogError } from "@/lib/api";
+import { apiAuthError, apiError, apiOk, safeLogError } from "@/lib/api";
 import { checkAdminReadLimit, getClientIp, getRateLimitHeaders } from "@/lib/rateLimit";
 import Confession from "@/models/Confession";
 
@@ -19,13 +19,9 @@ export async function GET(request: Request) {
     const cookieStore = await cookies();
     const token = cookieStore.get(COOKIE_NAME)?.value;
 
-    if (!token) {
-      return apiError(401, "UNAUTHORIZED", "Unauthorized.");
-    }
-
-    const admin = await verifyAdminToken(token);
-    if (!admin.sub) {
-      return apiError(401, "UNAUTHORIZED", "Unauthorized.");
+    const auth = await verifyAdminTokenSafe(token);
+    if (!auth.ok) {
+      return apiAuthError(auth.reason);
     }
 
     const readRate = await checkAdminReadLimit(`admin-stats:${getClientIp(request)}`);

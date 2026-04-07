@@ -1,11 +1,11 @@
 import { createHash } from "crypto";
 import { cookies } from "next/headers";
 import { connectToDatabase } from "@/lib/mongodb";
-import { apiError, apiOk, parseJsonObject, safeLogError } from "@/lib/api";
+import { apiAuthError, apiError, apiOk, parseJsonObject, safeLogError } from "@/lib/api";
 import { ensureCsrfCookie } from "@/lib/csrf";
 import { writeAuditLog } from "@/lib/audit";
 import { isbot } from "isbot";
-import { verifyAdminToken } from "@/lib/auth";
+import { verifyAdminTokenSafe } from "@/lib/auth";
 import { COOKIE_NAME } from "@/lib/constants";
 import {
   filterProfanity,
@@ -39,6 +39,24 @@ type ConfessionResponse = {
   createdAt?: string;
   updatedAt?: string;
 };
+
+function parseBoundedInt(
+  value: string | null,
+  fallback: number,
+  min: number,
+  max: number
+): { ok: true; value: number } | { ok: false } {
+  if (!value || value.trim() === "") {
+    return { ok: true, value: fallback };
+  }
+
+  const parsed = Number(value);
+  if (!Number.isInteger(parsed)) {
+    return { ok: false };
+  }
+
+  return { ok: true, value: Math.max(min, Math.min(max, parsed)) };
+}
 
 function matchesIfNoneMatch(headerValue: string | null, etag: string) {
   if (!headerValue) return false;
@@ -101,17 +119,9 @@ export async function GET(request: Request) {
     const cookieStore = await cookies();
     const token = cookieStore.get(COOKIE_NAME)?.value;
 
-    if (!token) {
-      return apiError(401, "UNAUTHORIZED", "Unauthorized.");
-    }
-
-    try {
-      const admin = await verifyAdminToken(token);
-      if (!admin.sub) {
-        return apiError(401, "UNAUTHORIZED", "Unauthorized.");
-      }
-    } catch {
-      return apiError(401, "UNAUTHORIZED", "Unauthorized.");
+    const auth = await verifyAdminTokenSafe(token);
+    if (!auth.ok) {
+      return apiAuthError(auth.reason);
     }
 
     const readRate = await checkAdminReadLimit(`confession-list:${getClientIp(request)}`);
@@ -124,8 +134,18 @@ export async function GET(request: Request) {
     const query = searchParams.get("q")?.trim() ?? "";
     const status = searchParams.get("status") ?? "";
     const posted = searchParams.get("posted") ?? "";
-    const page = Math.max(1, Number(searchParams.get("page") ?? "1"));
-    const limit = Math.min(50, Math.max(1, Number(searchParams.get("limit") ?? "10")));
+    const pageParam = parseBoundedInt(searchParams.get("page"), 1, 1, 10_000);
+    if (!pageParam.ok) {
+      return apiError(400, "VALIDATION_ERROR", "Invalid page query parameter.");
+    }
+
+    const limitParam = parseBoundedInt(searchParams.get("limit"), 10, 1, 50);
+    if (!limitParam.ok) {
+      return apiError(400, "VALIDATION_ERROR", "Invalid limit query parameter.");
+    }
+
+    const page = pageParam.value;
+    const limit = limitParam.value;
 
     const filter: Record<string, unknown> = {};
 

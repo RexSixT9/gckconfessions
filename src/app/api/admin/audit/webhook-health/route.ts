@@ -1,8 +1,8 @@
 import { cookies } from "next/headers";
 import { connectToDatabase } from "@/lib/mongodb";
-import { verifyAdminToken } from "@/lib/auth";
+import { verifyAdminTokenSafe } from "@/lib/auth";
 import { COOKIE_NAME } from "@/lib/constants";
-import { apiError, apiOk, safeLogError } from "@/lib/api";
+import { apiAuthError, apiError, apiOk, safeLogError } from "@/lib/api";
 import { checkAdminReadLimit, getClientIp, getRateLimitHeaders } from "@/lib/rateLimit";
 import AuditLog from "@/models/AuditLog";
 
@@ -63,14 +63,30 @@ function resolveStatus(successes: number, failures: number): HealthStatus {
   return failureRate > 0.2 ? "degraded" : "healthy";
 }
 
+function parseBoundedInt(
+  value: string | null,
+  fallback: number,
+  min: number,
+  max: number
+): { ok: true; value: number } | { ok: false } {
+  if (!value || value.trim() === "") {
+    return { ok: true, value: fallback };
+  }
+
+  const parsed = Number(value);
+  if (!Number.isInteger(parsed)) {
+    return { ok: false };
+  }
+
+  return { ok: true, value: Math.max(min, Math.min(max, parsed)) };
+}
+
 export async function GET(request: Request) {
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get(COOKIE_NAME)?.value;
-    if (!token) return apiError(401, "UNAUTHORIZED", "Unauthorized.");
-
-    const admin = await verifyAdminToken(token);
-    if (!admin.sub) return apiError(401, "UNAUTHORIZED", "Unauthorized.");
+    const auth = await verifyAdminTokenSafe(token);
+    if (!auth.ok) return apiAuthError(auth.reason);
 
     const rate = await checkAdminReadLimit(`audit-webhook-health:${getClientIp(request)}`);
     if (!rate.allowed) {
@@ -78,7 +94,12 @@ export async function GET(request: Request) {
     }
 
     const { searchParams } = new URL(request.url);
-    const windowHours = Math.max(1, Math.min(168, Number(searchParams.get("hours") || "24")));
+    const hoursParam = parseBoundedInt(searchParams.get("hours"), 24, 1, 168);
+    if (!hoursParam.ok) {
+      return apiError(400, "VALIDATION_ERROR", "Invalid hours query parameter.");
+    }
+
+    const windowHours = hoursParam.value;
     const since = new Date(Date.now() - windowHours * 60 * 60 * 1000);
 
     await connectToDatabase();

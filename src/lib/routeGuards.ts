@@ -1,9 +1,9 @@
 import { cookies } from "next/headers";
 import { aj } from "@/lib/arcjet";
-import { verifyAdminToken, type AdminTokenPayload } from "@/lib/auth";
+import { verifyAdminTokenSafe, type AdminTokenPayload } from "@/lib/auth";
 import { COOKIE_NAME } from "@/lib/constants";
 import { validateCsrf } from "@/lib/csrf";
-import { apiError, isJsonContentType, safeLogError, type ApiErrorCode } from "@/lib/api";
+import { apiAuthError, apiError, isJsonContentType, safeLogError, type ApiErrorCode } from "@/lib/api";
 import {
   getBlockedIps,
   getClientIp,
@@ -50,8 +50,11 @@ type MutatingRouteGuardResult =
 const DEFAULT_UNAUTHORIZED_MESSAGE = "Unauthorized.";
 const DEFAULT_REAUTH_MESSAGE = "Please sign in again before this sensitive action.";
 
-function unauthorizedResponse(message: string) {
-  return apiError(401, "UNAUTHORIZED", message);
+function unauthorizedResponse(reason: "missing_auth" | "invalid_token" | "expired_token", message: string) {
+  if (message !== DEFAULT_UNAUTHORIZED_MESSAGE) {
+    return apiError(401, "UNAUTHORIZED", message);
+  }
+  return apiAuthError(reason);
 }
 
 export async function runMutatingRouteGuard(
@@ -123,7 +126,7 @@ export async function runMutatingRouteGuard(
   if (checkBlockedIp && getBlockedIps().includes(ctx.ip)) {
     return {
       ok: false,
-      response: unauthorizedResponse(unauthorizedMessage),
+      response: apiError(403, "FORBIDDEN", "Access denied from this IP address."),
     };
   }
 
@@ -134,23 +137,19 @@ export async function runMutatingRouteGuard(
     if (!token) {
       return {
         ok: false,
-        response: unauthorizedResponse(unauthorizedMessage),
+        response: unauthorizedResponse("missing_auth", unauthorizedMessage),
       };
     }
 
-    let admin: AdminTokenPayload | null = null;
-    try {
-      admin = await verifyAdminToken(token);
-    } catch {
-      admin = null;
-    }
-
-    if (!admin?.sub) {
+    const verified = await verifyAdminTokenSafe(token);
+    if (!verified.ok) {
       return {
         ok: false,
-        response: unauthorizedResponse(unauthorizedMessage),
+        response: unauthorizedResponse(verified.reason, unauthorizedMessage),
       };
     }
+
+    const admin: AdminTokenPayload = verified.payload;
 
     if (requireRecentAuth && requiresReauth(admin.iat ?? 0)) {
       return {

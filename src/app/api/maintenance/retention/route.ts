@@ -44,7 +44,7 @@ export async function POST(request: Request) {
     }
 
     if (!authorized(request)) {
-      return apiError(401, "UNAUTHORIZED", "Unauthorized");
+      return apiError(401, "UNAUTHORIZED", "Missing or invalid cron credentials.");
     }
 
     await connectToDatabase();

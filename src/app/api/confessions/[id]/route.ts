@@ -67,7 +67,9 @@ export async function PATCH(
 
     const admin = guard.ctx.admin;
     const adminRate = guard.ctx.rateLimit;
-    if (!admin?.sub || !adminRate) return apiError(401, "UNAUTHORIZED", "Unauthorized.");
+    if (!admin?.sub || !adminRate) {
+      return apiError(500, "SERVER_ERROR", "Authentication context unavailable.");
+    }
 
     if (adminRate.remaining <= 2) {
       await writeAuditLog({
@@ -223,7 +225,9 @@ export async function DELETE(
 
     const admin = guard.ctx.admin;
     const adminRate = guard.ctx.rateLimit;
-    if (!admin?.sub || !adminRate) return apiError(401, "UNAUTHORIZED", "Unauthorized.");
+    if (!admin?.sub || !adminRate) {
+      return apiError(500, "SERVER_ERROR", "Authentication context unavailable.");
+    }
 
     if (adminRate.remaining <= 2) {
       await writeAuditLog({

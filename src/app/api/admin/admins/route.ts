@@ -1,10 +1,10 @@
 import bcrypt from "bcryptjs";
 import { cookies } from "next/headers";
 import { connectToDatabase } from "@/lib/mongodb";
-import { apiError, apiOk, parseJsonObject, safeLogError } from "@/lib/api";
+import { apiAuthError, apiError, apiOk, parseJsonObject, safeLogError } from "@/lib/api";
 import { ensureCsrfCookie, rotateCsrfCookie } from "@/lib/csrf";
 import { writeAuditLog } from "@/lib/audit";
-import { verifyAdminToken } from "@/lib/auth";
+import { verifyAdminTokenSafe } from "@/lib/auth";
 import { validatePasswordPolicy } from "@/lib/moderation";
 import { COOKIE_NAME, BCRYPT_ROUNDS, MAX_EMAIL_LENGTH } from "@/lib/constants";
 import { checkSetupLimit } from "@/lib/rateLimit";
@@ -21,10 +21,10 @@ export async function GET(request: Request) {
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get(COOKIE_NAME)?.value;
-    if (!token) return apiError(401, "UNAUTHORIZED", "Unauthorized.");
+    const auth = await verifyAdminTokenSafe(token);
+    if (!auth.ok) return apiAuthError(auth.reason);
 
-    const caller = await verifyAdminToken(token);
-    if (!caller.sub) return apiError(401, "UNAUTHORIZED", "Unauthorized.");
+    const caller = auth.payload;
 
     await connectToDatabase();
     const admins = await Admin.find()
@@ -81,7 +81,7 @@ export async function POST(request: Request) {
     }
 
     const caller = guard.ctx.admin;
-    if (!caller) return apiError(401, "UNAUTHORIZED", "Unauthorized.");
+    if (!caller) return apiError(500, "SERVER_ERROR", "Authentication context unavailable.");
 
     const setupKey = process.env.ADMIN_SETUP_KEY;
     if (!setupKey) {

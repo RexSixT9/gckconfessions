@@ -37,7 +37,7 @@ export async function DELETE(
     }
 
     const caller = guard.ctx.admin;
-    if (!caller?.sub) return apiError(401, "UNAUTHORIZED", "Unauthorized.");
+    if (!caller?.sub) return apiError(500, "SERVER_ERROR", "Authentication context unavailable.");
 
     const { id } = await params;
 
