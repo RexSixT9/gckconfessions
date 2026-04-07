@@ -12,6 +12,63 @@ Complete reference for managing admin accounts — initial setup, listing, creat
 | GET | `/api/admin/admins` | Cookie | List all admin accounts |
 | POST | `/api/admin/admins` | Setup Key | Create a new admin account |
 | DELETE | `/api/admin/admins/[id]` | Cookie | Delete an admin account |
+| GET | `/api/admin/audit/webhook-health` | Cookie | Delivery health for Discord/email webhooks |
+
+---
+
+## GET /api/admin/audit/webhook-health
+
+Purpose: Returns a compact operational snapshot for webhook channels used by audit/security alert delivery.
+
+### Request
+
+```http
+GET /api/admin/audit/webhook-health?hours=24
+Cookie: gck_admin_token=<JWT>
+```
+
+Query params:
+
+- `hours` (optional): window size between `1` and `168` hours. Default: `24`.
+
+### Response (Success - 200)
+
+```json
+{
+  "generatedAt": "2026-04-07T12:30:45.120Z",
+  "windowHours": 24,
+  "overallStatus": "healthy",
+  "channels": {
+    "audit_discord": {
+      "attempts": 120,
+      "successes": 118,
+      "failures": 2,
+      "successRate": 0.9833,
+      "status": "healthy",
+      "lastDeliveredAt": "2026-04-07T12:30:01.010Z",
+      "lastFailedAt": "2026-04-07T09:10:20.010Z",
+      "latencyMs": { "p50": 45, "p95": 160, "max": 340, "samples": 110 }
+    }
+  },
+  "recentFailures": []
+}
+```
+
+Status logic:
+
+- `healthy`: all recent attempts succeeded, or failures are below threshold.
+- `degraded`: failure rate is above threshold in the selected window.
+- `down`: attempts exist but no success in the selected window.
+- `unknown`: no attempts in the selected window.
+
+### Status Codes
+
+| Code | Reason |
+|------|--------|
+| `200` | Success |
+| `401` | Missing or invalid auth cookie |
+| `429` | Read rate limit exceeded |
+| `500` | Server error |
 
 ---
 

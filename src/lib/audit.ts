@@ -6,6 +6,21 @@ import { deliverAuditEvent, deliverSecurityAlert, type DeliveryOutcome } from "@
 import { safeLogError } from "@/lib/api";
 
 const SECURITY_ALERT_DEDUPE_WINDOW_MS = Number(process.env.SECURITY_ALERT_DEDUPE_WINDOW_MS ?? 60_000);
+const SYNC_WEBHOOK_ACTIONS_DEFAULT = [
+  "security_alert",
+  "admin_login_failed",
+  "admin_setup_failed",
+  "confession_deleted",
+  "admin_deleted",
+];
+const AUDIT_WEBHOOK_SYNC_ACTIONS = new Set(
+  (process.env.AUDIT_WEBHOOK_SYNC_ACTIONS ?? SYNC_WEBHOOK_ACTIONS_DEFAULT.join(","))
+    .split(",")
+    .map((entry) => entry.trim())
+    .filter(Boolean)
+);
+const AUDIT_WEBHOOK_SYNC_BUDGET_MS = Number(process.env.AUDIT_WEBHOOK_SYNC_BUDGET_MS ?? 2500);
+const SECURITY_ALERT_SYNC_BUDGET_MS = Number(process.env.SECURITY_ALERT_SYNC_BUDGET_MS ?? 4500);
 const recentSecurityAlertDeliveries = new Map<string, number>();
 
 type AuditAction =
@@ -275,6 +290,129 @@ function mapDeliveryOutcomeToAction(outcome: DeliveryOutcome): AuditAction {
   }
 }
 
+function withDeadline<T>(promise: Promise<T>, timeoutMs: number, label: string) {
+  if (!Number.isFinite(timeoutMs) || timeoutMs <= 0) {
+    return promise;
+  }
+
+  return Promise.race<T>([
+    promise,
+    new Promise<T>((_, reject) => {
+      setTimeout(() => reject(new Error(`${label} timed out after ${timeoutMs}ms`)), timeoutMs);
+    }),
+  ]);
+}
+
+function shouldSyncAuditWebhook(action: AuditAction) {
+  return AUDIT_WEBHOOK_SYNC_ACTIONS.has(action);
+}
+
+async function runAuditWebhookFlow({
+  action,
+  auditId,
+  requestId,
+  route,
+  method,
+  ip,
+  userAgent,
+  adminEmail,
+  createdAt,
+  serializableMeta,
+  confessionId,
+  ipHash,
+}: {
+  action: AuditAction;
+  auditId: string;
+  requestId: string;
+  route: string;
+  method: string;
+  ip: string;
+  userAgent: string;
+  adminEmail: string;
+  createdAt: string;
+  serializableMeta: Record<string, unknown>;
+  confessionId?: string;
+  ipHash: string;
+}) {
+  const outcomes = await deliverAuditEvent({
+    auditId,
+    action,
+    requestId,
+    route,
+    method,
+    ip,
+    userAgent,
+    adminEmail,
+    createdAt,
+    meta: serializableMeta,
+  });
+
+  await writeDeliveryAuditLogs({
+    outcomes,
+    sourceAction: action,
+    adminEmail,
+    confessionId,
+    ip,
+    ipHash,
+    userAgent,
+    requestId,
+    route,
+    method,
+  });
+}
+
+async function runSecurityAlertFlow({
+  auditId,
+  requestId,
+  route,
+  method,
+  ip,
+  userAgent,
+  adminEmail,
+  createdAt,
+  serializableMeta,
+  confessionId,
+  ipHash,
+}: {
+  auditId: string;
+  requestId: string;
+  route: string;
+  method: string;
+  ip: string;
+  userAgent: string;
+  adminEmail: string;
+  createdAt: string;
+  serializableMeta: Record<string, unknown>;
+  confessionId?: string;
+  ipHash: string;
+}) {
+  const outcomes = await deliverSecurityAlert({
+    auditId,
+    action: "security_alert",
+    requestId,
+    route,
+    method,
+    ip,
+    userAgent,
+    adminEmail,
+    createdAt,
+    meta: serializableMeta,
+  });
+
+  await writeDeliveryAuditLogs({
+    outcomes,
+    sourceAction: "security_alert",
+    adminEmail,
+    confessionId,
+    ip,
+    ipHash,
+    userAgent,
+    requestId,
+    route,
+    method,
+  });
+}
+
 async function writeDeliveryAuditLogs({
   outcomes,
   sourceAction,
@@ -369,40 +507,42 @@ export async function writeAuditLog({
     return created;
   }
 
-  void deliverAuditEvent({
-    auditId: String(created._id),
+  const auditId = String(created._id);
+  const createdAt = new Date().toISOString();
+  const route = url.pathname;
+  const method = request.method;
+
+  const auditWebhookFlow = runAuditWebhookFlow({
     action,
+    auditId,
     requestId,
-    route: url.pathname,
-    method: request.method,
+    route,
+    method,
     ip,
     userAgent,
     adminEmail,
-    createdAt: new Date().toISOString(),
-    meta: serializableMeta,
-  })
-    .then((outcomes) =>
-      writeDeliveryAuditLogs({
-        outcomes,
-        sourceAction: action,
-        adminEmail,
-        confessionId,
-        ip,
-        ipHash,
-        userAgent,
-        requestId,
-        route: url.pathname,
-        method: request.method,
-      })
-    )
-    .catch((error) => {
-      safeLogError("Audit event delivery error", error);
+    createdAt,
+    serializableMeta,
+    confessionId,
+    ipHash,
   });
+
+  if (shouldSyncAuditWebhook(action)) {
+    try {
+      await withDeadline(auditWebhookFlow, AUDIT_WEBHOOK_SYNC_BUDGET_MS, "Audit webhook delivery");
+    } catch (error) {
+      safeLogError("Audit event delivery error", error);
+    }
+  } else {
+    void auditWebhookFlow.catch((error) => {
+      safeLogError("Audit event delivery error", error);
+    });
+  }
 
   if (action === "security_alert") {
     const dedupeKey = createSecurityAlertDedupeKey(
-      url.pathname,
-      request.method,
+      route,
+      method,
       ip,
       adminEmail,
       serializableMeta
@@ -412,35 +552,25 @@ export async function writeAuditLog({
       return created;
     }
 
-    void deliverSecurityAlert({
-      auditId: String(created._id),
-      action,
+    const securityAlertFlow = runSecurityAlertFlow({
+      auditId,
       requestId,
-      route: url.pathname,
-      method: request.method,
+      route,
+      method,
       ip,
       userAgent,
       adminEmail,
-      createdAt: new Date().toISOString(),
-      meta: serializableMeta,
-    })
-      .then((outcomes) =>
-        writeDeliveryAuditLogs({
-          outcomes,
-          sourceAction: action,
-          adminEmail,
-          confessionId,
-          ip,
-          ipHash,
-          userAgent,
-          requestId,
-          route: url.pathname,
-          method: request.method,
-        })
-      )
-      .catch((error) => {
-        safeLogError("Security alert delivery error", error);
-      });
+      createdAt,
+      serializableMeta,
+      confessionId,
+      ipHash,
+    });
+
+    try {
+      await withDeadline(securityAlertFlow, SECURITY_ALERT_SYNC_BUDGET_MS, "Security alert delivery");
+    } catch (error) {
+      safeLogError("Security alert delivery error", error);
+    }
   }
 
   return created;

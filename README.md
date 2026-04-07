@@ -44,6 +44,10 @@ Lighthouse CI tooling was removed from this repo. Run Lighthouse manually from b
 - Optional: set `ALLOWED_ORIGINS` (comma-separated) to explicitly allow trusted origins for mutation requests.
 - Optional: set `ADMIN_IP_ALLOWLIST` (comma-separated exact IPs) to limit admin pages and admin APIs to trusted network addresses.
 - Optional: set `REFERRER_POLICY` and `PERMISSIONS_POLICY` if you need stricter or custom browser security header policy values.
+- Optional: tune webhook reliability for production runtimes:
+	- `AUDIT_WEBHOOK_SYNC_ACTIONS` (comma-separated actions that should block briefly for near real-time webhook delivery)
+	- `AUDIT_WEBHOOK_SYNC_BUDGET_MS` (max wait budget for sync audit webhook actions, default `2500`)
+	- `SECURITY_ALERT_SYNC_BUDGET_MS` (max wait budget for security alert deliveries, default `4500`)
 - Incident handling and dependency review runbooks:
 	- `docs/INCIDENT_RESPONSE_RUNBOOK.md`
 	- `docs/SECURITY_DEPENDENCY_REVIEW.md`

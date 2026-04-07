@@ -369,6 +369,18 @@ function parseRetryAfterMs(value: string | null) {
   return undefined;
 }
 
+function parseDiscordRateLimitMs(headers: Headers) {
+  const retryAfter = parseRetryAfterMs(headers.get("retry-after"));
+  if (typeof retryAfter === "number") return retryAfter;
+
+  const resetAfterSeconds = Number(headers.get("x-ratelimit-reset-after"));
+  if (Number.isFinite(resetAfterSeconds) && resetAfterSeconds >= 0) {
+    return Math.max(100, Math.round(resetAfterSeconds * 1000));
+  }
+
+  return undefined;
+}
+
 async function withRetry(taskName: string, fn: () => Promise<void>, options: RetryOptions) {
   const baseBackoffMs = options.baseBackoffMs ?? 250;
   let attempt = 0;
@@ -562,12 +574,16 @@ async function sendDiscordAuditWebhook(payload: AuditEventDeliveryPayload) {
   const url = process.env.DISCORD_AUDIT_WEBHOOK_URL;
   if (!url) return;
 
+  const webhookUrl = new URL(url);
+  // Ask Discord to complete request processing before returning.
+  webhookUrl.searchParams.set("wait", "true");
+
   const username = process.env.DISCORD_AUDIT_WEBHOOK_USERNAME || "GCK Audit";
   const avatarUrl = process.env.DISCORD_AUDIT_WEBHOOK_AVATAR_URL || undefined;
 
   await withRetry("Discord audit webhook delivery", async () => {
     const response = await fetchWithTimeout(
-      url,
+      webhookUrl,
       {
         method: "POST",
         headers: {
@@ -586,7 +602,7 @@ async function sendDiscordAuditWebhook(payload: AuditEventDeliveryPayload) {
       if (response.status === 429 || response.status >= 500) {
         throw new RetryableDeliveryError(
           `Discord audit delivery failed with status ${response.status}`,
-          parseRetryAfterMs(response.headers.get("retry-after"))
+          parseDiscordRateLimitMs(response.headers)
         );
       }
       throw new Error(`Discord audit delivery failed with status ${response.status}`);
