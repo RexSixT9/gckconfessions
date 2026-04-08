@@ -3,12 +3,14 @@ import {
   Client,
   EmbedBuilder,
   GatewayIntentBits,
+  MessageFlags,
   REST,
   Routes,
   SlashCommandBuilder,
 } from "discord.js";
 
 const STATUS_MARKER = "[gck-ops-status-board]";
+const METRICS_ERROR_LOG_COOLDOWN_MS = 60_000;
 
 function requiredEnv(name) {
   const value = process.env[name]?.trim();
@@ -39,7 +41,28 @@ const config = {
   pollIntervalMs: optionalInt("BOT_POLL_INTERVAL_MS", 20_000, 10_000, 120_000),
   defaultGraphDays: optionalInt("BOT_DEFAULT_GRAPH_DAYS", 7, 1, 30),
   webhookWindowHours: optionalInt("BOT_WEBHOOK_WINDOW_HOURS", 24, 1, 168),
+  metricsTimeoutMs: optionalInt("BOT_METRICS_TIMEOUT_MS", 10_000, 2_000, 60_000),
+  vercelProtectionBypass: process.env.VERCEL_PROTECTION_BYPASS?.trim() || "",
 };
+
+let lastMetricsErrorKey = "";
+let lastMetricsErrorAt = 0;
+
+function logMetricsError(scope, error) {
+  const now = Date.now();
+  const key = error instanceof Error ? error.message.slice(0, 180) : String(error).slice(0, 180);
+  if (key === lastMetricsErrorKey && now - lastMetricsErrorAt < METRICS_ERROR_LOG_COOLDOWN_MS) {
+    return;
+  }
+
+  lastMetricsErrorKey = key;
+  lastMetricsErrorAt = now;
+  console.error(scope, error);
+}
+
+function summarizeBody(body) {
+  return body.replace(/\s+/g, " ").slice(0, 260);
+}
 
 const slashCommands = [
   new SlashCommandBuilder().setName("status").setDescription("Show live API and site health.").setDMPermission(false),
@@ -105,20 +128,64 @@ async function fetchMetrics(days = config.defaultGraphDays) {
   url.searchParams.set("days", String(days));
   url.searchParams.set("webhookHours", String(config.webhookWindowHours));
 
-  const response = await fetch(url, {
-    method: "GET",
-    headers: {
-      "x-discord-metrics-secret": config.metricsSecret,
-    },
-    cache: "no-store",
-  });
+  const headers = {
+    "x-discord-metrics-secret": config.metricsSecret,
+    accept: "application/json",
+    "user-agent": "gck-discord-bot/0.1",
+  };
 
-  if (!response.ok) {
-    const body = (await response.text()).slice(0, 300);
-    throw new Error(`Metrics fetch failed (${response.status}): ${body}`);
+  if (config.vercelProtectionBypass) {
+    headers["x-vercel-protection-bypass"] = config.vercelProtectionBypass;
   }
 
-  return response.json();
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), config.metricsTimeoutMs);
+
+  let response;
+  try {
+    response = await fetch(url, {
+      method: "GET",
+      headers,
+      cache: "no-store",
+      signal: controller.signal,
+    });
+  } catch (error) {
+    if (error instanceof Error && error.name === "AbortError") {
+      throw new Error(`Metrics fetch timed out after ${config.metricsTimeoutMs}ms.`);
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeout);
+  }
+
+  const contentType = response.headers.get("content-type") || "";
+  const bodyText = await response.text();
+  const retryAfter = response.headers.get("retry-after") || "";
+
+  if (!response.ok) {
+    const checkpointBlocked = bodyText.includes("Vercel Security Checkpoint");
+    const retryPart = retryAfter ? ` retry-after=${retryAfter}s.` : "";
+
+    if (checkpointBlocked) {
+      throw new Error(
+        `Metrics fetch blocked by Vercel Security Checkpoint (${response.status}).${retryPart} Use a local URL for local testing or set VERCEL_PROTECTION_BYPASS when targeting protected Vercel deployments.`
+      );
+    }
+
+    throw new Error(
+      `Metrics fetch failed (${response.status}).${retryPart} body=${summarizeBody(bodyText)}`
+    );
+  }
+
+  if (!contentType.toLowerCase().includes("application/json")) {
+    throw new Error(`Metrics endpoint returned non-JSON content-type: ${contentType || "unknown"}`);
+  }
+
+  try {
+    return JSON.parse(bodyText);
+  } catch {
+    throw new Error("Metrics endpoint response was not valid JSON.");
+  }
 }
 
 function buildStatusEmbed(metrics) {
@@ -351,8 +418,12 @@ const client = new Client({
 
 let statusInterval = null;
 
-client.once("ready", async () => {
+client.once("clientReady", async () => {
   console.log(`Discord bot logged in as ${client.user?.tag || "unknown"}`);
+
+  if (config.metricsUrl.includes("vercel.app") && !config.vercelProtectionBypass) {
+    console.warn("Metrics URL targets Vercel and no VERCEL_PROTECTION_BYPASS is set. Protected deployments may return checkpoint pages.");
+  }
 
   try {
     await registerSlashCommands();
@@ -365,14 +436,14 @@ client.once("ready", async () => {
     await updateStatusBoard(client);
     console.log("Initial status board update complete.");
   } catch (error) {
-    console.error("Initial status board update failed", error);
+    logMetricsError("Initial status board update failed", error);
   }
 
   statusInterval = setInterval(async () => {
     try {
       await updateStatusBoard(client);
     } catch (error) {
-      console.error("Status board update failed", error);
+      logMetricsError("Status board update failed", error);
     }
   }, config.pollIntervalMs);
 });
@@ -382,7 +453,7 @@ client.on("interactionCreate", async (interaction) => {
 
   if (!memberHasOwnerRole(interaction)) {
     await interaction.reply({
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
       content: "You do not have permission to use this bot command.",
     });
     return;
@@ -390,21 +461,21 @@ client.on("interactionCreate", async (interaction) => {
 
   try {
     if (interaction.commandName === "status") {
-      await interaction.deferReply({ ephemeral: false });
+      await interaction.deferReply();
       const metrics = await fetchMetrics(config.defaultGraphDays);
       await interaction.editReply({ embeds: [buildStatusEmbed(metrics)] });
       return;
     }
 
     if (interaction.commandName === "queue") {
-      await interaction.deferReply({ ephemeral: false });
+      await interaction.deferReply();
       const metrics = await fetchMetrics(config.defaultGraphDays);
       await interaction.editReply({ embeds: [buildQueueEmbed(metrics)] });
       return;
     }
 
     if (interaction.commandName === "webhook-health") {
-      await interaction.deferReply({ ephemeral: false });
+      await interaction.deferReply();
       const metrics = await fetchMetrics(config.defaultGraphDays);
       await interaction.editReply({ embeds: [buildWebhookHealthEmbed(metrics)] });
       return;
@@ -412,18 +483,18 @@ client.on("interactionCreate", async (interaction) => {
 
     if (interaction.commandName === "graph") {
       const days = interaction.options.getInteger("days") || config.defaultGraphDays;
-      await interaction.deferReply({ ephemeral: false });
+      await interaction.deferReply();
       const metrics = await fetchMetrics(days);
       await interaction.editReply({ embeds: [buildGraphEmbed(metrics, days)] });
       return;
     }
 
     await interaction.reply({
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
       content: "Command not implemented.",
     });
   } catch (error) {
-    console.error("Interaction failed", error);
+    logMetricsError("Interaction failed", error);
     const message = "Bot command failed. Check bot logs and metrics endpoint auth.";
 
     if (interaction.deferred || interaction.replied) {
@@ -431,7 +502,7 @@ client.on("interactionCreate", async (interaction) => {
       return;
     }
 
-    await interaction.reply({ ephemeral: true, content: message });
+    await interaction.reply({ flags: MessageFlags.Ephemeral, content: message });
   }
 });
 

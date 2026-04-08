@@ -37,6 +37,12 @@ Optional:
 - `BOT_POLL_INTERVAL_MS` (default `20000`)
 - `BOT_DEFAULT_GRAPH_DAYS` (default `7`)
 - `BOT_WEBHOOK_WINDOW_HOURS` (default `24`)
+- `BOT_METRICS_TIMEOUT_MS` (default `10000`)
+- `VERCEL_PROTECTION_BYPASS` (only when metrics URL points to Vercel security-checkpoint protected deployment)
+
+Local testing tip:
+
+- Set `DISCORD_METRICS_URL=http://127.0.0.1:3000/api/internal/discord-metrics` to avoid remote protection pages while running locally.
 
 ## 3) Run locally
 
