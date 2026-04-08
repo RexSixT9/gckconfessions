@@ -26,16 +26,6 @@ export const slashCommands = [
     .setName("bot-health")
     .setDescription("Show Discord bot runtime diagnostics.")),
   guildOnly(new SlashCommandBuilder()
-    .setName("graph")
-    .setDescription("Show confession metrics chart.")
-    .addIntegerOption((option) =>
-      option
-        .setName("days")
-        .setDescription("Days to include (1-30).")
-        .setMinValue(1)
-        .setMaxValue(30)
-    )),
-  guildOnly(new SlashCommandBuilder()
     .setName("webhook-health")
     .setDescription("Show webhook delivery health by channel.")),
 ];

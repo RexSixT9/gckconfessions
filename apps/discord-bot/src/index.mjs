@@ -7,7 +7,6 @@ import { STATUS_MARKER } from "./bot/constants.mjs";
 import {
   buildBotHealthEmbed,
   buildErrorEmbed,
-  buildGraphEmbed,
   buildNavigationComponents,
   buildQueueEmbed,
   buildStatusEmbed,
@@ -24,6 +23,11 @@ const state = createRuntimeState(config);
 const client = new Client({
   intents: [GatewayIntentBits.Guilds],
 });
+
+function isUnknownMessageError(error) {
+  const code = Number(error?.code ?? error?.rawError?.code ?? 0);
+  return code === 10008;
+}
 
 function isStatusBoardMessage(message) {
   if (!message || message.author?.id !== client.user?.id) {
@@ -76,36 +80,45 @@ async function ensureStatusMessage(createPayload) {
   const created = await channel.send(createPayload ?? { content: "Initializing status board..." });
   state.runtimeStatusMessageId = created.id;
 
-  try {
-    await created.pin("Realtime ops status board");
-  } catch {
-    // Pinning is optional; continue even without pin permission.
-  }
-
   return created;
 }
 
 async function updateStatusBoard() {
   const metrics = await fetchMetrics(config, state, config.defaultGraphDays);
   const payload = {
-    embeds: [
-      buildStatusEmbed(metrics, config, "board"),
-      buildGraphEmbed(metrics, config.defaultGraphDays, config, "board"),
-    ],
+    embeds: [buildStatusEmbed(metrics, config, "board")],
     components: buildNavigationComponents(config),
+  };
+  const editPayload = {
+    content: null,
+    ...payload,
   };
 
   const message = await ensureStatusMessage(payload);
-  const components = buildNavigationComponents(config);
+  try {
+    await message.edit(editPayload);
+    return;
+  } catch (error) {
+    if (!isUnknownMessageError(error)) {
+      throw error;
+    }
+  }
 
-  await message.edit({
-    content: null,
-    embeds: [
-      buildStatusEmbed(metrics, config, "board"),
-      buildGraphEmbed(metrics, config.defaultGraphDays, config, "board"),
-    ],
-    components,
-  });
+  // The board message was deleted between lookup and edit; rebuild state and recover.
+  state.runtimeStatusMessageId = "";
+  console.warn("Status board message disappeared (Discord 10008). Recreating board message.");
+
+  const recoveredMessage = await ensureStatusMessage(payload);
+  try {
+    await recoveredMessage.edit(editPayload);
+  } catch (error) {
+    if (!isUnknownMessageError(error)) {
+      throw error;
+    }
+
+    state.runtimeStatusMessageId = "";
+    await ensureStatusMessage(payload);
+  }
 }
 
 function scheduleStatusRefresh(delayMs = config.pollIntervalMs) {
@@ -210,10 +223,7 @@ client.on("interactionCreate", async (interaction) => {
       await interaction.deferReply();
       const metrics = await fetchMetrics(config, state, config.defaultGraphDays);
       await interaction.editReply({
-        embeds: [
-          buildStatusEmbed(metrics, config, "command"),
-          buildGraphEmbed(metrics, config.defaultGraphDays, config, "command"),
-        ],
+        embeds: [buildStatusEmbed(metrics, config, "command")],
         components: buildNavigationComponents(config),
       });
       return;
@@ -234,17 +244,6 @@ client.on("interactionCreate", async (interaction) => {
       const metrics = await fetchMetrics(config, state, config.defaultGraphDays);
       await interaction.editReply({
         embeds: [buildWebhookHealthEmbed(metrics, config)],
-        components: buildNavigationComponents(config),
-      });
-      return;
-    }
-
-    if (interaction.commandName === "graph") {
-      const days = interaction.options.getInteger("days") || config.defaultGraphDays;
-      await interaction.deferReply();
-      const metrics = await fetchMetrics(config, state, days);
-      await interaction.editReply({
-        embeds: [buildGraphEmbed(metrics, days, config)],
         components: buildNavigationComponents(config),
       });
       return;

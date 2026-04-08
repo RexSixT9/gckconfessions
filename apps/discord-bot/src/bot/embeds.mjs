@@ -8,7 +8,6 @@ import {
   compactNumber,
   durationLabel,
   queueColor,
-  queueIcon,
   sinceLabel,
   statusColor,
   statusIcon,
@@ -19,10 +18,10 @@ import { buildQuickChartUrl, buildRealtimeQueueChartUrl } from "./charts.mjs";
 import { historyForChart } from "./runtime-state.mjs";
 
 function channelDisplayName(name) {
-  if (name === "audit_discord") return "🧾 Audit Discord";
-  if (name === "security_webhook") return "🛡️ Security Webhook";
-  if (name === "security_email") return "📨 Security Email";
-  return `🔹 ${name}`;
+  if (name === "audit_discord") return "Audit Discord";
+  if (name === "security_webhook") return "Security Webhook";
+  if (name === "security_email") return "Security Email";
+  return String(name || "unknown").replace(/_/g, " ");
 }
 
 function formatBox(lines) {
@@ -42,8 +41,10 @@ function nextRunLabel(state) {
 }
 
 function footerFor(variant, section) {
-  const mode = variant === "board" ? "Status Board" : "Command";
-  return `GCK Confessions • ${section} • ${mode}`;
+  if (variant === "board") {
+    return "GCK Confessions • Live Status";
+  }
+  return `GCK Confessions • ${section}`;
 }
 
 export function buildStatusEmbed(metrics, config, variant = "command") {
@@ -52,52 +53,76 @@ export function buildStatusEmbed(metrics, config, variant = "command") {
   const daily = Array.isArray(metrics?.daily) ? metrics.daily : [];
   const latestDaily = daily.at(-1) || {};
   const dailySubmissions = Number(latestDaily.submissions || 0);
+  const totalSubmissions = daily.reduce((sum, point) => sum + Number(point.submissions || 0), 0);
+  const averageSubmissions = daily.length > 0 ? Math.round(totalSubmissions / daily.length) : 0;
+  const chartUrl = daily.length > 0 ? buildQuickChartUrl(daily) : "";
+  const apiStatus = health?.api?.status || "unknown";
   const databaseStatus = health?.database?.status || "unknown";
+  const deliveryStatus = metrics?.webhookHealth?.overallStatus || "unknown";
+  const healthColor = statusColor(health?.overallStatus);
+  const boardColor = healthColor === 0x2f9e44 ? 0x221433 : healthColor;
 
   const embed = new EmbedBuilder()
     .setTitle("GCK CONFESSIONS")
-    .setColor(0x221433)
-    .setDescription("Minimal live status board")
+    .setColor(boardColor)
+    .setDescription("Live status board")
     .addFields(
       {
-        name: "STATUS",
+        name: "🩺 STATUS",
         value: formatBox([
-          `${statusIcon(health?.overallStatus)} Overall : ${statusLabel(health?.overallStatus)}`,
-          `${statusIcon(health?.api?.status === "ok" ? "healthy" : "degraded")} API     : ${String(health?.api?.status || "unknown").toUpperCase()}`,
-          `${statusIcon(databaseStatus)} DB      : ${String(databaseStatus).toUpperCase()}`,
+          `Overall : ${statusIcon(health?.overallStatus)} ${statusLabel(health?.overallStatus)}`,
+          `API     : ${statusIcon(apiStatus)} ${statusLabel(apiStatus)}`,
+          `DB      : ${statusIcon(databaseStatus)} ${statusLabel(databaseStatus)}`,
         ]),
         inline: true,
       },
       {
-        name: "DAILY SUBMISSIONS",
+        name: "📝 DAILY SUBMISSIONS",
         value: formatBox([
           `Today   : ${compactNumber(dailySubmissions)}`,
-          `Pending : ${compactNumber(queue.pending)}`,
-          `Total   : ${compactNumber(queue.total)}`,
+          `Avg/day : ${compactNumber(averageSubmissions)}`,
+          `Window  : ${compactNumber(totalSubmissions)} (${compactNumber(daily.length)}d)`,
         ]),
         inline: true,
       },
       {
-        name: "QUEUE",
+        name: "🔔 DELIVERY",
+        value: formatBox([
+          `State   : ${statusIcon(deliveryStatus)} ${statusLabel(deliveryStatus)}`,
+          `Window  : ${compactNumber(metrics?.webhookHealth?.windowHours || 0)}h`,
+        ]),
+        inline: true,
+      },
+      {
+        name: "📦 QUEUE",
         value: formatBox([
           `Pending  : ${compactNumber(queue.pending)}`,
           `Approved : ${compactNumber(queue.approved)}`,
           `Rejected : ${compactNumber(queue.rejected)}`,
           `Published: ${compactNumber(queue.published)}`,
+          `Total    : ${compactNumber(queue.total)}`,
         ]),
         inline: false,
-      },
-      {
-        name: "DELIVERY",
-        value: formatBox([
-          `${statusIcon(metrics?.webhookHealth?.overallStatus)} Delivery : ${statusLabel(metrics?.webhookHealth?.overallStatus)}`,
-          `Window   : ${compactNumber(metrics?.webhookHealth?.windowHours || 0)}h`,
-        ]),
-        inline: true,
       }
     )
     .setFooter({ text: footerFor(variant, "Status") })
     .setTimestamp(new Date(metrics?.generatedAt || Date.now()));
+
+  if (chartUrl) {
+    embed.setImage(chartUrl);
+  } else if (daily.length === 0) {
+    embed.addFields({
+      name: "📈 TREND",
+      value: formatBox("No confession data available for the selected window."),
+      inline: false,
+    });
+  } else {
+    embed.addFields({
+      name: "📈 TREND",
+      value: formatBox("Chart URL exceeded embed limits. Reduce BOT_DEFAULT_GRAPH_DAYS."),
+      inline: false,
+    });
+  }
 
   return withBranding(embed, config);
 }
@@ -105,21 +130,21 @@ export function buildStatusEmbed(metrics, config, variant = "command") {
 export function buildQueueEmbed(metrics, config, variant = "command") {
   const queue = metrics?.queue || {};
   const embed = new EmbedBuilder()
-    .setTitle(`${queueIcon(queue)} Confession Queue Snapshot`)
+    .setTitle("📦 Confession Queue")
     .setColor(queueColor(queue))
     .addFields(
       {
         name: "📦 QUEUE COUNTS",
         value: formatBox([
-          `🕒 Pending  : ${compactNumber(queue.pending)}`,
-          `✅ Approved : ${compactNumber(queue.approved)}`,
-          `⛔ Rejected : ${compactNumber(queue.rejected)}`,
-          `📣 Published: ${compactNumber(queue.published)}`,
-          `📦 Total    : ${compactNumber(queue.total)}`,
+          `Pending  : ${compactNumber(queue.pending)}`,
+          `Approved : ${compactNumber(queue.approved)}`,
+          `Rejected : ${compactNumber(queue.rejected)}`,
+          `Published: ${compactNumber(queue.published)}`,
+          `Total    : ${compactNumber(queue.total)}`,
         ]),
       }
     )
-    .setDescription("Minimal queue snapshot")
+    .setDescription("Queue snapshot")
     .setFooter({ text: footerFor(variant, "Queue") })
     .setTimestamp(new Date(metrics?.generatedAt || Date.now()));
 
@@ -129,33 +154,28 @@ export function buildQueueEmbed(metrics, config, variant = "command") {
 export function buildWebhookHealthEmbed(metrics, config, variant = "command") {
   const channels = metrics?.webhookHealth?.channels || {};
 
-  const channelLines = Object.entries(channels).map(([name, value]) => {
+  const channelFields = Object.entries(channels).map(([name, value]) => {
     const row = value || {};
-    return formatBox([
-      `${channelDisplayName(name)}`,
-      `${statusIcon(row.status)} Status: ${statusLabel(row.status)}`,
-      `🧪 Attempts: ${compactNumber(row.attempts)}`,
-      `✅ Successes: ${compactNumber(row.successes)}`,
-      `❌ Failures: ${compactNumber(row.failures)}`,
-      `📈 Success rate: ${row.successRate === null ? "n/a" : `${Number(row.successRate * 100).toFixed(2)}%`}`,
-    ]);
+    return {
+      name: channelDisplayName(name),
+      value: formatBox([
+        `Status      : ${statusIcon(row.status)} ${statusLabel(row.status)}`,
+        `Attempts    : ${compactNumber(row.attempts)}`,
+        `Successes   : ${compactNumber(row.successes)}`,
+        `Failures    : ${compactNumber(row.failures)}`,
+        `Success rate: ${row.successRate === null ? "n/a" : `${Number(row.successRate * 100).toFixed(2)}%`}`,
+      ]),
+    };
   });
 
   const embed = new EmbedBuilder()
     .setTitle("🔔 Webhook Delivery Health")
     .setColor(statusColor(metrics?.webhookHealth?.overallStatus))
     .setDescription(formatBox([
-      `${statusIcon(metrics?.webhookHealth?.overallStatus)} Overall: ${statusLabel(metrics?.webhookHealth?.overallStatus)}`,
-      `🪟 Window: ${compactNumber(metrics?.webhookHealth?.windowHours || 0)}h`,
+      `Overall: ${statusIcon(metrics?.webhookHealth?.overallStatus)} ${statusLabel(metrics?.webhookHealth?.overallStatus)}`,
+      `Window : ${compactNumber(metrics?.webhookHealth?.windowHours || 0)}h`,
     ]))
-    .addFields(
-      channelLines.length > 0
-        ? channelLines.map((value, index) => ({
-            name: `Channel ${index + 1}`,
-            value,
-          }))
-        : [{ name: "Channels", value: "No channel data" }]
-    )
+    .addFields(channelFields.length > 0 ? channelFields : [{ name: "Channels", value: formatBox("No channel data") }])
     .setFooter({ text: footerFor(variant, "Delivery") })
     .setTimestamp(new Date(metrics?.generatedAt || Date.now()));
 
@@ -165,7 +185,7 @@ export function buildWebhookHealthEmbed(metrics, config, variant = "command") {
 export function buildRealtimeEmbed(metrics, state, config) {
   const points = historyForChart(state, config, metrics);
   const embed = withBranding(new EmbedBuilder(), config)
-    .setTitle("📈 Realtime Queue Graph")
+    .setTitle("📈 Realtime Queue Trend")
     .setColor(0x0b7285)
     .setDescription(`Tracking latest ${compactNumber(points.length)} board samples.`)
     .setTimestamp(new Date(metrics?.generatedAt || Date.now()));
@@ -196,11 +216,11 @@ export function buildGraphEmbed(metrics, days, config, variant = "command") {
   const totalSubmissions = daily.reduce((sum, point) => sum + Number(point.submissions || 0), 0);
 
   const embed = new EmbedBuilder()
-    .setTitle(`📊 Confession Graph (${days}d)`)
+    .setTitle(`📈 Confession Submissions Trend (${days}d)`)
     .setColor(0x5b21b6)
     .setDescription(formatBox([
-      `📝 Daily submissions total: ${compactNumber(totalSubmissions)}`,
-      `🗓️ Window: ${compactNumber(days)}d`,
+      `Daily submissions total: ${compactNumber(totalSubmissions)}`,
+      `Window: ${compactNumber(days)}d`,
     ]))
     .setFooter({ text: footerFor(variant, "Submissions") })
     .setTimestamp(new Date(metrics?.generatedAt || Date.now()));
@@ -212,7 +232,7 @@ export function buildGraphEmbed(metrics, days, config, variant = "command") {
     } else {
       embed.addFields({
         name: "Chart Skipped",
-        value: formatBox("Chart URL exceeded embed limits. Try a lower /graph days value."),
+        value: formatBox("Chart URL exceeded embed limits. Reduce BOT_DEFAULT_GRAPH_DAYS."),
       });
     }
   } else {
@@ -227,10 +247,10 @@ export function buildGraphEmbed(metrics, days, config, variant = "command") {
 
 export function buildErrorEmbed(message, config) {
   const embed = new EmbedBuilder()
-    .setTitle("❌ Bot Command Failed")
+    .setTitle("⛔ Command Failed")
     .setColor(0xe03131)
     .setDescription(formatBox(message))
-    .setFooter({ text: "GCK Confessions • Error" })
+    .setFooter({ text: footerFor("command", "Error") })
     .setTimestamp(new Date());
 
   return withBranding(embed, config);
@@ -266,8 +286,7 @@ export function buildNavigationComponents(config) {
     buttons.push(
       new ButtonBuilder()
         .setStyle(ButtonStyle.Link)
-        .setLabel("Admin Dashboard")
-        .setEmoji("🛠️")
+        .setLabel("Dashboard")
         .setURL(config.dashboardUrl)
     );
   }
@@ -277,7 +296,6 @@ export function buildNavigationComponents(config) {
       new ButtonBuilder()
         .setStyle(ButtonStyle.Link)
         .setLabel("Transparency")
-        .setEmoji("📜")
         .setURL(config.transparencyUrl)
     );
   }
@@ -305,7 +323,7 @@ export function buildBotHealthEmbed(state, config) {
   const embed = new EmbedBuilder()
     .setTitle("🩺 Bot Runtime Health")
     .setColor(degraded ? 0xf08c00 : 0x2f9e44)
-    .setDescription(`${degraded ? "🟠" : "🟢"} Runtime is ${degraded ? "degraded" : "healthy"}.`)
+    .setDescription(`Runtime is ${degraded ? "DEGRADED" : "HEALTHY"}.`)
     .addFields(
       {
         name: "⏱️ Runtime",
@@ -317,7 +335,7 @@ export function buildBotHealthEmbed(state, config) {
         ]),
       },
       {
-        name: "🌐 Metrics Fetch",
+        name: "🌐 Metrics",
         value: formatBox([
           `Total: ${compactNumber(fetch.total)} (ok ${compactNumber(fetch.successes)}, fail ${compactNumber(fetch.failures)})`,
           `Retries: ${compactNumber(fetch.retries)} | Consecutive fail: ${compactNumber(fetch.consecutiveFailures)}`,
@@ -326,7 +344,7 @@ export function buildBotHealthEmbed(state, config) {
         ]),
       },
       {
-        name: "🔄 Status Loop",
+        name: "🔁 Status Loop",
         value: formatBox([
           `Runs: ${compactNumber(loop.runs)} (ok ${compactNumber(loop.successes)}, fail ${compactNumber(loop.failures)})`,
           `Skipped: ${compactNumber(loop.skipped)} | Consecutive fail: ${compactNumber(loop.consecutiveFailures)}`,
@@ -335,7 +353,7 @@ export function buildBotHealthEmbed(state, config) {
         ]),
       },
       {
-        name: "🧪 Commands",
+        name: "⌨️ Commands",
         value: formatBox([
           `Total: ${compactNumber(commands.total)} | Last used: ${sinceLabel(commands.lastAt)}`,
           `Top commands:\n${sortedCommands || "none"}`,
@@ -355,14 +373,14 @@ export function buildBotHealthEmbed(state, config) {
 
   if (fetch.lastError) {
     embed.addFields({
-      name: "🧯 Last Fetch Error",
+      name: "Last Fetch Error",
       value: formatBox(fetch.lastError),
     });
   }
 
   if (loop.lastError) {
     embed.addFields({
-      name: "🧯 Last Loop Error",
+      name: "Last Loop Error",
       value: formatBox(loop.lastError),
     });
   }

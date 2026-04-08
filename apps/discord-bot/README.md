@@ -4,13 +4,12 @@ Standalone Discord bot service for txAdmin-style live status and slash commands.
 
 ## What this bot does
 
-- Updates one pinned status message in Discord on a low-frequency cadence (default 60s).
-- Pinned status message includes a realtime queue graph.
+- Updates one persistent status message in Discord on a low-frequency cadence (default 60s).
+- Status message includes a submissions trend graph in the same embed.
 - Provides slash commands:
   - `/bot-health` for bot runtime diagnostics (scheduler, retries, latency)
-  - `/status` for API/site health + realtime queue graph
+  - `/status` for API/site health + submissions trend graph (single embed)
   - `/queue` for confession status totals
-  - `/graph` for confession metrics chart
   - `/webhook-health` for Discord/webhook/email delivery health
 - Reads from the app's internal metrics endpoint: `/api/internal/discord-metrics`.
 
@@ -70,7 +69,7 @@ npm run dev
 
 - Metrics fetch uses timeout + bounded retries with exponential backoff.
 - Status board refresh uses a single-flight scheduler to avoid overlapping edits.
-- Status board recovery checks pinned messages first to prevent duplicate boards.
+- Status board recovery checks known recent bot messages to prevent duplicate boards.
 - Global handlers log unhandled promise rejections and uncaught exceptions.
 - Free-plan recommendation: start with `BOT_POLL_INTERVAL_MS=90000` or `120000` and only lower if needed.
 
@@ -93,7 +92,7 @@ Bot permissions (minimum recommended):
 - Send Messages
 - Embed Links
 - Read Message History
-- Manage Messages (for pin/update workflow)
+- Manage Messages (optional; only needed if you want manual moderation actions)
 - Use Application Commands
 - Attach Files
 
@@ -107,7 +106,7 @@ Role setup:
 - Bot Token: secret used by bot process to log into Discord.
 - Client ID: unique app ID for command registration.
 - Guild ID: Discord server ID where commands are registered.
-- Channel ID: target channel for pinned realtime status board.
+- Channel ID: target channel for realtime status board.
 - Role ID: used to authorize who can run bot commands.
 - Slash Command: `/command` entrypoint for bot operations.
 - Embed: rich styled message for dashboards and stats.
