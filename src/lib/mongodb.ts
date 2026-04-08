@@ -51,6 +51,34 @@ function mongoOptions() {
   };
 }
 
+function directUriConfigIssue(uri: string) {
+  if (!uri) return "MONGODB_URI_DIRECT is empty.";
+
+  const value = uri.trim();
+  const normalized = value.toLowerCase();
+
+  if (!normalized.startsWith("mongodb://")) {
+    return "MONGODB_URI_DIRECT must start with mongodb:// and include real Atlas node hosts.";
+  }
+
+  if (/[<>]/.test(value)) {
+    return "MONGODB_URI_DIRECT still contains placeholder markers like <...>.";
+  }
+
+  const placeholderTokens = ["host1", "host2", "host3", "username", "password", "database"];
+  if (placeholderTokens.some((token) => normalized.includes(token))) {
+    return "MONGODB_URI_DIRECT still contains template values (for example host1/username/password/database).";
+  }
+
+  return "";
+}
+
+function errorWithCause(message: string, cause: unknown) {
+  const error = new Error(message) as Error & { cause?: unknown };
+  error.cause = cause;
+  return error;
+}
+
 let loggedDirectFallback = false;
 
 type MongooseCache = {
@@ -83,6 +111,14 @@ export async function connectToDatabase() {
 
         if (!canUseDirectFallback) {
           throw primaryError;
+        }
+
+        const directUriIssue = directUriConfigIssue(MONGODB_URI_DIRECT);
+        if (directUriIssue) {
+          throw errorWithCause(
+            `MongoDB SRV DNS lookup failed and MONGODB_URI_DIRECT fallback is invalid: ${directUriIssue}`,
+            primaryError
+          );
         }
 
         if (!loggedDirectFallback) {
