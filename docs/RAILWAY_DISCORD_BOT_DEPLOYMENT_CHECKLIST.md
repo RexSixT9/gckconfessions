@@ -68,7 +68,7 @@ Optional but recommended:
 
 ```env
 DISCORD_STATUS_MESSAGE_ID=
-BOT_POLL_INTERVAL_MS=20000
+BOT_POLL_INTERVAL_MS=90000
 BOT_DEFAULT_GRAPH_DAYS=7
 BOT_WEBHOOK_WINDOW_HOURS=24
 BOT_METRICS_TIMEOUT_MS=10000
@@ -79,6 +79,8 @@ BOT_DASHBOARD_URL=https://your-domain.com/admin
 BOT_TRANSPARENCY_URL=https://your-domain.com/transparency
 VERCEL_PROTECTION_BYPASS=
 ```
+
+Free-plan guidance: use BOT_POLL_INTERVAL_MS in the 90000-120000 range to reduce background request volume.
 
 Use VERCEL_PROTECTION_BYPASS only when your metrics URL is behind a Vercel protection checkpoint.
 

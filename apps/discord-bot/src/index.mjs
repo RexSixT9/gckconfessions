@@ -10,14 +10,13 @@ import {
   buildGraphEmbed,
   buildNavigationComponents,
   buildQueueEmbed,
-  buildRealtimeEmbed,
   buildStatusEmbed,
   buildWebhookHealthEmbed,
   metricsErrorHint,
 } from "./bot/embeds.mjs";
 import { memberHasOwnerRole, isWritableTextChannel, registerSlashCommands } from "./bot/discord-runtime.mjs";
 import { fetchMetrics } from "./bot/metrics-client.mjs";
-import { createRuntimeState, logMetricsError, recordRealtimePoint, trackCommandUsage } from "./bot/runtime-state.mjs";
+import { createRuntimeState, logMetricsError, trackCommandUsage } from "./bot/runtime-state.mjs";
 
 const config = buildConfig();
 const state = createRuntimeState(config);
@@ -26,7 +25,18 @@ const client = new Client({
   intents: [GatewayIntentBits.Guilds],
 });
 
-async function ensureStatusMessage() {
+function isStatusBoardMessage(message) {
+  if (!message || message.author?.id !== client.user?.id) {
+    return false;
+  }
+
+  const primaryEmbed = message.embeds?.[0];
+  const footerText = primaryEmbed?.footer?.text || "";
+
+  return footerText.includes("Status Board") || message.content.startsWith(STATUS_MARKER);
+}
+
+async function ensureStatusMessage(createPayload) {
   const channel = await client.channels.fetch(config.statusChannelId);
   if (!isWritableTextChannel(channel)) {
     throw new Error("Configured status channel is not a writable text channel.");
@@ -41,10 +51,14 @@ async function ensureStatusMessage() {
     }
   }
 
-  const pinned = await channel.messages.fetchPinned().catch(() => null);
-  const knownPinned = pinned?.find(
-    (message) => message.author?.id === client.user?.id && message.content.startsWith(STATUS_MARKER)
-  );
+  const pinned = await channel.messages.fetchPins().catch(() => null);
+  const pinnedMessages =
+    (pinned && typeof pinned.find === "function" ? pinned : null) ||
+    (Array.isArray(pinned) ? pinned : null) ||
+    (pinned?.messages && typeof pinned.messages.find === "function" ? pinned.messages : null) ||
+    (pinned?.items && typeof pinned.items.find === "function" ? pinned.items : null);
+
+  const knownPinned = pinnedMessages?.find((message) => isStatusBoardMessage(message));
 
   if (knownPinned) {
     state.runtimeStatusMessageId = knownPinned.id;
@@ -52,16 +66,14 @@ async function ensureStatusMessage() {
   }
 
   const recent = await channel.messages.fetch({ limit: 25 });
-  const known = recent.find(
-    (message) => message.author?.id === client.user?.id && message.content.startsWith(STATUS_MARKER)
-  );
+  const known = recent.find((message) => isStatusBoardMessage(message));
 
   if (known) {
     state.runtimeStatusMessageId = known.id;
     return known;
   }
 
-  const created = await channel.send(`${STATUS_MARKER}\nInitializing realtime status board...`);
+  const created = await channel.send(createPayload ?? { content: "Initializing status board..." });
   state.runtimeStatusMessageId = created.id;
 
   try {
@@ -75,14 +87,23 @@ async function ensureStatusMessage() {
 
 async function updateStatusBoard() {
   const metrics = await fetchMetrics(config, state, config.defaultGraphDays);
-  recordRealtimePoint(state, config, metrics);
+  const payload = {
+    embeds: [
+      buildStatusEmbed(metrics, config, "board"),
+      buildGraphEmbed(metrics, config.defaultGraphDays, config, "board"),
+    ],
+    components: buildNavigationComponents(config),
+  };
 
-  const message = await ensureStatusMessage();
+  const message = await ensureStatusMessage(payload);
   const components = buildNavigationComponents(config);
 
   await message.edit({
-    content: `${STATUS_MARKER}\nLast update: ${new Date().toISOString()}`,
-    embeds: [buildStatusEmbed(metrics), buildRealtimeEmbed(metrics, state, config)],
+    content: null,
+    embeds: [
+      buildStatusEmbed(metrics, config, "board"),
+      buildGraphEmbed(metrics, config.defaultGraphDays, config, "board"),
+    ],
     components,
   });
 }
@@ -137,6 +158,7 @@ async function runStatusRefresh() {
 
 client.once("clientReady", async () => {
   console.log(`Discord bot logged in as ${client.user?.tag || "unknown"}`);
+  console.log(`Status polling interval set to ${config.pollIntervalMs}ms.`);
 
   if (config.metricsUrl.includes("vercel.app") && !config.vercelProtectionBypass) {
     console.warn(
@@ -187,9 +209,11 @@ client.on("interactionCreate", async (interaction) => {
     if (interaction.commandName === "status") {
       await interaction.deferReply();
       const metrics = await fetchMetrics(config, state, config.defaultGraphDays);
-      recordRealtimePoint(state, config, metrics);
       await interaction.editReply({
-        embeds: [buildStatusEmbed(metrics), buildRealtimeEmbed(metrics, state, config)],
+        embeds: [
+          buildStatusEmbed(metrics, config, "command"),
+          buildGraphEmbed(metrics, config.defaultGraphDays, config, "command"),
+        ],
         components: buildNavigationComponents(config),
       });
       return;
@@ -199,7 +223,7 @@ client.on("interactionCreate", async (interaction) => {
       await interaction.deferReply();
       const metrics = await fetchMetrics(config, state, config.defaultGraphDays);
       await interaction.editReply({
-        embeds: [buildQueueEmbed(metrics)],
+        embeds: [buildQueueEmbed(metrics, config)],
         components: buildNavigationComponents(config),
       });
       return;
@@ -209,7 +233,7 @@ client.on("interactionCreate", async (interaction) => {
       await interaction.deferReply();
       const metrics = await fetchMetrics(config, state, config.defaultGraphDays);
       await interaction.editReply({
-        embeds: [buildWebhookHealthEmbed(metrics)],
+        embeds: [buildWebhookHealthEmbed(metrics, config)],
         components: buildNavigationComponents(config),
       });
       return;
@@ -220,7 +244,7 @@ client.on("interactionCreate", async (interaction) => {
       await interaction.deferReply();
       const metrics = await fetchMetrics(config, state, days);
       await interaction.editReply({
-        embeds: [buildGraphEmbed(metrics, days)],
+        embeds: [buildGraphEmbed(metrics, days, config)],
         components: buildNavigationComponents(config),
       });
       return;
@@ -232,7 +256,7 @@ client.on("interactionCreate", async (interaction) => {
     });
   } catch (error) {
     logMetricsError(state, "Interaction failed", error);
-    const errorEmbed = buildErrorEmbed(metricsErrorHint(error));
+    const errorEmbed = buildErrorEmbed(metricsErrorHint(error), config);
 
     if (interaction.deferred || interaction.replied) {
       await interaction.editReply({ content: "", embeds: [errorEmbed] });

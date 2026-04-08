@@ -98,7 +98,7 @@ Use `apps/discord-bot/.env.example` and set:
 Optional:
 
 - `DISCORD_STATUS_MESSAGE_ID`
-- `BOT_POLL_INTERVAL_MS` (default 20000)
+- `BOT_POLL_INTERVAL_MS` (default 60000; recommended 90000-120000 on free plans)
 - `BOT_DEFAULT_GRAPH_DAYS` (default 7)
 - `BOT_WEBHOOK_WINDOW_HOURS` (default 24)
 - `BOT_METRICS_TIMEOUT_MS` (default 10000)
@@ -107,6 +107,7 @@ Optional:
 - `BOT_REALTIME_HISTORY_POINTS` (default 20)
 - `BOT_DASHBOARD_URL` (optional link button URL in bot replies)
 - `BOT_TRANSPARENCY_URL` (optional link button URL in bot replies)
+- `BOT_HEADER_THUMBNAIL_URL` (optional logo thumbnail URL in bot embeds)
 - `VERCEL_PROTECTION_BYPASS` (only when metrics URL points to a protected Vercel deployment)
 
 ## Deploy on Railway/Render/Fly

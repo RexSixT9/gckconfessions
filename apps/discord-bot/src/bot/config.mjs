@@ -40,7 +40,7 @@ export function buildConfig() {
     statusMessageId: cleanEnvValue(process.env.DISCORD_STATUS_MESSAGE_ID),
     metricsUrl: requiredEnv("DISCORD_METRICS_URL", errors),
     metricsSecret: requiredEnv("DISCORD_METRICS_SECRET", errors),
-    pollIntervalMs: optionalInt("BOT_POLL_INTERVAL_MS", 20_000, 10_000, 120_000),
+    pollIntervalMs: optionalInt("BOT_POLL_INTERVAL_MS", 60_000, 30_000, 600_000),
     defaultGraphDays: optionalInt("BOT_DEFAULT_GRAPH_DAYS", 7, 1, 30),
     webhookWindowHours: optionalInt("BOT_WEBHOOK_WINDOW_HOURS", 24, 1, 168),
     metricsTimeoutMs: optionalInt("BOT_METRICS_TIMEOUT_MS", 10_000, 2_000, 60_000),
@@ -49,6 +49,7 @@ export function buildConfig() {
     realtimeHistoryPoints: optionalInt("BOT_REALTIME_HISTORY_POINTS", 20, 8, 40),
     dashboardUrl: cleanEnvValue(process.env.BOT_DASHBOARD_URL),
     transparencyUrl: cleanEnvValue(process.env.BOT_TRANSPARENCY_URL),
+    headerThumbnailUrl: cleanEnvValue(process.env.BOT_HEADER_THUMBNAIL_URL),
     vercelProtectionBypass: cleanEnvValue(process.env.VERCEL_PROTECTION_BYPASS),
   };
 
@@ -67,6 +68,7 @@ export function buildConfig() {
   for (const [name, value] of [
     ["BOT_DASHBOARD_URL", cfg.dashboardUrl],
     ["BOT_TRANSPARENCY_URL", cfg.transparencyUrl],
+    ["BOT_HEADER_THUMBNAIL_URL", cfg.headerThumbnailUrl],
   ]) {
     if (!value) continue;
 

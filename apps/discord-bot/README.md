@@ -4,7 +4,7 @@ Standalone Discord bot service for txAdmin-style live status and slash commands.
 
 ## What this bot does
 
-- Updates one pinned status message in Discord every 15-30 seconds.
+- Updates one pinned status message in Discord on a low-frequency cadence (default 60s).
 - Pinned status message includes a realtime queue graph.
 - Provides slash commands:
   - `/bot-health` for bot runtime diagnostics (scheduler, retries, latency)
@@ -36,7 +36,7 @@ Required:
 
 Optional:
 - `DISCORD_STATUS_MESSAGE_ID`
-- `BOT_POLL_INTERVAL_MS` (default `20000`)
+- `BOT_POLL_INTERVAL_MS` (default `60000`, clamped to `30000-600000`)
 - `BOT_DEFAULT_GRAPH_DAYS` (default `7`)
 - `BOT_WEBHOOK_WINDOW_HOURS` (default `24`)
 - `BOT_METRICS_TIMEOUT_MS` (default `10000`)
@@ -45,6 +45,7 @@ Optional:
 - `BOT_REALTIME_HISTORY_POINTS` (default `20`, range `8-40`)
 - `BOT_DASHBOARD_URL` (optional link button shown in bot responses)
 - `BOT_TRANSPARENCY_URL` (optional link button shown in bot responses)
+- `BOT_HEADER_THUMBNAIL_URL` (optional thumbnail/logo shown on bot embeds)
 - `VERCEL_PROTECTION_BYPASS` (only when metrics URL points to Vercel security-checkpoint protected deployment)
 
 Local testing tip:
@@ -71,6 +72,7 @@ npm run dev
 - Status board refresh uses a single-flight scheduler to avoid overlapping edits.
 - Status board recovery checks pinned messages first to prevent duplicate boards.
 - Global handlers log unhandled promise rejections and uncaught exceptions.
+- Free-plan recommendation: start with `BOT_POLL_INTERVAL_MS=90000` or `120000` and only lower if needed.
 
 ## Code structure
 
