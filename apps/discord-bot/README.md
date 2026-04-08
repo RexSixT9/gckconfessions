@@ -5,8 +5,10 @@ Standalone Discord bot service for txAdmin-style live status and slash commands.
 ## What this bot does
 
 - Updates one pinned status message in Discord every 15-30 seconds.
+- Pinned status message includes a realtime queue graph.
 - Provides slash commands:
-  - `/status` for API/site health
+  - `/bot-health` for bot runtime diagnostics (scheduler, retries, latency)
+  - `/status` for API/site health + realtime queue graph
   - `/queue` for confession status totals
   - `/graph` for confession metrics chart
   - `/webhook-health` for Discord/webhook/email delivery health
@@ -38,6 +40,11 @@ Optional:
 - `BOT_DEFAULT_GRAPH_DAYS` (default `7`)
 - `BOT_WEBHOOK_WINDOW_HOURS` (default `24`)
 - `BOT_METRICS_TIMEOUT_MS` (default `10000`)
+- `BOT_METRICS_RETRY_ATTEMPTS` (default `3`, range `1-5`)
+- `BOT_METRICS_RETRY_BASE_MS` (default `700`, range `250-8000`)
+- `BOT_REALTIME_HISTORY_POINTS` (default `20`, range `8-40`)
+- `BOT_DASHBOARD_URL` (optional link button shown in bot responses)
+- `BOT_TRANSPARENCY_URL` (optional link button shown in bot responses)
 - `VERCEL_PROTECTION_BYPASS` (only when metrics URL points to Vercel security-checkpoint protected deployment)
 
 Local testing tip:
@@ -55,6 +62,15 @@ npm run dev
 - Create a new service from `apps/discord-bot`.
 - Set all env vars in provider dashboard.
 - Start command: `npm run start`.
+- Runtime note: bot loads `.env` automatically when present (for local/prod parity), and still works with provider-injected env vars.
+- Full Railway runbook: see `docs/RAILWAY_DISCORD_BOT_DEPLOYMENT_CHECKLIST.md` from repo root.
+
+## Reliability behavior
+
+- Metrics fetch uses timeout + bounded retries with exponential backoff.
+- Status board refresh uses a single-flight scheduler to avoid overlapping edits.
+- Status board recovery checks pinned messages first to prevent duplicate boards.
+- Global handlers log unhandled promise rejections and uncaught exceptions.
 
 ## Discord permission checklist
 

@@ -101,6 +101,13 @@ Optional:
 - `BOT_POLL_INTERVAL_MS` (default 20000)
 - `BOT_DEFAULT_GRAPH_DAYS` (default 7)
 - `BOT_WEBHOOK_WINDOW_HOURS` (default 24)
+- `BOT_METRICS_TIMEOUT_MS` (default 10000)
+- `BOT_METRICS_RETRY_ATTEMPTS` (default 3)
+- `BOT_METRICS_RETRY_BASE_MS` (default 700)
+- `BOT_REALTIME_HISTORY_POINTS` (default 20)
+- `BOT_DASHBOARD_URL` (optional link button URL in bot replies)
+- `BOT_TRANSPARENCY_URL` (optional link button URL in bot replies)
+- `VERCEL_PROTECTION_BYPASS` (only when metrics URL points to a protected Vercel deployment)
 
 ## Deploy on Railway/Render/Fly
 
@@ -114,14 +121,16 @@ Optional:
 - bot login success
 - slash command registration success
 - status board update success
+- detailed Railway checklist: `docs/RAILWAY_DISCORD_BOT_DEPLOYMENT_CHECKLIST.md`
 
 ## Validation checklist
 
-1. Run `/status` and confirm health + queue stats appear.
-2. Run `/queue` and confirm pending/approved/rejected numbers.
-3. Run `/graph` and confirm chart image loads.
-4. Run `/webhook-health` and confirm channel statuses.
-5. Remove owner role and confirm command is denied.
+1. Run `/status` and confirm health + queue stats + realtime queue graph appear.
+2. Run `/bot-health` and confirm scheduler/retry counters are visible.
+3. Run `/queue` and confirm pending/approved/rejected numbers.
+4. Run `/graph` and confirm chart image loads.
+5. Run `/webhook-health` and confirm channel statuses.
+6. Remove owner role and confirm command is denied.
 
 ## Common first-time issues
 

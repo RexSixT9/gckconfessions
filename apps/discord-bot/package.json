@@ -8,6 +8,7 @@
     "start": "node src/index.mjs"
   },
   "dependencies": {
-    "discord.js": "^14.23.2"
+    "discord.js": "^14.23.2",
+    "dotenv": "^16.6.1"
   }
 }
