@@ -124,6 +124,10 @@ Use VERCEL_PROTECTION_BYPASS only when your metrics URL is behind a Vercel prote
 - Cause: Mongo SRV DNS or cluster connectivity issue
 - Fix: validate MONGODB_URI and set MONGODB_URI_DIRECT fallback in Vercel
 
+6. Symptom: Initial status board update failed with ECONNREFUSED
+- Cause: DISCORD_METRICS_URL points to localhost but web app is not running on that port in the bot environment
+- Fix: start app locally (npm run dev in repo root) when local testing, or point DISCORD_METRICS_URL to your deployed Vercel URL
+
 ## 9) Rollback plan
 
 - Revert bot image/deploy to previous known-good commit.

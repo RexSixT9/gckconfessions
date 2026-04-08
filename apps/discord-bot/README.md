@@ -72,6 +72,18 @@ npm run dev
 - Status board recovery checks pinned messages first to prevent duplicate boards.
 - Global handlers log unhandled promise rejections and uncaught exceptions.
 
+## Code structure
+
+- `src/index.mjs`: thin runtime entrypoint and orchestration.
+- `src/bot/config.mjs`: env parsing and startup config validation.
+- `src/bot/commands.mjs`: slash command definitions.
+- `src/bot/metrics-client.mjs`: metrics endpoint fetch + retry/backoff logic.
+- `src/bot/embeds.mjs`: all Discord embed and response presentation.
+- `src/bot/runtime-state.mjs`: mutable runtime state and counters.
+- `src/bot/helpers.mjs`: shared formatting/time/network helper utilities.
+- `src/bot/discord-runtime.mjs`: Discord-specific helpers (role checks, registration).
+- `src/bot/charts.mjs`: QuickChart URL builders.
+
 ## Discord permission checklist
 
 Bot permissions (minimum recommended):
