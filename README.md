@@ -16,6 +16,44 @@ npm run dev
 
 Then open http://localhost:3000.
 
+## Discord realtime ops bot
+
+This repository now includes a standalone bot service at `apps/discord-bot` for txAdmin-style live status in Discord.
+
+What it provides:
+
+- One pinned status message that updates on an interval.
+- Slash commands: `/status`, `/queue`, `/graph`, `/webhook-health`.
+- Metrics source: `GET /api/internal/discord-metrics` (secret-header protected).
+
+Quick start:
+
+```bash
+npm run bot:install
+npm run bot:dev
+```
+
+The bot service has its own env template: `apps/discord-bot/.env.example`.
+
+Detailed setup and Discord role/permission walkthrough:
+
+- `docs/DISCORD_BOT_INTEGRATION.md`
+
+### Internal metrics endpoint for bot
+
+- Route: `GET /api/internal/discord-metrics`
+- Header required: `x-discord-metrics-secret: <DISCORD_METRICS_SECRET>`
+- Query params:
+	- `days` (default `7`, range `1..90`)
+	- `webhookHours` (default `24`, range `1..168`)
+
+Returns:
+
+- API health snapshot
+- Queue totals (pending/approved/rejected/published/total)
+- Daily confession series for graphing
+- Webhook delivery health summary by channel
+
 ## Quality checks
 
 ```bash

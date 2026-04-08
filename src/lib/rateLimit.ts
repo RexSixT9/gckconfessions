@@ -156,6 +156,15 @@ const adminReadLimiter = createLimiter("admin-read", {
 });
 
 /**
+ * Internal bot metrics reads. Kept separate from admin UI polling quotas.
+ */
+const internalBotReadLimiter = createLimiter("internal-bot-read", {
+  points: process.env.NODE_ENV === "production" ? 240 : 2000,
+  duration: 60,
+  blockDuration: process.env.NODE_ENV === "production" ? 60 : 0,
+});
+
+/**
  * Public aggregate endpoints (expensive grouped reads): 60 / minute in prod.
  */
 const publicAggregateLimiter = createLimiter("public-aggregate", {
@@ -389,6 +398,10 @@ export function checkAdminActionLimit(key: string) {
 
 export function checkAdminReadLimit(key: string) {
   return consume(adminReadLimiter, key);
+}
+
+export function checkInternalBotReadLimit(key: string) {
+  return consume(internalBotReadLimiter, key);
 }
 
 export function checkPublicAggregateLimit(key: string) {

@@ -13,7 +13,10 @@
     "test:e2e": "node ./node_modules/playwright/cli.js test",
     "test:security-alert": "node ./node_modules/playwright/cli.js test tests/e2e/security-alert-delivery.spec.ts",
     "test:e2e:ui": "node ./node_modules/playwright/cli.js test --ui",
-    "dev2": "next dev -H 0.0.0.0"
+    "dev2": "next dev -H 0.0.0.0",
+    "bot:install": "npm --prefix apps/discord-bot install",
+    "bot:dev": "npm --prefix apps/discord-bot run dev",
+    "bot:start": "npm --prefix apps/discord-bot run start"
   },
   "dependencies": {
     "@arcjet/next": "^1.1.0",

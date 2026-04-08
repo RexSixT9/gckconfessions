@@ -13,6 +13,7 @@ Complete reference for managing admin accounts — initial setup, listing, creat
 | POST | `/api/admin/admins` | Setup Key | Create a new admin account |
 | DELETE | `/api/admin/admins/[id]` | Cookie | Delete an admin account |
 | GET | `/api/admin/audit/webhook-health` | Cookie | Delivery health for Discord/email webhooks |
+| GET | `/api/internal/discord-metrics` | Secret Header | Internal machine metrics for Discord bot |
 
 ---
 
@@ -68,6 +69,89 @@ Status logic:
 | `200` | Success |
 | `401` | Missing or invalid auth cookie |
 | `429` | Read rate limit exceeded |
+| `500` | Server error |
+
+---
+
+## GET /api/internal/discord-metrics
+
+Purpose: Internal machine-to-machine metrics endpoint for the standalone Discord ops bot.
+
+### Request
+
+```http
+GET /api/internal/discord-metrics?days=7&webhookHours=24
+x-discord-metrics-secret: <DISCORD_METRICS_SECRET>
+```
+
+Query params:
+
+- `days` (optional): daily series window between `1` and `90`. Default: `7`.
+- `webhookHours` (optional): webhook health window between `1` and `168`. Default: `24`.
+
+### Response (Success - 200)
+
+```json
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-04-08T10:00:00.000Z",
+  "health": {
+    "overallStatus": "healthy",
+    "api": {
+      "status": "ok",
+      "timestamp": "2026-04-08T10:00:00.000Z",
+      "uptimeSeconds": 45812,
+      "environment": "production",
+      "version": "1.0.0"
+    },
+    "database": { "status": "up" },
+    "issues": []
+  },
+  "windows": { "days": 7, "webhookHours": 24 },
+  "queue": {
+    "pending": 12,
+    "approved": 210,
+    "rejected": 43,
+    "published": 180,
+    "total": 265
+  },
+  "daily": [
+    {
+      "day": "2026-04-08",
+      "submissions": 16,
+      "pending": 6,
+      "approved": 8,
+      "rejected": 2,
+      "published": 5
+    }
+  ],
+  "webhookHealth": {
+    "windowHours": 24,
+    "overallStatus": "healthy",
+    "channels": {
+      "audit_discord": {
+        "attempts": 120,
+        "successes": 118,
+        "failures": 2,
+        "successRate": 0.9833,
+        "status": "healthy",
+        "lastDeliveredAt": "2026-04-08T09:58:20.000Z",
+        "lastFailedAt": "2026-04-08T08:12:01.000Z"
+      }
+    }
+  }
+}
+```
+
+### Status Codes
+
+| Code | Reason |
+|------|--------|
+| `200` | Success |
+| `400` | Invalid query params |
+| `401` | Missing/invalid metrics secret |
+| `429` | Internal bot read rate limit exceeded |
+| `503` | `DISCORD_METRICS_SECRET` is not configured |
 | `500` | Server error |
 
 ---
