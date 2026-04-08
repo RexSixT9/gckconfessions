@@ -74,7 +74,7 @@ export function buildStatusEmbed(metrics, config, variant = "command") {
           `API     : ${statusIcon(apiStatus)} ${statusLabel(apiStatus)}`,
           `DB      : ${statusIcon(databaseStatus)} ${statusLabel(databaseStatus)}`,
         ]),
-        inline: true,
+        inline: false,
       },
       {
         name: "📝 DAILY SUBMISSIONS",
@@ -83,15 +83,15 @@ export function buildStatusEmbed(metrics, config, variant = "command") {
           `Avg/day : ${compactNumber(averageSubmissions)}`,
           `Window  : ${compactNumber(totalSubmissions)} (${compactNumber(daily.length)}d)`,
         ]),
-        inline: true,
+        inline: false,
       },
       {
         name: "🔔 DELIVERY",
         value: formatBox([
-          `State   : ${statusIcon(deliveryStatus)} ${statusLabel(deliveryStatus)}`,
+          `Delivery: ${statusIcon(deliveryStatus)} ${statusLabel(deliveryStatus)}`,
           `Window  : ${compactNumber(metrics?.webhookHealth?.windowHours || 0)}h`,
         ]),
-        inline: true,
+        inline: false,
       },
       {
         name: "📦 QUEUE",
