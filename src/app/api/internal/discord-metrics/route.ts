@@ -17,6 +17,22 @@ type DailySeriesPoint = {
   published: number;
 };
 
+type WebhookChannelHealth = {
+  attempts: number;
+  successes: number;
+  failures: number;
+  successRate: number | null;
+  status: HealthStatus;
+  lastDeliveredAt: string;
+  lastFailedAt: string;
+};
+
+type WebhookHealthSnapshot = {
+  windowHours: number;
+  overallStatus: HealthStatus;
+  channels: Record<ChannelKey, WebhookChannelHealth>;
+};
+
 type ActionBucket = {
   _id: string;
   count: number;
@@ -96,6 +112,64 @@ function startOfUtcDay(date: Date) {
 
 function dayKey(date: Date) {
   return date.toISOString().slice(0, 10);
+}
+
+function buildEmptyDailySeries(days: number) {
+  const endDay = startOfUtcDay(new Date());
+  const startDay = new Date(endDay);
+  startDay.setUTCDate(startDay.getUTCDate() - (days - 1));
+
+  const series: DailySeriesPoint[] = [];
+  for (let i = 0; i < days; i += 1) {
+    const date = new Date(startDay);
+    date.setUTCDate(startDay.getUTCDate() + i);
+    series.push({
+      day: dayKey(date),
+      submissions: 0,
+      pending: 0,
+      approved: 0,
+      rejected: 0,
+      published: 0,
+    });
+  }
+
+  return series;
+}
+
+function buildUnknownWebhookHealth(windowHours: number): WebhookHealthSnapshot {
+  return {
+    windowHours,
+    overallStatus: "unknown" as HealthStatus,
+    channels: {
+      audit_discord: {
+        attempts: 0,
+        successes: 0,
+        failures: 0,
+        successRate: null,
+        status: "unknown" as HealthStatus,
+        lastDeliveredAt: "",
+        lastFailedAt: "",
+      },
+      security_webhook: {
+        attempts: 0,
+        successes: 0,
+        failures: 0,
+        successRate: null,
+        status: "unknown" as HealthStatus,
+        lastDeliveredAt: "",
+        lastFailedAt: "",
+      },
+      security_email: {
+        attempts: 0,
+        successes: 0,
+        failures: 0,
+        successRate: null,
+        status: "unknown" as HealthStatus,
+        lastDeliveredAt: "",
+        lastFailedAt: "",
+      },
+    },
+  };
 }
 
 async function getQueueSnapshot() {
@@ -222,18 +296,7 @@ async function getWebhookHealthSnapshot(hours: number) {
     },
   ]);
 
-  const channels: Record<
-    ChannelKey,
-    {
-      attempts: number;
-      successes: number;
-      failures: number;
-      successRate: number | null;
-      status: HealthStatus;
-      lastDeliveredAt: string;
-      lastFailedAt: string;
-    }
-  > = {
+  const channels: Record<ChannelKey, WebhookChannelHealth> = {
     audit_discord: {
       attempts: 0,
       successes: 0,
@@ -339,87 +402,66 @@ export async function GET(request: Request) {
       });
     }
 
-    await connectToDatabase();
-
-    const [queueResult, dailyResult, webhookResult] = await Promise.allSettled([
-      getQueueSnapshot(),
-      getDailySeries(daysParam.value),
-      getWebhookHealthSnapshot(webhookHoursParam.value),
-    ]);
-
     const issues: string[] = [];
 
-    const queue =
-      queueResult.status === "fulfilled"
-        ? queueResult.value
-        : {
-            pending: 0,
-            approved: 0,
-            rejected: 0,
-            published: 0,
-            total: 0,
-          };
+    const defaultQueue = {
+      pending: 0,
+      approved: 0,
+      rejected: 0,
+      published: 0,
+      total: 0,
+    };
 
-    if (queueResult.status === "rejected") {
-      issues.push("queue_snapshot_unavailable");
-      safeLogError("Discord metrics queue snapshot failed", queueResult.reason);
+    let queue = defaultQueue;
+    let daily = buildEmptyDailySeries(daysParam.value);
+    let webhookHealth = buildUnknownWebhookHealth(webhookHoursParam.value);
+    let databaseStatus: "up" | "down" = "up";
+
+    try {
+      await connectToDatabase();
+    } catch (error) {
+      databaseStatus = "down";
+      issues.push("database_unavailable");
+      safeLogError("Discord metrics database connect failed", error);
     }
 
-    const daily = dailyResult.status === "fulfilled" ? dailyResult.value : [];
+    if (databaseStatus === "up") {
+      const [queueResult, dailyResult, webhookResult] = await Promise.allSettled([
+        getQueueSnapshot(),
+        getDailySeries(daysParam.value),
+        getWebhookHealthSnapshot(webhookHoursParam.value),
+      ]);
 
-    if (dailyResult.status === "rejected") {
-      issues.push("daily_series_unavailable");
-      safeLogError("Discord metrics daily series failed", dailyResult.reason);
-    }
+      if (queueResult.status === "fulfilled") {
+        queue = queueResult.value;
+      } else {
+        issues.push("queue_snapshot_unavailable");
+        safeLogError("Discord metrics queue snapshot failed", queueResult.reason);
+      }
 
-    const webhookHealth =
-      webhookResult.status === "fulfilled"
-        ? webhookResult.value
-        : {
-            windowHours: webhookHoursParam.value,
-            overallStatus: "unknown" as HealthStatus,
-            channels: {
-              audit_discord: {
-                attempts: 0,
-                successes: 0,
-                failures: 0,
-                successRate: null,
-                status: "unknown" as HealthStatus,
-                lastDeliveredAt: "",
-                lastFailedAt: "",
-              },
-              security_webhook: {
-                attempts: 0,
-                successes: 0,
-                failures: 0,
-                successRate: null,
-                status: "unknown" as HealthStatus,
-                lastDeliveredAt: "",
-                lastFailedAt: "",
-              },
-              security_email: {
-                attempts: 0,
-                successes: 0,
-                failures: 0,
-                successRate: null,
-                status: "unknown" as HealthStatus,
-                lastDeliveredAt: "",
-                lastFailedAt: "",
-              },
-            },
-          };
+      if (dailyResult.status === "fulfilled") {
+        daily = dailyResult.value;
+      } else {
+        issues.push("daily_series_unavailable");
+        safeLogError("Discord metrics daily series failed", dailyResult.reason);
+      }
 
-    if (webhookResult.status === "rejected") {
-      issues.push("webhook_health_unavailable");
-      safeLogError("Discord metrics webhook health failed", webhookResult.reason);
+      if (webhookResult.status === "fulfilled") {
+        webhookHealth = webhookResult.value;
+      } else {
+        issues.push("webhook_health_unavailable");
+        safeLogError("Discord metrics webhook health failed", webhookResult.reason);
+      }
     }
 
     const overallStatus: Exclude<HealthStatus, "unknown"> | "unknown" =
-      issues.length >= 2
+      databaseStatus === "down"
         ? "down"
-        : issues.length > 0 || webhookHealth.overallStatus === "degraded" || webhookHealth.overallStatus === "down"
-          ? "degraded"
-          : "healthy";
+        : issues.length >= 2
+          ? "down"
+          : issues.length > 0 || webhookHealth.overallStatus === "degraded" || webhookHealth.overallStatus === "down"
+            ? "degraded"
+            : "healthy";
 
     return apiOk(
       {
@@ -428,14 +470,14 @@ export async function GET(request: Request) {
         health: {
           overallStatus,
           api: {
-            status: "ok",
+            status: databaseStatus === "up" ? "ok" : "degraded",
             timestamp: new Date().toISOString(),
             uptimeSeconds: Math.round(process.uptime()),
             environment: process.env.NODE_ENV || "unknown",
             version: process.env.APP_VERSION || "1.0.0",
           },
           database: {
-            status: "up",
+            status: databaseStatus,
           },
           issues,
         },

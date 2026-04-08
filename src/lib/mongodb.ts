@@ -1,10 +1,57 @@
 import mongoose from "mongoose";
 
 const MONGODB_URI = process.env.MONGODB_URI ?? "";
+const MONGODB_URI_DIRECT = process.env.MONGODB_URI_DIRECT?.trim() ?? "";
 
 if (!MONGODB_URI) {
   throw new Error("MONGODB_URI is not set in environment variables.");
 }
+
+function isSrvDnsError(error: unknown) {
+  if (!error || typeof error !== "object") return false;
+
+  const maybe = error as {
+    code?: string;
+    syscall?: string;
+    hostname?: string;
+    message?: string;
+    cause?: unknown;
+  };
+
+  const message = String(maybe.message ?? "").toLowerCase();
+  const code = String(maybe.code ?? "").toLowerCase();
+  const syscall = String(maybe.syscall ?? "").toLowerCase();
+  const hostname = String(maybe.hostname ?? "").toLowerCase();
+
+  const directMatch =
+    syscall === "querysrv" ||
+    hostname.includes("_mongodb._tcp") ||
+    message.includes("querysrv") ||
+    message.includes("_mongodb._tcp");
+
+  if (directMatch) return true;
+
+  if (code === "econnrefused" || code === "enotfound" || code === "etimedout" || code === "eai_again") {
+    return message.includes("srv") || message.includes("dns");
+  }
+
+  if (maybe.cause) {
+    return isSrvDnsError(maybe.cause);
+  }
+
+  return false;
+}
+
+function mongoOptions() {
+  return {
+    bufferCommands: false,
+    serverSelectionTimeoutMS: 10_000,
+    connectTimeoutMS: 10_000,
+    socketTimeoutMS: 30_000,
+  };
+}
+
+let loggedDirectFallback = false;
 
 type MongooseCache = {
   conn: typeof mongoose | null;
@@ -25,12 +72,27 @@ export async function connectToDatabase() {
   }
 
   if (!cached.promise) {
-    cached.promise = mongoose.connect(MONGODB_URI, {
-      bufferCommands: false,
-      serverSelectionTimeoutMS: 10_000,
-      connectTimeoutMS: 10_000,
-      socketTimeoutMS: 30_000,
-    });
+    cached.promise = (async () => {
+      try {
+        return await mongoose.connect(MONGODB_URI, mongoOptions());
+      } catch (primaryError) {
+        const canUseDirectFallback =
+          MONGODB_URI.startsWith("mongodb+srv://") &&
+          Boolean(MONGODB_URI_DIRECT) &&
+          isSrvDnsError(primaryError);
+
+        if (!canUseDirectFallback) {
+          throw primaryError;
+        }
+
+        if (!loggedDirectFallback) {
+          loggedDirectFallback = true;
+          console.warn("MongoDB SRV DNS lookup failed; retrying database connection with MONGODB_URI_DIRECT fallback.");
+        }
+
+        return mongoose.connect(MONGODB_URI_DIRECT, mongoOptions());
+      }
+    })();
   }
 
   try {
