@@ -28,6 +28,18 @@ function optionalInt(name: string, fallback: number, min: number, max: number): 
   return Math.max(min, Math.min(max, parsed));
 }
 
+function optionalCsvList(name: string, fallback: string[]): string[] {
+  const raw = cleanEnvValue(process.env[name]);
+  if (!raw) return [...fallback];
+
+  const items = raw
+    .split(",")
+    .map((part) => part.trim().toLowerCase())
+    .filter(Boolean);
+
+  return items.length > 0 ? [...new Set(items)] : [...fallback];
+}
+
 export interface BotConfig {
   botToken: string;
   clientId: string;
@@ -48,6 +60,8 @@ export interface BotConfig {
   transparencyUrl: string;
   headerThumbnailUrl: string;
   vercelProtectionBypass: string;
+  ephemeralCommands: string[];
+  publicCommands: string[];
 }
 
 export function buildConfig(): BotConfig {
@@ -76,6 +90,8 @@ export function buildConfig(): BotConfig {
     transparencyUrl: cleanEnvValue(process.env.BOT_TRANSPARENCY_URL),
     headerThumbnailUrl: cleanEnvValue(process.env.BOT_HEADER_THUMBNAIL_URL),
     vercelProtectionBypass,
+    ephemeralCommands: optionalCsvList("BOT_EPHEMERAL_COMMANDS", ["bot-health"]),
+    publicCommands: optionalCsvList("BOT_PUBLIC_COMMANDS", ["status", "queue", "webhook-health"]),
   };
 
   if (cfg.metricsUrl) {

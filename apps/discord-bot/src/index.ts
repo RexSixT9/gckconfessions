@@ -94,11 +94,11 @@ client.on("interactionCreate", async (interaction) => {
     const errorEmbed = buildErrorEmbed(metricsErrorHint(error), config);
 
     if (interaction.deferred || interaction.replied) {
-      await interaction.editReply({ content: "", embeds: [errorEmbed] });
+      await interaction.editReply({ content: "", embeds: [errorEmbed], components: [] });
       return;
     }
 
-    await interaction.reply({ flags: MessageFlags.Ephemeral, embeds: [errorEmbed] });
+    await interaction.reply({ flags: MessageFlags.Ephemeral, embeds: [errorEmbed], components: [] });
   }
 });
 

@@ -72,3 +72,17 @@ test("rejects invalid DISCORD_METRICS_URL protocol", () => {
     /DISCORD_METRICS_URL must use http:\/\/ or https:\/\//
   );
 });
+
+test("parses command visibility lists from environment", () => {
+  withEnv(
+    {
+      BOT_EPHEMERAL_COMMANDS: "bot-health, queue",
+      BOT_PUBLIC_COMMANDS: "status,webhook-health",
+    },
+    () => {
+      const config = buildConfig();
+      assert.deepEqual(config.ephemeralCommands, ["bot-health", "queue"]);
+      assert.deepEqual(config.publicCommands, ["status", "webhook-health"]);
+    }
+  );
+});

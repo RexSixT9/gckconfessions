@@ -22,7 +22,11 @@ function createInteraction(commandName: string) {
 }
 
 function createDeps() {
-  const config = { defaultGraphDays: 7 };
+  const config = {
+    defaultGraphDays: 7,
+    ephemeralCommands: ["bot-health"],
+    publicCommands: ["status", "queue", "webhook-health"],
+  };
   const state = { runtimeStats: {} };
 
   return {
@@ -49,16 +53,17 @@ function createDeps() {
   };
 }
 
-test("routes /bot-health with normal (public) deferReply", async () => {
+test("routes /bot-health with ephemeral deferReply and no buttons", async () => {
   const interaction = createInteraction("bot-health");
   const deps = createDeps();
 
   await routeCommandInteraction(interaction as any, deps as any);
 
   assert.equal(interaction.deferReplyCalls.length, 1);
-  assert.equal(interaction.deferReplyCalls[0], undefined);
+  assert.equal(interaction.deferReplyCalls[0]?.flags, MessageFlags.Ephemeral);
   assert.equal(interaction.editReplyCalls.length, 1);
   assert.deepEqual(interaction.editReplyCalls[0].embeds, [{ name: "bot-health-embed" }]);
+  assert.deepEqual(interaction.editReplyCalls[0].components, []);
 });
 
 test("routes /status and sends status embed", async () => {
@@ -70,6 +75,7 @@ test("routes /status and sends status embed", async () => {
   assert.equal(interaction.deferReplyCalls.length, 1);
   assert.equal(interaction.editReplyCalls.length, 1);
   assert.deepEqual(interaction.editReplyCalls[0].embeds, [{ name: "status-embed" }]);
+  assert.deepEqual(interaction.editReplyCalls[0].components, [{ type: "buttons" }]);
 });
 
 test("routes /queue and sends queue embed", async () => {
