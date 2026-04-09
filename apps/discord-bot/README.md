@@ -45,7 +45,7 @@ Optional:
 - `BOT_DASHBOARD_URL` (optional link button shown in bot responses)
 - `BOT_TRANSPARENCY_URL` (optional link button shown in bot responses)
 - `BOT_HEADER_THUMBNAIL_URL` (optional thumbnail/logo shown on bot embeds)
-- `VERCEL_PROTECTION_BYPASS` (only when metrics URL points to Vercel security-checkpoint protected deployment)
+- `VERCEL_PROTECTION_BYPASS` (only when metrics URL points to Vercel security-checkpoint protected deployment; set this to your project Protection Bypass for Automation secret, usually shown in Vercel as `VERCEL_AUTOMATION_BYPASS_SECRET`)
 
 Local testing tip:
 

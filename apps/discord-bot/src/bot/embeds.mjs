@@ -271,7 +271,7 @@ export function metricsErrorHint(error) {
     return "Metrics API is rate limiting requests. Increase poll interval or wait briefly.";
   }
   if (text.includes("Vercel Security Checkpoint")) {
-    return "Vercel security checkpoint blocked bot access. Configure VERCEL_PROTECTION_BYPASS.";
+    return "Vercel security checkpoint blocked bot access. Configure VERCEL_PROTECTION_BYPASS (use your VERCEL_AUTOMATION_BYPASS_SECRET value).";
   }
   if (text.toLowerCase().includes("timed out")) {
     return "Metrics request timed out. Check Vercel response time and network egress from Railway.";

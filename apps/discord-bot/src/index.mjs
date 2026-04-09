@@ -175,7 +175,7 @@ client.once("clientReady", async () => {
 
   if (config.metricsUrl.includes("vercel.app") && !config.vercelProtectionBypass) {
     console.warn(
-      "Metrics URL targets Vercel and no VERCEL_PROTECTION_BYPASS is set. Protected deployments may return checkpoint pages."
+      "Metrics URL targets Vercel and no bypass secret is set (VERCEL_PROTECTION_BYPASS or VERCEL_AUTOMATION_BYPASS_SECRET). Protected deployments may return checkpoint pages."
     );
   }
 

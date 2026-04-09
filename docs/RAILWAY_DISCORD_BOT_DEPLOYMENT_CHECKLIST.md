@@ -83,6 +83,8 @@ VERCEL_PROTECTION_BYPASS=
 Free-plan guidance: use BOT_POLL_INTERVAL_MS in the 90000-120000 range to reduce background request volume.
 
 Use VERCEL_PROTECTION_BYPASS only when your metrics URL is behind a Vercel protection checkpoint.
+Set it to the Vercel Protection Bypass for Automation secret from your Vercel project
+(usually shown there as VERCEL_AUTOMATION_BYPASS_SECRET).
 
 ## 6) First boot validation
 
@@ -116,7 +118,7 @@ Use VERCEL_PROTECTION_BYPASS only when your metrics URL is behind a Vercel prote
 
 3. Symptom: Vercel Security Checkpoint error
 - Cause: protected Vercel deployment blocks bot
-- Fix: set VERCEL_PROTECTION_BYPASS or use unprotected internal route access
+- Fix: set VERCEL_PROTECTION_BYPASS to your Vercel Protection Bypass for Automation secret (typically VERCEL_AUTOMATION_BYPASS_SECRET) or use unprotected internal route access
 
 4. Symptom: multiple status board messages
 - Cause: message id changed or bot lacked pin/read history previously

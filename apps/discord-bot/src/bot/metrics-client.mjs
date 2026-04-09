@@ -90,7 +90,7 @@ export async function fetchMetrics(config, state, days = config.defaultGraphDays
 
           if (checkpointBlocked) {
             throw new Error(
-              `Metrics fetch blocked by Vercel Security Checkpoint (${response.status}).${retryPart} Use a local URL for local testing or set VERCEL_PROTECTION_BYPASS when targeting protected Vercel deployments.`
+              `Metrics fetch blocked by Vercel Security Checkpoint (${response.status}).${retryPart} Use a local URL for local testing or set VERCEL_PROTECTION_BYPASS (typically the VERCEL_AUTOMATION_BYPASS_SECRET from your Vercel project) when targeting protected Vercel deployments.`
             );
           }
 

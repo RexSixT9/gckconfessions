@@ -13,7 +13,7 @@ export function buildQuickChartUrl(daily) {
           label: "Daily Submissions",
           data: submissions,
           borderColor: "#a855f7",
-          backgroundColor: "rgba(168,85,247,0.52)",
+          backgroundColor: "rgba(168,85,247,0.32)",
           borderWidth: 3,
           fill: true,
           tension: 0.34,

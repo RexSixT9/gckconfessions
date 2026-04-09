@@ -30,6 +30,9 @@ function optionalInt(name, fallback, min, max) {
 
 export function buildConfig() {
   const errors = [];
+  const vercelProtectionBypass =
+    cleanEnvValue(process.env.VERCEL_PROTECTION_BYPASS) ||
+    cleanEnvValue(process.env.VERCEL_AUTOMATION_BYPASS_SECRET);
 
   const cfg = {
     botToken: requiredEnv("DISCORD_BOT_TOKEN", errors),
@@ -50,7 +53,7 @@ export function buildConfig() {
     dashboardUrl: cleanEnvValue(process.env.BOT_DASHBOARD_URL),
     transparencyUrl: cleanEnvValue(process.env.BOT_TRANSPARENCY_URL),
     headerThumbnailUrl: cleanEnvValue(process.env.BOT_HEADER_THUMBNAIL_URL),
-    vercelProtectionBypass: cleanEnvValue(process.env.VERCEL_PROTECTION_BYPASS),
+    vercelProtectionBypass,
   };
 
   if (cfg.metricsUrl) {

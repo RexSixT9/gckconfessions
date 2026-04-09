@@ -108,7 +108,7 @@ Optional:
 - `BOT_DASHBOARD_URL` (optional link button URL in bot replies)
 - `BOT_TRANSPARENCY_URL` (optional link button URL in bot replies)
 - `BOT_HEADER_THUMBNAIL_URL` (optional logo thumbnail URL in bot embeds)
-- `VERCEL_PROTECTION_BYPASS` (only when metrics URL points to a protected Vercel deployment)
+- `VERCEL_PROTECTION_BYPASS` (only when metrics URL points to a protected Vercel deployment; use the Vercel Protection Bypass for Automation secret, usually exposed there as `VERCEL_AUTOMATION_BYPASS_SECRET`)
 
 ## Deploy on Railway/Render/Fly
 
