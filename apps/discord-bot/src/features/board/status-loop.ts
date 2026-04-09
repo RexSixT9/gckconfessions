@@ -1,3 +1,6 @@
+import type { BotConfig } from "../../bot/config.ts";
+import type { EmbedVariant, MetricsSnapshot, RuntimeState } from "../../bot/types.ts";
+
 interface StatusBoardDeps {
   client: {
     user?: { id?: string } | null;
@@ -5,16 +8,12 @@ interface StatusBoardDeps {
       fetch: (channelId: string) => Promise<any>;
     };
   };
-  config: {
-    statusChannelId: string;
-    defaultGraphDays: number;
-    pollIntervalMs: number;
-  };
-  state: any;
-  fetchMetrics: (config: any, state: any, days: number) => Promise<any>;
-  buildStatusEmbed: (metrics: any, config: any, variant: string) => any;
-  buildNavigationComponents: (config: any) => any;
-  logMetricsError: (state: any, scope: string, error: unknown) => void;
+  config: BotConfig;
+  state: RuntimeState;
+  fetchMetrics: (config: BotConfig, state: RuntimeState, days: number) => Promise<MetricsSnapshot>;
+  buildStatusEmbed: (metrics: MetricsSnapshot, config: BotConfig, variant: EmbedVariant) => any;
+  buildNavigationComponents: (config: BotConfig) => any;
+  logMetricsError: (state: RuntimeState, scope: string, error: unknown) => void;
   isWritableTextChannel: (channel: any) => boolean;
   statusMarker: string;
 }

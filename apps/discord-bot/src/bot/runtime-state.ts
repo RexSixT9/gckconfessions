@@ -1,7 +1,9 @@
 import { METRICS_ERROR_LOG_COOLDOWN_MS } from "./constants.ts";
 import { toIsoTimestamp } from "./helpers.ts";
+import type { BotConfig } from "./config.ts";
+import type { MetricsSnapshot, RealtimePoint, RuntimeState } from "./types.ts";
 
-export function createRuntimeState(config: any): any {
+export function createRuntimeState(config: BotConfig): RuntimeState {
   return {
     isShuttingDown: false,
     shutdownStarted: false,
@@ -47,7 +49,7 @@ export function createRuntimeState(config: any): any {
   };
 }
 
-export function logMetricsError(state: any, scope: string, error: unknown): void {
+export function logMetricsError(state: RuntimeState, scope: string, error: unknown): void {
   const now = Date.now();
   const key = error instanceof Error ? error.message.slice(0, 180) : String(error).slice(0, 180);
   if (key === state.lastMetricsErrorKey && now - state.lastMetricsErrorAt < METRICS_ERROR_LOG_COOLDOWN_MS) {
@@ -59,16 +61,16 @@ export function logMetricsError(state: any, scope: string, error: unknown): void
   console.error(scope, error);
 }
 
-export function trackCommandUsage(state: any, commandName: string): void {
+export function trackCommandUsage(state: RuntimeState, commandName: string): void {
   state.runtimeStats.commands.total += 1;
   state.runtimeStats.commands.lastAt = Date.now();
   state.runtimeStats.commands.byName[commandName] =
     (state.runtimeStats.commands.byName[commandName] || 0) + 1;
 }
 
-export function recordRealtimePoint(state: any, config: any, metrics: any): void {
+export function recordRealtimePoint(state: RuntimeState, config: BotConfig, metrics: MetricsSnapshot): void {
   const queue = metrics?.queue || {};
-  const point = {
+  const point: RealtimePoint = {
     at: toIsoTimestamp(metrics?.generatedAt),
     pending: Number(queue.pending || 0),
     approved: Number(queue.approved || 0),
@@ -88,11 +90,15 @@ export function recordRealtimePoint(state: any, config: any, metrics: any): void
   }
 }
 
-export function historyForChart(state: any, config: any, currentMetrics: any): any[] {
+export function historyForChart(
+  state: RuntimeState,
+  config: BotConfig,
+  currentMetrics: MetricsSnapshot
+): RealtimePoint[] {
   const withCurrent = [...state.realtimeHistory];
   const currentAt = toIsoTimestamp(currentMetrics?.generatedAt);
 
-  if (!withCurrent.some((point: any) => point.at === currentAt)) {
+  if (!withCurrent.some((point) => point.at === currentAt)) {
     const queue = currentMetrics?.queue || {};
     withCurrent.push({
       at: currentAt,

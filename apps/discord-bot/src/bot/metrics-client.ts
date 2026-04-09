@@ -8,6 +8,7 @@ import {
   summarizeBody,
 } from "./helpers.ts";
 import type { BotConfig } from "./config.ts";
+import type { MetricsSnapshot, RuntimeState } from "./types.ts";
 
 const INTERNAL_METRICS_PATH = "/api/internal/discord-metrics";
 
@@ -42,7 +43,11 @@ function fallbackMetricsUrl(primaryUrl: URL): URL | null {
   return fallback;
 }
 
-export async function fetchMetrics(config: BotConfig, state: any, days = config.defaultGraphDays): Promise<any> {
+export async function fetchMetrics(
+  config: BotConfig,
+  state: RuntimeState,
+  days = config.defaultGraphDays
+): Promise<MetricsSnapshot> {
   const fetchStartedAt = Date.now();
   state.runtimeStats.fetch.total += 1;
   state.runtimeStats.fetch.lastAttemptAt = fetchStartedAt;
@@ -157,7 +162,7 @@ export async function fetchMetrics(config: BotConfig, state: any, days = config.
         }
 
         try {
-          const parsed = JSON.parse(bodyText);
+          const parsed = JSON.parse(bodyText) as MetricsSnapshot;
           state.runtimeStats.fetch.successes += 1;
           state.runtimeStats.fetch.consecutiveFailures = 0;
           state.runtimeStats.fetch.lastSuccessAt = Date.now();

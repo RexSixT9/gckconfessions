@@ -1,11 +1,12 @@
 import { EmbedBuilder } from "discord.js";
-import { footerFor, formatBox, withBranding } from "./common.ts";
+import type { BotConfig } from "../config.ts";
+import { footerFor, formatBox, safeDescription, withBranding } from "./common.ts";
 
-export function buildErrorEmbed(message: string, config: any): any {
+export function buildErrorEmbed(message: string, config: BotConfig): EmbedBuilder {
   const embed = new EmbedBuilder()
     .setTitle("⛔ Command Failed")
     .setColor(0xe03131)
-    .setDescription(formatBox(message))
+    .setDescription(safeDescription(formatBox(message)))
     .setFooter({ text: footerFor("command", "Error") })
     .setTimestamp(new Date());
 

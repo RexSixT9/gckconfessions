@@ -1,6 +1,7 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from "discord.js";
+import type { BotConfig } from "../config.ts";
 
-export function buildNavigationComponents(config: any): any[] {
+export function buildNavigationComponents(config: BotConfig): ActionRowBuilder<ButtonBuilder>[] {
   const buttons: ButtonBuilder[] = [];
 
   if (config.dashboardUrl) {
