@@ -97,6 +97,8 @@ export async function fetchMetrics(config, state, days = config.defaultGraphDays
           const fallbackHint =
             endpointMismatchLikely && fallbackUrl && !usingFallbackTarget
               ? ` Detected HTML 404 page; retrying once against ${fallbackUrl.origin}${fallbackUrl.pathname}.`
+              : endpointMismatchLikely
+                ? " Detected HTML 404 page at the metrics endpoint path; ensure the web app running on this host includes /api/internal/discord-metrics."
               : "";
 
           const attemptError = new Error(
@@ -133,6 +135,14 @@ export async function fetchMetrics(config, state, days = config.defaultGraphDays
             );
             fallbackError.tryFallback = true;
             throw fallbackError;
+          }
+
+          if (htmlLike && !fallbackUrl) {
+            throw asNonRetryable(
+              new Error(
+                `Metrics endpoint returned non-JSON content-type: ${contentType || "unknown"}; expected JSON from /api/internal/discord-metrics on this host.`
+              )
+            );
           }
 
           throw asNonRetryable(
