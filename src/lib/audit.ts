@@ -19,7 +19,24 @@ const AUDIT_WEBHOOK_SYNC_ACTIONS = new Set(
     .map((entry) => entry.trim())
     .filter(Boolean)
 );
-const AUDIT_WEBHOOK_SYNC_BUDGET_MS = Number(process.env.AUDIT_WEBHOOK_SYNC_BUDGET_MS ?? 2500);
+const AUDIT_WEBHOOK_TIMEOUT_MS = Number(process.env.AUDIT_WEBHOOK_TIMEOUT_MS ?? 1800);
+const AUDIT_WEBHOOK_MAX_RETRIES = Number(process.env.AUDIT_WEBHOOK_MAX_RETRIES ?? 1);
+const AUDIT_WEBHOOK_BACKOFF_MS = Number(process.env.AUDIT_WEBHOOK_BACKOFF_MS ?? 120);
+
+function calculateAuditWebhookSyncBudgetMs() {
+  const attempts = Math.max(1, Math.floor(AUDIT_WEBHOOK_MAX_RETRIES) + 1);
+  const timeoutMs = Math.max(300, Math.floor(AUDIT_WEBHOOK_TIMEOUT_MS));
+  const backoffMs = Math.max(20, Math.floor(AUDIT_WEBHOOK_BACKOFF_MS));
+  const retryCount = attempts - 1;
+  const totalBackoff = retryCount > 0 ? backoffMs * (2 ** retryCount - 1) : 0;
+
+  // Buffer leaves room for JSON serialization and DB write of delivery status logs.
+  return timeoutMs * attempts + totalBackoff + 750;
+}
+
+const AUDIT_WEBHOOK_SYNC_BUDGET_MS = Number(
+  process.env.AUDIT_WEBHOOK_SYNC_BUDGET_MS ?? calculateAuditWebhookSyncBudgetMs()
+);
 const SECURITY_ALERT_SYNC_BUDGET_MS = Number(process.env.SECURITY_ALERT_SYNC_BUDGET_MS ?? 4500);
 const recentSecurityAlertDeliveries = new Map<string, number>();
 

@@ -381,6 +381,23 @@ function parseDiscordRateLimitMs(headers: Headers) {
   return undefined;
 }
 
+function parseDiscordRateLimitFromBody(bodyText: string) {
+  if (!bodyText) return undefined;
+
+  try {
+    const payload = JSON.parse(bodyText) as { retry_after?: unknown };
+    const retryAfter = Number(payload.retry_after);
+    if (Number.isFinite(retryAfter) && retryAfter >= 0) {
+      // Discord may return retry_after in seconds for some responses.
+      return retryAfter >= 60 ? Math.round(retryAfter) : Math.round(retryAfter * 1000);
+    }
+  } catch {
+    return undefined;
+  }
+
+  return undefined;
+}
+
 async function withRetry(taskName: string, fn: () => Promise<void>, options: RetryOptions) {
   const baseBackoffMs = options.baseBackoffMs ?? 250;
   let attempt = 0;
@@ -600,9 +617,11 @@ async function sendDiscordAuditWebhook(payload: AuditEventDeliveryPayload) {
 
     if (!response.ok) {
       if (response.status === 429 || response.status >= 500) {
+        const responseText = await response.text().catch(() => "");
+        const retryAfterMs = parseDiscordRateLimitMs(response.headers) ?? parseDiscordRateLimitFromBody(responseText);
         throw new RetryableDeliveryError(
           `Discord audit delivery failed with status ${response.status}`,
-          parseDiscordRateLimitMs(response.headers)
+          retryAfterMs
         );
       }
       throw new Error(`Discord audit delivery failed with status ${response.status}`);
