@@ -47,13 +47,15 @@ Optional:
 - `BOT_HEADER_THUMBNAIL_URL` (optional thumbnail/logo shown on bot embeds)
 - `BOT_EPHEMERAL_COMMANDS` (optional CSV list; default `bot-health`)
 - `BOT_PUBLIC_COMMANDS` (optional CSV list; default `status,queue,webhook-health`; takes precedence over ephemeral list)
+- `BOT_BUTTON_COMMANDS` (optional CSV list; default `status`)
 - `VERCEL_PROTECTION_BYPASS` (only when metrics URL points to Vercel security-checkpoint protected deployment; set this to your project Protection Bypass for Automation secret, usually shown in Vercel as `VERCEL_AUTOMATION_BYPASS_SECRET`)
 
 Visibility behavior:
 
 - By default, `bot-health` replies are ephemeral (private to the invoker).
 - By default, `status`, `queue`, and `webhook-health` replies are public.
-- For ephemeral replies, navigation buttons are suppressed to avoid stale/irrelevant components.
+- By default, only `status` replies include navigation buttons.
+- For ephemeral replies and non-button commands, components are cleared to avoid stale/irrelevant buttons.
 - Error paths clear components explicitly so old buttons do not remain when embed state changes.
 
 Local testing tip:

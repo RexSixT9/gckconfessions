@@ -40,5 +40,14 @@ export function componentsForCommand(commandName: string, deps: CommandDeps) {
     return [];
   }
 
+  const normalized = String(commandName || "").trim().toLowerCase();
+  const buttonCommands = Array.isArray(deps.config.buttonCommands)
+    ? deps.config.buttonCommands
+    : ["status"];
+
+  if (!buttonCommands.includes(normalized)) {
+    return [];
+  }
+
   return deps.buildNavigationComponents(deps.config);
 }

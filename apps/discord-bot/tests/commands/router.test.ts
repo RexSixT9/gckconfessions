@@ -26,6 +26,7 @@ function createDeps() {
     defaultGraphDays: 7,
     ephemeralCommands: ["bot-health"],
     publicCommands: ["status", "queue", "webhook-health"],
+    buttonCommands: ["status"],
   };
   const state = { runtimeStats: {} };
 
@@ -87,6 +88,7 @@ test("routes /queue and sends queue embed", async () => {
   assert.equal(interaction.deferReplyCalls.length, 1);
   assert.equal(interaction.editReplyCalls.length, 1);
   assert.deepEqual(interaction.editReplyCalls[0].embeds, [{ name: "queue-embed" }]);
+  assert.deepEqual(interaction.editReplyCalls[0].components, []);
 });
 
 test("routes /webhook-health and sends delivery embed", async () => {
@@ -98,6 +100,7 @@ test("routes /webhook-health and sends delivery embed", async () => {
   assert.equal(interaction.deferReplyCalls.length, 1);
   assert.equal(interaction.editReplyCalls.length, 1);
   assert.deepEqual(interaction.editReplyCalls[0].embeds, [{ name: "webhook-health-embed" }]);
+  assert.deepEqual(interaction.editReplyCalls[0].components, []);
 });
 
 test("unknown command receives ephemeral not-implemented response", async () => {

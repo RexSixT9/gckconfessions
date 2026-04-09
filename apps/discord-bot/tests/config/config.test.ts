@@ -78,11 +78,13 @@ test("parses command visibility lists from environment", () => {
     {
       BOT_EPHEMERAL_COMMANDS: "bot-health, queue",
       BOT_PUBLIC_COMMANDS: "status,webhook-health",
+      BOT_BUTTON_COMMANDS: "status",
     },
     () => {
       const config = buildConfig();
       assert.deepEqual(config.ephemeralCommands, ["bot-health", "queue"]);
       assert.deepEqual(config.publicCommands, ["status", "webhook-health"]);
+      assert.deepEqual(config.buttonCommands, ["status"]);
     }
   );
 });

@@ -62,6 +62,7 @@ export interface BotConfig {
   vercelProtectionBypass: string;
   ephemeralCommands: string[];
   publicCommands: string[];
+  buttonCommands: string[];
 }
 
 export function buildConfig(): BotConfig {
@@ -92,6 +93,7 @@ export function buildConfig(): BotConfig {
     vercelProtectionBypass,
     ephemeralCommands: optionalCsvList("BOT_EPHEMERAL_COMMANDS", ["bot-health"]),
     publicCommands: optionalCsvList("BOT_PUBLIC_COMMANDS", ["status", "queue", "webhook-health"]),
+    buttonCommands: optionalCsvList("BOT_BUTTON_COMMANDS", ["status"]),
   };
 
   if (cfg.metricsUrl) {

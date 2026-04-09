@@ -8,6 +8,7 @@ function createDeps() {
     config: {
       ephemeralCommands: ["bot-health"],
       publicCommands: ["status", "queue", "webhook-health"],
+      buttonCommands: ["status"],
     },
     buildNavigationComponents() {
       return [{ type: "buttons" }];
@@ -44,4 +45,5 @@ test("componentsForCommand suppresses buttons for ephemeral commands", () => {
 
   assert.deepEqual(componentsForCommand("bot-health", deps), []);
   assert.deepEqual(componentsForCommand("status", deps), [{ type: "buttons" }]);
+  assert.deepEqual(componentsForCommand("queue", deps), []);
 });

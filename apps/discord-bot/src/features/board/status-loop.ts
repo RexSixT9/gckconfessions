@@ -90,7 +90,7 @@ export function createStatusBoardLoop(deps: StatusBoardDeps) {
     const metrics = await fetchMetrics(config, state, config.defaultGraphDays);
     const payload = {
       embeds: [buildStatusEmbed(metrics, config, "board")],
-      components: buildNavigationComponents(config),
+      components: [],
     };
     const editPayload = {
       content: null,
