@@ -1,6 +1,6 @@
 import { ChannelType, REST, Routes } from "discord.js";
 
-export function memberHasOwnerRole(interaction, ownerRoleId) {
+export function memberHasOwnerRole(interaction: any, ownerRoleId: string): boolean {
   if (!ownerRoleId) return false;
 
   const member = interaction.member;
@@ -18,7 +18,7 @@ export function memberHasOwnerRole(interaction, ownerRoleId) {
   return false;
 }
 
-export function isWritableTextChannel(channel) {
+export function isWritableTextChannel(channel: any): boolean {
   return (
     channel &&
     (channel.type === ChannelType.GuildText || channel.type === ChannelType.GuildAnnouncement) &&
@@ -26,7 +26,7 @@ export function isWritableTextChannel(channel) {
   );
 }
 
-export async function registerSlashCommands(config, slashCommands) {
+export async function registerSlashCommands(config: any, slashCommands: any[]): Promise<void> {
   const rest = new REST({ version: "10" }).setToken(config.botToken);
   await rest.put(Routes.applicationGuildCommands(config.clientId, config.guildId), {
     body: slashCommands.map((command) => command.toJSON()),

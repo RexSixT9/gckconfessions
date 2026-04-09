@@ -1,6 +1,6 @@
-import { MAX_EMBED_IMAGE_URL_LENGTH } from "./constants.mjs";
+import { MAX_EMBED_IMAGE_URL_LENGTH } from "./constants.ts";
 
-export function buildQuickChartUrl(daily) {
+export function buildQuickChartUrl(daily: any[]): string {
   const labels = daily.map((point) => point.day.slice(5));
   const submissions = daily.map((point) => point.submissions);
 
@@ -54,7 +54,7 @@ export function buildQuickChartUrl(daily) {
   return url.length <= MAX_EMBED_IMAGE_URL_LENGTH ? url : "";
 }
 
-export function buildRealtimeQueueChartUrl(points) {
+export function buildRealtimeQueueChartUrl(points: any[]): string {
   const labels = points.map((point) => {
     const date = new Date(point.at);
     return date.toISOString().slice(11, 16);

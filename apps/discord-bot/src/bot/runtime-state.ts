@@ -1,7 +1,7 @@
-import { METRICS_ERROR_LOG_COOLDOWN_MS } from "./constants.mjs";
-import { toIsoTimestamp } from "./helpers.mjs";
+import { METRICS_ERROR_LOG_COOLDOWN_MS } from "./constants.ts";
+import { toIsoTimestamp } from "./helpers.ts";
 
-export function createRuntimeState(config) {
+export function createRuntimeState(config: any): any {
   return {
     isShuttingDown: false,
     shutdownStarted: false,
@@ -47,7 +47,7 @@ export function createRuntimeState(config) {
   };
 }
 
-export function logMetricsError(state, scope, error) {
+export function logMetricsError(state: any, scope: string, error: unknown): void {
   const now = Date.now();
   const key = error instanceof Error ? error.message.slice(0, 180) : String(error).slice(0, 180);
   if (key === state.lastMetricsErrorKey && now - state.lastMetricsErrorAt < METRICS_ERROR_LOG_COOLDOWN_MS) {
@@ -59,14 +59,14 @@ export function logMetricsError(state, scope, error) {
   console.error(scope, error);
 }
 
-export function trackCommandUsage(state, commandName) {
+export function trackCommandUsage(state: any, commandName: string): void {
   state.runtimeStats.commands.total += 1;
   state.runtimeStats.commands.lastAt = Date.now();
   state.runtimeStats.commands.byName[commandName] =
     (state.runtimeStats.commands.byName[commandName] || 0) + 1;
 }
 
-export function recordRealtimePoint(state, config, metrics) {
+export function recordRealtimePoint(state: any, config: any, metrics: any): void {
   const queue = metrics?.queue || {};
   const point = {
     at: toIsoTimestamp(metrics?.generatedAt),
@@ -88,11 +88,11 @@ export function recordRealtimePoint(state, config, metrics) {
   }
 }
 
-export function historyForChart(state, config, currentMetrics) {
+export function historyForChart(state: any, config: any, currentMetrics: any): any[] {
   const withCurrent = [...state.realtimeHistory];
   const currentAt = toIsoTimestamp(currentMetrics?.generatedAt);
 
-  if (!withCurrent.some((point) => point.at === currentAt)) {
+  if (!withCurrent.some((point: any) => point.at === currentAt)) {
     const queue = currentMetrics?.queue || {};
     withCurrent.push({
       at: currentAt,

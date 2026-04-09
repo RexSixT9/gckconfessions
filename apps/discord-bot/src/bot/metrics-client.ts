@@ -6,16 +6,22 @@ import {
   retryDelayMs,
   sleep,
   summarizeBody,
-} from "./helpers.mjs";
+} from "./helpers.ts";
+import type { BotConfig } from "./config.ts";
 
 const INTERNAL_METRICS_PATH = "/api/internal/discord-metrics";
 
-function normalizePathname(pathname) {
+type RetryableError = Error & {
+  nonRetryable?: boolean;
+  tryFallback?: boolean;
+};
+
+function normalizePathname(pathname: string): string {
   if (!pathname || pathname === "/") return "/";
   return pathname.endsWith("/") ? pathname.slice(0, -1) : pathname;
 }
 
-function isLikelyHtmlResponse(contentType, bodyText) {
+function isLikelyHtmlResponse(contentType: string, bodyText: string): boolean {
   const normalizedContentType = (contentType || "").toLowerCase();
   const trimmedBody = String(bodyText || "").trimStart();
 
@@ -26,7 +32,7 @@ function isLikelyHtmlResponse(contentType, bodyText) {
   );
 }
 
-function fallbackMetricsUrl(primaryUrl) {
+function fallbackMetricsUrl(primaryUrl: URL): URL | null {
   if (normalizePathname(primaryUrl.pathname) === INTERNAL_METRICS_PATH) {
     return null;
   }
@@ -36,7 +42,7 @@ function fallbackMetricsUrl(primaryUrl) {
   return fallback;
 }
 
-export async function fetchMetrics(config, state, days = config.defaultGraphDays) {
+export async function fetchMetrics(config: BotConfig, state: any, days = config.defaultGraphDays): Promise<any> {
   const fetchStartedAt = Date.now();
   state.runtimeStats.fetch.total += 1;
   state.runtimeStats.fetch.lastAttemptAt = fetchStartedAt;
@@ -48,7 +54,7 @@ export async function fetchMetrics(config, state, days = config.defaultGraphDays
   const fallbackUrl = fallbackMetricsUrl(url);
   const targets = fallbackUrl ? [url, fallbackUrl] : [url];
 
-  const headers = {
+  const headers: Record<string, string> = {
     "x-discord-metrics-secret": config.metricsSecret,
     accept: "application/json",
     "user-agent": "gck-discord-bot/0.1",
@@ -58,7 +64,7 @@ export async function fetchMetrics(config, state, days = config.defaultGraphDays
     headers["x-vercel-protection-bypass"] = config.vercelProtectionBypass;
   }
 
-  let lastError = null;
+  let lastError: unknown = null;
 
   for (let targetIndex = 0; targetIndex < targets.length; targetIndex += 1) {
     const targetUrl = targets[targetIndex];
@@ -99,14 +105,14 @@ export async function fetchMetrics(config, state, days = config.defaultGraphDays
               ? ` Detected HTML 404 page; retrying once against ${fallbackUrl.origin}${fallbackUrl.pathname}.`
               : endpointMismatchLikely
                 ? " Detected HTML 404 page at the metrics endpoint path; ensure the web app running on this host includes /api/internal/discord-metrics."
-              : "";
+                : "";
 
           const attemptError = new Error(
             `Metrics fetch failed (${response.status}) on attempt ${attempt}/${config.metricsRetryAttempts}.${retryPart} body=${summarizeBody(bodyText)}${fallbackHint}`
           );
 
           if (endpointMismatchLikely && fallbackUrl && !usingFallbackTarget) {
-            const fallbackError = asNonRetryable(attemptError);
+            const fallbackError = asNonRetryable(attemptError) as RetryableError;
             fallbackError.tryFallback = true;
             throw fallbackError;
           }
@@ -132,7 +138,7 @@ export async function fetchMetrics(config, state, days = config.defaultGraphDays
               new Error(
                 `Metrics endpoint returned non-JSON content-type: ${contentType || "unknown"}; retrying once against ${fallbackUrl.origin}${fallbackUrl.pathname}.`
               )
-            );
+            ) as RetryableError;
             fallbackError.tryFallback = true;
             throw fallbackError;
           }
@@ -162,14 +168,15 @@ export async function fetchMetrics(config, state, days = config.defaultGraphDays
           throw asNonRetryable(new Error("Metrics endpoint response was not valid JSON."));
         }
       } catch (error) {
-        const timedOut = error instanceof Error && error.name === "AbortError";
-        const attemptError = timedOut
+        const typedError = error as RetryableError;
+        const timedOut = typedError instanceof Error && typedError.name === "AbortError";
+        const attemptError: RetryableError = timedOut
           ? new Error(
               `Metrics fetch timed out after ${config.metricsTimeoutMs}ms (attempt ${attempt}/${config.metricsRetryAttempts}).`
             )
-          : error && typeof error === "object" && error.nonRetryable === true
-            ? error
-            : normalizeFetchNetworkError(error, targetUrl);
+          : typedError && typeof typedError === "object" && typedError.nonRetryable === true
+            ? typedError
+            : (normalizeFetchNetworkError(typedError, targetUrl) as RetryableError);
 
         const shouldTryFallback =
           Boolean(fallbackUrl) &&

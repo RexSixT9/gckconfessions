@@ -127,11 +127,10 @@ Optional:
 ## Validation checklist
 
 1. Run `/status` and confirm health + queue stats + realtime queue graph appear.
-2. Run `/bot-health` and confirm scheduler/retry counters are visible.
+2. Run `/bot-health` and confirm scheduler/retry counters are visible and the response is a normal channel message (owner-only command, admin-deletable).
 3. Run `/queue` and confirm pending/approved/rejected numbers.
-4. Run `/graph` and confirm chart image loads.
-5. Run `/webhook-health` and confirm channel statuses.
-6. Remove owner role and confirm command is denied.
+4. Run `/webhook-health` and confirm channel statuses.
+5. Remove owner role and confirm command is denied.
 
 ## Common first-time issues
 

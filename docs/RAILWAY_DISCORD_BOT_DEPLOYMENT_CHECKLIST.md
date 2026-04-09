@@ -96,7 +96,6 @@ Set it to the Vercel Protection Bypass for Automation secret from your Vercel pr
   - /bot-health
   - /status
   - /queue
-  - /graph days:7
   - /webhook-health
 
 ## 7) Runtime acceptance criteria

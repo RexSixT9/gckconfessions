@@ -1,4 +1,4 @@
-function cleanEnvValue(raw) {
+function cleanEnvValue(raw: unknown): string {
   if (typeof raw !== "string") return "";
   const trimmed = raw.trim();
   if (
@@ -10,7 +10,7 @@ function cleanEnvValue(raw) {
   return trimmed;
 }
 
-function requiredEnv(name, errors) {
+function requiredEnv(name: string, errors: string[]): string {
   const value = cleanEnvValue(process.env[name]);
   if (!value) {
     errors.push(`Missing required env var: ${name}`);
@@ -19,7 +19,7 @@ function requiredEnv(name, errors) {
   return value;
 }
 
-function optionalInt(name, fallback, min, max) {
+function optionalInt(name: string, fallback: number, min: number, max: number): number {
   const raw = cleanEnvValue(process.env[name]);
   if (!raw) return fallback;
 
@@ -28,13 +28,35 @@ function optionalInt(name, fallback, min, max) {
   return Math.max(min, Math.min(max, parsed));
 }
 
-export function buildConfig() {
-  const errors = [];
+export interface BotConfig {
+  botToken: string;
+  clientId: string;
+  guildId: string;
+  ownerRoleId: string;
+  statusChannelId: string;
+  statusMessageId: string;
+  metricsUrl: string;
+  metricsSecret: string;
+  pollIntervalMs: number;
+  defaultGraphDays: number;
+  webhookWindowHours: number;
+  metricsTimeoutMs: number;
+  metricsRetryAttempts: number;
+  metricsRetryBaseMs: number;
+  realtimeHistoryPoints: number;
+  dashboardUrl: string;
+  transparencyUrl: string;
+  headerThumbnailUrl: string;
+  vercelProtectionBypass: string;
+}
+
+export function buildConfig(): BotConfig {
+  const errors: string[] = [];
   const vercelProtectionBypass =
     cleanEnvValue(process.env.VERCEL_PROTECTION_BYPASS) ||
     cleanEnvValue(process.env.VERCEL_AUTOMATION_BYPASS_SECRET);
 
-  const cfg = {
+  const cfg: BotConfig = {
     botToken: requiredEnv("DISCORD_BOT_TOKEN", errors),
     clientId: requiredEnv("DISCORD_CLIENT_ID", errors),
     guildId: requiredEnv("DISCORD_GUILD_ID", errors),
@@ -72,7 +94,7 @@ export function buildConfig() {
     ["BOT_DASHBOARD_URL", cfg.dashboardUrl],
     ["BOT_TRANSPARENCY_URL", cfg.transparencyUrl],
     ["BOT_HEADER_THUMBNAIL_URL", cfg.headerThumbnailUrl],
-  ]) {
+  ] as const) {
     if (!value) continue;
 
     try {

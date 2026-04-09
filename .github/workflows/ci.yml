@@ -33,6 +33,15 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Install bot dependencies
+        run: npm --prefix apps/discord-bot ci
+
+      - name: Bot typecheck
+        run: npm run bot:typecheck
+
+      - name: Bot tests
+        run: npm run bot:test
+
       - name: Security audit
         run: npm audit --audit-level=high
 

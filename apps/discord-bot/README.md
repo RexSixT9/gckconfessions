@@ -57,6 +57,13 @@ Local testing tip:
 npm run dev
 ```
 
+## 3.1) Typecheck and tests
+
+```bash
+npm run typecheck
+npm test
+```
+
 ## 4) Deploy (Railway/Render/Fly)
 
 - Create a new service from `apps/discord-bot`.
@@ -75,15 +82,21 @@ npm run dev
 
 ## Code structure
 
-- `src/index.mjs`: thin runtime entrypoint and orchestration.
-- `src/bot/config.mjs`: env parsing and startup config validation.
-- `src/bot/commands.mjs`: slash command definitions.
-- `src/bot/metrics-client.mjs`: metrics endpoint fetch + retry/backoff logic.
-- `src/bot/embeds.mjs`: all Discord embed and response presentation.
-- `src/bot/runtime-state.mjs`: mutable runtime state and counters.
-- `src/bot/helpers.mjs`: shared formatting/time/network helper utilities.
-- `src/bot/discord-runtime.mjs`: Discord-specific helpers (role checks, registration).
-- `src/bot/charts.mjs`: QuickChart URL builders.
+- `src/index.ts`: runtime bootstrap and top-level event wiring.
+- `src/features/board/status-loop.ts`: status board scheduler, message discovery/recovery, and board updates.
+- `src/features/commands/router.ts`: slash-command routing.
+- `src/features/commands/handlers/*.ts`: per-command handlers (`status`, `queue`, `bot-health`, `webhook-health`).
+- `src/bot/config.ts`: env parsing and startup config validation.
+- `src/bot/commands.ts`: slash command definitions.
+- `src/bot/metrics-client.ts`: metrics endpoint fetch + retry/backoff logic.
+- `src/bot/embeds.ts`: barrel for embed builders.
+- `src/bot/embeds/*.ts`: focused embed modules (`status`, `queue`, `webhook-health`, `realtime`, `graph`, `bot-health`, `error`, `navigation`, `common`).
+- `src/bot/runtime-state.ts`: mutable runtime state and counters.
+- `src/bot/helpers.ts`: barrel for helper utilities.
+- `src/bot/helpers/*.ts`: domain helper modules (`retry`, `network`, `health`, `time`, `formatting`).
+- `src/bot/discord-runtime.ts`: Discord-specific helpers (role checks, registration).
+- `src/bot/charts.ts`: QuickChart URL builders.
+- `src/bot/constants.ts`: shared runtime constants.
 
 ## Discord permission checklist
 
